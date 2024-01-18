@@ -15,15 +15,17 @@ function AstroView({ target }) {
   }, [target]);
 
   return (
-    <iframe
-      ref={iframeRef}
-      src={`https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html?search=${target}`}
-      width="100%"
-      height="100%"
-      title="AstroView"
-      frameBorder="0"
-      style={{ border: "none" }}
-    ></iframe>
+    <div style={{ width: "100%", height: "100%", position: "relative" }}>
+      <iframe
+        ref={iframeRef}
+        src={`https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html?search=${target}`}
+        width="100%"
+        height="100%"
+        title="AstroView"
+        frameBorder="0"
+        style={{ border: "none", position: "absolute", top: 0, left: 0 }}
+      ></iframe>
+    </div>
   );
 }
 

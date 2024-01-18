@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSpring, animated } from "react-spring";
 import Header from "./Header";
 import AstroView from "./AstroView";
 import { Sun, Moon } from "lucide-react";
@@ -34,24 +35,30 @@ function MainView() {
     };
   }, [handleMouseMove]);
 
+  const spotlightSpring = useSpring({
+    left: spotlightPosition.x,
+    top: spotlightPosition.y,
+    config: { tension: 500, friction: 40 },
+  });
+
+  const astroViewSpring = useSpring({
+    opacity: showAstroView ? 1 : 0,
+    transform: showAstroView ? "translateY(0%)" : "translateY(100%)",
+    config: { tension: 300, friction: 26 },
+  });
+
   return (
     <div className="App">
-      <div
-        className="spotlight"
-        style={{
-          left: `${spotlightPosition.x}px`,
-          top: `${spotlightPosition.y}px`,
-        }}
-      />
+      <animated.div className="spotlight" style={spotlightSpring} />
       <Header query={query} setQuery={setQuery} handleSearch={handleSearch} />
       <div className="content">{/* Main content, search results, etc. */}</div>
       <button className="astroview-toggle" onClick={toggleAstroView}>
         {showAstroView ? "Hide AstroView" : "Show AstroView"}
       </button>
       {showAstroView && (
-        <div className="astroview-container">
+        <animated.div className="astroview-container" style={astroViewSpring}>
           <AstroView target={target} />
-        </div>
+        </animated.div>
       )}
       <button className="theme-toggle" onClick={toggleTheme}>
         {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
