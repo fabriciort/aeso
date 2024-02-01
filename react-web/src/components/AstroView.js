@@ -15,7 +15,7 @@ function AstroView({ target }) {
   }, [target]);
 
   return (
-    <div style={{ width: "100%", height: "100%", position: "relative" }}>
+    <div className="astroview-iframe-container">
       <iframe
         ref={iframeRef}
         src={`https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html?search=${target}`}
@@ -23,6 +23,7 @@ function AstroView({ target }) {
         height="100%"
         title="AstroView"
         frameBorder="0"
+        className="astroview-iframe"
         style={{ border: "none", position: "absolute", top: 0, left: 0 }}
       ></iframe>
     </div>

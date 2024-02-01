@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import AstroView from "./AstroView";
-import { Sun, Moon, Search } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 
 function MainView() {
   const [query, setQuery] = useState("");
@@ -20,6 +20,12 @@ function MainView() {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     document.body.classList.toggle("dark-mode");
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setShowAstroView(false);
+    }
   };
 
   useEffect(() => {
@@ -52,7 +58,7 @@ function MainView() {
         {showAstroView ? "Hide AstroView" : "Show AstroView"}
       </button>
       {showAstroView && (
-        <div className="astroview-overlay active">
+        <div className="astroview-overlay active" onClick={handleOverlayClick}>
           <div className="astroview-container glass-card">
             <AstroView target={target} />
           </div>
