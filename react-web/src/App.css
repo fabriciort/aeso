@@ -1,12 +1,14 @@
 :root {
   --bg-light: #f0f4f8;
   --text-light: #1a202c;
-  --bg-dark: #0f172a;
-  --text-dark: #f1f5f9;
+  --bg-dark: #111111;
+  --text-dark: #e0e0e0;
   --accent-color: #6d28d9;
-  --accent-color-dark: #5b21b6;
-  --gradient-1: #6d28d9;
-  --gradient-2: #4c1d95;
+  --accent-color-dark: #8b5cf6;
+  --card-bg-light: rgba(255, 255, 255, 0.1);
+  --card-bg-dark: rgba(30, 30, 30, 0.6);
+  --card-border-light: rgba(255, 255, 255, 0.1);
+  --card-border-dark: rgba(50, 50, 50, 0.5);
 }
 
 body {
@@ -39,23 +41,31 @@ body.dark-mode {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, var(--gradient-1), var(--gradient-2));
-  opacity: 0.1;
+  background: linear-gradient(
+    45deg,
+    var(--accent-color),
+    var(--accent-color-dark)
+  );
+  opacity: 0.05;
   z-index: -1;
 }
 
+.dark-mode .background-gradient {
+  opacity: 0.02;
+}
+
 .glass-header {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--card-bg-light);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--card-border-light);
   padding: 2rem;
   color: var(--text-light);
   text-align: center;
 }
 
 .dark-mode .glass-header {
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(25, 25, 25, 0.8);
+  border-bottom: 1px solid var(--card-border-dark);
   color: var(--text-dark);
 }
 
@@ -77,16 +87,16 @@ header h1 {
 .search-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 16px;
   border: none;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text-light);
   transition: all 0.3s ease;
 }
 
 .dark-mode .search-input {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(40, 40, 40, 0.8);
   color: var(--text-dark);
 }
 
@@ -95,12 +105,16 @@ header h1 {
 }
 
 .dark-mode .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .search-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.3);
+  box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.4);
+}
+
+.dark-mode .search-input:focus {
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.4);
 }
 
 .search-button {
@@ -133,23 +147,30 @@ header h1 {
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--card-bg-light);
   backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  padding: 0.8rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border-light);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .dark-mode .glass-card {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg-dark);
+  border: 1px solid var(--card-border-dark);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .glass-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .glass-card:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
 }
 
 .astroview-overlay {
@@ -175,79 +196,129 @@ header h1 {
   width: 90%;
   height: 80%;
   max-width: 1200px;
-  border-radius: 1.2rem;
+  border-radius: 12px;
   overflow: hidden;
   transform: scale(0.9);
   transition: all 0.3s ease;
+  position: relative;
+  background: var(--card-bg-light);
+  border: 1px solid var(--card-border-light);
+}
+
+.dark-mode .astroview-container {
+  background: var(--card-bg-dark);
+  border: 1px solid var(--card-border-dark);
 }
 
 .astroview-overlay.active .astroview-container {
   transform: scale(1);
 }
 
-.floating-button {
-  position: fixed;
-  border: none;
-  border-radius: 9999px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: rgba(109, 40, 217, 0.8);
-  color: white;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.floating-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-}
-
-.astroview-toggle {
-  bottom: 2rem;
-  right: 2rem;
-  padding: 0.75rem 1.5rem;
-}
-
-.theme-toggle {
-  top: 1rem;
-  right: 1rem;
-  padding: 0.75rem;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(109, 40, 217, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(109, 40, 217, 0);
-  }
-}
-
-.floating-button:focus {
-  outline: none;
-  animation: pulse 1.5s infinite;
-}
-
 .astroview-iframe-container {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: 1.2rem; /* Ajuste o valor conforme necessário */
+  border-radius: 12px;
   position: relative;
 }
 
 .astroview-iframe {
   width: 100%;
   height: 100%;
-  border: none; /* Remova qualquer borda padrão do iframe */
-  border-radius: 1.2rem; /* Ajuste o valor conforme necessário */
+  border: none;
+  border-radius: 12px;
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.floating-button {
+  position: fixed;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--accent-color);
+  color: white;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  padding: 0.75rem 1.25rem;
+}
+
+.dark-mode .floating-button {
+  background: var(--accent-color-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.floating-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .floating-button:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.astroview-toggle {
+  bottom: 2rem;
+  right: 2rem;
+}
+
+.theme-toggle {
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+@keyframes subtle-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(139, 92, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+  }
+}
+
+.floating-button:focus {
+  outline: none;
+  animation: subtle-pulse 2s infinite;
+}
+
+/* Subtle light effect */
+.glass-card::before,
+.astroview-container::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0) 50%
+  );
+  transform: rotate(30deg);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.dark-mode .glass-card::before,
+.dark-mode .astroview-container::before {
+  background: radial-gradient(
+    circle,
+    rgba(139, 92, 246, 0.05) 0%,
+    rgba(139, 92, 246, 0.025) 25%,
+    rgba(139, 92, 246, 0) 50%
+  );
+  opacity: 0.3;
 }
 
 @media (max-width: 768px) {
@@ -260,10 +331,10 @@ header h1 {
   }
 
   .astroview-container {
-    width: 85%;
-    height: 70%;
-    margin: 0 15px;
-    border-radius: 2rem;
+    width: 95%;
+    height: 80%;
+    max-height: 80vh;
+    margin: 0 auto;
   }
 }
 
@@ -279,12 +350,12 @@ header h1 {
   .astroview-container {
     width: 100%;
     height: 80%;
-    border-radius: 2rem 2rem 0 0;
+    max-height: 80vh;
+    margin: 1rem;
   }
 
   .astroview-toggle {
     bottom: 1rem;
     right: 1rem;
-    padding: 0.5rem 1rem;
   }
 }
