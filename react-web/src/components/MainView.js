@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import AstroView from "./AstroView";
+import Card from "./Card";
 import { Sun, Moon } from "lucide-react";
 
 function MainView() {
@@ -46,10 +47,24 @@ function MainView() {
       <div className="background-gradient"></div>
       <Header query={query} setQuery={setQuery} handleSearch={handleSearch} />
       <main className="content">
-        <div className="glass-card">
-          <h2>Welcome to MAST Viewer</h2>
-          <p>Explore the cosmos with our advanced tools and data.</p>
-        </div>
+        <Card
+          title="Welcome to MAST Viewer"
+          description="Explore the cosmos with our advanced tools and data."
+          link="#"
+          image="/api/placeholder/400/200"
+        />
+        <Card
+          title="Latest Blog Posts"
+          description="Stay updated with the latest astronomical discoveries and MAST news."
+          link="#"
+          image="/api/placeholder/400/200"
+        />
+        <Card
+          title="My Data"
+          description="Access and manage your personal MAST data and observations."
+          link="#"
+          image="/api/placeholder/400/200"
+        />
       </main>
       <button
         className="floating-button astroview-toggle"

@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 function Header({ query, setQuery, handleSearch }) {
   return (
     <header className="glass-header">
-      <h1>MAST Viewer</h1>
+      <h1>M.A.S.T. Viewer</h1>
       <div className="search-container">
         <input
           type="text"
