@@ -1,4 +1,3 @@
-// src/api/mast.js
 const MAST_API_URL = "https://mast.stsci.edu/api/v0.1/";
 
 export async function searchMast(query) {

@@ -51,19 +51,19 @@ function MainView() {
           title="Welcome to MAST Viewer"
           description="Explore the cosmos with our advanced tools and data."
           link="#"
-          image="/api/placeholder/400/200"
+          image="mast_welcome.jpeg"
         />
         <Card
           title="Latest Blog Posts"
           description="Stay updated with the latest astronomical discoveries and MAST news."
           link="#"
-          image="/api/placeholder/400/200"
+          image="blog.jpg"
         />
         <Card
           title="My Data"
           description="Access and manage your personal MAST data and observations."
           link="#"
-          image="/api/placeholder/400/200"
+          image="data.jpg"
         />
       </main>
       <button
