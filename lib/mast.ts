@@ -12,6 +12,15 @@ export interface ObjectData {
   }
 }
 
+export interface ObservationData {
+  obs_id: string
+  instrument_name: string
+  filters: string
+  t_exptime: number
+  dataURL: string
+  productType: string
+}
+
 export async function getObjectData(objectName: string): Promise<ObjectData | null> {
   try {
     const response = await fetch(`${MAST_API_URL}/invoke/Mast.Name.Lookup`, {
@@ -64,4 +73,39 @@ function formatDec(dec: number): string {
   const minutes = Math.floor((absDec - degrees) * 60)
   const seconds = ((absDec - degrees - minutes / 60) * 3600).toFixed(1)
   return `${sign}${degrees}° ${minutes}' ${seconds}"`
-} 
+}
+
+export async function getObservationsByCoordinates(ra: number, dec: number, radius: number): Promise<ObservationData[] | null> {
+  try {
+    const response = await fetch(`${MAST_API_URL}/invoke/Mast.Caom.Cone`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ra,
+        dec,
+        radius,
+        format: 'json'
+      })
+    })
+
+    if (!response.ok) throw new Error('Falha na busca de observações')
+
+    const data = await response.json()
+    if (!data?.data) return [] // Return empty array if no data
+
+    // Assuming data.data is an array of observations
+    return data.data.map((obs: any) => ({
+      obs_id: obs.obsid,
+      instrument_name: obs.instrument_name,
+      filters: obs.filters,
+      t_exptime: obs.t_exptime,
+      dataURL: obs.dataURL,
+      productType: obs.dataproduct_type // Corrected field name based on typical MAST responses
+    }))
+  } catch (error) {
+    console.error('Erro ao buscar observações:', error)
+    return null
+  }
+}

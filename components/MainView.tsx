@@ -1,23 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import Header from './Header'
-import AstroView from './AstroView'
 import Card from './Card'
 import MetamorphicSearchBar from './MetaMearchBar'
 
 export default function MainView() {
-  const [showAstroView, setShowAstroView] = useState(false)
-  const [target, setTarget] = useState('M51')
-
-  const handleShowAstroView = () => {
-    setShowAstroView(true)
-  }
-
-  const handleCloseAstroView = () => {
-    setShowAstroView(false)
-  }
-
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-900">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -49,25 +36,7 @@ export default function MainView() {
             image="data_card.jpeg"
           />
         </main>
-
-        <div className="sticky bottom-8 w-full max-w-7xl mx-auto px-4">
-          <div className="flex justify-end">
-            <button
-              onClick={handleShowAstroView}
-              className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg shadow-lg transition-all"
-            >
-              Show MAST Portal
-            </button>
-          </div>
-        </div>
-
-        {showAstroView && target && (
-          <AstroView 
-            target={target} 
-            onClose={handleCloseAstroView}
-          />
-        )}
       </div>
     </div>
   )
-} 
+}

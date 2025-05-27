@@ -4,15 +4,9 @@ import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, ChevronDown, ChevronUp, ExternalLink, Settings } from 'lucide-react'
 import { Skeleton } from "@/components/ui/skeleton"
+import { getObjectData, getObservationsByCoordinates, ObjectData, ObservationData } from '../../lib/mast'
 
 type SearchMode = 'default' | 'loading' | 'results'
-type DataPackage = {
-  id: string
-  title: string
-  type: string
-  size: string
-  date: string
-}
 
 function AstroViewEmbed({ target }: { target: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -117,10 +111,14 @@ function MastPortal({ target, onClose }: { target: string; onClose: () => void }
 export default function MetamorphicSearchBar() {
   const [searchTerm, setSearchTerm] = useState('')
   const [mode, setMode] = useState<SearchMode>('default')
-  const [expandedPackage, setExpandedPackage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showMastPortal, setShowMastPortal] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const [objectDetails, setObjectDetails] = useState<ObjectData | null>(null)
+  const [observationResults, setObservationResults] = useState<ObservationData[]>([])
+  const [expandedObservationId, setExpandedObservationId] = useState<string | null>(null)
+  const [searchError, setSearchError] = useState<string | null>(null)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -128,23 +126,36 @@ export default function MetamorphicSearchBar() {
 
     setMode('loading')
     setIsLoading(true)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    setIsLoading(false)
-    setMode('results')
+    setObjectDetails(null)
+    setObservationResults([])
+    setSearchError(null)
+
+    try {
+      const basicData = await getObjectData(searchTerm)
+
+      if (basicData && typeof basicData.ra === 'number' && typeof basicData.dec === 'number') {
+        setObjectDetails(basicData)
+        const observations = await getObservationsByCoordinates(basicData.ra, basicData.dec, 0.1) // Using 0.1 as radius
+        if (observations) {
+          setObservationResults(observations)
+        }
+        setMode('results')
+      } else {
+        setSearchError("Object not found or could not be resolved. Please try a different name.")
+        setMode('default')
+      }
+    } catch (error) {
+      console.error("Search failed:", error)
+      setSearchError("An error occurred while fetching data. Please try again.")
+      setMode('default')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const togglePackage = (id: string) => {
-    setExpandedPackage(expandedPackage === id ? null : id)
+  const toggleObservation = (obsId: string) => {
+    setExpandedObservationId(expandedObservationId === obsId ? null : obsId)
   }
-
-  const mockDataPackages: DataPackage[] = [
-    { id: '1', title: 'HST/ACS Observation', type: 'FITS', size: '2.3 GB', date: '2024-01-15' },
-    { id: '2', title: 'JWST Spectral Data', type: 'FITS', size: '1.8 GB', date: '2024-01-14' },
-    { id: '3', title: 'Radio Observations', type: 'FITS', size: '3.1 GB', date: '2024-01-13' },
-  ]
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -178,6 +189,7 @@ export default function MetamorphicSearchBar() {
               onClick={() => {
                 setSearchTerm('')
                 setMode('default')
+                setSearchError(null) // Clear error when search term is cleared
               }}
               className="text-zinc-400 hover:text-zinc-600 
                          dark:text-zinc-500 dark:hover:text-zinc-300 
@@ -187,6 +199,16 @@ export default function MetamorphicSearchBar() {
             </button>
           )}
         </form>
+
+        {searchError && mode === 'default' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 text-center text-red-400"
+          >
+            {searchError}
+          </motion.div>
+        )}
 
         <AnimatePresence mode="wait">
           {mode === 'loading' && (
@@ -216,15 +238,13 @@ export default function MetamorphicSearchBar() {
             >
               <div className="grid grid-cols-2 gap-6 p-6">
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-zinc-200">{searchTerm}</h2>
+                  <h2 className="text-2xl font-bold text-zinc-200">{objectDetails?.name || searchTerm}</h2>
                   <div className="space-y-2 text-zinc-400">
-                    <p>RA: 13h 29m 52.7s</p>
-                    <p>Dec: +47° 11' 43"</p>
-                    <p>Distance: 23.16 ± 1.15 Mly</p>
-                    <p>Magnitude: 8.4</p>
+                    <p>RA: {objectDetails?.coordinates?.ra_str || 'N/A'}</p>
+                    <p>Dec: {objectDetails?.coordinates?.dec_str || 'N/A'}</p>
                   </div>
                   <div className="flex space-x-4">
-                    <button 
+                    <button
                       className="px-4 py-2 bg-zinc-700 text-zinc-200 rounded-lg hover:bg-zinc-600 flex items-center gap-2"
                       onClick={() => setShowMastPortal(true)}
                     >
@@ -245,69 +265,74 @@ export default function MetamorphicSearchBar() {
               </div>
 
               <div className="p-6 space-y-4">
-                <h3 className="text-xl font-semibold text-zinc-200">Available Data Packages</h3>
-                <div className="space-y-4">
-                  {mockDataPackages.map((pkg) => (
-                    <motion.div
-                      key={pkg.id}
-                      layout
-                      className="bg-zinc-800 rounded-lg overflow-hidden"
-                    >
-                      <button
-                        onClick={() => togglePackage(pkg.id)}
-                        className="w-full p-4 flex items-center justify-between text-zinc-200 hover:bg-zinc-700"
+                <h3 className="text-xl font-semibold text-zinc-200">Observation Results</h3>
+                {objectDetails && observationResults.length === 0 && (
+                  <p className="text-zinc-400">No detailed observation data found for this object.</p>
+                )}
+                {observationResults.length > 0 && (
+                  <div className="space-y-4">
+                    {observationResults.map((obs) => (
+                      <motion.div
+                        key={obs.obs_id}
+                        layout
+                        className="bg-zinc-800 rounded-lg overflow-hidden"
                       >
-                        <div className="flex items-center space-x-4">
-                          <span className="font-medium">{pkg.title}</span>
-                          <span className="text-sm text-zinc-400">{pkg.type}</span>
-                        </div>
-                        {expandedPackage === pkg.id ? (
-                          <ChevronUp className="w-5 h-5" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5" />
-                        )}
-                      </button>
-                      
-                      <AnimatePresence>
-                        {expandedPackage === pkg.id && (
-                          <motion.div
-                            initial={{ height: 0 }}
-                            animate={{ height: 'auto' }}
-                            exit={{ height: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="p-4 border-t border-zinc-700">
-                              <div className="aspect-video bg-black rounded-lg mb-4">
-                                {/* FITS visualization would go here */}
-                                <div className="w-full h-full flex items-center justify-center text-zinc-500">
-                                  FITS Preview
-                                </div>
+                        <button
+                          onClick={() => toggleObservation(obs.obs_id)}
+                          className="w-full p-4 flex items-center justify-between text-zinc-200 hover:bg-zinc-700"
+                        >
+                          <div className="flex items-center space-x-4 text-left">
+                            <span className="font-medium">{obs.instrument_name} ({obs.obs_id})</span>
+                            <span className="text-sm text-zinc-400">{obs.productType}</span>
+                          </div>
+                          {expandedObservationId === obs.obs_id ? (
+                            <ChevronUp className="w-5 h-5" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5" />
+                          )}
+                        </button>
+                        <AnimatePresence>
+                          {expandedObservationId === obs.obs_id && (
+                            <motion.div
+                              initial={{ height: 0 }}
+                              animate={{ height: 'auto' }}
+                              exit={{ height: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="p-4 border-t border-zinc-700 text-sm text-zinc-300 space-y-2">
+                                <p><strong>Instrument:</strong> {obs.instrument_name}</p>
+                                <p><strong>Observation ID:</strong> {obs.obs_id}</p>
+                                <p><strong>Product Type:</strong> {obs.productType}</p>
+                                <p><strong>Filters:</strong> {obs.filters}</p>
+                                <p><strong>Exposure Time:</strong> {obs.t_exptime}s</p>
+                                {obs.dataURL && (
+                                  <p>
+                                    <strong>Data URL:</strong> 
+                                    <a 
+                                      href={`https://mast.stsci.edu/api/v0.1/Download/file?uri=${obs.dataURL}`} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="ml-1 text-blue-400 hover:text-blue-300 underline transition-colors"
+                                    >
+                                      Download Data
+                                    </a>
+                                  </p>
+                                )}
                               </div>
-                              <div className="grid grid-cols-2 gap-4 text-sm text-zinc-300">
-                                <div>
-                                  <p>Size: {pkg.size}</p>
-                                  <p>Date: {pkg.date}</p>
-                                </div>
-                                <div className="flex justify-end">
-                                  <button className="px-4 py-2 bg-zinc-700 text-zinc-200 rounded-lg hover:bg-zinc-600">
-                                    Download
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  ))}
-                </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
-      {showMastPortal && (
-        <MastPortal target={searchTerm} onClose={() => setShowMastPortal(false)} />
+      {showMastPortal && objectDetails && (
+        <MastPortal target={objectDetails.name || searchTerm} onClose={() => setShowMastPortal(false)} />
       )}
     </div>
   )
