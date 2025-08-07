@@ -1,4 +1,4 @@
-const MAST_API_URL = "https://mast.stsci.edu/api/v0.1"
+const MAST_API_URL = "https://mast.stsci.edu/api/v0"
 
 export interface ObjectData {
   ra: number
@@ -14,25 +14,37 @@ export interface ObjectData {
 
 export async function getObjectData(objectName: string): Promise<ObjectData | null> {
   try {
-    const response = await fetch(`${MAST_API_URL}/invoke/Mast.Name.Lookup`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    // Build MAST request object
+    const requestObject = {
+      service: 'Mast.Name.Lookup',
+      params: {
         input: objectName,
         format: 'json'
-      })
+      },
+      format: 'json'
+    }
+
+    // Per MAST API docs, the request must be wrapped in a "request=" form field
+    const formBody = new URLSearchParams({
+      request: JSON.stringify(requestObject)
+    })
+
+    const response = await fetch(`${MAST_API_URL}/invoke`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formBody.toString()
     })
 
     if (!response.ok) throw new Error('Falha na busca do objeto')
     
-    const data = await response.json()
-    if (!data?.[0]) return null
+    const data = await response.json() as any
+    const result = data?.resolvedCoordinate?.[0]
+    if (!result) return null
 
-    const result = data[0]
     const ra = parseFloat(result.ra)
-    const dec = parseFloat(result.dec)
+    const dec = parseFloat(result.decl)
 
     return {
       ra,

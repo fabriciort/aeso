@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, ChevronDown, ChevronUp, ExternalLink, Settings } from 'lucide-react'
 import { Skeleton } from "@/components/ui/skeleton"
+import { getObjectData, type ObjectData } from "@/lib/mast"
 
 type SearchMode = 'default' | 'loading' | 'results'
 type DataPackage = {
@@ -14,7 +15,7 @@ type DataPackage = {
   date: string
 }
 
-function AstroViewEmbed({ target }: { target: string }) {
+function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?: number }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -24,7 +25,13 @@ function AstroViewEmbed({ target }: { target: string }) {
 
     setIsLoading(true)
     
-    const astroViewUrl = `https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html?search=${encodeURIComponent(target)}&ra=&dec=&radius=0.02917&hips=DSS2%20Color`
+    const baseUrl = 'https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html'
+    let astroViewUrl = ''
+    if (ra !== undefined && dec !== undefined) {
+      astroViewUrl = `${baseUrl}?ra=${ra}&dec=${dec}&radius=0.2&hips=DSS2%20Color`
+    } else {
+      astroViewUrl = `${baseUrl}?search=${encodeURIComponent(target)}&radius=0.2&hips=DSS2%20Color`
+    }
     iframe.src = astroViewUrl
 
     const handleLoad = () => {
@@ -119,6 +126,7 @@ export default function MetamorphicSearchBar() {
   const [mode, setMode] = useState<SearchMode>('default')
   const [expandedPackage, setExpandedPackage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [objectData, setObjectData] = useState<ObjectData | null>(null)
   const [showMastPortal, setShowMastPortal] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -128,10 +136,13 @@ export default function MetamorphicSearchBar() {
 
     setMode('loading')
     setIsLoading(true)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
+    try {
+      const data = await getObjectData(searchTerm)
+      setObjectData(data)
+    } catch (error) {
+      console.error(error)
+      setObjectData(null)
+    }
     setIsLoading(false)
     setMode('results')
   }
@@ -218,10 +229,20 @@ export default function MetamorphicSearchBar() {
                 <div className="space-y-4">
                   <h2 className="text-2xl font-bold text-zinc-200">{searchTerm}</h2>
                   <div className="space-y-2 text-zinc-400">
-                    <p>RA: 13h 29m 52.7s</p>
-                    <p>Dec: +47° 11' 43"</p>
-                    <p>Distance: 23.16 ± 1.15 Mly</p>
-                    <p>Magnitude: 8.4</p>
+                    {objectData ? (
+                      <>
+                        {objectData.coordinates && (
+                          <>
+                            <p>RA: {objectData.coordinates.ra_str}</p>
+                            <p>Dec: {objectData.coordinates.dec_str}</p>
+                          </>
+                        )}
+                        {objectData.distance && <p>Distance: {objectData.distance}</p>}
+                        {objectData.magnitude && <p>Magnitude: {objectData.magnitude}</p>}
+                      </>
+                    ) : (
+                      <p>Objeto não encontrado.</p>
+                    )}
                   </div>
                   <div className="flex space-x-4">
                     <button 
@@ -240,7 +261,7 @@ export default function MetamorphicSearchBar() {
                       <Settings className="w-4 h-4 text-zinc-200" />
                     </button>
                   </div>
-                  <AstroViewEmbed target={searchTerm} />
+                  <AstroViewEmbed target={searchTerm} ra={objectData?.ra} dec={objectData?.dec} />
                 </div>
               </div>
 
