@@ -33,7 +33,7 @@ export default function AstroView({ target, onClose }: AstroViewProps) {
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm">
       <div className="absolute inset-4 md:inset-16 bg-zinc-900 rounded-xl overflow-hidden flex flex-col">
         <div className="flex justify-between items-center p-4 bg-zinc-800">
-          <h2 className="text-neutral-200 font-semibold">MAST Viewer - {target}</h2>
+          <h2 className="text-neutral-200 font-semibold">MAST Portal — {target}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-zinc-700 rounded-full transition-colors"
@@ -46,7 +46,7 @@ export default function AstroView({ target, onClose }: AstroViewProps) {
         <div className="relative flex-1">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
-              <div className="text-white text-xl animate-pulse">Loading MAST Portal...</div>
+              <div className="text-white text-xl animate-pulse">Carregando MAST Portal...</div>
             </div>
           )}
           <iframe
