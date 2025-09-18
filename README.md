@@ -59,6 +59,10 @@ pnpm install
 pnpm run dev
 ```
 
+> ℹ️ O proxy interno (`/api/mast`) utiliza o binário `curl` para contornar restrições
+> de rede impostas ao Node.js neste ambiente. Certifique-se de que `curl` está
+> instalado na máquina local.
+
 ## Roadmap
 
 - [ ] Implementação de autenticação
