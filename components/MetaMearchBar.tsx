@@ -15,6 +15,10 @@ type DataPackage = {
   date: string
 }
 
+interface MetamorphicSearchBarProps {
+  onObjectResolved?: (data: ObjectData | null) => void
+}
+
 function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?: number }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -48,7 +52,7 @@ function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?
 
     iframe.addEventListener('load', handleLoad)
     return () => iframe.removeEventListener('load', handleLoad)
-  }, [target])
+  }, [target, ra, dec])
 
   return (
     <div className="w-full h-full relative">
@@ -105,7 +109,7 @@ function MastPortal({ target, onClose }: { target: string; onClose: () => void }
         <div className="relative flex-1">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
-              <div className="text-white text-xl animate-pulse">Loading MAST Portal...</div>
+              <div className="text-white text-xl animate-pulse">Carregando MAST Portal...</div>
             </div>
           )}
           <iframe
@@ -121,29 +125,38 @@ function MastPortal({ target, onClose }: { target: string; onClose: () => void }
   )
 }
 
-export default function MetamorphicSearchBar() {
+export default function MetamorphicSearchBar(props?: MetamorphicSearchBarProps) {
+  const { onObjectResolved } = props ?? {}
   const [searchTerm, setSearchTerm] = useState('')
   const [mode, setMode] = useState<SearchMode>('default')
   const [expandedPackage, setExpandedPackage] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const [objectData, setObjectData] = useState<ObjectData | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showMastPortal, setShowMastPortal] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!searchTerm) return
+    const trimmedTerm = searchTerm.trim()
+    if (!trimmedTerm) return
 
     setMode('loading')
-    setIsLoading(true)
+    setExpandedPackage(null)
+    setErrorMessage(null)
+
     try {
-      const data = await getObjectData(searchTerm)
+      const data = await getObjectData(trimmedTerm)
       setObjectData(data)
+      setSearchTerm(trimmedTerm)
+      onObjectResolved?.(data)
     } catch (error) {
       console.error(error)
+      const message = error instanceof Error ? error.message : 'Não foi possível localizar o objeto.'
+      setErrorMessage(message)
       setObjectData(null)
+      onObjectResolved?.(null)
     }
-    setIsLoading(false)
+
     setMode('results')
   }
 
@@ -189,6 +202,10 @@ export default function MetamorphicSearchBar() {
               onClick={() => {
                 setSearchTerm('')
                 setMode('default')
+                setObjectData(null)
+                setErrorMessage(null)
+                setExpandedPackage(null)
+                onObjectResolved?.(null)
               }}
               className="text-zinc-400 hover:text-zinc-600 
                          dark:text-zinc-500 dark:hover:text-zinc-300 
@@ -227,7 +244,12 @@ export default function MetamorphicSearchBar() {
             >
               <div className="grid grid-cols-2 gap-6 p-6">
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-zinc-200">{searchTerm}</h2>
+                  <div>
+                    <h2 className="text-2xl font-bold text-zinc-200">
+                      {objectData?.metadata?.canonicalName ?? objectData?.name ?? searchTerm}
+                    </h2>
+                    <p className="text-sm text-zinc-500">Consulta: {searchTerm}</p>
+                  </div>
                   <div className="space-y-2 text-zinc-400">
                     {objectData ? (
                       <>
@@ -237,20 +259,28 @@ export default function MetamorphicSearchBar() {
                             <p>Dec: {objectData.coordinates.dec_str}</p>
                           </>
                         )}
-                        {objectData.distance && <p>Distance: {objectData.distance}</p>}
-                        {objectData.magnitude && <p>Magnitude: {objectData.magnitude}</p>}
+                        {objectData.metadata?.resolver && <p>Resolver: {objectData.metadata.resolver}</p>}
+                        {objectData.metadata?.objectType && <p>Tipo: {objectData.metadata.objectType}</p>}
+                        {objectData.metadata?.radius && (
+                          <p>Raio de busca: {objectData.metadata.radius.toFixed(3)}°</p>
+                        )}
+                        {objectData.metadata?.cacheDate && <p>Cache: {objectData.metadata.cacheDate}</p>}
                       </>
                     ) : (
-                      <p>Objeto não encontrado.</p>
+                      <div className="space-y-2">
+                        <p className="text-red-400">{errorMessage ?? 'Objeto não encontrado.'}</p>
+                        <p className="text-sm">Tente outra grafia ou coordenadas.</p>
+                      </div>
                     )}
                   </div>
                   <div className="flex space-x-4">
-                    <button 
-                      className="px-4 py-2 bg-zinc-700 text-zinc-200 rounded-lg hover:bg-zinc-600 flex items-center gap-2"
-                      onClick={() => setShowMastPortal(true)}
+                    <button
+                      className="px-4 py-2 bg-zinc-700 text-zinc-200 rounded-lg hover:bg-zinc-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                      onClick={() => objectData && setShowMastPortal(true)}
+                      disabled={!objectData}
                     >
                       <ExternalLink className="w-4 h-4" />
-                      Open MAST Portal
+                      Abrir MAST Portal
                     </button>
                   </div>
                 </div>
@@ -266,7 +296,10 @@ export default function MetamorphicSearchBar() {
               </div>
 
               <div className="p-6 space-y-4">
-                <h3 className="text-xl font-semibold text-zinc-200">Available Data Packages</h3>
+                <h3 className="text-xl font-semibold text-zinc-200">Pacotes de dados (protótipo)</h3>
+                <p className="text-sm text-zinc-400">
+                  Integração com os serviços de download do MAST em desenvolvimento.
+                </p>
                 <div className="space-y-4">
                   {mockDataPackages.map((pkg) => (
                     <motion.div
