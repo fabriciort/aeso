@@ -76,6 +76,18 @@ const insightTiles = [
   }
 ]
 
+const SOURCE_BADGES: Record<ObjectData['source'], string> = {
+  api: 'Dados do MAST',
+  fallback: 'Dados de referência',
+  coordinates: 'Coordenadas fornecidas'
+}
+
+const SOURCE_EXPLANATIONS: Record<ObjectData['source'], string | null> = {
+  api: 'Consulta resolvida diretamente via serviço Mast.Name.Lookup.',
+  fallback: 'Exibindo metadados curados localmente enquanto o serviço remoto não está disponível.',
+  coordinates: 'Plotando coordenadas informadas manualmente — explore a região no AstroView para encontrar registros próximos.'
+}
+
 const ExplorerConsole = forwardRef<ExplorerConsoleHandle>((_, ref) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState('')
@@ -318,7 +330,7 @@ const ExplorerConsole = forwardRef<ExplorerConsoleHandle>((_, ref) => {
                 <div className="space-y-6">
                   <div className="flex flex-wrap items-center gap-3 text-sm">
                     <span className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-100">
-                      {objectData.source === 'api' ? 'Dados do MAST' : 'Dados de referência' }
+                      {SOURCE_BADGES[objectData.source]}
                     </span>
                     {objectData.additionalNames && (
                       <span className="text-xs text-slate-400">
@@ -331,6 +343,11 @@ const ExplorerConsole = forwardRef<ExplorerConsoleHandle>((_, ref) => {
                     <h3 className="text-3xl font-semibold text-white">{objectData.name}</h3>
                     {objectData.description && (
                       <p className="text-sm text-slate-300">{objectData.description}</p>
+                    )}
+                    {SOURCE_EXPLANATIONS[objectData.source] && (
+                      <p className="text-xs text-emerald-200/80">
+                        {SOURCE_EXPLANATIONS[objectData.source]}
+                      </p>
                     )}
                   </div>
 
@@ -366,10 +383,25 @@ const ExplorerConsole = forwardRef<ExplorerConsoleHandle>((_, ref) => {
                       Documentação do MAST
                     </a>
                   </div>
+                  <div className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
+                    <span>
+                      Consulta enviada: <span className="font-semibold text-slate-200">{objectData.originalQuery}</span>
+                    </span>
+                    {objectData.resolvedQuery !== objectData.originalQuery && (
+                      <span>
+                        Interpretado como: <span className="font-semibold text-emerald-200">{objectData.resolvedQuery}</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="relative min-h-[320px] overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80">
-                  <AstroViewEmbed target={objectData.name} ra={objectData.ra} dec={objectData.dec} />
+                  <AstroViewEmbed
+                    targetLabel={objectData.name}
+                    searchQuery={objectData.resolvedQuery}
+                    ra={objectData.ra}
+                    dec={objectData.dec}
+                  />
                 </div>
               </div>
 
@@ -435,7 +467,8 @@ const ExplorerConsole = forwardRef<ExplorerConsoleHandle>((_, ref) => {
 
       {showPortal && (
         <PortalOverlay
-          target={objectData?.name ?? query}
+          target={objectData?.resolvedQuery ?? query}
+          label={objectData?.name ?? objectData?.originalQuery ?? query}
           onClose={() => setShowPortal(false)}
         />
       )}
@@ -447,21 +480,40 @@ ExplorerConsole.displayName = 'ExplorerConsole'
 
 export default ExplorerConsole
 
-function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?: number }) {
+function AstroViewEmbed({
+  targetLabel,
+  searchQuery,
+  ra,
+  dec
+}: {
+  targetLabel: string
+  searchQuery: string
+  ra?: number
+  dec?: number
+}) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const trimmedQuery = searchQuery.trim()
+  const hasCoordinates = typeof ra === 'number' && Number.isFinite(ra) && typeof dec === 'number' && Number.isFinite(dec)
+  const showPlaceholder = !hasCoordinates && !trimmedQuery
+  const displayTitle = targetLabel || (trimmedQuery ? trimmedQuery : 'AstroView')
 
   useEffect(() => {
     const iframe = iframeRef.current
-    if (!iframe || !target) return
+    if (!iframe) return
+
+    if (showPlaceholder) {
+      iframe.removeAttribute('src')
+      setIsLoading(false)
+      return
+    }
 
     setIsLoading(true)
 
     const baseUrl = 'https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html'
-    const url =
-      ra !== undefined && dec !== undefined
-        ? `${baseUrl}?ra=${ra}&dec=${dec}&radius=0.3&hips=DSS2%20Color`
-        : `${baseUrl}?search=${encodeURIComponent(target)}&radius=0.3&hips=DSS2%20Color`
+    const url = hasCoordinates
+      ? `${baseUrl}?ra=${(ra as number).toFixed(6)}&dec=${(dec as number).toFixed(6)}&radius=0.3&hips=DSS2%20Color`
+      : `${baseUrl}?search=${encodeURIComponent(trimmedQuery)}&radius=0.3&hips=DSS2%20Color`
 
     iframe.src = url
 
@@ -471,7 +523,7 @@ function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?
 
     iframe.addEventListener('load', handleLoad)
     return () => iframe.removeEventListener('load', handleLoad)
-  }, [target, ra, dec])
+  }, [showPlaceholder, hasCoordinates, trimmedQuery, ra, dec])
 
   return (
     <div className="relative h-full min-h-[280px]">
@@ -480,9 +532,14 @@ function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?
           Carregando visualização...
         </div>
       )}
+      {showPlaceholder && !isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center rounded-3xl border border-dashed border-white/10 bg-black/60 px-6 text-center text-xs text-slate-300">
+          Insira um objeto ou coordenadas válidas para carregar a visão no AstroView.
+        </div>
+      )}
       <iframe
         ref={iframeRef}
-        title={`AstroView ${target}`}
+        title={`AstroView ${displayTitle}`}
         className="absolute inset-0 h-full w-full rounded-3xl border-0"
         sandbox="allow-scripts allow-same-origin allow-forms"
       />
@@ -492,19 +549,28 @@ function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?
 
 type PortalOverlayProps = {
   target: string
+  label: string
   onClose: () => void
 }
 
-function PortalOverlay({ target, onClose }: PortalOverlayProps) {
+function PortalOverlay({ target, label, onClose }: PortalOverlayProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const trimmedTarget = target.trim()
+  const showPlaceholder = trimmedTarget.length === 0
 
   useEffect(() => {
     const iframe = iframeRef.current
-    if (!iframe || !target) return
+    if (!iframe) return
+
+    if (showPlaceholder) {
+      iframe.removeAttribute('src')
+      setIsLoading(false)
+      return
+    }
 
     setIsLoading(true)
-    const url = `https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html?searchQuery=${encodeURIComponent(target)}`
+    const url = `https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html?searchQuery=${encodeURIComponent(trimmedTarget)}`
     iframe.src = url
 
     const handleLoad = () => {
@@ -513,7 +579,7 @@ function PortalOverlay({ target, onClose }: PortalOverlayProps) {
 
     iframe.addEventListener('load', handleLoad)
     return () => iframe.removeEventListener('load', handleLoad)
-  }, [target])
+  }, [showPlaceholder, trimmedTarget])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -521,7 +587,7 @@ function PortalOverlay({ target, onClose }: PortalOverlayProps) {
         <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-emerald-200">MAST Portal</p>
-            <p className="text-sm font-semibold text-white">{target}</p>
+            <p className="text-sm font-semibold text-white">{label}</p>
           </div>
           <button
             onClick={onClose}
@@ -535,6 +601,11 @@ function PortalOverlay({ target, onClose }: PortalOverlayProps) {
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black text-sm text-slate-200">
               Carregando MAST Portal...
+            </div>
+          )}
+          {showPlaceholder && !isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black text-center text-sm text-slate-300">
+              Informe um objeto ou coordenadas para abrir o portal completo do MAST.
             </div>
           )}
           <iframe
