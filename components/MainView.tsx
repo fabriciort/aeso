@@ -8,7 +8,7 @@ import MetamorphicSearchBar from './MetaMearchBar'
 
 export default function MainView() {
   const [showAstroView, setShowAstroView] = useState(false)
-  const [target, setTarget] = useState('M51')
+  const [target, setTarget] = useState('')
 
   const handleShowAstroView = () => {
     setShowAstroView(true)
@@ -18,6 +18,10 @@ export default function MainView() {
     setShowAstroView(false)
   }
 
+  const handleSearchResult = (payload: { term: string } | null) => {
+    setTarget(payload?.term ?? '')
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-900">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -25,7 +29,7 @@ export default function MainView() {
         
         <div className="flex justify-center items-center min-h-[40vh]">
           <div className="w-full max-w-4xl">
-            <MetamorphicSearchBar />
+            <MetamorphicSearchBar onSearchResult={handleSearchResult} />
           </div>
         </div>
 
@@ -54,16 +58,17 @@ export default function MainView() {
           <div className="flex justify-end">
             <button
               onClick={handleShowAstroView}
-              className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg shadow-lg transition-all"
+              disabled={!target}
+              className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-zinc-400 disabled:cursor-not-allowed text-white rounded-lg shadow-lg transition-all"
             >
-              Show MAST Portal
+              {target ? `Show MAST Portal for ${target}` : 'Search to open MAST Portal'}
             </button>
           </div>
         </div>
 
         {showAstroView && target && (
-          <AstroView 
-            target={target} 
+          <AstroView
+            target={target}
             onClose={handleCloseAstroView}
           />
         )}

@@ -15,6 +15,15 @@ type DataPackage = {
   date: string
 }
 
+type SearchResultPayload = {
+  term: string
+  objectData: ObjectData | null
+}
+
+interface MetamorphicSearchBarProps {
+  onSearchResult?: (payload: SearchResultPayload | null) => void
+}
+
 function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?: number }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -24,31 +33,32 @@ function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?
     if (!iframe || !target) return
 
     setIsLoading(true)
-    
+
     const baseUrl = 'https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html'
-    let astroViewUrl = ''
-    if (ra !== undefined && dec !== undefined) {
-      astroViewUrl = `${baseUrl}?ra=${ra}&dec=${dec}&radius=0.2&hips=DSS2%20Color`
+    const hasCoords = typeof ra === 'number' && typeof dec === 'number'
+    const params = new URLSearchParams({
+      radius: '0.2',
+      hips: 'DSS2 Color'
+    })
+
+    if (hasCoords) {
+      params.set('ra', String(ra))
+      params.set('dec', String(dec))
     } else {
-      astroViewUrl = `${baseUrl}?search=${encodeURIComponent(target)}&radius=0.2&hips=DSS2%20Color`
+      params.set('search', target)
     }
+
+    const astroViewUrl = `${baseUrl}?${params.toString()}`
     iframe.src = astroViewUrl
 
     const handleLoad = () => {
       setIsLoading(false)
-      
-      setTimeout(() => {
-        iframe.contentWindow?.postMessage({
-          type: 'search',
-          target: target,
-          service: 'AstroView'
-        }, '*')
-      }, 1000)
+
     }
 
     iframe.addEventListener('load', handleLoad)
     return () => iframe.removeEventListener('load', handleLoad)
-  }, [target])
+  }, [target, ra, dec])
 
   return (
     <div className="w-full h-full relative">
@@ -121,7 +131,7 @@ function MastPortal({ target, onClose }: { target: string; onClose: () => void }
   )
 }
 
-export default function MetamorphicSearchBar() {
+export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSearchBarProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [mode, setMode] = useState<SearchMode>('default')
   const [expandedPackage, setExpandedPackage] = useState<string | null>(null)
@@ -139,9 +149,11 @@ export default function MetamorphicSearchBar() {
     try {
       const data = await getObjectData(searchTerm)
       setObjectData(data)
+      onSearchResult?.({ term: searchTerm, objectData: data })
     } catch (error) {
       console.error(error)
       setObjectData(null)
+      onSearchResult?.({ term: searchTerm, objectData: null })
     }
     setIsLoading(false)
     setMode('results')
@@ -161,16 +173,17 @@ export default function MetamorphicSearchBar() {
     <div className="w-full max-w-4xl mx-auto">
       <motion.div
         layout
-        className="relative bg-white/5 dark:bg-zinc-800/50 
-                   backdrop-blur-md rounded-2xl 
-                   shadow-lg dark:shadow-zinc-900/20 
-                   border border-zinc-200/10 dark:border-zinc-700/30
+        className="relative bg-white/70 dark:bg-zinc-800/50
+                   backdrop-blur-md rounded-2xl
+                   shadow-lg dark:shadow-zinc-900/20
+                   border border-zinc-200/60 dark:border-zinc-700/30
                    transition-colors duration-200"
         animate={{ height: mode === 'default' ? 'auto' : '85vh' }}
       >
-        <form onSubmit={handleSearch} 
-              className="flex items-center p-4 border-b 
-                         border-zinc-200/10 dark:border-zinc-700/30">
+        <form onSubmit={handleSearch}
+              className="flex items-center p-4 border-b
+                         border-zinc-200/60 dark:border-zinc-700/30
+                         bg-white/60 dark:bg-transparent rounded-t-2xl">
           <Search className="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
           <input
             ref={inputRef}
@@ -178,9 +191,9 @@ export default function MetamorphicSearchBar() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search for an astronomical object..."
-            className="w-full px-4 py-2 bg-transparent 
-                       text-zinc-800 dark:text-zinc-100 
-                       placeholder-zinc-400 dark:placeholder-zinc-500 
+            className="w-full px-4 py-2 bg-transparent
+                       text-zinc-800 dark:text-zinc-100
+                       placeholder-zinc-500 dark:placeholder-zinc-500
                        focus:outline-none transition-colors duration-200"
           />
           {searchTerm && (
@@ -189,9 +202,11 @@ export default function MetamorphicSearchBar() {
               onClick={() => {
                 setSearchTerm('')
                 setMode('default')
+                setObjectData(null)
+                onSearchResult?.(null)
               }}
-              className="text-zinc-400 hover:text-zinc-600 
-                         dark:text-zinc-500 dark:hover:text-zinc-300 
+              className="text-zinc-400 hover:text-zinc-600
+                         dark:text-zinc-500 dark:hover:text-zinc-300
                          transition-colors"
             >
               <X className="w-6 h-6" />
@@ -227,8 +242,8 @@ export default function MetamorphicSearchBar() {
             >
               <div className="grid grid-cols-2 gap-6 p-6">
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-zinc-200">{searchTerm}</h2>
-                  <div className="space-y-2 text-zinc-400">
+                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-200">{searchTerm}</h2>
+                  <div className="space-y-2 text-zinc-600 dark:text-zinc-400">
                     {objectData ? (
                       <>
                         {objectData.coordinates && (
@@ -245,8 +260,8 @@ export default function MetamorphicSearchBar() {
                     )}
                   </div>
                   <div className="flex space-x-4">
-                    <button 
-                      className="px-4 py-2 bg-zinc-700 text-zinc-200 rounded-lg hover:bg-zinc-600 flex items-center gap-2"
+                    <button
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 flex items-center gap-2 shadow"
                       onClick={() => setShowMastPortal(true)}
                     >
                       <ExternalLink className="w-4 h-4" />
@@ -254,11 +269,11 @@ export default function MetamorphicSearchBar() {
                     </button>
                   </div>
                 </div>
-                
-                <div className="aspect-square bg-black rounded-lg relative overflow-hidden">
+
+                <div className="aspect-square bg-white dark:bg-black rounded-lg relative overflow-hidden border border-zinc-200/60 dark:border-zinc-800">
                   <div className="absolute top-2 right-2 z-10 flex space-x-2">
-                    <button className="p-2 bg-zinc-800/80 rounded-lg hover:bg-zinc-700/80 backdrop-blur-sm">
-                      <Settings className="w-4 h-4 text-zinc-200" />
+                    <button className="p-2 bg-white/80 dark:bg-zinc-800/80 rounded-lg hover:bg-zinc-100/80 dark:hover:bg-zinc-700/80 backdrop-blur-sm border border-zinc-200/60 dark:border-zinc-700">
+                      <Settings className="w-4 h-4 text-zinc-600 dark:text-zinc-200" />
                     </button>
                   </div>
                   <AstroViewEmbed target={searchTerm} ra={objectData?.ra} dec={objectData?.dec} />
@@ -266,21 +281,21 @@ export default function MetamorphicSearchBar() {
               </div>
 
               <div className="p-6 space-y-4">
-                <h3 className="text-xl font-semibold text-zinc-200">Available Data Packages</h3>
+                <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-200">Available Data Packages</h3>
                 <div className="space-y-4">
                   {mockDataPackages.map((pkg) => (
                     <motion.div
                       key={pkg.id}
                       layout
-                      className="bg-zinc-800 rounded-lg overflow-hidden"
+                      className="bg-white/80 dark:bg-zinc-800 rounded-lg overflow-hidden border border-zinc-200/60 dark:border-zinc-700"
                     >
                       <button
                         onClick={() => togglePackage(pkg.id)}
-                        className="w-full p-4 flex items-center justify-between text-zinc-200 hover:bg-zinc-700"
+                        className="w-full p-4 flex items-center justify-between text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                       >
                         <div className="flex items-center space-x-4">
                           <span className="font-medium">{pkg.title}</span>
-                          <span className="text-sm text-zinc-400">{pkg.type}</span>
+                          <span className="text-sm text-zinc-500 dark:text-zinc-400">{pkg.type}</span>
                         </div>
                         {expandedPackage === pkg.id ? (
                           <ChevronUp className="w-5 h-5" />
@@ -297,20 +312,20 @@ export default function MetamorphicSearchBar() {
                             exit={{ height: 0 }}
                             className="overflow-hidden"
                           >
-                            <div className="p-4 border-t border-zinc-700">
-                              <div className="aspect-video bg-black rounded-lg mb-4">
+                            <div className="p-4 border-t border-zinc-200/60 dark:border-zinc-700">
+                              <div className="aspect-video bg-zinc-100 dark:bg-black rounded-lg mb-4">
                                 {/* FITS visualization would go here */}
-                                <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                                <div className="w-full h-full flex items-center justify-center text-zinc-500 dark:text-zinc-400">
                                   FITS Preview
                                 </div>
                               </div>
-                              <div className="grid grid-cols-2 gap-4 text-sm text-zinc-300">
+                              <div className="grid grid-cols-2 gap-4 text-sm text-zinc-700 dark:text-zinc-300">
                                 <div>
                                   <p>Size: {pkg.size}</p>
                                   <p>Date: {pkg.date}</p>
                                 </div>
                                 <div className="flex justify-end">
-                                  <button className="px-4 py-2 bg-zinc-700 text-zinc-200 rounded-lg hover:bg-zinc-600">
+                                  <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 shadow">
                                     Download
                                   </button>
                                 </div>

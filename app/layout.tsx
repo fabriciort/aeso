@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import ThemeManager from '@/components/ThemeManager'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,8 +16,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} dark:bg-zinc-900`}>{children}</body>
+    <html lang="en">
+      <body className={`${inter.className} bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-50 transition-colors duration-300`}>
+        <ThemeManager />
+        {children}
+      </body>
     </html>
   )
-} 
+}
