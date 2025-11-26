@@ -2,9 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, X, ChevronDown, ChevronUp, ExternalLink, Settings } from 'lucide-react'
-import { Skeleton } from "@/components/ui/skeleton"
-import { getObjectData, type ObjectData } from "@/lib/mast"
+import { Search, X, ChevronDown, ChevronUp, ExternalLink, Settings, Compass, Sparkles } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getObjectData, type ObjectData } from '@/lib/mast'
 
 type SearchMode = 'default' | 'loading' | 'results'
 type DataPackage = {
@@ -15,16 +15,19 @@ type DataPackage = {
   date: string
 }
 
-type SearchResultPayload = {
+export type SearchAction = 'search' | 'astroview' | 'portal' | 'help'
+
+export type SearchResultPayload = {
   term: string
   objectData: ObjectData | null
+  action: SearchAction
 }
 
 interface MetamorphicSearchBarProps {
   onSearchResult?: (payload: SearchResultPayload | null) => void
 }
 
-function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?: number }) {
+function AstroViewEmbed({ target, ra, dec, hips, radius }: { target: string; ra?: number; dec?: number; hips: string; radius: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -37,8 +40,8 @@ function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?
     const baseUrl = 'https://mast.stsci.edu/portal/Mashup/Clients/AstroView/AstroView.html'
     const hasCoords = typeof ra === 'number' && typeof dec === 'number'
     const params = new URLSearchParams({
-      radius: '0.2',
-      hips: 'DSS2 Color'
+      radius,
+      hips
     })
 
     if (hasCoords) {
@@ -53,12 +56,11 @@ function AstroViewEmbed({ target, ra, dec }: { target: string; ra?: number; dec?
 
     const handleLoad = () => {
       setIsLoading(false)
-
     }
 
     iframe.addEventListener('load', handleLoad)
     return () => iframe.removeEventListener('load', handleLoad)
-  }, [target, ra, dec])
+  }, [target, ra, dec, hips, radius])
 
   return (
     <div className="w-full h-full relative">
@@ -87,7 +89,7 @@ function MastPortal({ target, onClose }: { target: string; onClose: () => void }
     if (!iframe || !target) return
 
     setIsLoading(true)
-    
+
     const mastUrl = `https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html?searchQuery=${encodeURIComponent(target)}`
     iframe.src = mastUrl
 
@@ -131,31 +133,69 @@ function MastPortal({ target, onClose }: { target: string; onClose: () => void }
   )
 }
 
+function parseCommand(input: string): { action: SearchAction; term: string } {
+  const trimmed = input.trim()
+  if (trimmed.toLowerCase().startsWith('/astro ')) {
+    return { action: 'astroview', term: trimmed.slice(7).trim() }
+  }
+  if (trimmed.toLowerCase().startsWith('astro:')) {
+    return { action: 'astroview', term: trimmed.slice(6).trim() }
+  }
+  if (trimmed.toLowerCase().startsWith('/portal ')) {
+    return { action: 'portal', term: trimmed.slice(8).trim() }
+  }
+  if (trimmed.toLowerCase().startsWith('portal:')) {
+    return { action: 'portal', term: trimmed.slice(7).trim() }
+  }
+  if (trimmed === '/help' || trimmed === 'help') {
+    return { action: 'help', term: '' }
+  }
+  return { action: 'search', term: trimmed }
+}
+
 export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSearchBarProps) {
-  const [searchTerm, setSearchTerm] = useState('')
   const [mode, setMode] = useState<SearchMode>('default')
+  const [searchTerm, setSearchTerm] = useState('')
   const [expandedPackage, setExpandedPackage] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const [objectData, setObjectData] = useState<ObjectData | null>(null)
   const [showMastPortal, setShowMastPortal] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [lastPayload, setLastPayload] = useState<SearchResultPayload | null>(null)
+  const [hipsLayer, setHipsLayer] = useState('DSS2 Color')
+  const [radius, setRadius] = useState('0.3')
+
+  const commandInfo = parseCommand(searchTerm)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchTerm) return
 
+    const { action, term } = parseCommand(searchTerm)
+    if (action === 'help') {
+      setMode('results')
+      setObjectData(null)
+      const payload: SearchResultPayload = { action, term: 'help', objectData: null }
+      setLastPayload(payload)
+      onSearchResult?.(payload)
+      return
+    }
+
     setMode('loading')
-    setIsLoading(true)
     try {
-      const data = await getObjectData(searchTerm)
+      const data = await getObjectData(term)
       setObjectData(data)
-      onSearchResult?.({ term: searchTerm, objectData: data })
+      const payload: SearchResultPayload = { term, objectData: data, action }
+      setLastPayload(payload)
+      onSearchResult?.(payload)
+      if (action === 'portal') {
+        setShowMastPortal(true)
+      }
     } catch (error) {
       console.error(error)
       setObjectData(null)
-      onSearchResult?.({ term: searchTerm, objectData: null })
+      const payload: SearchResultPayload = { term, objectData: null, action }
+      setLastPayload(payload)
+      onSearchResult?.(payload)
     }
-    setIsLoading(false)
     setMode('results')
   }
 
@@ -163,11 +203,31 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
     setExpandedPackage(expandedPackage === id ? null : id)
   }
 
+  const openViewer = (action: SearchAction) => {
+    if (!lastPayload) return
+    const payload = { ...lastPayload, action }
+    onSearchResult?.(payload)
+    if (action === 'portal') setShowMastPortal(true)
+  }
+
   const mockDataPackages: DataPackage[] = [
     { id: '1', title: 'HST/ACS Observation', type: 'FITS', size: '2.3 GB', date: '2024-01-15' },
     { id: '2', title: 'JWST Spectral Data', type: 'FITS', size: '1.8 GB', date: '2024-01-14' },
     { id: '3', title: 'Radio Observations', type: 'FITS', size: '3.1 GB', date: '2024-01-13' },
   ]
+
+  const renderCommandHint = () => {
+    if (commandInfo.action === 'astroview') {
+      return 'Comando: abrir AstroView focado no alvo informado'
+    }
+    if (commandInfo.action === 'portal') {
+      return 'Comando: abrir portal MAST com este termo'
+    }
+    if (commandInfo.action === 'help') {
+      return 'Comando: ver ajuda e exemplos de meta busca'
+    }
+    return 'Digite um objeto ou use comandos: /astro, /portal, help'
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -180,17 +240,18 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
                    transition-colors duration-200"
         animate={{ height: mode === 'default' ? 'auto' : '85vh' }}
       >
-        <form onSubmit={handleSearch}
-              className="flex items-center p-4 border-b
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center p-4 border-b
                          border-zinc-200/60 dark:border-zinc-700/30
-                         bg-white/60 dark:bg-transparent rounded-t-2xl">
+                         bg-white/60 dark:bg-transparent rounded-t-2xl"
+        >
           <Search className="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
           <input
-            ref={inputRef}
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search for an astronomical object..."
+            placeholder="Busque objetos, comandos ou abra ferramentas..."
             className="w-full px-4 py-2 bg-transparent
                        text-zinc-800 dark:text-zinc-100
                        placeholder-zinc-500 dark:placeholder-zinc-500
@@ -203,6 +264,7 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
                 setSearchTerm('')
                 setMode('default')
                 setObjectData(null)
+                setLastPayload(null)
                 onSearchResult?.(null)
               }}
               className="text-zinc-400 hover:text-zinc-600
@@ -213,6 +275,17 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
             </button>
           )}
         </form>
+
+        <div className="px-4 py-2 text-sm text-zinc-600 dark:text-zinc-400 flex flex-wrap gap-3 items-center">
+          <div className="flex items-center gap-2 text-green-600 dark:text-green-300">
+            <Sparkles size={16} /> {renderCommandHint()}
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200">/astro Vega</span>
+            <span className="px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200">/portal NGC 1300</span>
+            <span className="px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200">help</span>
+          </div>
+        </div>
 
         <AnimatePresence mode="wait">
           {mode === 'loading' && (
@@ -240,11 +313,20 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
               exit={{ opacity: 0 }}
               className="h-full overflow-y-auto"
             >
-              <div className="grid grid-cols-2 gap-6 p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-200">{searchTerm}</h2>
+                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-200">{lastPayload?.term}</h2>
                   <div className="space-y-2 text-zinc-600 dark:text-zinc-400">
-                    {objectData ? (
+                    {commandInfo.action === 'help' ? (
+                      <div className="space-y-2">
+                        <p>Use a MetaSearch como uma linha de comando:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          <li><strong>/astro &lt;objeto&gt;</strong> abre o AstroView focado no alvo.</li>
+                          <li><strong>/portal &lt;objeto&gt;</strong> abre o Portal MAST para esse termo.</li>
+                          <li><strong>help</strong> mostra esta ajuda rápida.</li>
+                        </ul>
+                      </div>
+                    ) : objectData ? (
                       <>
                         {objectData.coordinates && (
                           <>
@@ -259,14 +341,50 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
                       <p>Objeto não encontrado.</p>
                     )}
                   </div>
-                  <div className="flex space-x-4">
+                  <div className="flex flex-wrap gap-3">
                     <button
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 flex items-center gap-2 shadow"
-                      onClick={() => setShowMastPortal(true)}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 flex items-center gap-2 shadow disabled:bg-zinc-500"
+                      disabled={!lastPayload || lastPayload.action === 'help'}
+                      onClick={() => openViewer('astroview')}
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      Open MAST Portal
+                      <Compass className="w-4 h-4" /> Abrir AstroView
                     </button>
+                    <button
+                      className="px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 flex items-center gap-2 shadow disabled:bg-zinc-500"
+                      disabled={!lastPayload || lastPayload.action === 'help'}
+                      onClick={() => openViewer('portal')}
+                    >
+                      <ExternalLink className="w-4 h-4" /> Abrir Portal MAST
+                    </button>
+                  </div>
+                  <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-700/30 rounded-xl p-4 space-y-2">
+                    <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Refinar visualização</p>
+                    <div className="flex flex-wrap gap-3 items-center text-sm">
+                      <label className="flex items-center gap-2">
+                        <span className="text-zinc-600 dark:text-zinc-300">HIPS:</span>
+                        <select
+                          value={hipsLayer}
+                          onChange={(e) => setHipsLayer(e.target.value)}
+                          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-1"
+                        >
+                          <option>DSS2 Color</option>
+                          <option>2MASS J</option>
+                          <option>GALEX Near UV</option>
+                        </select>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <span className="text-zinc-600 dark:text-zinc-300">Raio:</span>
+                        <select
+                          value={radius}
+                          onChange={(e) => setRadius(e.target.value)}
+                          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-1"
+                        >
+                          <option value="0.2">0.2°</option>
+                          <option value="0.3">0.3°</option>
+                          <option value="0.5">0.5°</option>
+                        </select>
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -276,12 +394,18 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
                       <Settings className="w-4 h-4 text-zinc-600 dark:text-zinc-200" />
                     </button>
                   </div>
-                  <AstroViewEmbed target={searchTerm} ra={objectData?.ra} dec={objectData?.dec} />
+                  <AstroViewEmbed
+                    target={lastPayload?.term ?? searchTerm}
+                    ra={objectData?.ra}
+                    dec={objectData?.dec}
+                    hips={hipsLayer}
+                    radius={radius}
+                  />
                 </div>
               </div>
 
               <div className="p-6 space-y-4">
-                <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-200">Available Data Packages</h3>
+                <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-200">Pacotes de dados disponíveis</h3>
                 <div className="space-y-4">
                   {mockDataPackages.map((pkg) => (
                     <motion.div
@@ -303,7 +427,7 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
                           <ChevronDown className="w-5 h-5" />
                         )}
                       </button>
-                      
+
                       <AnimatePresence>
                         {expandedPackage === pkg.id && (
                           <motion.div
@@ -314,7 +438,6 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
                           >
                             <div className="p-4 border-t border-zinc-200/60 dark:border-zinc-700">
                               <div className="aspect-video bg-zinc-100 dark:bg-black rounded-lg mb-4">
-                                {/* FITS visualization would go here */}
                                 <div className="w-full h-full flex items-center justify-center text-zinc-500 dark:text-zinc-400">
                                   FITS Preview
                                 </div>
@@ -343,7 +466,7 @@ export default function MetamorphicSearchBar({ onSearchResult }: MetamorphicSear
         </AnimatePresence>
       </motion.div>
       {showMastPortal && (
-        <MastPortal target={searchTerm} onClose={() => setShowMastPortal(false)} />
+        <MastPortal target={lastPayload?.term ?? searchTerm} onClose={() => setShowMastPortal(false)} />
       )}
     </div>
   )
