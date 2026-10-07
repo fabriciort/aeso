@@ -37,7 +37,10 @@ Use estes termos **exatamente assim** na interface, no código e na comunicaçã
 | **Céu** | A área de exploração: busca, céu interativo, ficha do objeto, observações do MAST | `views/SkyView.tsx` |
 | **Laboratórios** | A área com o catálogo de laboratórios | `views/LabsView.tsx` |
 | **Laboratório** | Uma experiência guiada sobre um fenômeno. Ex.: "Encontre um exoplaneta" | `lib/labs/*.ts` |
-| **Etapa** | Uma unidade de um laboratório (ver tipos abaixo) | `LabStep` |
+| **Etapa** | Uma unidade de um laboratório (ver tipos abaixo), sempre numa tela só | `LabStep` |
+| **Cena** | Um momento dentro de uma etapa: legenda + estado do palco. Continuar avança as cenas | `useScenes` |
+| **Palco** | A área do instrumento, sempre visível na etapa | `StepFrame` (`stage`) |
+| **Modo foco** | Tela cheia + tela acesa durante o laboratório | `lib/observatory/immersive.ts` |
 | **Instrumento** | Um componente interativo reutilizável dentro das etapas | `components/instruments/` |
 | **Vega** | A guia de IA que acompanha o aluno | `components/observatory/Vega.tsx`, `/api/vega` |
 | **Conquista** | O marco registrado ao concluir um laboratório | `lib/progress.ts` |

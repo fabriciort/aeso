@@ -3,6 +3,7 @@
 import { forwardRef } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { haptic } from '@/lib/observatory/immersive'
 
 // Small UI primitives shared by the Observatório.
 
@@ -116,7 +117,10 @@ export function Choice({
 }) {
   return (
     <button
-      onClick={onClick}
+      onClick={() => {
+        haptic(8)
+        onClick?.()
+      }}
       disabled={disabled}
       className={cn(
         'focus-ring w-full rounded-2xl border px-4 py-3.5 text-left text-[15px] transition-all duration-200 active:scale-[0.99]',

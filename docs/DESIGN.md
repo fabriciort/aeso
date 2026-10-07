@@ -35,6 +35,38 @@ Regras:
 
 A duração mínima é 1,6 s na primeira visita da sessão; nas seguintes, a abertura é encurtada para ≈ 0,4 s.
 
+## Laboratório: uma tela, sem rolagem
+
+O celular é a referência. Cada **Etapa** ocupa exatamente a tela (`100svh`) e nunca rola:
+
+```
+┌────────────────────────┐
+│ ▬▬▬▬▬▬▬  progresso      │  barra de etapas (a atual se enche conforme as cenas)
+│ ✕   4/7 · Observe  Vega │
+│ ┌────────────────────┐ │
+│ │                    │ │
+│ │       PALCO        │ │  instrumento: sempre visível, ocupa o espaço livre
+│ │                    │ │
+│ └────────────────────┘ │
+│ OBSERVE · Agora, de…   │
+│ Legenda: 1–2 frases.   │  troca com animação a cada cena
+│ [ controles ]          │  perto do polegar
+│ (←)  [  Continuar  →  ]│
+└────────────────────────┘
+```
+
+- **Cenas:** o conteúdo que não cabe vira cenas da mesma etapa. **Continuar** avança as cenas e só depois passa para a próxima etapa. O palco permanece; só a legenda e os controles trocam. Isso é storytelling, não rolagem.
+- **Interação direta:** arrastar no próprio palco muda o valor (tamanho do planeta, profundidade do modelo). O controle deslizante é a alternativa precisa.
+- **Feedback físico:** vibração curta em escolhas, acertos e conquistas (Android); ondas no ponto tocado; partículas no encaixe.
+- **Desktop:** o mesmo conteúdo, com palco à esquerda e legenda e controles à direita, também sem rolagem.
+
+## Modo foco e app instalável
+
+- **Entrar no laboratório** pede tela cheia (`requestFullscreen({ navigationUI: 'hide' })`), mantém a tela acesa (Wake Lock) e trava o celular em retrato. O mergulho de 1,5 s começa no mesmo toque, para que o aviso de tela cheia do navegador apareça sobre a animação.
+- **O aviso de tela cheia do Android não pode ser desativado por sites**: é uma proteção do navegador. O iPhone (Safari) não permite tela cheia em páginas.
+- **Instalado na tela inicial (PWA)**, o AESo abre sem nenhuma barra do navegador e sem o aviso, no Android e no iPhone. A capa do laboratório convida a instalar (botão no Android, instruções no iPhone).
+- Ao sair do laboratório, a tela cheia e o bloqueio de tela são liberados.
+
 ## Layout do Observatório
 
 - **Desktop:** trilho lateral fino à esquerda (Início, Céu, Laboratórios), área principal ao centro e a Vega como painel deslizante à direita.

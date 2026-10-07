@@ -22,6 +22,8 @@ export const rise: Variants = {
 /** Area/view transition: crossfade with a slight scale and blur. */
 export const viewTransition: Variants = {
   initial: { opacity: 0, scale: 0.985, filter: 'blur(8px)' },
-  enter: { opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.45, ease } },
+  // filter: none at the end, so the view does not become a containing block
+  // for position: fixed descendants.
+  enter: { opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.45, ease }, transitionEnd: { filter: 'none' } },
   exit: { opacity: 0, scale: 1.01, filter: 'blur(6px)', transition: { duration: 0.22, ease } },
 }

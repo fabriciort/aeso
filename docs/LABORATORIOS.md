@@ -37,9 +37,26 @@ Um **Laboratório** é uma sequência de **Etapas** (ver `docs/PRODUTO.md`). O p
 |---|---|
 | `lab` | A definição do laboratório |
 | `answers` / `setAnswer(chave, valor)` | Estado salvo do aluno (persiste no navegador) |
-| `setReady(true)` | Libera o botão **Continuar**. Chame quando a etapa cumprir seu objetivo |
+| `setReady(true)` | Libera o botão **Continuar** para a cena atual |
+| `registerNav` / `reportScene` | Usados por `useScenes`; não chame direto |
 
-Use `StepFrame` para o layout padrão (narrativa à esquerda, instrumento à direita) e `useVegaScreen({ lab, step, state })` para contar à Vega o que está na tela, em uma frase.
+**Regra de ouro: a etapa cabe numa tela de celular (390 × 844) sem rolar.** Use `StepFrame` com três partes:
+
+```tsx
+const [scene, setScene] = useScenes(props, 3, 'minhaEtapaScene')
+
+<StepFrame
+  lab={lab} stepIndex={0} scene={scene}
+  stage={<Panel>…instrumento…</Panel>}         // sempre visível
+  caption={legendas[scene]}                      // 1–2 frases, no máximo ~140 caracteres
+  controls={scene === 2 ? <Slider … /> : null}   // compactos, perto do polegar
+/>
+```
+
+- Se o texto não cabe, **divida em cenas** em vez de escrever mais.
+- O palco deve reagir a cada cena (mostrar um rótulo, ligar uma curva, trocar a visualização). É isso que dá a sensação de história contínua.
+- Uma ação concluída pode avançar a cena sozinha (`setScene`), como ao achar as quedas no gráfico.
+- Use `useVegaScreen({ lab, step, state })` para contar à Vega o que está na tela, em uma frase.
 
 Registre o mapa em `components/observatory/views/LabView.tsx` (`STEP_COMPONENTS`).
 
@@ -62,5 +79,6 @@ Se o laboratório usa dados de telescópio, declare um `target` e crie uma rota 
 - [ ] Previsões e desafios explicam a resposta depois da escolha, nos dois casos (certo e errado).
 - [ ] Números com unidade e vírgula decimal (`formatNumber`).
 - [ ] A física foi revisada por alguém da área.
+- [ ] Nenhuma etapa rola em 390 × 844 (teste com o Playwright: `scrollHeight === innerHeight`).
 - [ ] Funciona em 390 px de largura e com `prefers-reduced-motion`.
 - [ ] Testes para qualquer cálculo novo (`tests/`).

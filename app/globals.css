@@ -131,3 +131,20 @@
   outline-offset: 4px;
   border-radius: 999px;
 }
+
+/* Mobile app feel: no rubber-band bounce, no grey tap flash, fast taps. */
+html,
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+a,
+input,
+[role='button'] {
+  touch-action: manipulation;
+}
+:fullscreen,
+::backdrop {
+  background: #030407;
+}
