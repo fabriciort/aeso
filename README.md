@@ -1,7 +1,7 @@
 # AESo
 
-![release](https://img.shields.io/badge/release-v0.1.0-green)
-![next](https://img.shields.io/badge/next.js-15.0.3-blue?logo=next.js)
+![release](https://img.shields.io/badge/release-v0.3.0-green)
+![next](https://img.shields.io/badge/next.js-15.5-blue?logo=next.js)
 ![code-license](https://img.shields.io/badge/code%20license-MIT-red)
 ![content-license](https://img.shields.io/badge/content%20license-CC%20BY--SA%204.0-red)
 
@@ -9,63 +9,55 @@
 
 ## Visão Geral
 
-AESo/MAST Viewer é um projeto pessoal front-end ambicioso que visa criar uma interface intuitiva e amigável para busca, download e manipulação de dados astronômicos. Inicialmente focado no MAST Portal [(Mikulski Archive for Space Telescopes)](https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html)
-, o projeto tem como objetivo expandir para outros catálogos e arquivos no futuro.
+**AESo** é uma plataforma para aprender física e astronomia fazendo ciência de verdade. O aluno imagina um fenômeno, testa uma hipótese e mede o resultado em dados reais de telescópios. Tudo em português, direto no navegador.
 
-## Objetivos
+- **Site** (`/`): apresenta o produto.
+- **Observatório** (`/app`): o web app. É um ambiente contínuo, com abertura animada, boas-vindas e áreas que trocam sem recarregar a página:
+  - **Início**: continuar de onde parou, objeto do dia, buscas recentes.
+  - **Céu**: busca por nome, catálogo, coordenadas ou características; céu interativo (Aladin Lite); ficha do objeto; observações e downloads do MAST.
+  - **Laboratórios**: experiências guiadas. O primeiro, *Encontre um exoplaneta*, usa a curva de luz real do TESS para medir o tamanho de WASP-121 b.
+  - **Vega**: guia de IA que sabe em que etapa o aluno está e dá pistas em vez de respostas.
 
-- 🔍 Busca avançada de objetos
-- 📊 Visualização integrada do MAST Portal de forma nativa e acessível.
-- 🌌 Suporte a imagens FITS e espectros, e tratamento de dados e imagem (com limites) online.
-- 🎨 Interface imersiva c/ Animações fluidas e feedback visual
-- 🔄 Integração em tempo real com APIs 
+## Documentação
 
-## Stack Tecnológica/Roadmap
+| Documento | Conteúdo |
+|---|---|
+| [docs/PRODUTO.md](docs/PRODUTO.md) | Visão, público, princípios de experiência, **nomenclatura**, voz e tom |
+| [docs/DESIGN.md](docs/DESIGN.md) | Tipografia, cor, movimento, abertura, layout |
+| [docs/LABORATORIOS.md](docs/LABORATORIOS.md) | Como criar um novo laboratório |
+| [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Estrutura do código, IA, fontes de dados, modo offline |
 
-- [Next.js 15](https://nextjs.org/)
+## Stack
 
-<details>
-<summary>...</summary>
-
-- [React 18](https://react.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [framer-motion](https://www.framer.com/motion/)
-- [lucide-icons](https://lucide.dev/)
-- [pnpm](https://pnpm.io/)
-- [Python](https://www.python.org/)
-- ...
-
-</details>
-
-- ### Visão Futura
-    - Expandir o suporte para outros catálogos e arquivos astronômicos.
-    - Implementar um sistema robusto de machine learning para melhorar a interação com dados complexos.
-    - Desenvolver um sistema de segurança avançado para garantir a privacidade de usuários, dados, empresas e institutos.
-    - ...
-
+Next.js 15 · React 19 · TypeScript · Tailwind CSS · framer-motion · Aladin Lite 3 · Geist · zod · Groq (ou Claude) · vitest
 
 ## Instalação
 
 ```bash
-# Clone o repositório
 git clone https://github.com/fabriciort/aeso.git
-
-# Instale as dependências
 cd aeso
 pnpm install
+cp .env.example .env.local   # GROQ_API_KEY para ativar a Vega
+pnpm dev                     # http://localhost:3000
+```
 
-# Inicie o servidor de desenvolvimento
-pnpm run dev
+```bash
+pnpm dev:mock    # dados simulados, sem rede
+pnpm test        # testes (física do trânsito, leitor FITS, busca, ADQL)
+pnpm lint && pnpm typecheck
+pnpm build && pnpm start
 ```
 
 ## Roadmap
 
-- [ ] Implementação de autenticação
-- [ ] Sistema de coleções
-- [ ] Exportação de dados em múltiplos formatos, e compactações
-- [ ] Análise e filtragem de dados com machine learning
-- [x] ...
+- [x] Céu: busca inteligente, céu interativo, dados do MAST
+- [x] Observatório: abertura, boas-vindas, navegação contínua
+- [x] Laboratório 1: Encontre um exoplaneta (TESS)
+- [x] Vega, guia de IA
+- [ ] Laboratórios: cor das estrelas, diagrama H-R (Gaia), expansão do universo, órbitas
+- [ ] Contas, Caderno do aluno e planos pagos
+- [ ] Biblioteca: artigos vivos
+- [ ] Turma: painel do professor
 
 ## Licença e Atribuições
 
@@ -89,6 +81,8 @@ Os dados, imagens equaisquer conteúdos do MAST/STScI estão sujeitos às suas p
 - [STScI Copyright](https://www.stsci.edu/copyright)
 - [STScI Privacy Policy](https://www.stsci.edu/privacy)
 - [MAST Data Usage](https://archive.stsci.edu/publishing/data-use)
+
+Este projeto usa o SIMBAD, o Sesame, o hips2fits e o Aladin Lite, operados pelo CDS (Strasbourg, França). Ao publicar resultados, cite o [SIMBAD](https://cds.unistra.fr/help/acknowledgement/) e o [Aladin](https://aladin.cds.unistra.fr/). O Aladin Lite é distribuído pelo CDS sob licença LGPL-3.0 e é usado como dependência npm, sem modificações.
 
 ### Estrutura de Licenciamento
 
