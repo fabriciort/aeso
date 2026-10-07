@@ -1,7 +1,7 @@
 # AESo
 
-![release](https://img.shields.io/badge/release-v0.1.0-green)
-![next](https://img.shields.io/badge/next.js-15.0.3-blue?logo=next.js)
+![release](https://img.shields.io/badge/release-v0.2.0-green)
+![next](https://img.shields.io/badge/next.js-15.5-blue?logo=next.js)
 ![code-license](https://img.shields.io/badge/code%20license-MIT-red)
 ![content-license](https://img.shields.io/badge/content%20license-CC%20BY--SA%204.0-red)
 
@@ -9,63 +9,77 @@
 
 ## Visão Geral
 
-AESo/MAST Viewer é um projeto pessoal front-end ambicioso que visa criar uma interface intuitiva e amigável para busca, download e manipulação de dados astronômicos. Inicialmente focado no MAST Portal [(Mikulski Archive for Space Telescopes)](https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html)
-, o projeto tem como objetivo expandir para outros catálogos e arquivos no futuro.
+AESo é um explorador do céu: uma única barra de busca encontra objetos astronômicos por **nome, catálogo, coordenadas ou características**, mostra o objeto num **céu interativo** (Aladin Lite, embutido no projeto) e lista as **observações e arquivos do MAST** para download.
 
-## Objetivos
+### O que a barra entende
 
-- 🔍 Busca avançada de objetos
-- 📊 Visualização integrada do MAST Portal de forma nativa e acessível.
-- 🌌 Suporte a imagens FITS e espectros, e tratamento de dados e imagem (com limites) online.
-- 🎨 Interface imersiva c/ Animações fluidas e feedback visual
-- 🔄 Integração em tempo real com APIs 
+| Você digita | O que acontece |
+|---|---|
+| `M51`, `NGC 1300`, `HD 209458`, `Betelgeuse` | Resolve o nome (Sesame → SIMBAD/NED/VizieR, com o MAST como alternativa) e abre o objeto |
+| `Pilares da Criação`, `Galáxia de Andrômeda` | Nomes populares em português/inglês são traduzidos para o catálogo |
+| `202.47 +47.19`, `13h29m52s +47d11m43s` | Vai direto para as coordenadas |
+| `galáxias espirais mais brilhantes que 10` | Busca por características no SIMBAD (ADQL) e mostra uma grade de resultados |
+| `nebulosas planetárias perto de M27 num raio de 2 graus` | Busca por proximidade |
+| `quasares com z > 6`, `estrelas tipo M`, `aglomerados globulares do catálogo messier` | Filtros por redshift, tipo espectral e catálogo |
 
-## Stack Tecnológica/Roadmap
+Com `ANTHROPIC_API_KEY` configurada, perguntas livres que as regras não entendem são interpretadas pelo Claude. Ele devolve um nome de objeto ou filtros estruturados; nunca SQL livre.
 
-- [Next.js 15](https://nextjs.org/)
+### Ao abrir um objeto
 
-<details>
-<summary>...</summary>
+- **Céu interativo** (Aladin Lite v3): arrastar, dar zoom, tela cheia, trocar entre óptico (DSS2, Pan-STARRS), infravermelho (2MASS, WISE) e ultravioleta (GALEX). Os campos observados pelo MAST são desenhados por cima, com uma cor por missão.
+- **Ficha do objeto**: tipo, coordenadas (clique para copiar), distância (em pc/Mpc e anos-luz), magnitudes, tamanho aparente, redshift, morfologia, outros nomes e links para SIMBAD, NED e MAST Portal.
+- **Observações MAST** (JWST, HST, GALEX, TESS, Swift…): filtros por missão e tipo, prévias, lista de arquivos por observação, download direto, “baixar selecionados” e geração de script `curl`.
 
-- [React 18](https://react.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [framer-motion](https://www.framer.com/motion/)
-- [lucide-icons](https://lucide.dev/)
-- [pnpm](https://pnpm.io/)
-- [Python](https://www.python.org/)
-- ...
+## Arquitetura
 
-</details>
+Tudo roda dentro deste projeto Next.js, sem serviços extras. Deploy direto na Vercel ou com `pnpm build && pnpm start`.
 
-- ### Visão Futura
-    - Expandir o suporte para outros catálogos e arquivos astronômicos.
-    - Implementar um sistema robusto de machine learning para melhorar a interação com dados complexos.
-    - Desenvolver um sistema de segurança avançado para garantir a privacidade de usuários, dados, empresas e institutos.
-    - ...
+```
+app/
+  page.tsx                 → <Explorer />
+  api/search/route.ts      → interpreta a busca e resolve objetos/listas
+  api/observations/route.ts→ observações MAST num cone (Mast.Caom.Filtered.Position)
+  api/products/route.ts    → arquivos de uma observação (Mast.Caom.Products)
+components/aeso/           → Explorer, SearchBar, SkyViewer (Aladin), ObjectDetails,
+                             Observations, ResultsList, SkyThumb, Starfield
+lib/astro/                 → coordenadas, interpretador de buscas, ADQL, tipos SIMBAD (isomórfico)
+lib/server/                → clientes SIMBAD TAP, Sesame, MAST, Claude (opcional), fixtures
+tests/                     → testes do interpretador e do gerador de ADQL (vitest)
+```
 
+As chamadas ao MAST/SIMBAD passam pelas rotas `/api/*` do próprio Next.js. Isso evita problemas de CORS, centraliza o cache (`s-maxage`) e mantém chaves no servidor. O Aladin Lite vem do npm e é carregado só no cliente (WebGL2); as imagens do céu (HiPS) e as miniaturas (`hips2fits`) vêm do CDS.
+
+## Stack
+
+Next.js 15 · React 19 · TypeScript · Tailwind CSS · framer-motion · Aladin Lite 3 · Geist · lucide · zod · Anthropic SDK (opcional) · vitest
 
 ## Instalação
 
 ```bash
-# Clone o repositório
 git clone https://github.com/fabriciort/aeso.git
-
-# Instale as dependências
 cd aeso
 pnpm install
+cp .env.example .env.local   # opcional: ANTHROPIC_API_KEY
+pnpm dev                     # http://localhost:3000
+```
 
-# Inicie o servidor de desenvolvimento
-pnpm run dev
+Outros comandos:
+
+```bash
+pnpm dev:mock    # dados simulados, sem acessar MAST/SIMBAD (UI offline)
+pnpm test        # testes unitários
+pnpm lint && pnpm typecheck
+pnpm build && pnpm start
 ```
 
 ## Roadmap
 
-- [ ] Implementação de autenticação
-- [ ] Sistema de coleções
-- [ ] Exportação de dados em múltiplos formatos, e compactações
-- [ ] Análise e filtragem de dados com machine learning
-- [x] ...
+- [x] Busca por nome, catálogo, coordenadas e características
+- [x] Céu interativo embutido com campos observados
+- [x] Observações e downloads reais do MAST
+- [ ] Visualização de FITS e espectros no navegador
+- [ ] Coleções / favoritos e autenticação (dados proprietários do MAST)
+- [ ] Outros arquivos (ESA, NOIRLab, Gaia)
 
 ## Licença e Atribuições
 
@@ -89,6 +103,8 @@ Os dados, imagens equaisquer conteúdos do MAST/STScI estão sujeitos às suas p
 - [STScI Copyright](https://www.stsci.edu/copyright)
 - [STScI Privacy Policy](https://www.stsci.edu/privacy)
 - [MAST Data Usage](https://archive.stsci.edu/publishing/data-use)
+
+Este projeto usa o SIMBAD, o Sesame, o hips2fits e o Aladin Lite, operados pelo CDS (Strasbourg, França). Ao publicar resultados, cite o [SIMBAD](https://cds.unistra.fr/help/acknowledgement/) e o [Aladin](https://aladin.cds.unistra.fr/). O Aladin Lite é distribuído pelo CDS sob licença LGPL-3.0 e é usado como dependência npm, sem modificações.
 
 ### Estrutura de Licenciamento
 

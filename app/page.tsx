@@ -1,5 +1,5 @@
-import MainView from '@/components/MainView'
+import Explorer from '@/components/aeso/Explorer'
 
 export default function Home() {
-  return <MainView />
-} 
+  return <Explorer />
+}
