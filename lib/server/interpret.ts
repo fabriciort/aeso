@@ -1,76 +1,69 @@
 import 'server-only'
-import Anthropic from '@anthropic-ai/sdk'
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { z } from 'zod'
 import type { SearchFilters } from '@/lib/astro/types'
+import { aiProvider, completeJson } from './ai'
 
-// Optional "smart" layer: when ANTHROPIC_API_KEY is configured, Claude turns
-// free-form questions ("as nebulosas mais bonitas perto de Órion", "o buraco
-// negro da primeira foto do EHT") into either an object name or structured
-// SIMBAD filters. Without a key, the rule-based parser in lib/astro/query.ts
-// is used on its own.
+// Optional "smart" layer for the search bar: when an AI provider is
+// configured (see lib/server/ai.ts), free-form questions are turned into
+// either an object name or structured SIMBAD filters. Without a provider the
+// rule-based parser in lib/astro/query.ts is used on its own.
+
+const nullable = <T extends z.ZodTypeAny>(t: T) => t.nullable().optional()
 
 const Interpretation = z.object({
   intent: z.enum(['object', 'search', 'unknown']),
-  objectName: z
-    .string()
-    .nullable()
-    .describe('Identificador resolvível pelo SIMBAD/Sesame (ex.: "M 87", "NGC 1300", "HD 209458") quando intent=object'),
-  filters: z.object({
-    otype: z.string().nullable().describe('Código de tipo SIMBAD; sufixo ".." inclui subtipos (ex.: "G..", "PN", "GlC", "*..", "Pl..")'),
-    morphology: z.string().nullable().describe('Padrão SQL LIKE de morfologia (ex.: "S%", "SB%", "E%")'),
-    spectralType: z.string().nullable().describe('Prefixo de tipo espectral (ex.: "G2", "M")'),
-    catalog: z.string().nullable().describe('Prefixo de catálogo (ex.: "M", "NGC", "IC", "HD", "HIP")'),
-    magMax: z.number().nullable().describe('Magnitude V máxima (mais brilhante que)'),
-    magMin: z.number().nullable(),
-    redshiftMax: z.number().nullable(),
-    redshiftMin: z.number().nullable(),
-    near: z.string().nullable().describe('Nome resolvível de um objeto de referência para busca por proximidade'),
-    radiusDeg: z.number().nullable(),
-    sort: z.enum(['brightness', 'size', 'redshift']).nullable(),
-    limit: z.number().nullable(),
-  }),
+  objectName: nullable(z.string()),
+  filters: z
+    .object({
+      otype: nullable(z.string()),
+      morphology: nullable(z.string()),
+      spectralType: nullable(z.string()),
+      catalog: nullable(z.string()),
+      magMax: nullable(z.number()),
+      magMin: nullable(z.number()),
+      redshiftMax: nullable(z.number()),
+      redshiftMin: nullable(z.number()),
+      near: nullable(z.string()),
+      radiusDeg: nullable(z.number()),
+      sort: nullable(z.enum(['brightness', 'size', 'redshift'])),
+      limit: nullable(z.number()),
+    })
+    .partial()
+    .default({}),
 })
 
 export type Interpretation = z.infer<typeof Interpretation>
 
-const SYSTEM = `Você interpreta buscas digitadas na barra de pesquisa de um explorador de dados astronômicos (MAST/SIMBAD).
-Decida se o usuário procura UM objeto específico (intent=object, com objectName resolvível pelo SIMBAD — traduza nomes populares em qualquer idioma para a designação de catálogo) ou uma LISTA de objetos por características (intent=search, com filtros SIMBAD).
-Use intent=unknown se a busca não tiver relação com astronomia. Preencha com null tudo o que não foi pedido.`
+const SYSTEM = `Você interpreta buscas digitadas na barra de pesquisa de um explorador de dados astronômicos (SIMBAD/MAST).
+Responda APENAS com um objeto JSON no formato:
+{"intent": "object" | "search" | "unknown",
+ "objectName": string | null,      // intent=object: designação resolvível pelo SIMBAD, ex. "M 87", "NGC 1300", "HD 209458"
+ "filters": {                      // intent=search
+   "otype": string | null,         // código SIMBAD; ".." inclui subtipos: "G..", "PN", "GlC", "OpC", "*..", "Pl..", "QSO.."
+   "morphology": string | null,    // padrão LIKE: "S%", "SB%", "E%"
+   "spectralType": string | null,  // prefixo: "G2", "M"
+   "catalog": string | null,       // "M", "NGC", "IC", "HD", "HIP"
+   "magMax": number | null, "magMin": number | null,
+   "redshiftMax": number | null, "redshiftMin": number | null,
+   "near": string | null,          // nome de objeto de referência para busca por proximidade
+   "radiusDeg": number | null,
+   "sort": "brightness" | "size" | "redshift" | null,
+   "limit": number | null }}
+Use intent=object para UM objeto específico (traduza nomes populares em qualquer idioma para a designação de catálogo).
+Use intent=search para listas por características. Use intent=unknown se não for sobre astronomia.`
 
-let client: Anthropic | null = null
-
-export function claudeEnabled(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY)
+export function aiEnabled(): boolean {
+  return aiProvider() !== null
 }
 
-export async function interpretWithClaude(query: string): Promise<Interpretation | null> {
-  if (!claudeEnabled()) return null
-  client ??= new Anthropic({ timeout: 20_000, maxRetries: 1 })
-  try {
-    const response = await client.messages.parse({
-      model: process.env.AESO_CLAUDE_MODEL || 'claude-opus-5-5',
-      max_tokens: 4000,
-      system: SYSTEM,
-      messages: [{ role: 'user', content: query.slice(0, 500) }],
-      output_config: { effort: 'low', format: zodOutputFormat(Interpretation) },
-    })
-    if (response.stop_reason === 'refusal') return null
-    return response.parsed_output ?? null
-  } catch (error) {
-    if (error instanceof Anthropic.APIError) {
-      console.error(`[interpret] Claude API ${error.status}: ${error.message}`)
-    } else {
-      console.error('[interpret]', error)
-    }
-    return null
-  }
+export async function interpretQuery(query: string): Promise<Interpretation | null> {
+  return completeJson(Interpretation, SYSTEM, query.slice(0, 500))
 }
 
 export function toFilters(i: Interpretation): SearchFilters {
   const f: SearchFilters = {}
-  for (const [k, v] of Object.entries(i.filters)) {
-    if (v !== null) (f as Record<string, unknown>)[k] = v
+  for (const [k, v] of Object.entries(i.filters ?? {})) {
+    if (v !== null && v !== undefined) (f as Record<string, unknown>)[k] = v
   }
   return f
 }

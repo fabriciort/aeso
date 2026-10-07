@@ -27,7 +27,7 @@ export const rise = {
   show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring' as const, stiffness: 260, damping: 30 } },
 }
 
-export default function ObjectDetails({ object, interpretedBy }: { object: AstroObject; interpretedBy?: 'rules' | 'claude' }) {
+export default function ObjectDetails({ object, interpretedBy }: { object: AstroObject; interpretedBy?: 'rules' | 'ai' }) {
   const family = otypeFamily(object.otype)
   const distance = object.distance ? formatDistance(object.distance) : undefined
   const vmag = object.magnitudes?.find((m) => m.band === 'V') ?? object.magnitudes?.[0]
@@ -48,7 +48,7 @@ export default function ObjectDetails({ object, interpretedBy }: { object: Astro
         <div className={cn('pointer-events-none absolute -left-6 -top-10 h-40 w-56 rounded-full bg-gradient-to-br blur-3xl', FAMILY_GRADIENT[family])} />
         <div className="relative flex flex-wrap items-center gap-2">
           {object.typeLabel && <span className="eyebrow !text-white/55">{object.typeLabel}</span>}
-          {interpretedBy === 'claude' && (
+          {interpretedBy === 'ai' && (
             <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] font-medium text-violet-200">
               <Sparkles className="h-3 w-3" /> interpretado por IA
             </span>

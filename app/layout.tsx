@@ -4,9 +4,9 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AESo — Explorador do céu',
+  title: 'AESo · Aprenda o universo fazendo ciência',
   description:
-    'Busque objetos astronômicos por nome, catálogo, coordenadas ou características, veja-os no céu interativo e baixe os dados do MAST.',
+    'Laboratórios interativos de física e astronomia com dados reais de telescópios, um céu inteiro para explorar e uma guia de IA. Em português, direto no navegador.',
 }
 
 export const viewport: Viewport = {

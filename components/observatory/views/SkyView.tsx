@@ -6,13 +6,14 @@ import { ArrowLeft } from 'lucide-react'
 import type { AstroObject, ObjectListItem, Observation, SearchResponse } from '@/lib/astro/types'
 import { fetchObservations, searchQuery } from '@/lib/client/api'
 import { cn } from '@/lib/utils'
-import ObjectDetails from './ObjectDetails'
-import Observations from './Observations'
-import ResultsList from './ResultsList'
-import SearchBar, { type SearchBarHandle } from './SearchBar'
-import SkyThumb from './SkyThumb'
-import SkyViewer from './SkyViewer'
-import Starfield from './Starfield'
+import { useVegaScreen } from '@/lib/observatory/vega-context'
+import { rememberSearch } from '@/lib/progress'
+import ObjectDetails from '@/components/aeso/ObjectDetails'
+import Observations from '@/components/aeso/Observations'
+import ResultsList from '@/components/aeso/ResultsList'
+import SearchBar, { type SearchBarHandle } from '@/components/aeso/SearchBar'
+import SkyThumb from '@/components/aeso/SkyThumb'
+import SkyViewer from '@/components/aeso/SkyViewer'
 
 const spring = { type: 'spring' as const, stiffness: 300, damping: 34, mass: 0.9 }
 
@@ -23,12 +24,7 @@ const FEATURED = [
   { q: 'NGC 1300', title: 'Espiral barrada', ra: 49.9208, dec: -19.4111, fov: 0.14 },
 ]
 
-const EXAMPLES = [
-  'galáxias espirais mais brilhantes que 10',
-  'nebulosas planetárias perto de M27',
-  'aglomerados globulares do catálogo messier',
-  '13h29m52s +47d11m43s',
-]
+const EXAMPLES = ['Pilares da Criação', 'galáxias espirais mais brilhantes que 10', 'nebulosas planetárias perto de M27', 'WASP-121']
 
 type Phase = 'idle' | 'loading' | 'done'
 
@@ -37,7 +33,7 @@ function observationRadius(o: AstroObject): number {
   return Math.min(Math.max(fromSize, 0.01), 0.25)
 }
 
-export default function Explorer() {
+export default function SkyView() {
   const [input, setInput] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
   const [result, setResult] = useState<SearchResponse | null>(null)
@@ -78,6 +74,7 @@ export default function Explorer() {
         const r = await searchQuery(query, controller.signal)
         if (controller.signal.aborted) return
         setResult(r)
+        if (r.kind === 'object' || r.kind === 'list') rememberSearch(query)
         if (r.kind === 'object') {
           setObject(r.object)
           if (!opts.keepList) setList(null)
@@ -145,39 +142,25 @@ export default function Explorer() {
   }
 
   const idle = phase === 'idle' || (phase === 'loading' && !result)
+
+  useVegaScreen({
+    state: object
+      ? `Objeto aberto no Céu: ${object.displayName} (${object.id})${object.typeLabel ? `, ${object.typeLabel}` : ''}. ${observations ? `${observations.length} observações do MAST listadas.` : ''}`
+      : list
+        ? `Lista de resultados: ${list.description}.`
+        : 'Tela de busca do Céu.',
+  })
   const showObject = object && result?.kind === 'object'
   const showList = !showObject && list && result?.kind === 'list'
 
   return (
     <LayoutGroup>
-      <Starfield dimmed={!idle} />
-      <div className="relative mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col px-4 sm:px-6 lg:px-8">
-        <header className="flex h-16 shrink-0 items-center justify-between">
-          <button onClick={() => reset()} className="focus-ring flex items-center gap-2.5 rounded-full pr-2" aria-label="Início">
-            <span className="relative grid h-7 w-7 place-items-center">
-              <span className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-300 via-indigo-400 to-violet-500 opacity-90" />
-              <span className="absolute inset-[3px] rounded-full bg-[#05060a]" />
-              <span className="relative h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_10px_2px_rgba(255,255,255,0.7)]" />
-            </span>
-            <span className="text-[15px] font-semibold tracking-[-0.01em] text-white">AESo</span>
-          </button>
-          <a
-            href="https://github.com/fabriciort/aeso"
-            target="_blank"
-            rel="noreferrer"
-            className="focus-ring grid h-9 w-9 place-items-center rounded-full text-white/50 transition hover:bg-white/10 hover:text-white"
-            aria-label="Código no GitHub"
-          >
-            <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="currentColor" aria-hidden>
-              <path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.7 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z" />
-            </svg>
-          </a>
-        </header>
+      <div className="relative mx-auto flex min-h-[calc(100dvh-24px)] w-full max-w-[1400px] flex-col">
 
         <motion.section
           layout
           transition={spring}
-          className={cn('flex flex-col items-center', idle ? 'flex-1 justify-center pb-[10vh]' : 'sticky top-2 z-40 pb-2 pt-1')}
+          className={cn('flex flex-col items-center', idle ? 'flex-1 justify-center pb-[6vh] pt-6' : 'sticky top-2 z-40 pb-2 pt-1')}
         >
           <AnimatePresence mode="popLayout">
             {idle && (
@@ -188,13 +171,13 @@ export default function Explorer() {
                 exit={{ opacity: 0, y: -24, filter: 'blur(10px)', transition: { duration: 0.35 } }}
                 className="mb-9 text-center"
               >
-                <p className="eyebrow mb-4">MAST · SIMBAD · CDS</p>
+                <p className="eyebrow mb-4">Céu</p>
                 <h1 className="text-balance bg-gradient-to-b from-white via-white to-white/55 bg-clip-text text-[42px] font-semibold leading-[1.02] tracking-[-0.045em] text-transparent sm:text-[64px]">
-                  O universo,
-                  <br />a uma busca de distância.
+                  Encontre qualquer
+                  <br />coisa no céu.
                 </h1>
                 <p className="mx-auto mt-5 max-w-lg text-balance text-[17px] leading-relaxed text-white/50">
-                  Digite um nome, catálogo, coordenadas ou descreva o que procura. Veja no céu e baixe os dados.
+                  Busque pelo nome, pelo catálogo ou descreva o que procura. Veja no céu e baixe os dados dos telescópios.
                 </p>
               </motion.div>
             )}
@@ -326,9 +309,6 @@ export default function Explorer() {
           )}
         </AnimatePresence>
 
-        <footer className="pb-6 text-center text-[11px] text-white/30">
-          Dados: MAST/STScI, SIMBAD e Aladin Lite (CDS, Strasbourg). Imagens de levantamentos HiPS.
-        </footer>
       </div>
     </LayoutGroup>
   )

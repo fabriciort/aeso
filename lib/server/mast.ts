@@ -16,7 +16,7 @@ interface MastResponse {
  * Calls the MAST Mashup API. Long-running CAOM queries answer with
  * status=EXECUTING and must be re-requested until COMPLETE.
  */
-async function mastInvoke(request: Record<string, unknown>, timeoutMs = 25000): Promise<MastResponse> {
+export async function mastInvoke(request: Record<string, unknown>, timeoutMs = 25000): Promise<MastResponse> {
   const deadline = Date.now() + timeoutMs
   for (let attempt = 0; ; attempt++) {
     const res = await fetchWithTimeout('MAST', MAST_INVOKE, {

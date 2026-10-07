@@ -29,6 +29,21 @@ interface SkyViewerProps {
 
 type Status = 'loading' | 'ready' | 'unsupported'
 
+/** Rough angular size (degrees) of an STC-S region, to skip huge footprints. */
+function regionExtent(region: string): number {
+  const nums = (region.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
+  if (/^\s*CIRCLE/i.test(region) && nums.length >= 3) return nums[2] * 2
+  let max = 0
+  for (let i = 0; i + 3 < nums.length; i += 2) {
+    const dRa = Math.abs(nums[i] - nums[0]) * Math.cos((nums[1] * Math.PI) / 180)
+    const dDec = Math.abs(nums[i + 1] - nums[1])
+    max = Math.max(max, Math.min(dRa, 360 - dRa), dDec)
+  }
+  return max
+}
+
+const MAX_FOOTPRINTS = 250
+
 export default function SkyViewer({ ra, dec, fov, label, observations, highlighted, className }: SkyViewerProps) {
   const frameRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -126,7 +141,17 @@ export default function SkyViewer({ ra, dec, fov, label, observations, highlight
       return
     }
     overlay.show()
-    for (const o of observations ?? []) {
+    // Skip footprints much larger than the view (TESS sectors, GALEX tiles…):
+    // they would cover the object without telling anything useful.
+    const limit = Math.max(fov * 1.6, 0.05)
+    const small = (observations ?? [])
+      .filter((o) => o.region)
+      .map((o) => ({ o, size: regionExtent(o.region!) }))
+      .filter((x) => x.size > 0 && x.size <= limit)
+      .sort((a, b) => a.size - b.size)
+      .slice(0, MAX_FOOTPRINTS)
+      .map((x) => x.o)
+    for (const o of small) {
       if (!o.region) continue
       try {
         overlay.addFootprints(A.footprintsFromSTCS(o.region, { color: missionColor(o.collection), lineWidth: 1.25 }))
@@ -134,7 +159,7 @@ export default function SkyViewer({ ra, dec, fov, label, observations, highlight
         // Some regions use STC-S constructs Aladin cannot parse; skip them.
       }
     }
-  }, [observations, status, showFootprints])
+  }, [observations, status, showFootprints, fov])
 
   useEffect(() => {
     const A = libRef.current
@@ -204,9 +229,9 @@ export default function SkyViewer({ ra, dec, fov, label, observations, highlight
 
       {/* Target label */}
       {label && (
-        <div className="pointer-events-none absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-xs text-white/80 backdrop-blur-xl">
-          <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_8px_2px_rgba(56,189,248,0.6)]" />
-          {label}
+        <div className="pointer-events-none absolute left-4 top-4 z-20 flex max-w-[calc(100%-80px)] items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-xs text-white/80 backdrop-blur-xl">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-sky-400 shadow-[0_0_8px_2px_rgba(56,189,248,0.6)]" />
+          <span className="truncate">{label}</span>
         </div>
       )}
 

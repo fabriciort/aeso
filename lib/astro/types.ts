@@ -98,14 +98,14 @@ export interface SearchFilters {
 }
 
 export type SearchResponse =
-  | { kind: 'object'; query: string; object: AstroObject; interpretedBy?: 'rules' | 'claude' }
+  | { kind: 'object'; query: string; object: AstroObject; interpretedBy?: 'rules' | 'ai' }
   | {
       kind: 'list'
       query: string
       description: string
       filters: SearchFilters
       results: ObjectListItem[]
-      interpretedBy: 'rules' | 'claude'
+      interpretedBy: 'rules' | 'ai'
     }
   | { kind: 'empty'; query: string; message: string; hint?: string }
   | { kind: 'error'; query: string; message: string }

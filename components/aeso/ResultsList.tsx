@@ -9,7 +9,7 @@ import SkyThumb from './SkyThumb'
 interface ResultsListProps {
   description: string
   results: ObjectListItem[]
-  interpretedBy: 'rules' | 'claude'
+  interpretedBy: 'rules' | 'ai'
   onSelect: (item: ObjectListItem) => void
 }
 
@@ -24,8 +24,8 @@ export default function ResultsList({ description, results, interpretedBy, onSel
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow flex items-center gap-1.5">
-            {interpretedBy === 'claude' && <Sparkles className="h-3 w-3 text-violet-300" />}
-            {interpretedBy === 'claude' ? 'Interpretado por IA' : 'Busca por características'} · SIMBAD
+            {interpretedBy === 'ai' && <Sparkles className="h-3 w-3 text-violet-300" />}
+            {interpretedBy === 'ai' ? 'Interpretado por IA' : 'Busca por características'} · SIMBAD
           </p>
           <h2 className="mt-1 text-balance text-[28px] font-semibold leading-tight tracking-[-0.025em] text-white sm:text-[34px]">
             {description}

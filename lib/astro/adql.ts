@@ -86,3 +86,15 @@ export function buildDistanceAdql(mainId: string): string {
     'ORDER BY d.bibcode DESC',
   ].join('\n')
 }
+
+/** Nearest catalogued object to a position (distance in degrees). */
+export function buildNearestAdql(ra: number, dec: number, radiusDeg: number): string {
+  if (![ra, dec, radiusDeg].every(Number.isFinite)) throw new Error('coordenadas inválidas')
+  return [
+    `SELECT TOP 1 b.main_id, b.ra, b.dec, b.otype,`,
+    `  DISTANCE(POINT('ICRS', b.ra, b.dec), POINT('ICRS', ${ra}, ${dec})) AS dist`,
+    'FROM basic AS b',
+    `WHERE CONTAINS(POINT('ICRS', b.ra, b.dec), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1`,
+    'ORDER BY dist ASC',
+  ].join('\n')
+}

@@ -1,12 +1,13 @@
 import 'server-only'
-import { buildAliasesAdql, buildCharacteristicsAdql, buildDistanceAdql, buildObjectAdql } from '@/lib/astro/adql'
+import { buildAliasesAdql, buildCharacteristicsAdql, buildDistanceAdql, buildNearestAdql, buildObjectAdql } from '@/lib/astro/adql'
+import { formatNumber } from '@/lib/format'
 import { formatRA, formatDec } from '@/lib/astro/coords'
 import { lookupFamous } from '@/lib/astro/catalog'
 import { otypeFamily, otypeLabel } from '@/lib/astro/otypes'
 import { classifyQuery, describeFilters, parseCharacteristics } from '@/lib/astro/query'
 import type { AstroObject, Measurement, ObjectListItem, SearchFilters, SearchResponse } from '@/lib/astro/types'
 import { UpstreamError } from './http'
-import { claudeEnabled, interpretWithClaude, toFilters } from './interpret'
+import { aiEnabled, interpretQuery, toFilters } from './interpret'
 import { mastNameLookup } from './mast'
 import { sesame, simbadTap, type Row } from './simbad'
 
@@ -125,20 +126,34 @@ export async function resolveObject(identifier: string, displayName = identifier
   }
 }
 
-function coordinateObject(ra: number, dec: number, query: string): AstroObject {
+/**
+ * Coordinates: if a catalogued object sits within 10″, open it directly;
+ * otherwise show the position, naming the nearest object when there is one.
+ */
+async function coordinateObject(ra: number, dec: number, query: string): Promise<AstroObject> {
+  const rows = await safe(simbadTap(buildNearestAdql(ra, dec, 0.1), 10000), [] as Row[])
+  const near = rows[0]
+  if (near) {
+    const sepArcsec = Number(near.dist) * 3600
+    if (sepArcsec <= 10) {
+      const obj = await resolveObject(String(near.main_id))
+      if (obj) return { ...obj, sources: [...obj.sources, `a ${formatNumber(sepArcsec, 1)}″ das coordenadas`] }
+    }
+  }
+  const nearName = near ? clean(String(near.main_id)) : undefined
   return {
     id: `${formatRA(ra)} ${formatDec(dec)}`,
-    displayName: 'Coordenadas',
+    displayName: nearName ? `Perto de ${nearName}` : 'Posição no céu',
     ra,
     dec,
-    typeLabel: 'Posição no céu',
+    typeLabel: 'Coordenadas',
     fov: 0.3,
     aliases: [],
     sources: [`entrada: ${query}`],
   }
 }
 
-async function runCharacteristics(query: string, filters: SearchFilters, interpretedBy: 'rules' | 'claude'): Promise<SearchResponse> {
+async function runCharacteristics(query: string, filters: SearchFilters, interpretedBy: 'rules' | 'ai'): Promise<SearchResponse> {
   const f = { ...filters }
   if (f.near && !f.nearCoords) {
     const ref = await resolveObject(f.near)
@@ -195,7 +210,7 @@ export async function search(query: string): Promise<SearchResponse> {
     const intent = classifyQuery(q)
 
     if (intent.kind === 'coordinates') {
-      return { kind: 'object', query: q, object: coordinateObject(intent.coords.ra, intent.coords.dec, q) }
+      return { kind: 'object', query: q, object: await coordinateObject(intent.coords.ra, intent.coords.dec, q) }
     }
 
     if (intent.kind === 'identifier') {
@@ -203,18 +218,18 @@ export async function search(query: string): Promise<SearchResponse> {
       if (obj) return { kind: 'object', query: q, object: obj, interpretedBy: 'rules' }
     }
 
-    if (intent.kind === 'characteristics' && intent.recognized && !claudeEnabled()) {
+    if (intent.kind === 'characteristics' && intent.recognized && !aiEnabled()) {
       return await runCharacteristics(q, intent.filters, 'rules')
     }
 
-    // Free-form or unresolved: ask Claude when available.
-    const ai = await interpretWithClaude(q)
+    // Free-form or unresolved: ask the AI provider when available.
+    const ai = await interpretQuery(q)
     if (ai?.intent === 'object' && ai.objectName) {
       const obj = await resolveObject(ai.objectName, q)
-      if (obj) return { kind: 'object', query: q, object: obj, interpretedBy: 'claude' }
+      if (obj) return { kind: 'object', query: q, object: obj, interpretedBy: 'ai' }
     }
     if (ai?.intent === 'search') {
-      return await runCharacteristics(q, toFilters(ai), 'claude')
+      return await runCharacteristics(q, toFilters(ai), 'ai')
     }
 
     if (intent.kind === 'characteristics' && intent.recognized) {

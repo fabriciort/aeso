@@ -34,7 +34,7 @@ export function mockSearch(query: string): SearchResponse {
     return {
       kind: 'object',
       query,
-      object: { ...M51, id: 'Coordenadas', displayName: 'Coordenadas', ra: intent.coords.ra, dec: intent.coords.dec, typeLabel: 'Posição no céu', fov: 0.3, aliases: [], magnitudes: [], distance: undefined, otype: undefined, morphology: undefined, redshift: undefined, radialVelocity: undefined, sizeArcmin: undefined },
+      object: { ...M51, id: "13h 29m 52.00s +47° 11′ 43.0″", displayName: "Perto de M  51", typeLabel: "Coordenadas", ra: intent.coords.ra, dec: intent.coords.dec, fov: 0.3, aliases: [], magnitudes: [], distance: undefined, otype: undefined, morphology: undefined, redshift: undefined, radialVelocity: undefined, sizeArcmin: undefined },
     }
   }
   if (intent.kind === 'characteristics') {
