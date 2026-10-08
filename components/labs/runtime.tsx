@@ -4,10 +4,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { AnimatePresence, motion } from 'framer-motion'
 import { RotateCcw, Volume2 } from 'lucide-react'
 import type { Lab } from '@/lib/labs/types'
-import { STEP_LABEL } from '@/lib/labs/types'
+import { stepLabel } from '@/lib/labs/types'
 import type { LightCurve } from '@/lib/server/tess'
 import { haptic } from '@/lib/observatory/immersive'
-import { speak, stopSpeaking, unlockVoice, useNarrator, voiceSupported } from '@/lib/observatory/voice'
+import { readableText, speak, stopSpeaking, unlockVoice, useNarrator, voiceSupported } from '@/lib/observatory/voice'
 import { setPreferences, usePreferences } from '@/lib/preferences'
 import { cn } from '@/lib/utils'
 import { VegaOrb } from '@/components/observatory/Nav'
@@ -206,7 +206,7 @@ export function StepFrame({
   useEffect(() => {
     if (!voice) return
     const t = setTimeout(() => {
-      const text = narration ?? textRef.current?.textContent ?? ''
+      const text = narration ?? readableText(textRef.current)
       if (text.trim()) speak(text, id)
     }, 380)
     return () => clearTimeout(t)
@@ -218,7 +218,7 @@ export function StepFrame({
       <Nudge id={id} text={nudge} voice={voice} />
       <div className="flex items-center gap-2">
         <p className="min-w-0 flex-1 truncate text-[11px] font-medium uppercase tracking-[0.16em]" style={{ color: lab.accent }}>
-          {STEP_LABEL[step.kind]} <span className="text-white/35">· {step.title}</span>
+          {stepLabel(step)} <span className="text-white/35">· {step.title}</span>
         </p>
         <VoiceButton id={id} textRef={textRef} narration={narration} />
       </div>
@@ -282,7 +282,7 @@ function VoiceButton({ id, textRef, narration }: { id: string; textRef: React.Re
   const speakingHere = narrator.speaking && narrator.id?.startsWith(id)
   if (!supported) return null
   const read = () => {
-    const text = narration ?? textRef.current?.textContent ?? ''
+    const text = narration ?? readableText(textRef.current)
     if (text.trim()) speak(text, id)
   }
   return (

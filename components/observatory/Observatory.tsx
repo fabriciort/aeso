@@ -16,6 +16,7 @@ import Welcome from './Welcome'
 import HomeView from './views/HomeView'
 import LabsView from './views/LabsView'
 import LabView from './views/LabView'
+import MathView from './views/MathView'
 import SkyView from './views/SkyView'
 
 // O Observatório: one continuous environment. Areas swap in place with a
@@ -87,6 +88,7 @@ function Shell() {
               {route.area === 'inicio' && <HomeView />}
               {route.area === 'ceu' && <SkyView />}
               {route.area === 'laboratorios' && <LabsView />}
+              {route.area === 'matematica' && <MathView />}
               {route.area === 'laboratorio' && <LabView slug={route.slug} stepId={route.step} />}
             </motion.div>
           )}

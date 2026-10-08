@@ -1,5 +1,7 @@
 // Laboratório = a guided experience made of Etapas (see docs/PRODUTO.md).
 
+export type TrackId = 'basica' | 'ensino-medio' | 'pre-calculo' | 'calculo-1' | 'calculo-2' | 'calculo-3' | 'calculo-4'
+
 export type StepKind = 'cenario' | 'previsao' | 'conceito' | 'observacao' | 'medicao' | 'desafio' | 'conclusao'
 
 export const STEP_LABEL: Record<StepKind, string> = {
@@ -22,6 +24,12 @@ export interface LabStep {
   vega: string
   /** Suggested questions shown in the Vega panel during this step (2–3). */
   ask?: string[]
+  /** Overrides the kind's label (e.g. "Resolva" instead of "Meça" in Matemática). */
+  label?: string
+}
+
+export function stepLabel(step: LabStep): string {
+  return step.label ?? STEP_LABEL[step.kind]
 }
 
 export interface LabTarget {
@@ -44,8 +52,10 @@ export interface Lab {
   slug: string
   title: string
   subtitle: string
-  area: 'Astronomia' | 'Física'
-  level: 'Ensino médio' | 'Graduação' | 'Todos'
+  area: 'Astronomia' | 'Física' | 'Matemática'
+  level: 'Ensino fundamental' | 'Ensino médio' | 'Pré-cálculo' | 'Graduação' | 'Todos'
+  /** Matemática: the trilha this lab belongs to (lib/labs/math.ts). */
+  track?: TrackId
   minutes: number
   status: 'disponivel' | 'em-breve'
   concepts: string[]

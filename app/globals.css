@@ -148,3 +148,12 @@ input,
 ::backdrop {
   background: #030407;
 }
+
+/* KaTeX inside the dark UI: inherit color, slightly larger than text. */
+.tex .katex {
+  font-size: 1.08em;
+  color: inherit;
+}
+.tex.block .katex-display {
+  margin: 0.2em 0;
+}

@@ -1,6 +1,7 @@
 import type { Lab } from './types'
 import { COR_DAS_ESTRELAS } from './cor-das-estrelas'
 import { DIAGRAMA_HR } from './diagrama-hr'
+import { MATH_LABS } from './math'
 import { ORBITAS } from './orbitas'
 import { UNIVERSO_EM_EXPANSAO } from './universo-em-expansao'
 
@@ -95,6 +96,13 @@ export const EXOPLANETA: Lab = {
 
 export const LABS: Lab[] = [EXOPLANETA, COR_DAS_ESTRELAS, ORBITAS, UNIVERSO_EM_EXPANSAO, DIAGRAMA_HR]
 
+/** Every lab: ciências (LABS) and Matemática (MATH_LABS). */
+export const ALL_LABS: Lab[] = [...LABS, ...MATH_LABS]
+
 export function getLab(slug: string): Lab | undefined {
-  return LABS.find((l) => l.slug === slug)
+  return ALL_LABS.find((l) => l.slug === slug)
+}
+
+export function isMathLab(lab: Lab | undefined): boolean {
+  return lab?.area === 'Matemática'
 }

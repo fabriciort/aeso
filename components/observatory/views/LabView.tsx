@@ -5,10 +5,10 @@ import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check, Clock, Download, Share, X } from 'lucide-react'
 import { getLab } from '@/lib/labs/catalog'
-import { STEP_LABEL, type Lab } from '@/lib/labs/types'
+import { stepLabel, type Lab } from '@/lib/labs/types'
 import { rise, spring, stagger } from '@/lib/motion'
 import { enterFocus, exitFocus, haptic, useInstall, useKeepAwake } from '@/lib/observatory/immersive'
-import { useRouter } from '@/lib/observatory/router'
+import { labHome, useRouter } from '@/lib/observatory/router'
 import { useVega, useVegaScreen } from '@/lib/observatory/vega-context'
 import { stopSpeaking, unlockVoice } from '@/lib/observatory/voice'
 import { getPreferences } from '@/lib/preferences'
@@ -53,8 +53,8 @@ function ComingSoon({ lab }: { lab: Lab }) {
         <p className="eyebrow">Em breve</p>
         <h1 className="mt-3 text-[34px] font-semibold tracking-[-0.03em] text-white">{lab.title}</h1>
         <p className="mt-3 text-[17px] leading-relaxed text-white/55">{lab.subtitle}</p>
-        <Button variant="secondary" className="mt-8" onClick={() => navigate({ area: 'laboratorios' })}>
-          <ArrowLeft className="h-4 w-4" /> Outros laboratórios
+        <Button variant="secondary" className="mt-8" onClick={() => navigate(labHome(lab.slug))}>
+          <ArrowLeft className="h-4 w-4" /> {lab.area === 'Matemática' ? 'Trilhas de matemática' : 'Outros laboratórios'}
         </Button>
       </div>
     </div>
@@ -138,7 +138,7 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
   const leave = useCallback(() => {
     stopSpeaking()
     void exitFocus()
-    navigate({ area: 'laboratorios' })
+    navigate(labHome(lab.slug))
   }, [navigate])
 
   const finish = () => {
@@ -272,7 +272,7 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
       <BottomBar
         index={index}
         total={lab.steps.length}
-        label={STEP_LABEL[step.kind]}
+        label={stepLabel(step)}
         ready={ready}
         isLast={isLast}
         accent={lab.accent}
@@ -338,7 +338,7 @@ function TopBar({
                 </span>
               </button>
               <span className="pointer-events-none absolute left-1/2 top-5 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-black/80 px-2.5 py-1 text-[11px] text-white/80 opacity-0 transition group-hover:opacity-100 lg:block">
-                {STEP_LABEL[s.kind]}
+                {stepLabel(s)}
               </span>
             </li>
           )
@@ -351,7 +351,7 @@ function TopBar({
         <div className="min-w-0 flex-1 text-center lg:text-left">
           <p className="truncate text-[13px] font-medium text-white/85 lg:text-[14px]">
             <span className="lg:hidden">
-              {index + 1}/{lab.steps.length} · {STEP_LABEL[step.kind]}
+              {index + 1}/{lab.steps.length} · {stepLabel(step)}
             </span>
             <span className="hidden lg:inline">{lab.title}</span>
           </p>
@@ -460,17 +460,17 @@ function Cover({ lab, resume, onEnter }: { lab: Lab; resume: boolean; onEnter: (
         <LabCover lab={lab} big className="absolute inset-0 h-full w-full" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#030407]/40 via-transparent to-[#030407]" />
         <button
-          onClick={() => navigate({ area: 'laboratorios' })}
+          onClick={() => navigate(labHome(lab.slug))}
           className="focus-ring absolute left-4 top-[max(env(safe-area-inset-top),14px)] grid h-10 w-10 place-items-center rounded-full bg-black/40 text-white/80 backdrop-blur-xl"
-          aria-label="Voltar aos laboratórios"
+          aria-label={lab.area === 'Matemática' ? 'Voltar à Matemática' : 'Voltar aos laboratórios'}
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
       </motion.div>
 
       <motion.div variants={stagger(0.07, 0.15)} initial="hidden" animate="show" className="-mt-10 lg:mt-0">
-        <motion.button variants={rise} onClick={() => navigate({ area: 'laboratorios' })} className="mb-8 hidden items-center gap-1.5 text-[13px] text-white/45 hover:text-white lg:inline-flex">
-          <ArrowLeft className="h-3.5 w-3.5" /> Laboratórios
+        <motion.button variants={rise} onClick={() => navigate(labHome(lab.slug))} className="mb-8 hidden items-center gap-1.5 text-[13px] text-white/45 hover:text-white lg:inline-flex">
+          <ArrowLeft className="h-3.5 w-3.5" /> {lab.area === 'Matemática' ? 'Matemática' : 'Laboratórios'}
         </motion.button>
         <motion.p variants={rise} className="eyebrow" style={{ color: lab.accent }}>
           Laboratório · {lab.area}
@@ -537,7 +537,7 @@ function Cover({ lab, resume, onEnter }: { lab: Lab; resume: boolean; onEnter: (
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/10 font-mono text-[12px] text-white/55">{i + 1}</span>
             <span className="min-w-0">
               <span className="block text-[10.5px] font-medium uppercase tracking-[0.14em]" style={{ color: lab.accent }}>
-                {STEP_LABEL[s.kind]}
+                {stepLabel(s)}
               </span>
               <span className="block truncate text-[15px] text-white">{s.title}</span>
             </span>

@@ -2,21 +2,24 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FlaskConical, House, Orbit, Sparkles } from 'lucide-react'
+import { FlaskConical, House, Orbit, Sigma, Sparkles } from 'lucide-react'
 import { spring } from '@/lib/motion'
+import { getLab, isMathLab } from '@/lib/labs/catalog'
 import { useRouter, type Route } from '@/lib/observatory/router'
 import { useVega } from '@/lib/observatory/vega-context'
 import { cn } from '@/lib/utils'
 import { Logo } from './ui'
 
-const ITEMS: { area: 'inicio' | 'ceu' | 'laboratorios'; label: string; icon: typeof House; route: Route }[] = [
+const ITEMS: { area: 'inicio' | 'ceu' | 'laboratorios' | 'matematica'; label: string; icon: typeof House; route: Route }[] = [
   { area: 'inicio', label: 'Início', icon: House, route: { area: 'inicio' } },
   { area: 'ceu', label: 'Céu', icon: Orbit, route: { area: 'ceu' } },
   { area: 'laboratorios', label: 'Laboratórios', icon: FlaskConical, route: { area: 'laboratorios' } },
+  { area: 'matematica', label: 'Matemática', icon: Sigma, route: { area: 'matematica' } },
 ]
 
 function activeArea(r: Route) {
-  return r.area === 'laboratorio' ? 'laboratorios' : r.area
+  if (r.area === 'laboratorio') return isMathLab(getLab(r.slug)) ? 'matematica' : 'laboratorios'
+  return r.area
 }
 
 /** Desktop: slim rail on the left. */

@@ -51,6 +51,18 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   })
 }
 
+/**
+ * The text of an element as it should be read aloud: math (KaTeX) is
+ * replaced by its spoken form (data-say), hidden parts are skipped.
+ */
+export function readableText(el: HTMLElement | null): string {
+  if (!el) return ''
+  const clone = el.cloneNode(true) as HTMLElement
+  clone.querySelectorAll<HTMLElement>('[data-say]').forEach((n) => n.replaceWith(` ${n.dataset.say ?? ''} `))
+  clone.querySelectorAll('[aria-hidden="true"]').forEach((n) => n.remove())
+  return clone.textContent ?? ''
+}
+
 /** Turns on-screen notation into something a voice can read naturally. */
 export function speechText(text: string): string {
   return text
