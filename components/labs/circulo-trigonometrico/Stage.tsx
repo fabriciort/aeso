@@ -112,7 +112,7 @@ function target(p: Inputs, ar: number, accent: string): Target {
   const tight = ar < 1.25
   const WW = tight ? 2.6 : waveWidth(ar)
   const XW = tight ? 1.22 : 1.7
-  const full = (xw: number, y0 = -1.55, y1 = 1.45, x0 = tight ? -1.1 : -1.35): Viewport => ({ x0, x1: xw + WW + (tight ? 0.12 : 0.3), y0, y1 })
+  const full = (xw: number, y0 = -1.55, y1 = 1.45, x0 = tight ? -1.2 : -1.35): Viewport => ({ x0, x1: xw + WW + (tight ? 0.12 : 0.3), y0, y1 })
   const focus = (y0 = -1.5, y1 = 1.5): Viewport => ({ x0: -1.55, x1: 1.55, y0, y1 })
   const T: Target = {
     view: full(XW),
@@ -858,7 +858,7 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
     ctx.lineTo(P.x(0.55 * g.rho), gy)
     ctx.stroke()
     ctx.restore()
-    text(ctx, 'chão', P.x(-1.25), gy + 12, withAlpha('rgb(255,255,255)', 0.35 * A.ground), 'left', 'middle')
+    text(ctx, 'chão', P.x(-0.95), gy + 12, withAlpha('rgb(255,255,255)', 0.35 * A.ground), 'left', 'middle')
   }
 
   // ---------------------------------------------------------------- wave axes and labels
@@ -964,7 +964,7 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
     ctx.lineTo(P.x(xEnd), P.y(ly))
     ctx.stroke()
     ctx.restore()
-    text(ctx, '100 m', P.x(xEnd), P.y(ly) - 9, withAlpha(COS, A.thresh), 'right', 'middle')
+    text(ctx, '100 m', P.x(g.xw) + 5, P.y(ly) - 9, withAlpha(COS, A.thresh), 'left', 'middle')
     if (A.above > 0.01) {
       ctx.save()
       ctx.beginPath()
