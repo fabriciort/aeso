@@ -277,6 +277,12 @@ export default function HrStage({ stepId, scene, answers, setAnswer, live: liveR
     if (gaia) setLive({ gaiaCount: gaia.stars.length, gaiaSource: gaia.source })
   }, [gaia, setLive])
 
+  // A star card belongs to the Etapa where it was opened.
+  useEffect(() => {
+    setLive({ selected: null })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepId])
+
   // ------------------------------------------------------------ loop
   useEffect(() => {
     const canvas = canvasRef.current
@@ -911,7 +917,7 @@ export default function HrStage({ stepId, scene, answers, setAnswer, live: liveR
       </AnimatePresence>
 
       {/* top-left: star card, formula, Betelgeuse card or the Sun's stage */}
-      <div className="pointer-events-none absolute left-3 top-3 z-10 max-w-[64%]">
+      <div className="pointer-events-none absolute left-3 top-3 z-10 max-w-[56%]">
         <AnimatePresence mode="wait">
           {selected ? (
             <motion.div
