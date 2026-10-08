@@ -1327,7 +1327,7 @@ function draw(
     const cx = d.cupX * W
     const cy = d.cupY * H
     drawCup(ctx, cx, cy, cw, d.cupA, time, clamp((thermo - ROOM) / 70, 0, 1))
-    const clock = d.follow > 0.5 ? `aos ${fmt(Math.min(d.exactUpTo, 240), 0)} min` : null
+    const clock = d.follow > 0.5 ? `aos ${fmt(Math.min(d.exactUpTo, d.wLong > 0.5 ? 240 : 60), 0)} min` : null
     drawThermo(ctx, cx + cw * 0.95 + 8 * d.cupS, cy, cw * 1.55, thermo, d.cupA, accent, clock)
     if (d.axes < 0.5) tag(ctx, W, cx - cw * 0.5, cy + cw * 0.78, 'sala · 20 °C', 'rgba(255,255,255,0.75)', d.cupA * (1 - d.axes * 2), 'right')
   }

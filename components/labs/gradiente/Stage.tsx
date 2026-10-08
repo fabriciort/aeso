@@ -324,13 +324,18 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     if (!wrap || !canvas || !ctx) return
-    const ro = new ResizeObserver(([e]) => {
-      const w = e.contentRect.width
-      const h = e.contentRect.height
-      sizeRef.current = { w, h }
-      const dpr = 1
+    // Resolution: up to 1,5× (the mesh is many small polygons); drops to 1×
+    // by itself if the device cannot keep up.
+    let dprCap = 1.5
+    const resize = () => {
+      const { w, h } = sizeRef.current
+      const dpr = Math.min(window.devicePixelRatio || 1, dprCap)
       canvas.width = Math.round(w * dpr)
       canvas.height = Math.round(h * dpr)
+    }
+    const ro = new ResizeObserver(([e]) => {
+      sizeRef.current = { w: e.contentRect.width, h: e.contentRect.height }
+      resize()
     })
     ro.observe(wrap)
     const reduced = prefersReducedMotion()
@@ -351,6 +356,8 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
     let zmax = 1
     let raf = 0
     let last = performance.now()
+    let slow = 0
+    let frames = 0
     const tmp: Projected = { X: 0, Y: 0, depth: 0 }
 
     const frame = (now: number) => {
@@ -359,6 +366,11 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
       if (!W || !H) return
       const dt = Math.min(now - last, 50)
       last = now
+      slow = slow * 0.95 + (dt > 24 ? 0.05 : 0)
+      if (++frames > 45 && slow > 0.5 && dprCap > 1) {
+        dprCap = 1
+        resize()
+      }
       const inp = inputsRef.current
       if (inp.spin && !draggingRef.current && !reduced) yawRef.current += dt * 0.00012
       const tgt = target(inp, liveRef.current, answersRef.current, yawRef.current)
@@ -494,6 +506,7 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
           ctx.lineTo(PX[a + M], PY[a + M])
           ctx.closePath()
           ctx.fill()
+          ctx.stroke()
           if (ringsCoarse > 0.01) {
             const lo = Math.min(za, zb, zc, zd)
             const hi = Math.max(za, zb, zc, zd)

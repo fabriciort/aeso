@@ -422,8 +422,8 @@ export default function EquationStage({ live, setLive, lab }: StageProps) {
       if (g.medal > 0.01) {
         const p = S.medalT ? clamp((now - S.medalT) / 1300, 0, 1) : 1
         const e = 1 - Math.pow(1 - p, 3)
-        const R = Math.min(g.Lb * 1.5, g.pivotY * 0.95)
-        const cy = g.pivotY - R * 0.15
+        const R = Math.min(g.Lb * 1.12, g.Hb * 0.44)
+        const cy = Math.min(g.pivotY - R * 0.3, g.Hb - R - 6)
         const grd = ctx.createRadialGradient(g.cx, cy, R * 0.2, g.cx, cy, R * 1.2)
         grd.addColorStop(0, hexA(accent, 0.1 * g.medal))
         grd.addColorStop(1, hexA(accent, 0))
