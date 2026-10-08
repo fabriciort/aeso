@@ -964,7 +964,7 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
     ctx.lineTo(P.x(xEnd), P.y(ly))
     ctx.stroke()
     ctx.restore()
-    text(ctx, '100 m', P.x(g.xw) + 5, P.y(ly) - 9, withAlpha(COS, A.thresh), 'left', 'middle')
+    text(ctx, '100 m', P.x(g.xw) + 5, P.y(ly) + 10, withAlpha(COS, A.thresh), 'left', 'middle')
     if (A.above > 0.01) {
       ctx.save()
       ctx.beginPath()

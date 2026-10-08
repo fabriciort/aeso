@@ -262,7 +262,7 @@ function target(p: Inputs): Target {
       const solved = k >= prob.steps.length
       d.curveA = pi === 2 && !solved && !p.shown3 ? (t.marks.wrong ? 0.22 : 0) : 1
       d.past = d.curveA
-      const box = pi === 2 ? { x0: -0.6, x1: 4.6, y0: -2.6, y1: 30 } : { x0: -0.75, x1: 2.85, y0: -1.3, y1: 10.4 }
+      const box = pi === 2 ? { x0: -0.6, x1: 4.6, y0: -2.6, y1: 35 } : { x0: -0.75, x1: 2.85, y0: -1.3, y1: 11.6 }
       for (const s of shows) {
         if (s.kind === 'point') {
           d.dot = 1

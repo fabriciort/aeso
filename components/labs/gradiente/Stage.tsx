@@ -108,8 +108,8 @@ const BASE: View = {
   amp: 1,
   yaw: 0,
   pitch: 0.62,
-  fit: 2.9,
-  cyF: 0.6,
+  fit: 2.45,
+  cyF: 0.62,
   zoom: 1,
   panX: 0,
   panY: 0,
@@ -176,7 +176,7 @@ function target(p: Inputs, live: Partial<GradLive>, answers: Record<string, unkn
       } else {
         Object.assign(v, MAP)
         on('cable')
-        v.layers.cable = s === 1 ? 1 : 0.4
+        v.layers.cable = s === 1 ? 1 : s === 2 ? 0.4 : 0
         if (s === 1) on('steep')
         if (s >= 2) {
           put(1, TRAIL_POINT)
@@ -193,10 +193,10 @@ function target(p: Inputs, live: Partial<GradLive>, answers: Record<string, unkn
       const done = Number((answers.solve as Record<string, number> | undefined)?.[prob.id] ?? 0)
       if (prob.id === 'p1' && done < 2) {
         put(2, P1)
-        Object.assign(v, { amp: 2.4, mesh: 0.28, plane: 1, planeAng: done === 1 ? TOP : 0, yaw: done === 1 ? -TOP : 0, pitch: 0.22, fit: 2.6, cyF: 0.66, zoom: 1.15, persp: 0.08 })
+        Object.assign(v, { amp: 3.3, mesh: 0.28, plane: 1, planeAng: done === 1 ? TOP : 0, yaw: done === 1 ? -TOP : 0, pitch: 0.22, fit: 2.4, cyF: 0.9, zoom: 1.35, persp: 0.08 })
       } else if (prob.id !== 'p3') {
         put(2, P1)
-        Object.assign(v, MAP, { levelHi: 1, zoom: 1.25, map: 0.8 })
+        Object.assign(v, MAP, { levelHi: 1, zoom: 1.6, map: 0.8 })
         ;[v.panX, v.panY] = [v.hx + 0.08, v.hy + 0.05]
         if (prob.id === 'p1') {
           on('vecs')
@@ -204,8 +204,8 @@ function target(p: Inputs, live: Partial<GradLive>, answers: Record<string, unkn
         } else on('dir')
       } else {
         put(2, P3)
-        Object.assign(v, MAP, { levelHi: 0.6, zoom: 1.2, map: 0.8 })
-        ;[v.panX, v.panY] = [v.hx - 0.05, v.hy + 0.12]
+        Object.assign(v, MAP, { levelHi: 0.6, zoom: 1.45, map: 0.8 })
+        ;[v.panX, v.panY] = [v.hx - 0.08, v.hy + 0.12]
         on('solo')
       }
       break
@@ -214,7 +214,8 @@ function target(p: Inputs, live: Partial<GradLive>, answers: Record<string, unkn
       v.w = [0, 0, 1]
       if (s === 0) {
         put(2, DESCENT_START)
-        Object.assign(v, { fog: 1, pitch: 0.75, yaw: 0.35, fit: 2.7, cyF: 0.58 })
+        Object.assign(v, { fog: 1, pitch: 0.75, yaw: 0.35, zoom: 1.5, cyF: 0.55 })
+        ;[v.panX, v.panY] = [v.hx * 0.7, v.hy * 0.7]
         if (p.eseAnswered) on('stepArrow')
       } else {
         Object.assign(v, MAP, { map: 0.85 })
@@ -477,7 +478,7 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
           if (d.fog > 0.01) {
             const du = -1 + (i + 0.5) * cell - hu
             const dv = -1 + (j + 0.5) * cell - hv
-            alpha *= 1 - d.fog * (1 - Math.exp(-(du * du + dv * dv) / 0.09))
+            alpha *= 1 - d.fog * (1 - Math.exp(-(du * du + dv * dv) / 0.16))
           }
           if (alpha < 0.01) continue
           const nx = -((zb - za + zc - zd) / 2) / cell
@@ -611,7 +612,8 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
           ctx.restore()
           const mid = surf(0, (t[0][0] + t[1][0]) / 2, (t[0][1] + t[1][1]) / 2)
           const text = scene3 ? `${name} · 300 m em ${fmt(trailLength(t), 2)} km` : name
-          pill(mid.X, mid.Y - 22, text, Lr.trails, tone)
+          if (scene3) pill(mid.X + (name === 'A' ? 10 : -10), mid.Y + (name === 'A' ? -26 : 26), text, Lr.trails, tone, name === 'A' ? 'left' : 'right')
+          else pill(mid.X, mid.Y - 22, text, Lr.trails, tone)
         })
       }
       if (Lr.summit > 0.01) {
@@ -887,6 +889,11 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
         const kk = Math.floor(prog)
         const fr = prog - kk
         ctx.save()
+        // keep a runaway walk inside the map
+        ctx.beginPath()
+        ;[P(-1, -1, 0), P(1, -1, 0), P(1, 1, 0), P(-1, 1, 0)].forEach((c, i) => (i ? ctx.lineTo(c.X, c.Y) : ctx.moveTo(c.X, c.Y)))
+        ctx.closePath()
+        ctx.clip()
         ctx.globalAlpha = Lr.descent
         ctx.strokeStyle = wk.status === 'divergiu' ? ROSE : SKY
         ctx.lineWidth = 2

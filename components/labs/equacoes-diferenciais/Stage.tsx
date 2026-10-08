@@ -154,7 +154,7 @@ interface Inputs {
 function target(p: Inputs): Ch {
   const g: Ch = { ...BASE }
   const coffeeWorld = () => Object.assign(g, COFFEE, { axes: 1, wCool: 1, wDecay: 0, wLog: 0 })
-  const cupCorner = () => Object.assign(g, { cupA: 1, cupX: 0.76, cupY: 0.3, cupS: 0.42 })
+  const cupCorner = () => Object.assign(g, { cupA: 1, cupX: 0.71, cupY: 0.3, cupS: 0.42 })
   switch (p.stepId) {
     case 'imagine':
       coffeeWorld()

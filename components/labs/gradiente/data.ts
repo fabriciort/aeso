@@ -50,7 +50,7 @@ export const TRAIL_POINT: Vec2 = [-0.62, -0.33]
 // 3) The valley f = x² + 3y² (Resolva and E se…?).
 export const BOWL_A = 1
 export const BOWL_B = 3
-export const BOWL: Terrain = { id: 'vale', field: quadratic(BOWL_A, BOWL_B), L: 3, zs: 0.025, levels: range(2, 40, 2), arrow: 0.2 }
+export const BOWL: Terrain = { id: 'vale', field: quadratic(BOWL_A, BOWL_B), L: 4, zs: 0.018, levels: range(2, 62, 4), arrow: 0.25 }
 
 export const TERRAINS = [MOUNTAIN, RIO, BOWL] as const
 export type TerrainIndex = 0 | 1 | 2
@@ -173,7 +173,7 @@ export interface Problem {
 export const PROBLEMS: Problem[] = [
   {
     id: 'p1',
-    title: 'f(x,y) = x^2 + 3y^2 \;\\text{em}\; (1,\\,1)',
+    title: 'f(x,y) = x^2 + 3y^2 \\ \\text{em}\\ (1,\\,1)',
     titleSay: 'f de x e y igual a x ao quadrado mais 3 y ao quadrado, no ponto 1, 1',
     steps: [
       {
@@ -185,7 +185,7 @@ export const PROBLEMS: Problem[] = [
           { tex: 'x^2', say: 'x ao quadrado', why: 'Isso é a própria fatia, não a inclinação dela. Derive x²: a reta não acompanha a curva.', show: { slope: 1 } },
           { tex: '2x + 6y', say: '2 x mais 6 y', why: 'Você derivou y também. Nesta fatia y fica parado: a reta saiu íngreme demais.', show: { slope: 8 } },
         ],
-        line: '\\dfrac{\\partial f}{\\partial x} = 2x \;\\Rightarrow\; 2',
+        line: '\\partial f/\\partial x = 2x \\quad\\Rightarrow\\quad 2',
         lineSay: 'derivada parcial de f em x igual a 2 x, que no ponto vale 2',
       },
       {
@@ -197,7 +197,7 @@ export const PROBLEMS: Problem[] = [
           { tex: 'x^2 + 6y', say: 'x ao quadrado mais 6 y', why: 'Com x parado, x² é só um número: deriva para 0. A reta saiu torta.', show: { slope: 7 } },
           { tex: '3y^2', say: '3 y ao quadrado', why: 'Essa é a fatia, não a inclinação. Derive 3y²: a reta não acompanha a curva.', show: { slope: 3 } },
         ],
-        line: '\\dfrac{\\partial f}{\\partial y} = 6y \;\\Rightarrow\; 6',
+        line: '\\partial f/\\partial y = 6y \\quad\\Rightarrow\\quad 6',
         lineSay: 'derivada parcial de f em y igual a 6 y, que no ponto vale 6',
       },
       {
@@ -247,7 +247,7 @@ export const PROBLEMS: Problem[] = [
   },
   {
     id: 'p3',
-    title: '\\nabla f(-2;\\ 0{,}5) = \;?',
+    title: '\\nabla f(-2;\\ 0{,}5) = \\ ?',
     titleSay: 'gradiente de f no ponto menos 2, 0 vírgula 5',
     steps: [],
   },
