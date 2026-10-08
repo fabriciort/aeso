@@ -205,7 +205,7 @@ function target(p: Inputs, live: Partial<GradLive>, answers: Record<string, unkn
       } else {
         put(2, P3)
         Object.assign(v, MAP, { levelHi: 0.6, zoom: 1.45, map: 0.8 })
-        ;[v.panX, v.panY] = [v.hx - 0.08, v.hy + 0.12]
+        ;[v.panX, v.panY] = [v.hx + 0.2, v.hy + 0.1]
         on('solo')
       }
       break
@@ -228,6 +228,12 @@ function target(p: Inputs, live: Partial<GradLive>, answers: Record<string, unkn
       put(0, SUMMIT)
       on('ascent')
       break
+  }
+  if (v.pitch === TOP) {
+    // a zoomed map never slides past its own edge
+    const lim = Math.max(0, 1 - v.fit / (2 * v.zoom))
+    v.panX = Math.max(-lim, Math.min(lim, v.panX))
+    v.panY = Math.max(-lim, Math.min(lim, v.panY))
   }
   return v
 }

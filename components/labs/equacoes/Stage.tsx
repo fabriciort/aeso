@@ -635,7 +635,7 @@ export default function EquationStage({ live, setLive, lab }: StageProps) {
         ctx.roundRect(tr.x, tr.y, tr.w, tr.h, 14)
         ctx.fill()
         ctx.stroke()
-        for (let i = 0; i < 4; i++) drawUnit(ctx, tr.x + 22 + i * (g.u + 4), tr.y + tr.h / 2, g.u, 1, 1)
+        for (let i = 0; i < 4; i++) drawUnit(ctx, tr.x + 14 + g.u / 2 + i * (g.u + 4), tr.y + tr.h / 2, g.u, 1, 1)
         ctx.fillStyle = 'rgba(255,255,255,0.45)'
         ctx.font = '500 11px ui-sans-serif, system-ui, sans-serif'
         ctx.textAlign = 'right'
@@ -900,8 +900,8 @@ function Notebook({ lines, height, title, reduced, accent }: { lines: NbLine[]; 
 // ------------------------------------------------------------------ drawing
 
 function trayRect(g: Geo) {
-  const w = Math.min(190, g.Lb * 1.7)
-  return { x: g.cx - w / 2, y: g.baseY + 16, w, h: 40 }
+  const w = 4 * (g.u + 4) + 96
+  return { x: g.cx - w / 2, y: g.baseY + 14, w, h: Math.max(40, g.u + 14) }
 }
 
 function hexA(hex: string, a: number) {

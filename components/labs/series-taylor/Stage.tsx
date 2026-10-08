@@ -937,7 +937,7 @@ function Formula({ lead, terms, tail, big }: { lead: { tex: string; say: string 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
       transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-      className={cn('pointer-events-none absolute inset-x-3 z-10 flex justify-center', big ? 'top-4' : 'top-12 sm:top-3')}
+      className={cn('pointer-events-none absolute inset-x-3 z-10 flex justify-center', big ? 'top-4' : 'top-12')}
     >
       <div className={cn('flex max-w-full flex-wrap items-center justify-center gap-x-1 rounded-2xl bg-black/55 px-3 py-1.5 text-white backdrop-blur-xl', big ? 'text-[17px]' : 'text-[14px] sm:text-[16px]')}>
         {lead.tex && <Tex say={lead.say}>{lead.tex}</Tex>}
