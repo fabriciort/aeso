@@ -9,7 +9,7 @@ export const UNIVERSO_EM_EXPANSAO: Lab = {
   area: 'Astronomia',
   level: 'Ensino médio',
   minutes: 25,
-  status: 'em-breve',
+  status: 'disponivel',
   concepts: ['Efeito Doppler', 'Redshift', 'Lei de Hubble'],
   accent: '#b993ff',
   skyTarget: 'M31',

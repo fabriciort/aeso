@@ -37,7 +37,6 @@ const Y1 = 5.9
 const X_COOL = 3.38
 const X_HOT = 4.68
 const X_HOT_WIDE = 5.2
-const LOG_T_SUN = Math.log10(5772)
 
 const BETELGEUSE = starById('betelgeuse')!
 const SIRIUS_B = starById('sirius-b')!

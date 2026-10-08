@@ -9,7 +9,7 @@ export const DIAGRAMA_HR: Lab = {
   area: 'Astronomia',
   level: 'Ensino médio',
   minutes: 25,
-  status: 'em-breve',
+  status: 'disponivel',
   concepts: ['Luminosidade', 'Temperatura', 'Lei de Stefan-Boltzmann', 'Evolução estelar', 'Dados do Gaia'],
   accent: '#7cc4ff',
   skyTarget: 'Betelgeuse',

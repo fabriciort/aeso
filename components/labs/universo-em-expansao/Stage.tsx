@@ -564,7 +564,7 @@ export default function UniversoStage({ lab, stepId, scene, answers, live, setLi
             const p = toScreen(b.x, b.y)
             if (p.x < -20 || p.x > W + 20 || p.y < fTop - 20 || p.y > fTop + fH + 20) continue
             drawGalaxy(ctx, p.x, p.y, b.r * clamp(s / 1, 0.7, 1.4), b.tilt, b.warm ? [255, 226, 190] : [190, 210, 255], 0.55 * bgA)
-            if (D.arrows > 0.01) drawArrow(ctx, p, b.x - D.obsX, b.y - D.obsY, s * k * 0.26 * cr, s * k * 0.26, rot, rgba(accent, 0.28 * D.arrows * bgA * (1 - D.rewind)), 1)
+            if (D.arrows > 0.01) drawArrow(ctx, p, b.x - D.obsX, b.y - D.obsY, s * k * 0.26, rot, rgba(accent, 0.28 * D.arrows * bgA * (1 - D.rewind)), 1)
           }
         }
 
@@ -740,7 +740,7 @@ export default function UniversoStage({ lab, stepId, scene, answers, live, setLi
           const mine = meas.includes(i)
           const r = mix(clamp(4.2 * s, 6, 13), 4.5, e)
           const a = fa * (1 - 0.8 * D.local)
-          if (D.arrows > 0.01) drawArrow(ctx, { x, y }, p0.x - D.obsX, p0.y - D.obsY, s * k * 0.26 * cr, s * k * 0.26, rot, rgba(accent, 0.75 * D.arrows * a * (1 - D.plot) * (1 - D.rewind)), 1.8)
+          if (D.arrows > 0.01) drawArrow(ctx, { x, y }, p0.x - D.obsX, p0.y - D.obsY, s * k * 0.26, rot, rgba(accent, 0.75 * D.arrows * a * (1 - D.plot) * (1 - D.rewind)), 1.8)
           if (e > 0.02) {
             // a point of the Hubble diagram
             const col: [number, number, number] = mine ? accent : [255, 255, 255]
@@ -1218,7 +1218,7 @@ function arrowSeg(ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: num
 }
 
 /** Arrow from a galaxy, pointing away from the observer, length ∝ distance (Hubble law). */
-function drawArrow(ctx: CanvasRenderingContext2D, p: { x: number; y: number }, dx: number, dy: number, _unused: number, scale: number, rot: number, color: string, width: number) {
+function drawArrow(ctx: CanvasRenderingContext2D, p: { x: number; y: number }, dx: number, dy: number, scale: number, rot: number, color: string, width: number) {
   const d = Math.hypot(dx, dy)
   if (d < 1) return
   const c = Math.cos(rot)
