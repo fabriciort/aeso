@@ -95,6 +95,8 @@ interface Target {
   extra: { q: Quad; from: number; to: number; label?: string; at?: number }[]
   /** Resolva: marks drawn on h(t). */
   marks: { wrong: boolean; shows: Show[] }
+  /** Court fit: share of the spare height that goes under the floor. */
+  under: number
   /** Range challenge: landing markers. */
   landings: { x: number; label: string; best?: boolean }[]
 }
@@ -127,7 +129,7 @@ interface Inputs {
 
 function target(p: Inputs): Target {
   const d = zero()
-  const t: Target = { d, box: COURT_BOX, fit: 'court', ghostOf: null, extra: [], marks: { wrong: false, shows: [] }, landings: [] }
+  const t: Target = { d, box: COURT_BOX, fit: 'court', ghostOf: null, extra: [], marks: { wrong: false, shows: [] }, landings: [], under: 0.33 }
   const court = (dims = 0) => {
     d.floor = 1
     d.player = 1
@@ -343,6 +345,7 @@ function target(p: Inputs): Target {
       d.vertex = 1
       d.glow = 1
       t.box = { x0: -1.6, x1: 5.6, y0: -0.38, y1: 7.2 }
+      t.under = 0.08
       break
     }
   }
@@ -358,7 +361,7 @@ function easeDisp(cur: Disp, tgt: Disp, k: number, view: Viewport) {
 }
 
 /** Fits the box to the frame: equal scale on both axes, floor anchored at the bottom (court) or centered (graph). */
-function fitView(box: Viewport, f: Frame, fit: Fit): Viewport {
+function fitView(box: Viewport, f: Frame, fit: Fit, under = 0.33): Viewport {
   if (fit === 'free' || !f.width || !f.height) return box
   if (fit === 'equal') return equalAspect(box, f)
   const s = Math.min(f.width / (box.x1 - box.x0), f.height / (box.y1 - box.y0))
@@ -366,7 +369,7 @@ function fitView(box: Viewport, f: Frame, fit: Fit): Viewport {
   const cx = (box.x0 + box.x1) / 2
   // Spare height: a third goes under the floor (more court), the rest is sky.
   const spare = f.height / s - (box.y1 - box.y0)
-  const y0 = box.y0 - spare * 0.33
+  const y0 = box.y0 - spare * under
   return { x0: cx - w / 2, x1: cx + w / 2, y0, y1: y0 + f.height / s }
 }
 
@@ -498,7 +501,7 @@ export default function QuadStage({ lab, stepId, scene, answers, setAnswer, live
       last = now
       const T = tgtRef.current
       const tframe = frameOf(W, H, T.d.padB)
-      const tview = fitView(T.box, tframe, T.fit)
+      const tview = fitView(T.box, tframe, T.fit, T.under)
       if (!disp.current) disp.current = { ...T.d, view: tview, curve: { ...T.d.curve } }
       const g = disp.current
       easeDisp(g, T.d, reduced ? 1 : easeFactor(dt), tview)
@@ -1138,6 +1141,12 @@ function label(ctx: CanvasRenderingContext2D, x: number, y: number, text: string
   ctx.save()
   ctx.globalAlpha = alpha
   ctx.font = MATH_FONT
+  // Keep the whole label inside the canvas (no numbers cut at the edge).
+  const w = ctx.measureText(text).width
+  const W = ctx.canvas.clientWidth || ctx.canvas.width
+  const left = align === 'center' ? x - w / 2 : align === 'right' || align === 'end' ? x - w : x
+  const shift = Math.min(0, W - 6 - (left + w)) + Math.max(0, 6 - left)
+  x += shift
   ctx.textAlign = align
   ctx.textBaseline = 'middle'
   ctx.lineWidth = 3
@@ -1431,7 +1440,7 @@ function drawMarks(ctx: CanvasRenderingContext2D, g: Disp, T: Target, p: P, f: F
     ctx.lineTo(f.left + f.width, p.y(0))
     ctx.stroke()
     ctx.restore()
-    label(ctx, f.left + f.width - 8, p.y(0) - 10, 'chão: h = 0', SKY, 'right', g.ground)
+    label(ctx, f.left + 8, p.y(0) - 10, 'chão: h = 0', SKY, 'left', g.ground)
   }
   // √Δ/(2|a|) on each side of the axis.
   if (g.arms > 0.01) {

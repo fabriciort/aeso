@@ -213,7 +213,7 @@ function target(p: Inputs): Target {
       t.guideX = prob.x
       if (prob.id === 'p1') {
         const zoom = st.current >= 2
-        t.view = zoom ? { x0: -0.15, x1: 1.15, y0: 0.85, y1: 2.35 } : { x0: -1.7, x1: 1.9, y0: -0.6, y1: 5.4 }
+        t.view = zoom ? { x0: -0.15, x1: 1.05, y0: 0.2, y1: 2.6 } : { x0: -1.7, x1: 1.9, y0: -0.6, y1: 5.4 }
         t.guideA = zoom ? 0.6 : 0
         if (pick?.poly) {
           t.poly = pick.poly
@@ -230,7 +230,7 @@ function target(p: Inputs): Target {
           t.marks.real = { x: 0.5, y: Math.exp(0.5), a: st.solved ? 1 : 0, tone: 'real' }
         }
       } else if (prob.id === 'p2') {
-        t.view = { x0: 0.36, x1: 0.64, y0: 1.636, y1: 1.657 }
+        t.view = { x0: 0.3, x1: 0.62, y0: 1.636, y1: 1.657 }
         t.poly = [1, 1, 1 / 2, 1 / 6]
         t.polyA = 1
         t.guideA = 0.5
@@ -582,8 +582,8 @@ function drawSums(ctx: CanvasRenderingContext2D, d: Display, p: ReturnType<typeo
   ctx.font = MATH_FONT
   ctx.fillStyle = 'rgba(255,255,255,0.7)'
   ctx.textAlign = 'right'
-  ctx.textBaseline = 'bottom'
-  ctx.fillText('e = 2,718281828…', W - 10, Ye - 6)
+  ctx.textBaseline = 'top'
+  ctx.fillText('e = 2,718281828…', W - 10, Ye + 8)
   const n = d.eCount
   ctx.strokeStyle = hexA(accent, 0.6)
   ctx.lineWidth = 1.5
@@ -618,9 +618,9 @@ function drawPendulum(ctx: CanvasRenderingContext2D, d: Display, p: ReturnType<t
   ctx.lineTo(p.x(th), p.y(th))
   ctx.stroke()
   // The little pendulum swings with the chosen amplitude.
-  const L = 64
+  const L = 60
   const ox = W - 70
-  const oy = 16
+  const oy = p.y(0.72)
   const phi = th * Math.cos((2 * Math.PI * time) / 1.9)
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'
   ctx.lineWidth = 1
@@ -792,8 +792,9 @@ const chip = 'pointer-events-none absolute z-10 rounded-2xl bg-black/50 px-3 py-
 
 function bandText(lo: number, hi: number): string {
   if (hi - lo < 0.004) return 'cópia boa: em nenhum trecho'
-  if (Math.abs(hi + lo) < 0.02) return `cópia boa: |x| < ${fmt(hi)}`
-  return `cópia boa: de ${fmt(lo)} a ${fmt(hi)}`
+  const d = hi - lo < 0.2 ? 3 : 2
+  if (Math.abs(hi + lo) < 0.02) return `cópia boa: |x| < ${fmt(hi, d)}`
+  return `cópia boa: de ${fmt(lo, d)} a ${fmt(hi, d)}`
 }
 
 function Overlays({
@@ -826,7 +827,7 @@ function Overlays({
         return { text: `grau ${deg} · ${bandText(lo, hi)}`, legend: 'sen x' }
       }
       case 'entenda': {
-        if (scene === 0) return { text: null, legend: null }
+        if (scene === 0 || scene === 3) return { text: null, legend: null }
         const fn: TaylorFn = scene === 1 ? 'sin' : 'exp'
         const deg = scene === 1 ? sinDegOf(answers) : expDegOf(answers)
         const [lo, hi] = band(FN[fn], coefficients(fn, deg))
@@ -839,7 +840,7 @@ function Overlays({
         if (scene === 3) return { text: answers.geomGuess !== undefined ? 'em x = 0,5: 1 + 0,5 + 0,25 + … = 2' : null, legend: '1/(1 − x)' }
         const deg = scene === 0 ? 1 : lnDegOf(answers)
         const T = taylor('ln1p', deg, 1.5)
-        return { text: scene === 0 ? null : `grau ${deg} · em x = 1,5: cópia ${Math.abs(T) > 999 ? (T > 0 ? '> 999' : '< −999') : fmt(T)} · real ${fmt(Math.log(2.5))}`, legend: 'ln(1 + x)' }
+        return { text: scene === 0 ? null : `grau ${deg} · x = 1,5: ${Math.abs(T) > 999 ? (T > 0 ? '> 999' : '< −999') : fmt(T, 1)} (real ${fmt(Math.log(2.5))})`, legend: 'ln(1 + x)' }
       }
       case 'resolva': {
         const prob = PROBLEMS[Math.min(scene, PROBLEMS.length - 1)]

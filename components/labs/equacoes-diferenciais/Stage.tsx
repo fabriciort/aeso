@@ -231,7 +231,7 @@ function target(p: Inputs): Ch {
       break
     case 'conclua':
       coffeeWorld()
-      Object.assign(g, { room: 1, fCool: 0.35, bCool: 1, finale: 1, exact: 1, exactUpTo: 64, start: 1 })
+      Object.assign(g, { room: 1, fCool: 0.35, bCool: 1, finale: 1, exact: 1, exactUpTo: 64 })
       break
   }
   return g
@@ -564,7 +564,7 @@ export default function OdeStage({ lab, stepId, scene, answers, setAnswer, live,
   } else if (stepId === 'resolva' && scene === 2) {
     chip = (
       <span className="font-mono tabular-nums">
-        h = {fmt(h, 1)} min · erro máx. {fmt(eulerMaxError(h), 1)} °C
+        h = {fmt(h, 1)} · erro máx. {fmt(eulerMaxError(h), 1)} °C
       </span>
     )
   } else if (stepId === 'resolva' && scene === 3) {
@@ -631,7 +631,7 @@ export default function OdeStage({ lab, stepId, scene, answers, setAnswer, live,
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-            className="pointer-events-none absolute right-3 top-3 z-10 max-w-[64%] rounded-2xl bg-black/55 px-3 py-1.5 text-[13px] text-white/90 backdrop-blur-xl"
+            className="pointer-events-none absolute right-3 top-3 z-10 max-w-[78%] whitespace-nowrap rounded-2xl bg-black/55 px-3 py-1.5 text-[13px] text-white/90 backdrop-blur-xl"
           >
             {chip}
           </motion.div>
@@ -1006,7 +1006,7 @@ function draw(
   wrongVis: WrongVisual | undefined,
   geo: React.MutableRefObject<{ view: Viewport; frame: Frame } | null>,
 ) {
-  const top = 46
+  const top = 54
   const left = 8
   const right = 12 + 46 * d.pr
   const bottom = H - 24 - d.fb * H
@@ -1039,7 +1039,8 @@ function draw(
         ctx.textAlign = 'left'
         ctx.fillText(yt, frame.left + 30, frame.top - 8)
         ctx.textAlign = 'right'
-        ctx.fillText(xt, fx - 2, fy - 6)
+        const ax = P.y(0)
+        ctx.fillText(xt, fx - 2, (ax > frame.top + 30 && ax < fy ? ax : fy) - 7)
       }
       ctx.restore()
     })
@@ -1109,7 +1110,7 @@ function draw(
     if (d.follow > 0.01 && tt > 0 && tt < view.x1 - 0.5) drawDot(ctx, P.x(tt), P.y(coffee(tt)), 4.5, accent, 1)
     if (d.sketchFaint > 0.01) {
       const tl = Math.min(d.exactUpTo, 28 + 90 * d.wLong)
-      tag(ctx, W, P.x(tl) + 8, P.y(coffee(tl)) - 16, 'real', accent, d.sketchFaint * a * clamp(d.exactUpTo / 20, 0, 1))
+      tag(ctx, W, P.x(tl) - 6, P.y(coffee(tl)) + 18, 'real', accent, d.sketchFaint * a * clamp(d.exactUpTo / 20, 0, 1))
     }
   }
 
@@ -1249,7 +1250,7 @@ function draw(
     )
     if (nodes.length < 40) for (const p of nodes) if (p.t <= view.x1) drawDot(ctx, P.x(p.t), P.y(p.y), 3.2, SKY)
     const low = nodes.find((p) => p.y < 0 && p.t <= 60)
-    if (low) tag(ctx, W, P.x(low.t) + 8, P.y(low.y), `${fmt(low.y, 0)} °C: o café congelaria!`, ROSE, d.euler)
+    if (low) tag(ctx, W, P.x(low.t) - 10, P.y(low.y), `${fmt(low.y, 0)} °C: congelaria!`, ROSE, d.euler, 'right')
   }
 
   // Resolva 4: sozinho.

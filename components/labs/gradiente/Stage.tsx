@@ -883,7 +883,7 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
       const wk = walkRef.current
       if (Lr.descent > 0.01 && wk) {
         const elapsed = reduced ? 1e9 : now - wk.t0
-        const prog = Math.min(wk.path.length - 1, elapsed / 110)
+        const prog = Math.max(0, Math.min(wk.path.length - 1, elapsed / 110))
         const kk = Math.floor(prog)
         const fr = prog - kk
         ctx.save()
