@@ -328,7 +328,7 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
       const w = e.contentRect.width
       const h = e.contentRect.height
       sizeRef.current = { w, h }
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const dpr = 1
       canvas.width = Math.round(w * dpr)
       canvas.height = Math.round(h * dpr)
     })
@@ -494,7 +494,6 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
           ctx.lineTo(PX[a + M], PY[a + M])
           ctx.closePath()
           ctx.fill()
-          ctx.stroke()
           if (ringsCoarse > 0.01) {
             const lo = Math.min(za, zb, zc, zd)
             const hi = Math.max(za, zb, zc, zd)
