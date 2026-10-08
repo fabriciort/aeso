@@ -439,8 +439,12 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
       // ---- camera
       const availH = H - d.nb * Math.min(H * 0.4, 190)
       const topness = Math.max(0, Math.min(1, (d.pitch - 0.6) / (TOP - 0.6)))
-      const scale = d.zoom * Math.min(W / d.fit, availH / (d.fit * (0.86 + 0.14 * topness)))
-      const cam: Camera = { yaw: d.yaw, pitch: Math.min(TOP, d.pitch), scale, cx: W / 2, cy: availH * d.cyF, panX: d.panX, panY: d.panY, persp: d.persp }
+      const scale = d.zoom * Math.min(W / d.fit, availH / (d.fit * (1.2 - 0.2 * topness)))
+      // On the map, never slide past the terrain's edge (wide desktop stages too).
+      const limX = Math.max(0, 1 - W / 2 / scale)
+      const limY = Math.max(0, 1 - availH / 2 / scale)
+      const clampTo = (x: number, lim: number) => x + (Math.max(-lim, Math.min(lim, x)) - x) * topness
+      const cam: Camera = { yaw: d.yaw, pitch: Math.min(TOP, d.pitch), scale, cx: W / 2, cy: availH * d.cyF, panX: clampTo(d.panX, limX), panY: clampTo(d.panY, limY), persp: d.persp }
       camRef.current = cam
       const P = (u: number, v: number, z: number) => project(cam, u, v, z, { X: 0, Y: 0, depth: 0 })
       const flat = 1 - d.drop
