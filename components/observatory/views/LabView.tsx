@@ -3,24 +3,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check, Clock, Download, Maximize2, Share, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Clock, Download, Share, X } from 'lucide-react'
 import { getLab } from '@/lib/labs/catalog'
 import { STEP_LABEL, type Lab } from '@/lib/labs/types'
 import { rise, spring, stagger } from '@/lib/motion'
-import { canFullscreen, enterFocus, exitFocus, haptic, useImmersive, useInstall, useKeepAwake } from '@/lib/observatory/immersive'
+import { enterFocus, exitFocus, haptic, useInstall, useKeepAwake } from '@/lib/observatory/immersive'
 import { useRouter } from '@/lib/observatory/router'
 import { useVega, useVegaScreen } from '@/lib/observatory/vega-context'
+import { stopSpeaking, unlockVoice } from '@/lib/observatory/voice'
+import { getPreferences } from '@/lib/preferences'
 import { updateLab, useProgress } from '@/lib/progress'
 import { cn } from '@/lib/utils'
-import { EXOPLANETA_STEPS } from '@/components/labs/exoplaneta/steps'
 import { LabCover } from '@/components/labs/LabCover'
-import { LabRuntime, type StepNav, type StepProps } from '@/components/labs/runtime'
+import { useLabModule } from '@/components/labs/registry'
+import { ContinuousStage, LabRuntime, useLabRuntime, type StepNav } from '@/components/labs/runtime'
 import { VegaOrb } from '../Nav'
+import { CoverOptions, LabSettings } from '../Settings'
 import { Button } from '../ui'
-
-const STEP_COMPONENTS: Record<string, Record<string, React.ComponentType<StepProps>>> = {
-  exoplaneta: EXOPLANETA_STEPS,
-}
 
 export default function LabView({ slug, stepId }: { slug: string; stepId?: string }) {
   const lab = getLab(slug)
@@ -67,7 +66,8 @@ type Phase = 'cover' | 'diving' | 'playing'
 function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
   const { navigate } = useRouter()
   const progress = useProgress()
-  const immersive = useImmersive()
+  const mod = useLabModule(lab.slug)
+  const { live, setLive } = useLabRuntime()
   const saved = progress.labs[lab.slug]
   const answers = useMemo(() => saved?.answers ?? {}, [saved])
   const fromUrl = stepId ? lab.steps.findIndex((s) => s.id === stepId) : -1
@@ -136,6 +136,7 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
   }, [go, index])
 
   const leave = useCallback(() => {
+    stopSpeaking()
     void exitFocus()
     navigate({ area: 'laboratorios' })
   }, [navigate])
@@ -146,10 +147,12 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
     leave()
   }
 
-  // Entering: fullscreen request happens inside the tap, then the dive
-  // animation plays (and covers the browser's own fullscreen notice).
+  // Entering: optional fullscreen and voice must start inside the tap; the
+  // dive animation then plays (and covers the browser's fullscreen notice).
   const enter = () => {
-    void enterFocus()
+    const prefs = getPreferences()
+    if (prefs.fullscreen) void enterFocus()
+    if (prefs.voice) unlockVoice()
     haptic(10)
     setAnswer('__started', true)
     setPhase('diving')
@@ -160,7 +163,7 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
     const t = setTimeout(() => {
       setPhase('playing')
       go(fromUrl >= 0 ? fromUrl : (saved?.current ?? 0))
-    }, 1500)
+    }, 1300)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
@@ -182,10 +185,17 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [ready, isLast, forward, backward, phase])
 
-  // Leaving the lab area always leaves fullscreen.
-  useEffect(() => () => void exitFocus(), [])
+  // Leaving the lab area always leaves fullscreen and silences the voice.
+  useEffect(
+    () => () => {
+      stopSpeaking()
+      void exitFocus()
+    },
+    [],
+  )
 
-  const Step = STEP_COMPONENTS[lab.slug]?.[step.id]
+  const Step = mod?.steps[step.id]
+  const Stage = mod?.Stage
 
   if (phase === 'cover' || phase === 'diving') {
     return (
@@ -200,9 +210,21 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
 
   return (
     <div className="relative flex h-[100svh] flex-col overflow-hidden">
-      <TopBar lab={lab} index={index} reached={reached} scene={sceneInfo} onJump={go} onClose={leave} immersive={immersive} />
+      <TopBar lab={lab} index={index} reached={reached} scene={sceneInfo} onJump={go} onClose={leave} />
 
-      <div className="relative min-h-0 flex-1 pb-3">
+      <ContinuousStage value={Boolean(Stage)}>
+      <div className={cn('relative min-h-0 flex-1 pb-3', Stage && 'flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-10')}>
+        {Stage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, filter: 'blur(12px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="relative min-h-[180px] flex-1 lg:h-full lg:max-h-[min(78vh,720px)] lg:self-center"
+          >
+            <Stage lab={lab} stepId={step.id} stepIndex={index} scene={sceneInfo[0]} answers={answers} setAnswer={setAnswer} live={live} setLive={setLive} />
+          </motion.div>
+        )}
+        <div className={cn('relative', Stage ? 'h-[clamp(196px,36svh,300px)] shrink-0 lg:h-auto lg:min-h-[360px] lg:self-center' : 'h-full')}>
         <AnimatePresence mode="wait" custom={direction} initial={false}>
           <motion.div
             className="h-full"
@@ -226,17 +248,26 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
                 setReady={setReady}
                 registerNav={registerNav}
                 reportScene={reportScene}
-                onExplore={() => {
-                  void exitFocus()
-                  navigate({ area: 'ceu', q: lab.target?.name })
-                }}
+                onExplore={
+                  lab.skyTarget || lab.target
+                    ? () => {
+                        stopSpeaking()
+                        void exitFocus()
+                        navigate({ area: 'ceu', q: lab.skyTarget ?? lab.target?.name })
+                      }
+                    : undefined
+                }
               />
             ) : (
-              <p className="text-white/60">Esta etapa ainda não foi construída.</p>
+              <div className="grid h-full place-items-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
+        </div>
       </div>
+      </ContinuousStage>
 
       <BottomBar
         index={index}
@@ -274,7 +305,6 @@ function TopBar({
   scene,
   onJump,
   onClose,
-  immersive,
 }: {
   lab: Lab
   index: number
@@ -282,13 +312,9 @@ function TopBar({
   scene: [number, number]
   onJump: (i: number) => void
   onClose: () => void
-  immersive: boolean
 }) {
   const { setOpen } = useVega()
   const step = lab.steps[index]
-  // Decided after mount: the server cannot know about the Fullscreen API.
-  const [fsAvailable, setFsAvailable] = useState(false)
-  useEffect(() => setFsAvailable(canFullscreen()), [])
   return (
     <div className="relative z-30 shrink-0 pb-3 pt-[max(env(safe-area-inset-top),10px)] lg:pb-5 lg:pt-4">
       <ol className="flex gap-1" aria-label="Etapas">
@@ -330,15 +356,7 @@ function TopBar({
             <span className="hidden lg:inline">{lab.title}</span>
           </p>
         </div>
-        {!immersive && fsAvailable && (
-          <button
-            onClick={() => void enterFocus()}
-            className="focus-ring hidden h-10 items-center gap-1.5 rounded-full px-3 text-[13px] text-white/55 transition hover:bg-white/10 hover:text-white sm:inline-flex"
-            title="Entrar em tela cheia"
-          >
-            <Maximize2 className="h-4 w-4" /> Modo foco
-          </button>
-        )}
+        <LabSettings />
         <button onClick={() => setOpen(true)} className="focus-ring inline-flex h-10 items-center gap-2 rounded-full bg-white/[0.06] pl-1.5 pr-3 text-[13px] text-white/85 transition hover:bg-white/[0.12] active:scale-95" aria-label="Abrir a Vega">
           <VegaOrb size={26} /> Vega
         </button>
@@ -485,7 +503,7 @@ function Cover({ lab, resume, onEnter }: { lab: Lab; resume: boolean; onEnter: (
             {resume ? 'Voltar ao laboratório' : 'Entrar no laboratório'}
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </motion.button>
-          <p className="mt-3 text-center text-[12px] text-white/35 sm:text-left">Abre em tela cheia, com a tela sempre acesa.</p>
+          <CoverOptions className="mt-4" />
         </motion.div>
 
         {mode !== 'none' && (

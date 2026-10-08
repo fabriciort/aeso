@@ -58,7 +58,25 @@ const [scene, setScene] = useScenes(props, 3, 'minhaEtapaScene')
 - Uma ação concluída pode avançar a cena sozinha (`setScene`), como ao achar as quedas no gráfico.
 - Use `useVegaScreen({ lab, step, state })` para contar à Vega o que está na tela, em uma frase.
 
-Registre o mapa em `components/observatory/views/LabView.tsx` (`STEP_COMPONENTS`).
+- `narration="…"`: texto alternativo para a **voz da Vega** quando a legenda tem símbolos que soam mal (fórmulas). Sem ele, a voz lê o texto da legenda (`lib/observatory/voice.ts` já converte δ, ≈, ², K, nm, km/s…).
+- `nudge="…"`: uma dica que a Vega oferece (balão + voz) se o aluno ficar ~18 s parado na mesma cena. Passe só enquanto a tarefa não foi feita (`nudge={!feito ? '…' : undefined}`). A dica orienta o olhar; nunca entrega a resposta.
+
+Cada laboratório tem um `components/labs/<slug>/index.ts` que exporta por padrão um `LabModule` (`{ steps, Stage? }`), registrado em `components/labs/registry.ts` (carregado sob demanda, pré-carregado na capa).
+
+## 2b. Palco contínuo (animações que se ligam)
+
+Num laboratório com **palco contínuo**, um único instrumento fica montado do começo ao fim, fora das transições das etapas. Ele **se transforma** de uma etapa para a outra (a esfera aquecida vira estrela, a estrela se abre num espectro…) em vez de ser trocado. As etapas mostram só legenda + controles.
+
+```tsx
+// components/labs/<slug>/index.ts
+const lab: LabModule = { steps: MEU_LAB_STEPS, Stage: MeuPalco }
+```
+
+- O `Stage` recebe `StageProps`: `stepId`, `stepIndex`, `scene`, `answers`/`setAnswer` e `live`/`setLive`.
+- **`live`** são valores ao vivo do laboratório inteiro (temperatura escolhida, estrela tocada…), não salvos. Nas etapas: `const [live, setLive] = useLive<MeuLive>()`. Use `live` para o palco e as etapas conversarem (ex.: o palco detecta a órbita fechada e a etapa libera o Continuar).
+- Nas etapas, use `StepFrame` normalmente **sem** `stage`: no modo contínuo ele desenha só a coluna de texto, numa área de altura fixa (o palco nunca pula de tamanho).
+- O palco deve **interpolar** suas formas (posição, tamanho, cor, escala dos eixos) a cada quadro em direção ao alvo de cada etapa/cena. Nunca troque de visual com um corte seco: é isso que faz uma animação fluir para a outra.
+- Interações diretas (arrastar, tocar) acontecem no palco; respeite `prefers-reduced-motion` (pule a interpolação).
 
 ## 3. Reutilize instrumentos
 

@@ -20,6 +20,8 @@ export interface LabStep {
   goal: string
   /** Hidden context for Vega: what the student is doing and the key idea. */
   vega: string
+  /** Suggested questions shown in the Vega panel during this step (2–3). */
+  ask?: string[]
 }
 
 export interface LabTarget {
@@ -50,6 +52,9 @@ export interface Lab {
   /** Accent color of the lab cover (CSS). */
   accent: string
   steps: LabStep[]
+  /** TESS transit target (labs that load a real light curve). */
   target?: LabTarget
+  /** Object opened in the Céu from the lab's conclusion. */
+  skyTarget?: string
   achievement?: { title: string; description: string }
 }

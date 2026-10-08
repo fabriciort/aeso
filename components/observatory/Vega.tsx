@@ -6,6 +6,8 @@ import { ArrowUp, Square, X } from 'lucide-react'
 import { getLab } from '@/lib/labs/catalog'
 import { useRouter } from '@/lib/observatory/router'
 import { useVega } from '@/lib/observatory/vega-context'
+import { speak } from '@/lib/observatory/voice'
+import { getPreferences } from '@/lib/preferences'
 import { cn } from '@/lib/utils'
 import { VegaOrb } from './Nav'
 
@@ -44,7 +46,8 @@ export default function Vega() {
   const lab = ctx.lab ? getLab(ctx.lab) : undefined
   const stepIndex = lab ? lab.steps.findIndex((s) => s.id === ctx.step) : -1
   const where = lab ? (stepIndex >= 0 ? `${lab.title} · etapa ${stepIndex + 1}` : lab.title) : view === 'ceu' ? 'Céu' : view === 'laboratorios' ? 'Laboratórios' : 'Início'
-  const suggestions = SUGGESTIONS[ctx.step ?? ''] ?? (view === 'ceu' ? SUGGESTIONS.ceu : SUGGESTIONS.default)
+  const stepAsk = stepIndex >= 0 ? lab?.steps[stepIndex].ask : undefined
+  const suggestions = stepAsk ?? (lab?.slug === 'exoplaneta' ? SUGGESTIONS[ctx.step ?? ''] : undefined) ?? (view === 'ceu' ? SUGGESTIONS.ceu : SUGGESTIONS.default)
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
@@ -93,6 +96,8 @@ export default function Vega() {
         setMessages((m) => [...m.slice(0, -1), { role: 'assistant', content: acc }])
       }
       if (!acc.trim()) throw new Error('A resposta veio vazia. Tente perguntar de outro jeito.')
+      // With the voice on, the Vega also answers out loud.
+      if (getPreferences().voice) speak(acc, 'vega-chat')
     } catch (e) {
       if (controller.signal.aborted) {
         setMessages((m) => (m[m.length - 1]?.content ? m : m.slice(0, -1)))
