@@ -60,12 +60,18 @@ O celular é a referência. Cada **Etapa** ocupa exatamente a tela (`100svh`) e 
 - **Feedback físico:** vibração curta em escolhas, acertos e conquistas (Android); ondas no ponto tocado; partículas no encaixe.
 - **Desktop:** o mesmo conteúdo, com palco à esquerda e legenda e controles à direita, também sem rolagem.
 
-## Modo foco e app instalável
+## Ajustes: tela cheia e voz (opcionais)
 
-- **Entrar no laboratório** pede tela cheia (`requestFullscreen({ navigationUI: 'hide' })`), mantém a tela acesa (Wake Lock) e trava o celular em retrato. O mergulho de 1,5 s começa no mesmo toque, para que o aviso de tela cheia do navegador apareça sobre a animação.
-- **O aviso de tela cheia do Android não pode ser desativado por sites**: é uma proteção do navegador. O iPhone (Safari) não permite tela cheia em páginas.
-- **Instalado na tela inicial (PWA)**, o AESo abre sem nenhuma barra do navegador e sem o aviso, no Android e no iPhone. A capa do laboratório convida a instalar (botão no Android, instruções no iPhone).
-- Ao sair do laboratório, a tela cheia e o bloqueio de tela são liberados.
+- **Nada é automático.** O laboratório foi desenhado para ser ótimo numa aba comum do navegador. Tela cheia e voz são **ajustes desligados por padrão**, guardados no navegador (`lib/preferences.ts`).
+- Na **capa do laboratório**, dois botões discretos sob "Entrar no laboratório": **Voz da Vega** e **Tela cheia** (este só aparece onde o navegador permite). Dentro do laboratório, o ícone de ajustes na barra superior abre os mesmos controles, mais a velocidade da voz.
+- **Tela cheia**: quando ligada, é pedida no toque de entrar (`requestFullscreen({ navigationUI: 'hide' })`). O aviso do Android não pode ser desativado por sites; o mergulho de entrada cobre o aviso. O iPhone não permite tela cheia em páginas: lá, só o app instalado (PWA) abre sem barras.
+- **Tela acesa** (Wake Lock) vale sempre durante um laboratório.
+- **Voz da Vega** (`lib/observatory/voice.ts`, Web Speech API): lê a legenda de cada cena, as perguntas com as opções e as respostas do chat. O botão com o orbe da Vega ao lado do rótulo da etapa liga a voz, repete ou para. Notação (δ, ≈, ², K, nm…) é convertida para fala. Futuro: trocar o motor por uma voz hospedada (ex.: ElevenLabs) sem mudar quem chama `speak`.
+- **Dica da Vega**: se o aluno fica ~18 s parado numa cena com tarefa, aparece um balão (e a voz, se ligada) que orienta o olhar sem entregar a resposta.
+
+## Palco contínuo
+
+Laboratórios novos têm um único palco que atravessa todas as etapas e se transforma em vez de ser trocado (ex.: a esfera aquecida vira estrela, encolhe para o canto enquanto o espectro cresce, voa para o lugar de Betelgeuse em Órion). As etapas trocam só a coluna de texto. Ver `docs/LABORATORIOS.md`.
 
 ## Layout do Observatório
 

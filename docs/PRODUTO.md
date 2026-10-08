@@ -40,7 +40,10 @@ Use estes termos **exatamente assim** na interface, no código e na comunicaçã
 | **Etapa** | Uma unidade de um laboratório (ver tipos abaixo), sempre numa tela só | `LabStep` |
 | **Cena** | Um momento dentro de uma etapa: legenda + estado do palco. Continuar avança as cenas | `useScenes` |
 | **Palco** | A área do instrumento, sempre visível na etapa | `StepFrame` (`stage`) |
-| **Modo foco** | Tela cheia + tela acesa durante o laboratório | `lib/observatory/immersive.ts` |
+| **Palco contínuo** | Um palco único que se transforma de etapa em etapa | `LabModule.Stage` |
+| **Ajustes** | Tela cheia e Voz da Vega, opcionais e desligados por padrão | `lib/preferences.ts`, `Settings.tsx` |
+| **Voz da Vega** | Narração das cenas e respostas em voz alta | `lib/observatory/voice.ts` |
+| **Dica** | Balão da Vega quando o aluno fica parado numa tarefa | `StepFrame` (`nudge`) |
 | **Instrumento** | Um componente interativo reutilizável dentro das etapas | `components/instruments/` |
 | **Vega** | A guia de IA que acompanha o aluno | `components/observatory/Vega.tsx`, `/api/vega` |
 | **Conquista** | O marco registrado ao concluir um laboratório | `lib/progress.ts` |

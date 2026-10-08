@@ -153,10 +153,11 @@ function target(p: Inputs, w: number, h: number): Graph {
     }
     case 'conclua': {
       g.ruler = 1
-      const row = (id: string, T: number, r: number) => (g.bodies[id] = { x: rulerX(T), y: RULER_Y - 0.17, r, T, a: 1, metal: 0 })
-      row('betelgeuse', 3600, 0.075)
-      row('main', p.modelT, 0.05)
-      row('rigel', 12100, 0.06)
+      // Three stars in a row, each linked to its place on the ruler below.
+      const row = (id: string, x: number, T: number, r: number) => (g.bodies[id] = { x, y: 0.3, r, T, a: 1, metal: 0 })
+      row('betelgeuse', 0.2, 3600, 0.09)
+      row('main', 0.5, p.modelT, 0.07)
+      row('rigel', 0.8, 12100, 0.075)
       break
     }
   }
@@ -276,7 +277,26 @@ export default function ColorStage({ stepId, scene, answers, setAnswer, live, se
       }
 
       // Temperature ruler (Conclua).
-      if (g.ruler > 0.01) drawRuler(ctx, W, H, g.ruler)
+      if (g.ruler > 0.01) {
+        drawRuler(ctx, W, H, g.ruler)
+        for (const id of ['betelgeuse', 'main', 'rigel']) {
+          const b = g.bodies[id]
+          const tx = rulerX(b.T) * W
+          const ty = RULER_Y * H
+          ctx.strokeStyle = `rgba(255,255,255,${0.22 * g.ruler * b.a})`
+          ctx.setLineDash([2, 4])
+          ctx.lineWidth = 1
+          ctx.beginPath()
+          ctx.moveTo(b.x * W, b.y * H + b.r * M * 1.5 + 34)
+          ctx.lineTo(tx, ty - 6)
+          ctx.stroke()
+          ctx.setLineDash([])
+          ctx.fillStyle = rgba(vivid(b.T), g.ruler * b.a)
+          ctx.beginPath()
+          ctx.arc(tx, ty, 5, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
 
       // Glowing bodies.
       BODY_IDS.forEach((id, i) => {
@@ -338,7 +358,7 @@ export default function ColorStage({ stepId, scene, answers, setAnswer, live, se
   // ---------------------------------------------------------------- labels
 
   const px = (b: Body) => ({ left: b.x * size.w, top: b.y * size.h, rad: b.r * Math.min(size.w, size.h) })
-  const labels: { key: string; x: number; y: number; text: React.ReactNode; tone?: 'muted' | 'accent' }[] = []
+  const labels: { key: string; x: number; y: number; text: React.ReactNode; tone?: 'muted' | 'accent'; side?: 'right' | 'left' }[] = []
   if (size.w) {
     if (stepId === 'preveja') {
       for (const [id, name, temp] of [
@@ -355,10 +375,12 @@ export default function ColorStage({ stepId, scene, answers, setAnswer, live, se
         if (!show) continue
         const p = px(tgt.bodies[st.id])
         const isPicked = picked.includes(st.id)
+        const right = p.left < size.w / 2
         labels.push({
           key: st.id,
-          x: p.left,
-          y: p.top + p.rad * 2 + 12,
+          x: right ? p.left + p.rad * 2 + 8 : p.left - p.rad * 2 - 8,
+          y: p.top - 12,
+          side: right ? 'right' : 'left',
           text: isPicked ? `${st.name} · ≈ ${formatNumber(st.T, 0)} K` : st.name,
           tone: isPicked ? 'accent' : 'muted',
         })
@@ -371,12 +393,10 @@ export default function ColorStage({ stepId, scene, answers, setAnswer, live, se
         ['rigel', 'Rigel', 12100],
       ] as const) {
         const p = px(tgt.bodies[id])
-        // The Sun's label goes above its disk so neighbors never overlap.
-        const above = id === 'main'
         labels.push({
           key: id,
           x: p.left,
-          y: above ? p.top - p.rad * 1.6 - 44 : p.top + p.rad * 1.6 + 6,
+          y: p.top + p.rad * 1.5 + 8,
           text: (
             <span className="block text-center leading-tight">
               {name}
@@ -390,7 +410,7 @@ export default function ColorStage({ stepId, scene, answers, setAnswer, live, se
   }
 
   const readout =
-    stepId === 'imagine' || stepId === 'entenda'
+    stepId === 'imagine' || (stepId === 'entenda' && scene < 2)
       ? { big: `${formatNumber(T, 0)} K`, small: `${formatNumber(T - 273.15, 0)} °C · ${colorName(T)}` }
       : stepId === 'meca'
         ? { big: `${formatNumber(modelT, 0)} K`, small: 'temperatura do modelo' }
@@ -468,8 +488,8 @@ export default function ColorStage({ stepId, scene, answers, setAnswer, live, se
         {labels.map((l) => (
           <motion.div
             key={`${stepId}-${l.key}`}
-            initial={{ opacity: 0, y: 4, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, x: '-50%', left: l.x, top: l.y }}
+            initial={{ opacity: 0, y: 4, x: l.side === 'right' ? '0%' : l.side === 'left' ? '-100%' : '-50%' }}
+            animate={{ opacity: 1, y: 0, x: l.side === 'right' ? '0%' : l.side === 'left' ? '-100%' : '-50%', left: l.x, top: l.y }}
             exit={{ opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 30 }}
             className={cn(
@@ -570,8 +590,10 @@ function drawChart(ctx: CanvasRenderingContext2D, W: number, H: number, g: Graph
   ctx.textAlign = 'left'
   ctx.font = '11px system-ui, sans-serif'
   ctx.fillStyle = `rgba(255,255,255,${0.38 * A})`
-  if (X(380) - X0 > 26) ctx.fillText('UV', X0 + 2, Y0 + 12)
-  ctx.fillText('infravermelho →', Math.min(X(800) + 6, X1 - 96), Y0 + 12)
+  if (X(380) - X0 > 26) ctx.fillText('UV', X0 + 2, Y1 - 6)
+  ctx.textAlign = 'right'
+  ctx.fillText('infravermelho →', X1, Y1 - 6)
+  ctx.textAlign = 'left'
 
   // Curves.
   const N = 200
@@ -586,6 +608,8 @@ function drawChart(ctx: CanvasRenderingContext2D, W: number, H: number, g: Graph
     }
     return p
   }
+  const many = Object.keys(g.curves).length > 1
+  let peakRow = 0
   for (const [id, cv] of Object.entries(g.curves)) {
     const al = cv.a * A
     if (al < 0.01) continue
@@ -625,8 +649,14 @@ function drawChart(ctx: CanvasRenderingContext2D, W: number, H: number, g: Graph
         ctx.setLineDash([])
         ctx.fillStyle = `rgba(255,255,255,${0.9 * pa})`
         ctx.font = '11.5px ui-monospace, SFMono-Regular, Menlo, monospace'
-        ctx.textAlign = x > X1 - 60 ? 'right' : x < X0 + 60 ? 'left' : 'center'
-        ctx.fillText(`pico ${formatNumber(lp, 0)} nm`, x, Y(1) - 12)
+        if (many) {
+          // Several curves: labels beside their peak lines, one row each.
+          ctx.textAlign = x > X1 - 90 ? 'right' : 'left'
+          ctx.fillText(`pico ${formatNumber(lp, 0)} nm`, x + (x > X1 - 90 ? -6 : 6), Y(1) + 4 + peakRow++ * 15)
+        } else {
+          ctx.textAlign = x > X1 - 60 ? 'right' : x < X0 + 60 ? 'left' : 'center'
+          ctx.fillText(`pico ${formatNumber(lp, 0)} nm`, x, Y(1) - 12)
+        }
       } else {
         ctx.fillStyle = `rgba(255,255,255,${0.7 * pa})`
         ctx.font = '11.5px system-ui, sans-serif'
