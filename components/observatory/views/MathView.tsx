@@ -11,7 +11,11 @@ import { useVegaScreen } from '@/lib/observatory/vega-context'
 import { useProgress, type LabProgress } from '@/lib/progress'
 import { cn } from '@/lib/utils'
 import { LabCover } from '@/components/labs/LabCover'
+import { hasLabModule } from '@/components/labs/registry'
 import { Tex } from '@/components/math/Tex'
+
+/** Ready and with content loaded in the registry. */
+const playable = (l: Lab) => l.status === 'disponivel' && hasLabModule(l.slug)
 
 // Matemática: the trilhas, from matemática básica to Cálculo 4, drawn as one
 // path. Each trilha is a stop on the path; its laboratórios scroll sideways.
@@ -22,7 +26,7 @@ export default function MathView() {
   useVegaScreen({ state: 'Trilhas de Matemática: básica, ensino médio, pré-cálculo e Cálculo 1 a 4.' })
 
   const all = TRACKS.flatMap((t) => t.labs.map((s) => getLab(s)).filter((l): l is Lab => Boolean(l)))
-  const resume = all.find((l) => l.status === 'disponivel' && progress.labs[l.slug] && !progress.labs[l.slug].completedAt)
+  const resume = all.find((l) => playable(l) && progress.labs[l.slug] && !progress.labs[l.slug].completedAt)
 
   return (
     <motion.div variants={stagger(0.06)} initial="hidden" animate="show" className="mx-auto max-w-6xl pb-16 pt-4">
@@ -82,9 +86,9 @@ function TrackStop({
   const items = track.labs
     .map((s) => getLab(s))
     .filter((l): l is Lab => Boolean(l))
-    .sort((a, b) => Number(b.status === 'disponivel') - Number(a.status === 'disponivel'))
+    .sort((a, b) => Number(playable(b)) - Number(playable(a)))
   const done = items.filter((l) => labs[l.slug]?.completedAt).length
-  const ready = items.filter((l) => l.status === 'disponivel').length
+  const ready = items.filter((l) => playable(l)).length
   return (
     <motion.li variants={rise} className="relative grid grid-cols-[40px_minmax(0,1fr)] gap-x-4 pb-10 sm:grid-cols-[48px_minmax(0,1fr)] sm:gap-x-6">
       {/* The path */}
@@ -124,7 +128,7 @@ function TrackStop({
 }
 
 function LabCard({ lab, p, onOpen }: { lab: Lab; p?: LabProgress; onOpen: () => void }) {
-  const available = lab.status === 'disponivel'
+  const available = playable(lab)
   const done = Boolean(p?.completedAt)
   const pct = p && lab.steps.length ? Math.round(((p.reached + 1) / lab.steps.length) * 100) : 0
   return (

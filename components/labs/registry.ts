@@ -13,6 +13,10 @@ const LOADERS: Record<string, () => Promise<{ default: LabModule }>> = {
   'universo-em-expansao': () => import('./universo-em-expansao'),
   'diagrama-hr': () => import('./diagrama-hr'),
   derivada: () => import('./derivada'),
+  'circulo-trigonometrico': () => import('./circulo-trigonometrico'),
+  'funcao-quadratica': () => import('./funcao-quadratica'),
+  'series-taylor': () => import('./series-taylor'),
+  integral: () => import('./integral'),
 }
 
 const cache = new Map<string, LabModule>()

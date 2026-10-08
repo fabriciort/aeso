@@ -15,7 +15,7 @@ import { getPreferences } from '@/lib/preferences'
 import { updateLab, useProgress } from '@/lib/progress'
 import { cn } from '@/lib/utils'
 import { LabCover } from '@/components/labs/LabCover'
-import { useLabModule } from '@/components/labs/registry'
+import { hasLabModule, useLabModule } from '@/components/labs/registry'
 import { ContinuousStage, LabRuntime, useLabRuntime, type StepNav } from '@/components/labs/runtime'
 import { VegaOrb } from '../Nav'
 import { CoverOptions, LabSettings } from '../Settings'
@@ -36,7 +36,7 @@ export default function LabView({ slug, stepId }: { slug: string; stepId?: strin
       </div>
     )
   }
-  if (lab.status !== 'disponivel') return <ComingSoon lab={lab} />
+  if (lab.status !== 'disponivel' || !hasLabModule(lab.slug)) return <ComingSoon lab={lab} />
   return (
     <LabRuntime lab={lab}>
       <LabPlayer lab={lab} stepId={stepId} />
