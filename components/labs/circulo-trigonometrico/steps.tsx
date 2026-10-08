@@ -733,9 +733,9 @@ export function Resolva(props: StepProps) {
 // ------------------------------------------------------------ 6. E se…?
 
 const PARAMS = [
-  { id: 'A', label: 'A · raio', name: 'Amplitude A', step: 0.05 },
-  { id: 'w', label: 'ω · rapidez', name: 'Rapidez ω', step: 0.05 },
-  { id: 'd', label: 'd · eixo', name: 'Altura do eixo d', step: 0.05 },
+  { id: 'A', tex: 'A', say: 'A', word: 'raio', name: 'Amplitude (raio)', step: 0.05 },
+  { id: 'w', tex: '\\omega', say: 'ômega', word: 'rapidez', name: 'Rapidez do giro', step: 0.05 },
+  { id: 'd', tex: 'd', say: 'd', word: 'eixo', name: 'Altura do eixo', step: 0.05 },
 ] as const
 
 export function ESe(props: StepProps) {
@@ -794,13 +794,13 @@ export function ESe(props: StepProps) {
       </>
     ),
     <>
-      Três botões controlam a onda: <strong>A</strong>, o raio; <strong>ω</strong>, a rapidez; <strong>d</strong>, a altura do eixo. Experimente cada um.
+      Três botões controlam a onda: <Tex say="A">A</Tex>, o raio; <Tex say="ômega">{'\\omega'}</Tex>, a rapidez; <Tex say="d">d</Tex>, a altura do eixo. Experimente cada um.
     </>,
     <>
       <strong>Desafio:</strong> faça a sua onda cobrir a curva tracejada. Que roda é essa?
     </>,
     <>
-      <strong>Encaixou!</strong> Roda menor (A = 0,5), duas vezes mais rápida (ω = 2) e com o eixo mais alto (d = 1).
+      <strong>Encaixou!</strong> Roda menor (A = 0,5), duas vezes mais rápida (<Tex say="ômega igual a 2">{'\\omega = 2'}</Tex>) e com o eixo mais alto (d = 1).
     </>,
   ]
   const r = ESE_RANGE[param]
@@ -810,7 +810,7 @@ export function ESe(props: StepProps) {
       <div className="flex items-center gap-2">
         {PARAMS.map((x) => (
           <Chip key={x.id} active={param === x.id} onClick={() => setLive({ param: x.id })}>
-            {x.label}
+            <Tex say={x.say}>{x.tex}</Tex> · {x.word}
           </Chip>
         ))}
       </div>
@@ -921,8 +921,8 @@ export function Conclua(props: StepProps) {
       controls={
         scene === 0 ? (
           <div className="grid grid-cols-3 gap-2">
-            <Summary label="Voltas na roda" value={fmt(turns, 1)} />
-            <Summary label="Acima de 100 m" value={`≈ ${fmt(EYE_ABOVE.duration, 1)} min`} />
+            <Summary label="Voltas" value={fmt(turns, 1)} />
+            <Summary label="≈ Acima 100 m" value={`${fmt(EYE_ABOVE.duration, 1)} min`} />
             <Summary label="De primeira" value={`${firstSteps} de 6`} />
           </div>
         ) : (

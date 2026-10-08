@@ -280,6 +280,7 @@ export function Entenda(props: StepProps) {
   const [scene] = useScenes(props, 5, 'entendaScene')
   const [live, setLive] = useLive<OdeLive>()
   const probe = live.probe ?? { t: 8, T: 70 }
+  const later = useLater()
   const hot = useTask(probe.T >= 80, 'probeHot', props)
   const room = useTask(Math.abs(probe.T - 20) <= 1.5, 'probeRoom', props)
   const drops = typeof answers.drops === 'number' ? (answers.drops as number) : 0
@@ -344,9 +345,17 @@ export function Entenda(props: StepProps) {
           <div className="space-y-3">
             <Slider label="Temperatura do ponto" min={0} max={100} step={0.5} value={probe.T} onChange={setT} display={`${deg(probe.T, 0)} · ${fmt(slope, 2)} °C/min`} />
             {scene === 0 && (
-              <div className="flex gap-4">
-                <Dot done={hot} label="Bem quente (≥ 80 °C)" />
-                <Dot done={room} label="Na sala (20 °C)" />
+              <div className="flex items-center gap-4">
+                <Dot done={hot} label="Quente (≥ 80 °C)" />
+                <Dot done={room} label="Sala (20 °C)" />
+                {!(hot && room) && (
+                  <ShowMe
+                    onClick={() => {
+                      setLive({ probe: { t: probe.t, T: 90 } })
+                      later(() => setLive({ probe: { t: probe.t, T: 20 } }), 1100)
+                    }}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -681,9 +690,17 @@ function ResolvaRest({
                 </Chip>
               ))}
             </div>
-            <div className="flex gap-4">
-              <Dot done={small} label="Passo pequeno (h ≤ 1,5)" />
-              <Dot done={big} label="Passo enorme (h ≥ 20)" />
+            <div className="flex items-center gap-4">
+              <Dot done={small} label="h pequeno (≤ 1,5)" />
+              <Dot done={big} label="h enorme (≥ 20)" />
+              {!(small && big) && (
+                <ShowMe
+                  onClick={() => {
+                    setLive({ h: 1 })
+                    later(() => setLive({ h: 40 }), 1600)
+                  }}
+                />
+              )}
             </div>
           </div>
         }

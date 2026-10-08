@@ -126,7 +126,7 @@ export function MorphNotation({ accent, replay, result }: { accent: string; repl
         <motion.span style={{ ...MATH, width: subWidth, opacity: subO, fontSize: '0.6em', display: 'inline-block', overflow: 'hidden', transform: 'translateY(0.25em)' }}>i</motion.span>
         <span style={MAIN}>)</span>
         <span className="ml-[0.25em]">
-          <Swap p={p} from={<span style={MAIN}>Δ</span>} to={<span style={MATH}>d</span>} />
+          <Swap p={p} from={<span style={MAIN}>Δ</span>} to={<span style={MATH}>d</span>} className="-mr-[0.06em]" />
         </span>
         <span style={MATH}>x</span>
         {result && (

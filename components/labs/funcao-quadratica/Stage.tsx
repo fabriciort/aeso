@@ -104,7 +104,7 @@ const GOOD = '#6ee7b7'
 const BAD = '#fda4af'
 const SKY = '#7dd3fc'
 const BIG = 60
-const COURT_BOX: Viewport = { x0: -1.05, x1: 5.75, y0: -0.38, y1: 4.4 }
+const COURT_BOX: Viewport = { x0: -0.75, x1: 5.25, y0: -0.38, y1: 4.3 }
 
 function zero(): Disp {
   const n = Object.fromEntries(NUM_KEYS.map((k) => [k, 0])) as Nums
@@ -253,12 +253,14 @@ function target(p: Inputs): Target {
         }
       })
       if (lastPick && !lastPick.ok) shows.push(lastPick.show)
+      // Once solved, the roots speak for themselves: drop the arms.
+      if (k >= prob.steps.length) for (let i = shows.length - 1; i >= 0; i--) if (shows[i].kind === 'arms') shows.splice(i, 1)
       t.marks = { wrong: Boolean(lastPick && !lastPick.ok), shows }
       // Problem 3 is solved alone: the curve stays hidden until it is.
       const solved = k >= prob.steps.length
       d.curveA = pi === 2 && !solved && !p.shown3 ? (t.marks.wrong ? 0.22 : 0) : 1
       d.past = d.curveA
-      const box = pi === 2 ? { x0: -0.6, x1: 4.6, y0: -2.6, y1: 24.5 } : { x0: -0.75, x1: 2.85, y0: -1.3, y1: 8.6 }
+      const box = pi === 2 ? { x0: -0.6, x1: 4.6, y0: -2.6, y1: 30 } : { x0: -0.75, x1: 2.85, y0: -1.3, y1: 10.4 }
       for (const s of shows) {
         if (s.kind === 'point') {
           d.dot = 1
@@ -266,7 +268,7 @@ function target(p: Inputs): Target {
         } else if (s.kind === 'level') {
           d.level = 1
           d.levelH = s.h
-          box.y1 = Math.max(box.y1, s.h * 1.12 + 0.5)
+          box.y1 = Math.max(box.y1, s.h * 1.3 + 1)
         } else if (s.kind === 'arms') {
           d.arms = 1
           d.armsW = s.w
@@ -309,7 +311,7 @@ function target(p: Inputs): Target {
             const l = { v: RANGE_V, theta: rad(deg), h0: 0, g: G_EARTH }
             const R = landing(l).x
             t.extra.push({ q: trajectory(l), from: 0, to: R })
-            t.landings.push({ x: R, label: `${deg}°`, best: deg === 45 })
+            if (deg !== 30) t.landings.push({ x: R, label: deg === 60 ? '30° = 60°' : `${deg}°`, best: deg === 45 })
           })
           d.curve = trajectory({ v: RANGE_V, theta: rad(45), h0: 0, g: G_EARTH })
           d.from = 0
@@ -340,7 +342,7 @@ function target(p: Inputs): Target {
       showThrow(p.base)
       d.vertex = 1
       d.glow = 1
-      t.box = { x0: -1.05, x1: 5.75, y0: -0.38, y1: 5.8 }
+      t.box = { x0: -1.6, x1: 5.6, y0: -0.38, y1: 7.2 }
       break
     }
   }
@@ -714,7 +716,15 @@ export default function QuadStage({ lab, stepId, scene, answers, setAnswer, live
               ),
             }
           : stepId === 'resolva'
-            ? { key: `p${prob.id}`, node: <Tex say={prob.say}>{prob.tex}</Tex> }
+            ? {
+                key: `p${prob.id}`,
+                node: (
+                  <span className="block leading-tight">
+                    <Tex say={prob.say}>{prob.tex}</Tex>
+                    <span className="mt-1 block text-[11px] text-white/50">g ≈ 10 m/s² para facilitar a conta</span>
+                  </span>
+                ),
+              }
             : stepId === 'e-se' && scene === 2
               ? {
                   key: 'range',
@@ -735,9 +745,7 @@ export default function QuadStage({ lab, stepId, scene, answers, setAnswer, live
           : 'Terra · g = 9,8 m/s²'
         : stepId === 'e-se'
           ? `v = ${formatNumber(RANGE_V, 0)} m/s (exemplo) · sem ar`
-          : stepId === 'resolva'
-            ? 'g ≈ 10 m/s² para facilitar a conta'
-            : stepId === 'observe'
+          : stepId === 'observe'
               ? 'Cada gota: uma bolinha lançada'
               : null
 
@@ -836,7 +844,6 @@ export default function QuadStage({ lab, stepId, scene, answers, setAnswer, live
             className={cn(
               'pointer-events-none absolute right-3 z-10 rounded-full bg-black/45 px-2.5 py-1 text-[11px] text-white/55 backdrop-blur-xl',
               badge && stepId !== 'imagine' ? 'bottom-3' : 'top-3',
-              stepId === 'resolva' && 'bottom-auto top-[52px]',
             )}
           >
             {chip}
@@ -852,7 +859,7 @@ export default function QuadStage({ lab, stepId, scene, answers, setAnswer, live
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-2xl bg-black/55 px-3 py-2 text-[13.5px] text-white/90 backdrop-blur-xl"
+            className={cn('pointer-events-none absolute right-3 z-10 rounded-2xl bg-black/55 px-3 py-2 text-[13.5px] text-white/90 backdrop-blur-xl', deltaNode ? 'top-[60px]' : 'bottom-3')}
           >
             {deltaNode ?? canon}
           </motion.div>
@@ -1075,7 +1082,8 @@ function draw(ctx: CanvasRenderingContext2D, g: Disp, T: Target, f: Frame, c: Dr
     const Y = p.y(vv.y)
     drawDot(ctx, X, Y, 5, '#ffffff', 0.9 * g.vertex)
     const txt = inputs.stepId === 'medicao' ? `topo (${fmt(vv.x, 2)} s; ${fmt(vv.y, 2)} m)` : `vértice (${fmt(vv.x, 1)}; ${fmt(vv.y, 1)})`
-    label(ctx, X, Y - 14, txt, 'rgba(255,255,255,0.9)', 'center', g.vertex)
+    if (inputs.stepId === 'entenda') label(ctx, X + 18, Y + (q.a < 0 ? -12 : 12), txt, 'rgba(255,255,255,0.9)', 'left', g.vertex)
+    else label(ctx, X, Y - 14, txt, 'rgba(255,255,255,0.9)', 'center', g.vertex)
   }
   // Draggable handles (Entenda): vertex and (0, c).
   if (inputs.stepId === 'entenda' && (inputs.scene === 2 || inputs.scene === 4)) {

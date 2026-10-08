@@ -379,6 +379,7 @@ function Options({ options, wrong, okPick, onPick, cols }: { options: Option[]; 
   return (
     <div className={cn('grid gap-1.5', cols === 2 ? 'grid-cols-2' : 'grid-cols-1')}>
       {options.map((o, i) => {
+        const span = cols === 2 && options.length % 2 === 1 && i === options.length - 1
         const state = okPick === i ? 'correct' : wrong.includes(i) ? 'wrong' : null
         return (
           <button
@@ -386,7 +387,8 @@ function Options({ options, wrong, okPick, onPick, cols }: { options: Option[]; 
             onClick={() => onPick(i)}
             disabled={okPick !== null || wrong.includes(i)}
             className={cn(
-              'focus-ring flex min-h-[44px] items-center justify-center rounded-2xl border px-3 py-1.5 text-[15px] transition-all duration-200 active:scale-[0.99]',
+              'focus-ring flex min-h-[44px] items-center justify-center rounded-2xl border px-2 py-1.5 text-[14px] transition-all duration-200 active:scale-[0.99]',
+              span && 'col-span-2',
               !state && 'border-white/[0.08] bg-white/[0.03] text-white/90 hover:border-white/20 hover:bg-white/[0.06]',
               state === 'correct' && 'border-emerald-300/50 bg-emerald-400/10 text-white',
               state === 'wrong' && 'border-rose-300/40 bg-rose-400/[0.08] text-white/60',
@@ -532,9 +534,9 @@ export function Resolva(props: StepProps) {
   ) : (
     <div className="relative space-y-1.5">
       {celebrate && <Burst color={lab.accent} />}
-      <Options options={task.options} wrong={wrong} okPick={okPick} onPick={pick} cols={task.options.length > 3 ? 2 : 1} />
+      <Options options={task.options} wrong={wrong} okPick={okPick} onPick={pick} cols={2} />
       {scene === 2 && (
-        <div className="flex">
+        <div className="-mb-2 flex">
           <ShowMe
             onClick={() => {
               haptic(8)
@@ -648,8 +650,8 @@ export function Conclua({ lab, setReady }: StepProps) {
       controls={
         <div className="space-y-2.5">
           <div className="grid grid-cols-3 gap-2">
-            <Summary label="Bolt · área" value="100 m" sub="10 degraus de 10 m" />
-            <Summary label="Somas →" value="8/3 ≈ 2,667" sub="∫₀² x² dx" />
+            <Summary label="Bolt · área" value="100 m" sub="10 degraus" />
+            <Summary label="∫₀² x² dx" value="≈ 2,667" sub="= 8/3" />
             <Summary label="Sem ajuda" value="10" sub="∫₁³ (2x + 1) dx" />
           </div>
           <p className="text-[10.5px] leading-snug text-white/30">Tempos de Bolt: {BOLT_SOURCE}. Carro: exemplo imaginado.</p>

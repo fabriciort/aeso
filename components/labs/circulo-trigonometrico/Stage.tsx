@@ -108,16 +108,19 @@ const deg = (d: number) => toRad(d)
 const waveWidth = (ar: number) => Math.max(3.2, Math.min(7.5, ar * 3.1 - 2.4))
 
 function target(p: Inputs, ar: number, accent: string): Target {
-  const WW = waveWidth(ar)
-  const full = (xw: number, y0 = -1.55, y1 = 1.45, x0 = -1.35): Viewport => ({ x0, x1: xw + WW + 0.3, y0, y1 })
+  // Phones (portrait): a tighter gap and a shorter wave, so the circle is bigger.
+  const tight = ar < 1.25
+  const WW = tight ? 2.6 : waveWidth(ar)
+  const XW = tight ? 1.22 : 1.7
+  const full = (xw: number, y0 = -1.55, y1 = 1.45, x0 = tight ? -1.1 : -1.35): Viewport => ({ x0, x1: xw + WW + (tight ? 0.12 : 0.3), y0, y1 })
   const focus = (y0 = -1.5, y1 = 1.5): Viewport => ({ x0: -1.55, x1: 1.55, y0, y1 })
   const T: Target = {
-    view: full(1.7),
+    view: full(XW),
     rho: 1,
     cy: 0,
     w: 1,
     phi: 0,
-    xw: 1.7,
+    xw: XW,
     st: WW / IMAGINE_MAX,
     u1: IMAGINE_MAX,
     base: 0,
@@ -153,7 +156,7 @@ function target(p: Inputs, ar: number, accent: string): Target {
         mark('top', { kind: 'pt', v: Math.PI / 2, color: 'rgba(255,255,255,0.55)', label: 'topo: 90°' })
       } else if (p.scene === 2) {
         T.uK = 0.12
-        T.a = { ...T.a, xTime: 1, cands: 1, proj: 0 }
+        T.a = { ...T.a, xTime: 1, cands: 1, proj: 0, yTopo: 0 }
       } else {
         T.run = 1.1
         T.follow = true
@@ -188,7 +191,7 @@ function target(p: Inputs, ar: number, accent: string): Target {
     }
 
     case 'observe': {
-      T.view = full(1.7, -1.62, 1.42)
+      T.view = full(XW, -1.62, 1.42)
       T.u1 = 30
       T.st = WW / 30
       T.w = TAU / 30
@@ -278,8 +281,8 @@ function target(p: Inputs, ar: number, accent: string): Target {
 
     case 'e-se': {
       const e = p.scene === 0 ? ESE_START : p.scene === 1 ? { A: 1, w: 2, d: 0 } : p.ese
-      T.xw = 2.1
-      T.view = { x0: -1.8, x1: 2.1 + WW + 0.3, y0: -2.75, y1: 2.75 }
+      T.xw = tight ? 1.85 : 2.1
+      T.view = { x0: tight ? -1.65 : -1.8, x1: T.xw + WW + (tight ? 0.12 : 0.3), y0: -2.75, y1: 2.75 }
       T.rho = e.A
       T.cy = e.d
       T.w = e.w
@@ -544,7 +547,7 @@ export default function TrigStage({ lab, stepId, scene, answers, live, setLive }
           node: (
             <>
               <p className="font-mono text-[17px] leading-none tabular-nums text-white">{fmt(toDeg(theta), 0)}°</p>
-              <p className="mt-1 text-[11.5px] leading-none text-white/55">{fmt(theta / TAU, 2)} volta{theta / TAU >= 2 ? 's' : ''}</p>
+              <p className="mt-1 text-[11.5px] leading-none text-white/55">{fmt(theta / TAU, 2)} {Math.abs(theta / TAU - 1) < 0.005 ? 'volta' : 'voltas'}</p>
             </>
           ),
         }
@@ -902,25 +905,30 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
       for (let u = du; u <= g.u1 + 1e-6; u += du) text(ctx, piFraction(u)?.text ?? fmt(u), xl(u), tickY, lab(A.xRad), 'center', 'top')
     }
     if (A.xMin > 0.01) {
-      for (let m = 5; m <= 30; m += 5) text(ctx, m === 30 ? '30 min' : `${m}`, xl(m), tickY, lab(A.xMin), m === 30 ? 'right' : 'center', 'top')
+      for (let m = 5; m <= 30; m += 5) text(ctx, `${m}`, xl(m), tickY, lab(A.xMin), 'center', 'top')
+      text(ctx, 'min', x1, by - 8, lab(A.xMin), 'right', 'middle')
     }
     if (A.xTime > 0.01) text(ctx, 'tempo →', x1, tickY, lab(A.xTime), 'right', 'top')
-    const yl = (s: string, y: number, a: number) => text(ctx, s, x0 - 6, P.y(y), lab(a), 'right', 'middle')
+    // Height labels sit inside the graph (top above its line, bottom below,
+    // middle at the far end), so the gap to the circle can stay small.
+    const top = (s: string, a: number) => text(ctx, s, x0 + 5, P.y(g.cy + g.rho) - 8, lab(a), 'left', 'middle')
+    const mid = (s: string, a: number) => text(ctx, s, x1, P.y(g.cy) - 8, lab(a), 'right', 'middle')
+    const bot = (s: string, a: number) => text(ctx, s, x0 + 5, P.y(g.cy - g.rho) + 9, lab(a), 'left', 'middle')
     if (A.yTopo > 0.01) {
-      yl('topo', g.cy + g.rho, A.yTopo)
-      yl('eixo', g.cy, A.yTopo)
-      yl('base', g.cy - g.rho, A.yTopo)
+      top('topo', A.yTopo)
+      mid('eixo', A.yTopo)
+      bot('base', A.yTopo)
     }
     if (A.yUnit > 0.01) {
-      yl('1', g.cy + g.rho, A.yUnit)
-      yl('−1', g.cy - g.rho, A.yUnit)
+      top('1', A.yUnit)
+      bot('−1', A.yUnit)
     }
     if (A.yM > 0.01) {
-      yl('135 m', g.cy + g.rho, A.yM)
-      yl('75 m', g.cy, A.yM)
-      yl('15 m', g.cy - g.rho, A.yM)
+      top('135 m', A.yM)
+      mid('75 m', A.yM)
+      bot('15 m', A.yM)
     }
-    if (A.yInt > 0.01) for (const k of [-2, -1, 1, 2]) yl(fmt(k), k, A.yInt)
+    if (A.yInt > 0.01) for (const k of [-2, -1, 1, 2]) text(ctx, fmt(k), x0 - 5, P.y(k), lab(A.yInt), 'right', 'middle')
   }
 
   // ---------------------------------------------------------------- candidates (Preveja)
@@ -930,7 +938,7 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
       const oy = g.cy + g.rho * (0.72 - i * 0.72)
       const amp = g.rho * 0.24
       curve((u) => oy + amp * f(u), 0, g.u1, 'rgba(255,255,255,0.8)', 2, A.cands)
-      text(ctx, 'ABC'[i], waveX(0) - 10, P.y(oy), withAlpha(accent, A.cands), 'right', 'middle', '600 13px ui-sans-serif, system-ui, sans-serif')
+      text(ctx, 'ABC'[i], waveX(0) + 4, P.y(oy + amp) - 6, withAlpha(accent, A.cands), 'left', 'middle', '600 13px ui-sans-serif, system-ui, sans-serif')
     })
   }
 
@@ -989,7 +997,7 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
       ctx.stroke()
       ctx.restore()
       drawDot(ctx, X, Y, 4.5, withAlpha(COS, a), a)
-      text(ctx, `≈ ${fmt(tm, 1)} min`, X + (i ? 6 : -6), P.y(g.base) - 10, withAlpha(COS, a), i ? 'left' : 'right', 'middle')
+      text(ctx, `≈ ${fmt(tm, 1)}`, X, Y - 11, withAlpha(COS, a), i ? 'left' : 'right', 'middle')
     }
   }
 
@@ -1043,8 +1051,8 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
     ctx.stroke()
     ctx.restore()
     const l = withAlpha('rgb(255,255,255)', 0.4 * unitA)
-    text(ctx, '1', P.x(g.rho) + 5, cyPx + 9, l, 'left')
-    text(ctx, '−1', P.x(-g.rho) - 4, cyPx + 9, l, 'right')
+    text(ctx, '1', P.x(g.rho) + 5, cyPx - 9, l, 'left')
+    text(ctx, '−1', P.x(-g.rho) - 4, cyPx - 9, l, 'right')
     text(ctx, '1', cx - 6, P.y(g.cy + g.rho) - 8, l, 'right')
     text(ctx, '−1', cx - 6, P.y(g.cy - g.rho) + 8, l, 'right')
   }
@@ -1095,7 +1103,7 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
   if (A.line12 > 0.01) {
     const y = P.y(g.cy + 0.5 * g.rho)
     guide(P.x(-1.35 * g.rho), y, P.x(1.35 * g.rho), y, A.line12, withAlpha(accent, 0.9))
-    text(ctx, 'y = ½', P.x(1.35 * g.rho), y - 10, withAlpha(accent, A.line12), 'right')
+    text(ctx, 'y = ½', P.x(1.35 * g.rho), y + 11, withAlpha(accent, A.line12), 'right')
   }
   if (A.ref4 > 0.01) {
     const pts = [30, 150, 210, 330].map((d) => pAt(deg(d)))
@@ -1204,7 +1212,7 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
     ctx.lineTo(Pp.x, Pp.y)
     ctx.stroke()
     ctx.restore()
-    text(ctx, 'raio = 1', (cx + Pp.x) / 2, (cyPx + Pp.y) / 2 + 12, withAlpha(accent, A.radius))
+    text(ctx, 'raio = 1', (cx + Pp.x) / 2, (cyPx + Pp.y) / 2 - 12, withAlpha(accent, A.radius))
   }
 
   // Pythagoras (Conclua).
@@ -1246,7 +1254,8 @@ function draw(ctx: CanvasRenderingContext2D, g: Scene, fr: Frame, time: number, 
     ctx.restore()
     const up = Math.sin(alpha) >= 0
     text(ctx, 'cos θ', (cx + fx) / 2, cyPx + (up ? 12 : -12), withAlpha(COS, A.tri))
-    text(ctx, 'sen θ', fx + (Math.cos(alpha) >= 0 ? 8 : -8), (cyPx + Pp.y) / 2, withAlpha(accent, A.tri), Math.cos(alpha) >= 0 ? 'left' : 'right')
+    // Inside the triangle, so it never leaves the stage.
+    text(ctx, 'sen θ', fx + (Math.cos(alpha) >= 0 ? -6 : 6), (cyPx + Pp.y) / 2, withAlpha(accent, A.tri), Math.cos(alpha) >= 0 ? 'right' : 'left')
     text(ctx, '1', (cx + Pp.x) / 2 - 8 * Math.sin(alpha), (cyPx + Pp.y) / 2 - 8 * Math.cos(alpha), `rgba(255,255,255,${0.85 * A.tri})`)
   }
 
@@ -1430,7 +1439,7 @@ function drawRadianArcs(ctx: CanvasRenderingContext2D, g: Scene, P: ReturnType<t
   // π at half a turn, 2π at the full turn, and the leftover 0,28.
   const big = '600 12.5px ui-sans-serif, system-ui, sans-serif'
   if (A.piMark > 0.01) {
-    const q = pt(-1.38, 0)
+    const q = pt(-0.55, 0.22)
     text(ctx, 'π ≈ 3,14', q.x, q.y - 10, `rgba(255,255,255,${0.9 * A.piMark * a})`, 'center', 'middle', big)
     text(ctx, 'meia volta', q.x, q.y + 8, `rgba(255,255,255,${0.45 * A.piMark * a})`)
   }
@@ -1444,9 +1453,9 @@ function drawRadianArcs(ctx: CanvasRenderingContext2D, g: Scene, P: ReturnType<t
     ctx.arc(P.x(0), P.y(g.cy), g.rho * P.sx, -TAU, -6, false)
     ctx.stroke()
     ctx.restore()
-    const q = pt(1.3, -0.16)
-    text(ctx, 'sobra ≈ 0,28', q.x, q.y, withAlpha(COS, A.tauMark * a), 'left', 'middle')
-    const r = pt(1.3, 0.14)
-    text(ctx, '2π ≈ 6,28', r.x, r.y, `rgba(255,255,255,${0.9 * A.tauMark * a})`, 'left', 'middle', big)
+    const q = pt(0.88, -0.4)
+    text(ctx, 'sobra ≈ 0,28', q.x, q.y, withAlpha(COS, A.tauMark * a), 'right', 'middle')
+    const r = pt(0.88, -0.22)
+    text(ctx, '2π ≈ 6,28', r.x, r.y, `rgba(255,255,255,${0.9 * A.tauMark * a})`, 'right', 'middle', big)
   }
 }

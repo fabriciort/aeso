@@ -271,7 +271,7 @@ function target(p: Inputs, H: number): Target {
       break
     case 'observe':
       t.view = VIEW_BOLT
-      t.top = 96
+      t.top = 104
       t.track = 1
       t.w = one('bolt')
       t.fill = 1
@@ -358,7 +358,7 @@ function target(p: Inputs, H: number): Target {
     }
     case 'conclua':
       t.view = { x0: -0.3, x1: 2.3, y0: -0.4, y1: 4.4 }
-      t.top = Math.min(H * 0.5, 230)
+      t.top = Math.min(H * 0.58, 270)
       t.w = one('sq')
       t.xLabel = 'x'
       t.yLabel = 'y'
@@ -445,7 +445,7 @@ function syncRects(d: Display, a: number, b: number, n: number, method: Method, 
 function frameOf(W: number, H: number, top: number, nb: number): Frame {
   const left = 40
   const right = 14
-  const bottom = H - 26 - nb * (H * 0.36 + 8)
+  const bottom = H - 26 - nb * (H * 0.32 + 8)
   return { left, top, width: Math.max(40, W - left - right), height: Math.max(40, bottom - top) }
 }
 
@@ -544,7 +544,7 @@ export default function IntegralStage({ lab, stepId, scene, answers, live, setLi
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className={cn('rounded-full px-2.5 py-1 text-[11px] backdrop-blur-xl', stepId === 'observe' ? 'bg-sky-400/15 text-sky-100' : 'bg-white/[0.07] text-white/60')}
+              className={cn('shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] backdrop-blur-xl', stepId === 'observe' ? 'bg-sky-400/15 text-sky-100' : 'bg-white/[0.07] text-white/60')}
             >
               {context_}
             </motion.span>
@@ -552,7 +552,7 @@ export default function IntegralStage({ lab, stepId, scene, answers, live, setLi
         </AnimatePresence>
         <div
           ref={chipRef}
-          className="ml-auto rounded-full bg-black/55 px-3 py-1.5 font-mono text-[12px] tabular-nums text-white/90 opacity-0 backdrop-blur-xl transition-opacity duration-300"
+          className="ml-auto min-w-0 truncate whitespace-nowrap rounded-full bg-black/55 px-2.5 py-1.5 font-mono text-[11.5px] tabular-nums text-white/90 opacity-0 backdrop-blur-xl transition-opacity duration-300"
         />
       </div>
 
@@ -610,20 +610,22 @@ function chipText(c: { stepId: string; scene: number; answered: boolean }, d: Di
     }
     case 'preveja':
       if (c.scene === 0) return ''
-      return `soma ≈ ${fmt(riemann(carAccel, 0, 2, t.n, t.method), 1)} km · real 100 km`
+      return `soma ${fmt(riemann(carAccel, 0, 2, t.n, t.method), 1)} km · real 100 km`
     case 'entenda':
       if (c.scene >= 2) return ''
       return `n = ${Math.round(t.n)} · soma ≈ ${fmt(riemann(carAccel, 0, 2, t.n, t.method), 2)}`
     case 'observe':
+      if (c.scene >= 2) return '10 degraus × 10 m = 100 m'
       return `t = ${fmt(cur, 2)} s · ${fmt(boltDistance(cur), 1)} m`
     case 'resolva':
+      if (c.scene === 1 && t.tangent > 0.5) return `x = ${fmt(cur, 2)} · inclinação de A: ${fmt(t.slopeMix > 0.5 ? t.slopeOver : cur * cur, 3)}`
       if (c.scene === 1) return `x = ${fmt(cur, 2)} · A(x) ≈ ${fmt(cur ** 3 / 3, 3)}`
       return ''
     case 'e-se':
       if (c.scene === 0) {
         const s = 60 * cur - 20 * cur * cur
         const tot = cur <= 1.5 ? s : 45 + (45 - s)
-        return `deslocamento ${fmt(s, 1)} km · percorrido ${fmt(tot, 1)} km`
+        return `desloc. ${fmt(s, 0)} km · andou ${fmt(tot, 0)} km`
       }
       return c.answered ? `erro: esquerda ${fmt(8 / 3 - riemann((x) => x * x, 0, 2, 10, 'left'), 3)} · meio ${fmt(8 / 3 - riemann((x) => x * x, 0, 2, 10, 'mid'), 4)}` : ''
     default:
@@ -658,7 +660,7 @@ function stageLabels(stepId: string, scene: number, t: Target, p: Inputs): Stage
     const dx = (t.b - t.a) / t.n
     const x0 = t.a + t.hi * dx
     const h = carAccel(x0 + dx)
-    out.push({ key: 'dx', x: x0 + dx / 2, y: 0, dy: 26, text: <Tex say="delta x">{'\\Delta x'}</Tex>, tone: 'accent' })
+    out.push({ key: 'dx', x: x0 + dx / 2, y: h, dy: -16, text: <Tex say="delta x">{'\\Delta x'}</Tex>, tone: 'accent' })
     out.push({ key: 'fx', x: x0 - 0.2, y: h / 2, text: <Tex say="f de x i">{'f(x_i)'}</Tex>, tone: 'accent' })
   }
   if (stepId === 'entenda' && scene === 1) {
@@ -669,13 +671,12 @@ function stageLabels(stepId: string, scene: number, t: Target, p: Inputs): Stage
     const s = BOLT_PEAK
     out.push({ key: 'peak', x: (s.t0 + s.t1) / 2, y: s.v, dy: -18, text: `pico ≈ ${fmt(s.v, 1)} m/s`, tone: 'real' })
   }
-  if (stepId === 'observe' && scene === 2) out.push({ key: 'sum', x: 5, y: 6, text: '10 × 10 m = 100 m', tone: 'big' })
   if (stepId === 'resolva' && scene === 2) {
     const ok = p.r.p3 !== null && P3.options[p.r.p3]?.ok
     if (ok || p.r.p3Shown) out.push({ key: 'trap', x: 2, y: 2.4, text: 'área = 10', tone: 'big' })
     else if (p.r.p3 !== null && P3.options[p.r.p3]?.demo?.dot) out.push({ key: 'dot', x: 3, y: 7, dy: -18, text: 'f(3) = 7', tone: 'accent' })
   }
-  if (stepId === 'resolva' && scene === 1 && p.r.p2 >= 2) out.push({ key: 'fdx', x: 1.62, y: 1.1, text: <Tex say="f de x vezes d x">{'f(x)\\,dx'}</Tex>, tone: 'accent' })
+  if (stepId === 'resolva' && scene === 1 && p.r.p2 >= 2) out.push({ key: 'fdx', x: 0.8, y: 3.2, text: <Tex say="f de x vezes d x">{'f(x)\\,dx'}</Tex>, tone: 'accent' })
   if (stepId === 'e-se' && scene === 0 && p.picks.re !== undefined) {
     out.push({ key: 'pos', x: 0.6, y: 22, text: '+45 km', tone: 'big' })
     out.push({ key: 'neg', x: 2.05, y: -12, text: <span className="text-rose-200">−20 km</span>, tone: 'big' })
@@ -820,7 +821,7 @@ function Notebook({ scene, r, splitN, accent }: { scene: number; r: ResolvaState
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 12 }}
       transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-      className="pointer-events-none absolute inset-x-2 bottom-2 z-10 h-[36%] overflow-hidden rounded-[20px] border border-white/[0.07] bg-white/[0.035] px-3 py-2.5"
+      className="pointer-events-none absolute inset-x-2 bottom-2 z-10 h-[32%] overflow-hidden rounded-[20px] border border-white/[0.07] bg-white/[0.035] px-3 py-2.5"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.div key={scene} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} className="flex h-full flex-col">
@@ -831,13 +832,13 @@ function Notebook({ scene, r, splitN, accent }: { scene: number; r: ResolvaState
             </span>
           </p>
           <div className="mt-1 flex min-h-0 flex-1 flex-col justify-end gap-1 overflow-hidden text-[14px] text-white/75">
-            {lines.map((l, i) => (
+            {lines.slice(-3).map((l, i) => (
               <motion.div
                 key={i < 3 ? `${scene}-${i}` : `${scene}-${i}-${l.tex.startsWith('R_n') ? 'end' : 'run'}`}
                 initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className={cn('whitespace-nowrap', i === lines.length - 1 && 'text-white')}
+                className={cn('whitespace-nowrap', i === Math.min(3, lines.length) - 1 && 'text-white')}
               >
                 <Tex say={l.say}>{l.tex}</Tex>
               </motion.div>
@@ -1207,7 +1208,6 @@ function draw(ctx: CanvasRenderingContext2D, d: Display, W: number, H: number, a
       ctx.lineTo(P.x(c + half), P.y(A + m * half))
       ctx.stroke()
       ctx.restore()
-      label(ctx, P.x(c + half) + 4, P.y(A + m * half), `inclinação ${fmt(m, 2)}`, d.slopeMix > 0.5 ? EXCESS : 'rgba(255,255,255,0.85)', d.tangent)
     }
     // A thin slice at x: the area grows by f(x)·dx.
     if (d.slice > 0.01) {
@@ -1308,7 +1308,7 @@ function drawRoad(ctx: CanvasRenderingContext2D, d: Display, W: number, f: (x: n
 function drawTrack(ctx: CanvasRenderingContext2D, d: Display, W: number) {
   const x0 = 40
   const x1 = W - 22
-  const y = 58
+  const y = 66
   ctx.save()
   ctx.globalAlpha = d.track
   ctx.strokeStyle = 'rgba(255,255,255,0.14)'
