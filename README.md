@@ -1,6 +1,6 @@
 # AESo
 
-![release](https://img.shields.io/badge/release-v0.3.0-green)
+![release](https://img.shields.io/badge/release-v0.4.0-green)
 ![next](https://img.shields.io/badge/next.js-15.5-blue?logo=next.js)
 ![code-license](https://img.shields.io/badge/code%20license-MIT-red)
 ![content-license](https://img.shields.io/badge/content%20license-CC%20BY--SA%204.0-red)

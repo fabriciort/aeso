@@ -9,7 +9,7 @@ export const ORBITAS: Lab = {
   area: 'Física',
   level: 'Ensino médio',
   minutes: 15,
-  status: 'em-breve',
+  status: 'disponivel',
   concepts: ['Gravitação', 'Leis de Kepler', 'Órbitas'],
   accent: '#46d9c6',
   achievement: {

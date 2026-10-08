@@ -1356,9 +1356,9 @@ export default function OrbitStage({ lab, stepId, scene, answers, setAnswer, liv
 
   // ------------------------------------------------------------ overlays
 
-  const showSpeed = mode === 'cannon' || mode === 'orbit'
+  const showSpeed = (mode === 'cannon' || mode === 'orbit') && (interaction === 'shoot' || (stepId === 'preveja' && scene === 1))
   const shownV = stepId === 'preveja' && scene === 1 && shot ? shot.v : v
-  const typeShown = showSpeed && shot && !(stepId === 'preveja' && scene === 0) ? shot.type : null
+  const typeShown = showSpeed && shot ? shot.type : null
   const circV = typeof answers.circV === 'number' ? (answers.circV as number) : null
   const fitted = Math.abs(slope - 1) < SLOPE_TOLERANCE
   const hint =
@@ -1435,11 +1435,6 @@ export default function OrbitStage({ lab, stepId, scene, answers, setAnswer, liv
               Distâncias comprimidas · ritmos reais · 1 ano = {YEAR_S} s
             </motion.div>
           )}
-          {mode === 'graph' && scene >= 2 && (
-            <motion.div key="k" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={spring.snappy} className={cn(badge, 'ml-10 font-mono tabular-nums', fitted && 'text-[#46d9c6]')}>
-              T² = {formatNumber(slope, 2)} · a³
-            </motion.div>
-          )}
           {mode === 'iss' && (
             <motion.div key="iss" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={badge}>
               ISS · ≈ 400 km · volta em ≈ 92 min
@@ -1477,6 +1472,11 @@ export default function OrbitStage({ lab, stepId, scene, answers, setAnswer, liv
               )}
             >
               {TRAJECTORY_LABEL[typeShown]}
+            </motion.div>
+          )}
+          {mode === 'graph' && scene >= 2 && (
+            <motion.div key="k" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={spring.snappy} className={cn(badge, 'font-mono tabular-nums', fitted && 'text-[#46d9c6]')}>
+              T² = {formatNumber(slope, 2)} · a³
             </motion.div>
           )}
           {mode === 'kepler' && allEqual && (
