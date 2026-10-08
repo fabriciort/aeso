@@ -357,7 +357,7 @@ function target(p: Inputs, H: number): Target {
       break
     }
     case 'conclua':
-      t.view = { x0: -0.3, x1: 2.3, y0: -0.4, y1: 4.4 }
+      t.view = { x0: -0.3, x1: 2.3, y0: -0.4, y1: 5.2 }
       t.top = Math.min(H * 0.58, 270)
       t.w = one('sq')
       t.xLabel = 'x'
@@ -615,7 +615,7 @@ function chipText(c: { stepId: string; scene: number; answered: boolean }, d: Di
       if (c.scene >= 2) return ''
       return `n = ${Math.round(t.n)} · soma ≈ ${fmt(riemann(carAccel, 0, 2, t.n, t.method), 2)}`
     case 'observe':
-      if (c.scene >= 2) return '10 degraus × 10 m = 100 m'
+      if (c.scene >= 2) return '10 × 10 m = 100 m'
       return `t = ${fmt(cur, 2)} s · ${fmt(boltDistance(cur), 1)} m`
     case 'resolva':
       if (c.scene === 1 && t.tangent > 0.5) return `x = ${fmt(cur, 2)} · inclinação de A: ${fmt(t.slopeMix > 0.5 ? t.slopeOver : cur * cur, 3)}`
@@ -625,7 +625,7 @@ function chipText(c: { stepId: string; scene: number; answered: boolean }, d: Di
       if (c.scene === 0) {
         const s = 60 * cur - 20 * cur * cur
         const tot = cur <= 1.5 ? s : 45 + (45 - s)
-        return `desloc. ${fmt(s, 0)} km · andou ${fmt(tot, 0)} km`
+        return `desloc. ${fmt(s, 0)} · andou ${fmt(tot, 0)} km`
       }
       return c.answered ? `erro: esquerda ${fmt(8 / 3 - riemann((x) => x * x, 0, 2, 10, 'left'), 3)} · meio ${fmt(8 / 3 - riemann((x) => x * x, 0, 2, 10, 'mid'), 4)}` : ''
     default:
@@ -922,9 +922,6 @@ function Finale({ accent, height }: { accent: string; height: number }) {
       >
         <Tex block say="A integral de a até b de f de x d x é igual a F de b menos F de a">{'\\int_a^b f(x)\\,dx = F(b) - F(a)'}</Tex>
       </motion.div>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.7 }} className="text-[10.5px] uppercase tracking-[0.16em] text-white/40">
-        Teorema Fundamental do Cálculo
-      </motion.p>
     </motion.div>
   )
 }

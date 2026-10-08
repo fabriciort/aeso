@@ -72,16 +72,17 @@ function pathAt(p: number): string {
 const MATH = { fontFamily: 'KaTeX_Math, "Times New Roman", serif', fontStyle: 'italic' as const }
 const MAIN = { fontFamily: 'KaTeX_Main, "Times New Roman", serif' }
 
-function Swap({ p, from, to, className }: { p: MotionValue<number>; from: React.ReactNode; to: React.ReactNode; className?: string }) {
+function Swap({ p, from, to, className, widths }: { p: MotionValue<number>; from: React.ReactNode; to: React.ReactNode; className?: string; widths?: [string, string] }) {
+  const w = useTransform(p, [0.3, 0.8], widths ?? ['auto', 'auto'])
   const a = useTransform(p, [0.25, 0.6], [1, 0])
   const b = useTransform(p, [0.45, 0.85], [0, 1])
   const ya = useTransform(p, [0.25, 0.6], [0, -6])
   const yb = useTransform(p, [0.45, 0.85], [6, 0])
   return (
-    <span className={`relative inline-grid ${className ?? ''}`}>
+    <motion.span className={`relative inline-grid ${className ?? ''}`} style={widths ? { width: w } : undefined}>
       <motion.span style={{ opacity: a, y: ya, gridArea: '1 / 1' }}>{from}</motion.span>
       <motion.span style={{ opacity: b, y: yb, gridArea: '1 / 1' }}>{to}</motion.span>
-    </span>
+    </motion.span>
   )
 }
 
@@ -126,7 +127,7 @@ export function MorphNotation({ accent, replay, result }: { accent: string; repl
         <motion.span style={{ ...MATH, width: subWidth, opacity: subO, fontSize: '0.6em', display: 'inline-block', overflow: 'hidden', transform: 'translateY(0.25em)' }}>i</motion.span>
         <span style={MAIN}>)</span>
         <span className="ml-[0.25em]">
-          <Swap p={p} from={<span style={MAIN}>Δ</span>} to={<span style={MATH}>d</span>} className="-mr-[0.06em]" />
+          <Swap p={p} from={<span style={MAIN}>Δ</span>} to={<span style={MATH}>d</span>} widths={['0.84em', '0.54em']} />
         </span>
         <span style={MATH}>x</span>
         {result && (

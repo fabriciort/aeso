@@ -115,14 +115,15 @@ function targetGeo(v: Shown, W: number, H: number): Geo {
   const usable = W - thW
   const Hb = H - nbH
   const baseY = Hb - (v.tray ? 66 : 16)
-  const pivotY = baseY - Math.max(54, baseY * 0.3)
-  const Lb = Math.min(usable * 0.3, 190)
-  const pw = Math.min(Lb * 0.92, 170)
+  const pivotY = baseY - Math.max(50, baseY * 0.24)
+  // Pans as wide as the stage allows: cx ± (Lb + pw/2) stays 10 px inside.
+  const Lb = Math.min((usable / 2 - 10) / 1.52, 230)
+  const pw = Math.min(Lb * 1.04, 200)
   return {
     cx: usable / 2,
     Lb,
     pw,
-    u: clamp(pw / 6.6, 12, 24),
+    u: clamp(pw / 5.4, 13, 30),
     pivotY,
     baseY,
     Hb,
