@@ -78,7 +78,11 @@ function TrackStop({
   labs: Record<string, LabProgress>
   onOpen: (slug: string) => void
 }) {
-  const items = track.labs.map((s) => getLab(s)).filter((l): l is Lab => Boolean(l))
+  // Ready labs first (keeping the trilha's order among them), then "em breve".
+  const items = track.labs
+    .map((s) => getLab(s))
+    .filter((l): l is Lab => Boolean(l))
+    .sort((a, b) => Number(b.status === 'disponivel') - Number(a.status === 'disponivel'))
   const done = items.filter((l) => labs[l.slug]?.completedAt).length
   const ready = items.filter((l) => l.status === 'disponivel').length
   return (

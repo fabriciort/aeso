@@ -76,7 +76,7 @@ export function Imagine(props: StepProps) {
   const { lab, setReady } = props
   const [scene] = useScenes(props, 3, 'imagineScene')
   const [live, setLive] = useDeriv()
-  const arrived = useTask(live.t >= 9.9, 'arrived', props)
+  const arrived = useTask(live.t >= 9.8, 'arrived', props)
   useEffect(() => setReady(scene !== 1 || arrived), [scene, arrived, setReady])
   useVegaScreen({ lab: lab.slug, step: 'imagine', state: `Cena ${scene + 1}/3. Carro em t = ${fmt(live.t, 1)} s, posição ${fmt(live.t * live.t, 1)} m.` })
 
@@ -383,7 +383,7 @@ export function Resolva(props: StepProps) {
                   onClick={() => pick(i)}
                 >
                   <span className={cn('block text-center text-[16px]', step.options.length <= 3 && 'py-0')}>
-                    <Tex say={o.say}>{o.tex}</Tex>
+                    <Tex say={o.say}>{`\\displaystyle ${o.tex}`}</Tex>
                   </span>
                 </Choice>
               ))}
@@ -480,7 +480,7 @@ export function Conclua({ lab, setReady }: StepProps) {
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
             <Summary label="Carro · t = 5" value="10 m/s" />
-            <Summary label="Derivada de t²" value="2t" />
+            <Summary label="Derivada" value="(t²)′ = 2t" />
             <Summary label="Pico de Bolt" value={`${fmt(TOP.v, 1)} m/s`} />
           </div>
           <div className="flex items-center gap-3">

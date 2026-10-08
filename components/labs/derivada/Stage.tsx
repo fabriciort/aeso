@@ -195,7 +195,7 @@ function target(p: Inputs): Scene {
       if (c.id === 'zero') {
         s.curves.car = 1
         s.road = 1
-        s.view = { x0: -1.6, x1: 4.6, y0: -3, y1: 17 }
+        s.view = { x0: -0.45, x1: 4.6, y0: -2.5, y1: 17 }
         s.P = 0
         s.pA = 1
         s.tangent = 1
@@ -526,8 +526,7 @@ function draw(
   const P = d.sweep && !onRoad ? 5 + 4.3 * Math.sin(d.sweepT * 0.55 - Math.PI / 2) : d.P
   const Pt = d.sweep && onRoad ? 1.5 * (1 - Math.cos(d.sweepT * 0.9)) : P
 
-  drawAxes(ctx, view, frame, { formatX: (x) => fmt(x, 3), formatY: (y) => fmt(y, 3) })
-  axisTitles(ctx, frame, CURVES[d.on].x, CURVES[d.on].y)
+  drawAxes(ctx, view, frame, { formatX: (x) => fmt(x, 3), formatY: (y) => fmt(y, 3), titles: { x: CURVES[d.on].x, y: CURVES[d.on].y } })
 
   // Bolt's real splits.
   if (d.dots > 0.01) {
@@ -549,7 +548,7 @@ function draw(
     if (a < 0.01) continue
     drawFunction(ctx, CURVES[id].f, view, frame, { color: id === 'bolt' ? REAL : 'rgba(255,255,255,0.92)', width: 2.5, alpha: a, upTo: id === 'car' ? d.upTo : Infinity })
   }
-  if (d.curves.bolt > 0.05) label(ctx, frame.left + 48, frame.top + 10, 'modelo ajustado aos tempos', REAL, d.curves.bolt * 0.8)
+  if (d.curves.bolt > 0.05) label(ctx, frame.left + frame.width - 4, frame.top + frame.height - 26, 'curva: modelo ajustado', REAL, d.curves.bolt * 0.8, 'right')
 
   const p = toPx(view, frame)
   const accent = '#ff6b8b'
@@ -566,7 +565,11 @@ function draw(
     ctx.lineTo(p.x(P), p.y(c.f(P)))
     ctx.stroke()
     ctx.restore()
-    label(ctx, (p.x(0) + p.x(P)) / 2 + 10, (p.y(c.f(0)) + p.y(c.f(P))) / 2 + 16, P >= 9.9 ? 'média: 10 m/s' : 'média: 5 m/s', 'rgba(255,255,255,0.75)', d.average)
+    const mx = (p.x(0) + p.x(P)) / 2
+    const my = (p.y(c.f(0)) + p.y(c.f(P))) / 2
+    // Whole trip: the chord runs above the curve, so the label sits above it.
+    if (P >= 9.9) label(ctx, mx - 8, my - 12, 'média: 10 m/s', 'rgba(255,255,255,0.75)', d.average, 'right')
+    else label(ctx, mx + 10, my + 16, 'média: 5 m/s', 'rgba(255,255,255,0.75)', d.average)
   }
 
   // Secant through P and Q = P + h.
@@ -625,8 +628,7 @@ function draw(
     const vv = fromLog(d.vView)
     ctx.save()
     ctx.globalAlpha = d.split
-    drawAxes(ctx, vv, vf, { formatX: (x) => fmt(x), formatY: (y) => fmt(y), yStep: d.vOn === 'car' ? 10 : 4 })
-    axisTitles(ctx, vf, 't (s)', 'v (m/s)')
+    drawAxes(ctx, vv, vf, { formatX: (x) => fmt(x), formatY: (y) => fmt(y), yStep: d.vOn === 'car' ? 10 : 4, titles: { x: 't (s)', y: 'v (m/s)' } })
     const vfn = d.vOn === 'car' ? carSpeed : boltSpeed
     drawFunction(ctx, vfn, vv, vf, { color: accent, width: 2.4, upTo: d.vOn === 'car' ? (d.sweep ? P : d.vUpTo) : d.vUpTo, glow: true })
     if (d.vOn === 'car' && d.sweep) drawFunction(ctx, vfn, vv, vf, { color: accent, width: 1.2, alpha: 0.25 })
@@ -754,18 +756,5 @@ function label(ctx: CanvasRenderingContext2D, x: number, y: number, text: string
   ctx.textBaseline = 'middle'
   ctx.fillStyle = color
   ctx.fillText(text, x, y)
-  ctx.restore()
-}
-
-function axisTitles(ctx: CanvasRenderingContext2D, f: Frame, x: string, y: string) {
-  ctx.save()
-  ctx.font = MATH_FONT
-  ctx.fillStyle = 'rgba(255,255,255,0.4)'
-  ctx.textAlign = 'right'
-  ctx.textBaseline = 'bottom'
-  ctx.fillText(x, f.left + f.width, f.top + f.height - 4)
-  ctx.textAlign = 'left'
-  ctx.textBaseline = 'top'
-  ctx.fillText(y, f.left + 6, f.top + 2)
   ctx.restore()
 }

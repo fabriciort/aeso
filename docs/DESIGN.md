@@ -73,8 +73,14 @@ O celular é a referência. Cada **Etapa** ocupa exatamente a tela (`100svh`) e 
 
 Laboratórios novos têm um único palco que atravessa todas as etapas e se transforma em vez de ser trocado (ex.: a esfera aquecida vira estrela, encolhe para o canto enquanto o espectro cresce, voa para o lugar de Betelgeuse em Órion). As etapas trocam só a coluna de texto. Ver `docs/LABORATORIOS.md`.
 
+## Matemática
+
+- As trilhas aparecem como um caminho vertical numerado; cada trilha tem sua cor, que vira o `accent` dos seus laboratórios. Os laboratórios prontos vêm primeiro; os "em breve" ficam esmaecidos, para o aluno ver o caminho inteiro.
+- No palco: fundo de grade leve, eixos discretos, a curva principal em branco, o objeto da ideia (tangente, retângulos, vetor) na cor do laboratório, dados reais em azul-claro (`#7dd3fc`).
+- Fórmulas em KaTeX herdam a cor do texto. Frações em opções de escolha usam `\displaystyle`; no Caderno, o estilo de texto, para caber.
+
 ## Layout do Observatório
 
-- **Desktop:** trilho lateral fino à esquerda (Início, Céu, Laboratórios), área principal ao centro e a Vega como painel deslizante à direita.
+- **Desktop:** trilho lateral fino à esquerda (Início, Céu, Laboratórios, Matemática), área principal ao centro e a Vega como painel deslizante à direita.
 - **Celular:** barra inferior com as mesmas áreas; a Vega abre como folha inferior.
-- A **URL acompanha o estado** (`/app`, `/app/ceu?q=M51`, `/app/laboratorios/exoplaneta`) para links compartilháveis, sem recarregar a página.
+- A **URL acompanha o estado** (`/app`, `/app/ceu?q=M51`, `/app/laboratorios/exoplaneta`, `/app/matematica/derivada`) para links compartilháveis, sem recarregar a página.

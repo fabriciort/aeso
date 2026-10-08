@@ -63,7 +63,17 @@ export function drawAxes(
   ctx: CanvasRenderingContext2D,
   v: Viewport,
   f: Frame,
-  opts: { alpha?: number; xStep?: number; yStep?: number; labels?: boolean; grid?: boolean; formatX?: (x: number) => string; formatY?: (y: number) => string } = {},
+  opts: {
+    alpha?: number
+    xStep?: number
+    yStep?: number
+    labels?: boolean
+    grid?: boolean
+    formatX?: (x: number) => string
+    formatY?: (y: number) => string
+    /** Axis names, drawn at the ends of the axes ("t (s)", "s (m)"). */
+    titles?: { x?: string; y?: string }
+  } = {},
 ) {
   const { alpha = 1, labels = true, grid = true, formatX = (x) => fmt(x), formatY = (y) => fmt(y) } = opts
   if (alpha <= 0.01) return
@@ -106,7 +116,7 @@ export function drawAxes(
     for (const x of ticks(v.x0, v.x1, xs)) {
       if (x === 0) continue
       const X = p.x(x)
-      if (X < f.left + 10 || X > f.left + f.width - 10) continue
+      if (X < f.left + 10 || X > f.left + f.width - (opts.titles?.x ? 34 : 10)) continue
       ctx.fillText(formatX(x), X, Math.min(ax + 5, f.top + f.height - 14))
     }
     ctx.textAlign = 'right'
@@ -114,8 +124,24 @@ export function drawAxes(
     for (const y of ticks(v.y0, v.y1, ys)) {
       if (y === 0) continue
       const Y = p.y(y)
-      if (Y < f.top + 8 || Y > f.top + f.height - 8) continue
+      if (Y < f.top + (opts.titles?.y ? 22 : 8) || Y > f.top + f.height - 8) continue
       ctx.fillText(formatY(y), Math.max(ay - 5, f.left + 26), Y)
+    }
+  }
+  if (opts.titles) {
+    ctx.font = MATH_FONT
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    if (opts.titles.x) {
+      // Above the x axis, at its right end.
+      ctx.textAlign = 'right'
+      ctx.textBaseline = 'bottom'
+      ctx.fillText(opts.titles.x, f.left + f.width - 2, Math.max(f.top + 14, ax - 5))
+    }
+    if (opts.titles.y) {
+      // Beside the y axis, at its top.
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'top'
+      ctx.fillText(opts.titles.y, Math.min(ay + 6, f.left + f.width - 50), f.top + 2)
     }
   }
   ctx.restore()
