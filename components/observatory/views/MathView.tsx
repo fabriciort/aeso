@@ -1,5 +1,6 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { ArrowRight, Check, Clock, Lock } from 'lucide-react'
 import { getLab } from '@/lib/labs/catalog'
@@ -12,7 +13,9 @@ import { useProgress, type LabProgress } from '@/lib/progress'
 import { cn } from '@/lib/utils'
 import { LabCover } from '@/components/labs/LabCover'
 import { hasLabModule } from '@/components/labs/registry'
-import { Tex } from '@/components/math/Tex'
+
+// KaTeX only for a decorative formula: load it on demand, out of the app's first load.
+const Tex = dynamic(() => import('@/components/math/Tex').then((m) => m.Tex), { ssr: false })
 
 /** Ready and with content loaded in the registry. */
 const playable = (l: Lab) => l.status === 'disponivel' && hasLabModule(l.slug)

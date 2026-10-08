@@ -439,7 +439,7 @@ export default function GradStage({ stepId, scene, answers, live, setLive, setAn
       // ---- camera
       const availH = H - d.nb * Math.min(H * 0.4, 190)
       const topness = Math.max(0, Math.min(1, (d.pitch - 0.6) / (TOP - 0.6)))
-      const scale = d.zoom * Math.min(W / d.fit, availH / (d.fit * (1.2 - 0.2 * topness)))
+      const scale = d.zoom * Math.min(W / d.fit, availH / (d.fit * (1.02 - 0.02 * topness)))
       // On the map, never slide past the terrain's edge (wide desktop stages too).
       const limX = Math.max(0, 1 - W / 2 / scale)
       const limY = Math.max(0, 1 - availH / 2 / scale)
