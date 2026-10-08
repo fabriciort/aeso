@@ -139,7 +139,7 @@ function LabPlayer({ lab, stepId }: { lab: Lab; stepId?: string }) {
     stopSpeaking()
     void exitFocus()
     navigate(labHome(lab.slug))
-  }, [navigate])
+  }, [navigate, lab.slug])
 
   const finish = () => {
     updateLab(lab.slug, (l) => ({ ...l, completedAt: l.completedAt ?? new Date().toISOString() }))
