@@ -16,7 +16,7 @@ export const aula: Aula = {
   cartoes: [
     {
       tipo: 'gancho',
-      texto: 'Exemplo imaginado: arruelas para uma reforma. Como conferir a quantidade sem recontar uma por uma?',
+      texto: 'Você comprou arruelas para uma reforma. Como saber quantas são sem contar uma por uma?',
       visual: blocos(
         { centenas: 0, dezenas: 0, unidades: 27, totalVisivel: false, objetos: 'arruelas' },
         '27 arruelas espalhadas numa bancada, sem numeral nem total revelado. Duas regiões comportam dez peças; sete ficam soltas.',
@@ -25,7 +25,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'Junte as peças em grupos de **10**. Deixe as que sobrarem à vista.',
+      texto: 'Junte as peças em grupos de **10**. As que sobrarem ficam soltas.',
       visual: blocos(
         { centenas: 0, dezenas: 0, unidades: 27, tamanhoGrupo: 10, totalVisivel: false },
         'Cada arruela vira um cubo. Uma moldura com dez encaixes acompanha o gesto; peças excedentes continuam fora da moldura.',
@@ -33,7 +33,7 @@ export const aula: Aula = {
       ),
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Forme todos os grupos completos de 10.',
+        instrucao: 'Forme todos os grupos de 10 que der.',
         sucesso: { centenas: 0, dezenas: 2, unidades: 7 },
         mostre: 'Preencher dez encaixes, fechá-los numa barra e repetir uma vez. Manter sete cubos soltos e o total oculto.',
       },
@@ -42,7 +42,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'Duas barras de 10 e 7 peças soltas representam quantas peças?',
+      pergunta: 'Duas barras de 10 e mais 7 peças soltas. Quantas peças são?',
       visual: blocos(
         { centenas: 0, dezenas: 2, unidades: 7, totalVisivel: false },
         'Duas barras de dez e sete cubos soltos. Cada barra pode abrir durante a explicação; ainda não mostrar algarismos por casa.',
@@ -50,7 +50,7 @@ export const aula: Aula = {
       opcoes: [
         {
           texto: '27', certa: true,
-          explica: 'Cada barra guarda 10 peças. Abrindo as duas, continuam 27 peças.',
+          explica: 'Isso. Cada barra tem 10 peças: 10 + 10 + 7 = 27.',
           mostra: blocos(
             { centenas: 0, dezenas: 0, unidades: 27, total: 27 },
             'Abrir cada barra em dez cubos, conservar os sete soltos e revelar o contador 27 junto da coleção completa.',
@@ -59,7 +59,7 @@ export const aula: Aula = {
         },
         {
           texto: '9', erro: 'conta-grupos-como-unidades',
-          explica: 'Uma barra é um grupo de 10, não uma peça. Abra as barras para conferir.',
+          explica: 'Cada barra conta como 10 peças, não como 1. São 10 + 10 + 7.',
           mostra: blocos(
             { centenas: 0, dezenas: 2, unidades: 7, abrirDezenas: true, total: 27 },
             'Contornar os nove objetos visíveis e então abrir cada um dos dois objetos longos em dez cubos: objetos e unidades diferem.',
@@ -68,7 +68,7 @@ export const aula: Aula = {
         },
         {
           texto: '20', erro: 'descarta-sobra',
-          explica: 'Os grupos guardam 20 peças. As 7 soltas também fazem parte do total.',
+          explica: 'As barras dão 20. Faltou somar as 7 soltas.',
           mostra: blocos(
             { centenas: 0, dezenas: 2, unidades: 7, destaque: 'unidades', total: 27 },
             'Conservar duas barras à esquerda e contornar os sete cubos à direita. O contador passa de subtotal 20 ao total 27.',
@@ -89,7 +89,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'Há 9 unidades na moldura. Já dá para trocá-las por 1 dezena?',
+      pergunta: 'Há 9 peças na moldura. Já dá para trocar por 1 dezena?',
       visual: blocos(
         { centenas: 0, dezenas: 0, unidades: 9, tamanhoGrupo: 10 },
         'Moldura de dez encaixes com nove preenchidos e um vazio; uma barra completa aparece apenas como contorno.',
@@ -105,7 +105,7 @@ export const aula: Aula = {
         },
         {
           texto: 'Sim, 9 já está perto de 10', erro: 'troca-incompleta',
-          explica: 'Trocar 9 por 10 criaria uma peça. A troca exige a quantidade exata.',
+          explica: 'Uma dezena tem exatamente 10. Com 9, ainda falta 1.',
           mostra: blocos(
             { antes: 9, tentativa: 10, unidadesCriadas: 1, tamanhoGrupo: 10 },
             'Sobrepor os nove cubos ao desenho da barra; a divisão que não tem cubo ganha um contorno isolado.',
@@ -116,7 +116,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'Agora agrupe **10 dezenas**. As barras que sobrarem continuam à vista.',
+      texto: 'Agora junte **10 barras**. As que sobrarem ficam soltas.',
       visual: blocos(
         { centenas: 0, dezenas: 12, unidades: 4, tamanhoGrupo: 10 },
         'Doze barras e quatro cubos. Dez barras cabem lado a lado num contorno quadrado de dez por dez divisões.',
@@ -142,14 +142,14 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'A mesma troca continua: **10 centenas** formam um **milhar**, 1.000 unidades.',
+      texto: 'E continua: **10 centenas** formam um **milhar**, 1.000 unidades.',
       visual: blocos(
         { milhares: 0, centenas: 10, dezenas: 0, unidades: 0, total: 1000 },
         'Dez placas de cem separadas numa pilha baixa. Ao lado, contorno de um bloco com dez camadas do tamanho das placas.',
       ),
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Empilhe as 10 placas para formar um bloco de mil.',
+        instrucao: 'Junte as 10 placas num bloco de mil.',
         sucesso: { milhares: 1, centenas: 0, dezenas: 0, unidades: 0 },
         mostre: 'Empilhar as dez placas sem escondê-las; indicar as dez camadas e revelar 1.000 no total, que não muda.',
       },
@@ -159,7 +159,7 @@ export const aula: Aula = {
     {
       tipo: 'anote',
       titulo: 'Agrupamento decimal',
-      definicao: 'No sistema decimal, 10 unidades de uma ordem formam 1 unidade da ordem seguinte, sem mudar o total.',
+      definicao: 'Contamos em grupos de 10: 10 unidades formam 1 dezena; 10 dezenas formam 1 centena. O total não muda.',
       exemplo: {
         tex: '10\\text{ unidades}=1\\text{ dezena};\\quad 10\\text{ dezenas}=1\\text{ centena}',
         fala: 'dez unidades formam uma dezena; dez dezenas formam uma centena',
@@ -176,11 +176,11 @@ export const aula: Aula = {
       ),
       passos: [
         {
-          pergunta: 'Fechando os grupos de 10 unidades, o que fica?',
+          pergunta: 'Juntando as unidades de 10 em 10, o que você tem?',
           opcoes: [
             {
               texto: '13 dezenas e 7 unidades', certa: true,
-              explica: 'Treze grupos ficam completos; os 7 cubos soltos permanecem.',
+              explica: 'Isso. Dá 13 grupos de 10, e sobram 7 cubos soltos.',
               mostra: blocos(
                 { centenas: 0, dezenas: 13, unidades: 7, total: 137 },
                 'Fechar cada uma das treze linhas em uma barra, mantendo a linha curta com os sete cubos.',
@@ -188,7 +188,7 @@ export const aula: Aula = {
             },
             {
               texto: '13 dezenas, sem unidades', erro: 'descarta-sobra',
-              explica: 'A linha com 7 cubos continua na bancada. Ela também conta.',
+              explica: 'E os 7 cubos que sobraram? Eles também contam.',
               mostra: blocos(
                 { centenas: 0, dezenas: 13, unidades: 7, destaque: 'unidades', total: 137 },
                 'Desenhar um contorno em torno da linha curta; mostrar 130 nas barras e 7 nos cubos, sem removê-los.',
@@ -196,7 +196,7 @@ export const aula: Aula = {
             },
             {
               texto: '7 dezenas e 13 unidades', erro: 'sobra-na-casa-errada',
-              explica: 'Os grupos completos são as 13 dezenas. A sobra tem só 7 unidades.',
+              explica: 'Ao contrário: são 13 grupos de 10, e sobram 7 soltas.',
               mostra: blocos(
                 { centenas: 0, dezenas: 13, unidades: 7, total: 137, rotulos: ['D', 'U'] },
                 'Pôr o rótulo D nas treze barras e U nos sete cubos. Confrontar com a tentativa, que teria sete barras e treze cubos.',
@@ -206,11 +206,11 @@ export const aula: Aula = {
           linha: { tex: '137\\text{ unidades}=13\\text{ dezenas}+7\\text{ unidades}', fala: 'cento e trinta e sete unidades são treze dezenas e sete unidades' },
         },
         {
-          pergunta: 'Troque 10 das 13 dezenas por uma centena. O que sobra fora da placa?',
+          pergunta: 'Agora troque 10 das 13 barras por uma placa. O que fica fora da placa?',
           opcoes: [
             {
               texto: '3 dezenas e 7 unidades', certa: true,
-              explica: 'Dez barras entram na placa; 3 barras e 7 cubos ficam fora.',
+              explica: 'Isso. 10 barras viram a placa. Ficam 3 barras e 7 cubos.',
               mostra: blocos(
                 { centenas: 1, dezenas: 3, unidades: 7, total: 137 },
                 'Deslizar dez barras para a placa e manter três barras e sete cubos nas posições anteriores.',
@@ -218,7 +218,7 @@ export const aula: Aula = {
             },
             {
               texto: '2 dezenas e 7 unidades', erro: 'troca-incompleta',
-              explica: 'Dez barras entram na placa. Das 13, ficam 3; nenhuma barra desaparece.',
+              explica: 'Das 13 barras, 10 viram a placa. 13 − 10 = 3: ficam 3 barras, não 2.',
               mostra: blocos(
                 { centenas: 1, dezenas: 3, unidades: 7, total: 137, conferirDezenas: 13 },
                 'Numerar temporariamente as treze barras e seguir dez até a placa. As barras 11, 12 e 13 permanecem fora.',
@@ -226,7 +226,7 @@ export const aula: Aula = {
             },
             {
               texto: '7 dezenas e 3 unidades', erro: 'sobra-na-casa-errada',
-              explica: 'Sobram 3 barras, não 3 cubos. Os 7 cubos continuam sendo unidades.',
+              explica: 'Ficam 3 barras e 7 cubos, não o contrário.',
               mostra: blocos(
                 { centenas: 1, dezenas: 3, unidades: 7, total: 137, rotulos: ['C', 'D', 'U'] },
                 'Rotular os três tipos de peça e contornar separadamente as três barras e os sete cubos.',
@@ -240,7 +240,7 @@ export const aula: Aula = {
           opcoes: [
             {
               texto: 'Não: continuam 137 unidades', certa: true,
-              explica: 'A placa guarda 100, as barras guardam 30, e há 7 cubos soltos.',
+              explica: 'Isso. A placa vale 100, as barras 30, e há 7 soltos: 137.',
               mostra: blocos(
                 { centenas: 1, dezenas: 3, unidades: 7, total: 137, subtotais: [100, 30, 7] },
                 'Abrir placa e barras por demanda, mantendo o total fixo; três etiquetas mostram 100, 30 e 7 sob cada conjunto.',
@@ -248,7 +248,7 @@ export const aula: Aula = {
             },
             {
               texto: 'Sim: agora são 11 unidades', erro: 'conta-grupos-como-unidades',
-              explica: 'Há 11 peças desenhadas, mas a placa e as barras guardam muitas unidades.',
+              explica: 'São 11 peças na tela, mas a placa vale 100 e cada barra vale 10.',
               mostra: blocos(
                 { centenas: 1, dezenas: 3, unidades: 7, total: 137, abrirTodos: true },
                 'Abrir a placa em cem cubos e as barras em trinta, junto dos sete soltos; contrastar onze objetos com 137 unidades.',
@@ -262,7 +262,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'caderno',
-      instrucao: 'No caderno, desenhe 2 centenas, 13 dezenas e 6 unidades. Reagrupe e digite o total.',
+      instrucao: 'No papel, desenhe 2 placas, 13 barras e 6 cubos. Troque 10 barras por 1 placa e digite o total.',
       resposta: 336,
       resolucao: [
         { tex: '13\\text{ dezenas}=1\\text{ centena}+3\\text{ dezenas}', fala: 'treze dezenas formam uma centena e três dezenas' },
@@ -278,7 +278,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'fecho',
-      texto: 'As arruelas ficaram em 2 dezenas e 7 unidades: **27**, sem mudar o total. Depois, esses grupos ganham casas.',
+      texto: 'As arruelas: 2 grupos de 10 e 7 soltas. São **27**, sem contar uma por uma. Na próxima aula, cada grupo ganha uma casa.',
       visual: blocos(
         { centenas: 0, dezenas: 2, unidades: 7, total: 27, objetos: 'arruelas', casasFuturas: ['D', 'U'] },
         'Voltar à bancada inicial; dois feixes de dez arruelas e sete soltas. Surgem contornos vazios D e U abaixo, como ponte à próxima aula.',

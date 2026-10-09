@@ -16,8 +16,8 @@ export const aula: Aula = {
   cartoes: [
     {
       tipo: 'gancho',
-      texto: 'Exemplo imaginado: arquivos mostram **12.500** fotos em português e **12,500** em inglês. São a mesma quantidade?',
-      fala: 'Exemplo imaginado: um arquivo mostra doze, ponto, quinhentos em português; outro mostra doze, vírgula, quinhentos em inglês. São a mesma quantidade?',
+      texto: 'No Brasil, escrevemos **12.500**. Num site americano, aparece **12,500**. É a mesma quantidade?',
+      fala: 'No Brasil, escrevemos doze, ponto, quinhentos. Num site americano, aparece doze, vírgula, quinhentos. É a mesma quantidade?',
       visual: quadro(
         { numeros: [12500, 12500], etiquetas: ['12.500', '12,500'], formatos: ['pt-BR', 'en-US'], quantidadeOculta: true },
         'Duas etiquetas de arquivo no mesmo quadro, com idioma escrito ao lado do número. Ocultar leitura por extenso e quantidade até a exploração.',
@@ -33,7 +33,7 @@ export const aula: Aula = {
       ),
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Separe 12500 em grupos, contando da direita.',
+        instrucao: 'Conte 3 algarismos a partir da direita e ponha um ponto.',
         sucesso: { grupos: [[1, 2], [5, 0, 0]] },
         mostre: 'Marcar as três casas finais, inserir a divisória e deixar 1 e 2 no grupo da esquerda: 12 | 500.',
       },
@@ -42,7 +42,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'Em **12 | 500**, o grupo 12 conta o quê?',
+      pergunta: 'Em **12 | 500**, o 12 conta o quê?',
       visual: quadro(
         { grupos: [12, 500], classes: [null, 'unidades'], casasPorClasse: 3 },
         'Acender o trio da direita como unidades; manter o nome da classe à esquerda em branco, sem revelar a resposta.',
@@ -50,7 +50,7 @@ export const aula: Aula = {
       opcoes: [
         {
           texto: 'Milhares', certa: true,
-          explica: 'Isso: são 12 mil e mais 500 unidades.',
+          explica: 'Isso. São 12 mil e mais 500: doze mil e quinhentos.',
           mostra: quadro(
             { numero: 12500, grupos: [12, 500], classes: ['milhares', 'unidades'], parcelas: [12000, 500] },
             'Revelar milhares sobre 12 e unidades sobre 500; desenhar 12.000 e 500 abaixo de seus grupos, mantendo o número unido.',
@@ -58,7 +58,7 @@ export const aula: Aula = {
         },
         {
           texto: 'Unidades', erro: 'classe-errada',
-          explica: 'As unidades ficam no trio da direita. O grupo seguinte conta milhares.',
+          explica: 'As unidades são o grupo da direita, o 500. O 12 conta milhares.',
           mostra: quadro(
             { numero: 12500, grupos: [12, 500], classes: ['milhares', 'unidades'], destaque: 'milhares' },
             'Contar U, D e C no trio 500; o primeiro algarismo à esquerda fica na casa dos milhares, sem fundir os dois grupos.',
@@ -66,7 +66,7 @@ export const aula: Aula = {
         },
         {
           texto: 'Milhões', erro: 'classe-errada',
-          explica: 'Entre unidades e milhões existe a classe dos milhares.',
+          explica: 'Antes dos milhões vêm os milhares. O 12 conta milhares: 12 mil.',
           mostra: quadro(
             { numero: 12500, grupos: [0, 12, 500], classes: ['milhões', 'milhares', 'unidades'], destaque: 'milhares' },
             'Acrescentar um trio vazio à esquerda de 12 | 500: milhões. Mostrar que 12 está no trio central, não naquele vazio.',
@@ -77,7 +77,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Cada trio é uma **classe**: unidades, milhares, milhões, bilhões, da direita para a esquerda.',
+      texto: 'Cada grupo de 3 é uma **classe**. Da direita para a esquerda: unidades, milhares, milhões, bilhões.',
       visual: quadro(
         { classes: ['bilhões', 'milhões', 'milhares', 'unidades'], casasPorClasse: 3, grupos: [0, 0, 12, 500] },
         'Expandir o quadro em quatro trios. Dentro de cada classe repetir C, D e U; em cima manter o nome completo da classe.',
@@ -97,7 +97,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'No Brasil, qual escrita representa **1 bilhão**?',
+      pergunta: 'Como se escreve **1 bilhão**?',
       visual: quadro(
         { classes: ['bilhões', 'milhões', 'milhares', 'unidades'], grupos: [1, 0, 0, 0], numeroOculto: true },
         'Um cartão 1 fica na classe bilhões. Os três trios seguintes têm molduras vazias para a previsão da escrita.',
@@ -105,7 +105,7 @@ export const aula: Aula = {
       opcoes: [
         {
           texto: '1.000.000.000', certa: true,
-          explica: 'Um bilhão ocupa a quarta classe; três classes ficam à direita.',
+          explica: 'Isso. 1 bilhão tem 4 classes: o 1 e mais três grupos de 000.',
           mostra: quadro(
             { numero: 1000000000, grupos: [1, 0, 0, 0], classes: ['bilhões', 'milhões', 'milhares', 'unidades'], escrita: '1.000.000.000' },
             'Preencher os três trios à direita com 000 e exibir 1.000.000.000. Marcar cada classe ao ler o nome.',
@@ -113,7 +113,7 @@ export const aula: Aula = {
         },
         {
           texto: '1.000.000', erro: 'classe-errada',
-          explica: 'Essa escrita tem três classes: representa 1 milhão.',
+          explica: 'Esse é 1 milhão. Para 1 bilhão, falta mais um grupo de 000.',
           mostra: quadro(
             { numeros: [1000000, 1000000000], grupos: [[0, 1, 0, 0], [1, 0, 0, 0]], classes: ['bilhões', 'milhões', 'milhares', 'unidades'] },
             'Alinhar um milhão e um bilhão pelas unidades. O cartão 1 está uma classe mais à esquerda no bilhão.',
@@ -121,7 +121,7 @@ export const aula: Aula = {
         },
         {
           texto: '1.000', erro: 'classe-errada',
-          explica: 'Essa escrita tem duas classes: representa 1 milhar.',
+          explica: 'Esse é mil. Para 1 bilhão, faltam mais dois grupos de 000.',
           mostra: quadro(
             { numeros: [1000, 1000000000], grupos: [[0, 0, 1, 0], [1, 0, 0, 0]], classes: ['bilhões', 'milhões', 'milhares', 'unidades'] },
             'Alinhar um milhar e um bilhão num único quadro de quatro classes. Contornar a classe ocupada pelo 1 em cada linha.',
@@ -132,14 +132,14 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'Monte **2 bilhões, 5 milhões, 40 mil e 6 unidades**. Cada classe guarda três casas.',
+      texto: 'Monte **2 bilhões, 5 milhões, 40 mil e 6**.',
       visual: quadro(
         { classes: ['bilhões', 'milhões', 'milhares', 'unidades'], cartoes: [2, 5, 40, 6], grupos: [null, null, null, null] },
         'Cartões 2, 5, 40 e 6 abaixo de quatro trios. Cada cartão encaixa à direita do trio; as casas vazias internas recebem zeros.',
       ),
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Coloque cada grupo na classe correspondente.',
+        instrucao: 'Ponha cada número na classe dele.',
         sucesso: { grupos: [2, 5, 40, 6], numero: 2005040006 },
         mostre: 'Colocar 2 em bilhões, 005 em milhões, 040 em milhares e 006 em unidades; ler 2.005.040.006 acompanhando os trios.',
       },
@@ -148,7 +148,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Leia cada grupo com o nome da classe: **2 bilhões, 5 milhões, 40 mil e 6**.',
+      texto: 'Para ler, diga cada grupo com o nome da classe: **2 bilhões, 5 milhões, 40 mil e 6**.',
       visual: quadro(
         { numero: 2005040006, grupos: [2, 5, 40, 6], classes: ['bilhões', 'milhões', 'milhares', 'unidades'], leituras: ['2 bilhões', '5 milhões', '40 mil', '6'] },
         'Manter o número montado. Ao tocar um trio, destacá-lo e ler sua quantidade com o nome da classe; no último, ler apenas seis.',
@@ -157,8 +157,8 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'No padrão brasileiro, o milhar usa ponto: **12.500**. No inglês, usa vírgula: **12,500**.',
-      fala: 'No padrão brasileiro, o milhar usa ponto: doze mil e quinhentos. No inglês, usa vírgula para a mesma quantidade.',
+      texto: 'No Brasil, separamos os grupos com ponto: **12.500**. Em inglês, com vírgula: **12,500**.',
+      fala: 'No Brasil, separamos os grupos com ponto. Em inglês, com vírgula. Os dois são doze mil e quinhentos.',
       visual: quadro(
         { numero: 12500, grupos: [12, 500], classes: ['milhares', 'unidades'], formatos: ['pt-BR', 'en-US'], escritas: ['12.500', '12,500'] },
         'Um único quadro 12 | 500 sustenta as duas etiquetas com idioma. Trocar somente o separador, mantendo cada algarismo na mesma casa.',
@@ -168,7 +168,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'Um arquivo em **inglês** mostra **12,500** fotos. Como ler essa quantidade?',
+      pergunta: 'Num site em **inglês**, um produto tem **12,500** avaliações. Quantas são?',
       visual: quadro(
         { etiqueta: '12,500', formato: 'en-US', idioma: 'inglês', quantidadeOculta: true },
         'Etiqueta 12,500 com inglês ao lado. O quadro reaparece só no feedback, para que a escolha ainda seja uma previsão.',
@@ -176,7 +176,7 @@ export const aula: Aula = {
       opcoes: [
         {
           texto: 'Doze mil e quinhentos', certa: true,
-          explica: 'Nesse formato, a vírgula separa os milhares: 12 | 500.',
+          explica: 'Isso. Em inglês, a vírgula separa os grupos: 12 | 500.',
           mostra: quadro(
             { numero: 12500, grupos: [12, 500], classes: ['milhares', 'unidades'], escritas: ['12,500', '12.500'] },
             'A vírgula abre espaço para a divisória 12 | 500; mostrar a etiqueta portuguesa 12.500 abaixo do mesmo quadro.',
@@ -184,7 +184,7 @@ export const aula: Aula = {
         },
         {
           texto: 'Doze vírgula quinhentos', erro: 'separador-decimal',
-          explica: 'Essa seria uma leitura decimal no padrão brasileiro. Aqui, a etiqueta está em inglês.',
+          explica: 'Em português, a vírgula seria de número quebrado. Em inglês, ela só separa os grupos: 12 mil e 500.',
           mostra: quadro(
             { numero: 12500, grupos: [12, 500], classes: ['milhares', 'unidades'], formato: 'en-US', separadorMilhar: ',' },
             'Contornar o rótulo inglês e ligar a vírgula à fronteira das classes. Não construir um quadro decimal nesta aula.',
@@ -196,25 +196,25 @@ export const aula: Aula = {
     {
       tipo: 'anote',
       titulo: 'Classes numéricas',
-      definicao: 'Uma classe numérica reúne três casas consecutivas, agrupadas da direita para a esquerda.',
+      definicao: 'Classe é cada grupo de 3 casas, contado da direita: unidades, milhares, milhões, bilhões.',
       exemplo: { tex: '12.500=12.000+500', fala: 'doze mil e quinhentos é doze mil mais quinhentos' },
-      alerta: 'Depois da primeira classe, mantenha três algarismos por grupo, incluindo zeros. Confira o idioma do separador.',
+      alerta: 'Todo grupo, menos o da esquerda, tem 3 algarismos. Complete com zeros: 3 milhões e 40 mil é 3.040.000.',
       esboco: 'Copiar definição, exemplo e alerta; abaixo, desenhar dois trios com milhares e unidades. Na margem, registrar português 12.500 e inglês 12,500.',
     },
     {
       tipo: 'passo',
-      problema: 'Escreva **3 milhões, 40 mil e 6 unidades**.',
+      problema: 'Escreva com algarismos: **3 milhões, 40 mil e 6**.',
       visual: quadro(
         { classes: ['milhões', 'milhares', 'unidades'], grupos: [null, null, null], cartoes: [3, 40, 6] },
         'Três trios vazios e os cartões 3, 40 e 6. O caderno recebe primeiro as classes, depois a escrita e por fim a conferência.',
       ),
       passos: [
         {
-          pergunta: 'Em que classe fica o grupo 3?',
+          pergunta: 'Em que classe vai o 3?',
           opcoes: [
             {
               texto: 'Milhões', certa: true,
-              explica: 'O enunciado diz 3 milhões; o 3 vai no trio dos milhões.',
+              explica: 'Isso. São 3 milhões: o 3 vai na classe dos milhões.',
               mostra: quadro(
                 { classes: ['milhões', 'milhares', 'unidades'], grupos: [3, null, null] },
                 'Encaixar o 3 na última casa do trio milhões, deixando os outros dois trios livres para os próximos grupos.',
@@ -222,7 +222,7 @@ export const aula: Aula = {
             },
             {
               texto: 'Milhares', erro: 'classe-errada',
-              explica: 'Nessa classe, o 3 representaria 3 mil. Precisamos da classe à esquerda.',
+              explica: 'Nos milhares, o 3 valeria só 3 mil. Ele vai uma classe à esquerda: milhões.',
               mostra: quadro(
                 { classes: ['milhões', 'milhares', 'unidades'], tentativa: [null, 3, null], correto: [3, null, null] },
                 'Comparar o 3 em milhares com o 3 em milhões; deslocar o cartão um trio para a esquerda, marcando o nome da classe.',
@@ -232,11 +232,11 @@ export const aula: Aula = {
           linha: { tex: '3\\text{ milhões}=3.000.000', fala: 'três milhões são três milhões de unidades' },
         },
         {
-          pergunta: 'Como escrever os grupos de 40 mil e 6 unidades depois do 3?',
+          pergunta: 'E como ficam o 40 mil e o 6?',
           opcoes: [
             {
               texto: '3 | 040 | 006', certa: true,
-              explica: 'Os grupos seguintes têm três casas: 040 milhares e 006 unidades.',
+              explica: 'Isso. Cada grupo tem 3 algarismos: 040 e 006.',
               mostra: quadro(
                 { numero: 3040006, grupos: [3, 40, 6], escritas: ['3', '040', '006'], classes: ['milhões', 'milhares', 'unidades'] },
                 'Encaixar 40 e 6 à direita de seus trios e preencher as casas vazias com zeros; ler 3 | 040 | 006.',
@@ -244,7 +244,7 @@ export const aula: Aula = {
             },
             {
               texto: '3 | 40 | 6', erro: 'esquece-zero',
-              explica: 'Sem os zeros, 3406 tem só quatro casas. Os trios precisam manter seus lugares.',
+              explica: 'Sem os zeros, vira 3406: três mil quatrocentos e seis. Cada grupo precisa de 3 algarismos.',
               mostra: quadro(
                 { numeros: [3406, 3040006], grupos: [[0, 3, 406], [3, 40, 6]], classes: ['milhões', 'milhares', 'unidades'] },
                 'Alinhar 3406 e 3.040.006 pelas unidades. Na primeira linha, o 3 cai nos milhares; na segunda, permanece nos milhões.',
@@ -252,7 +252,7 @@ export const aula: Aula = {
             },
             {
               texto: '3000000 | 40000 | 6', erro: 'concatena-casas',
-              explica: 'Cada parcela já vale uma quantidade. Para montar o número, use as casas, sem colar parcelas.',
+              explica: 'Assim você cola os números inteiros. Em cada classe vai só o grupo: 3 | 040 | 006.',
               mostra: quadro(
                 { numero: 3040006, parcelas: [3000000, 40000, 6], grupos: [3, 40, 6], classes: ['milhões', 'milhares', 'unidades'] },
                 'Alinhar as três parcelas nas casas correspondentes em linhas separadas; montar uma única linha, sem concatenar suas escritas.',
@@ -262,11 +262,11 @@ export const aula: Aula = {
           linha: { tex: '\\text{classes: }3\\;|\\;040\\;|\\;006', fala: 'classes: três milhões, quarenta milhares e seis unidades' },
         },
         {
-          pergunta: 'Qual soma confere o número que você montou?',
+          pergunta: 'Para conferir: qual soma dá 3.040.006?',
           opcoes: [
             {
               texto: '3.000.000 + 40.000 + 6', certa: true,
-              explica: 'Cada parcela corresponde a uma classe do número 3.040.006.',
+              explica: 'Isso. Cada parte da soma é uma classe: 3 milhões, 40 mil e 6.',
               mostra: quadro(
                 { numero: 3040006, parcelas: [3000000, 40000, 6], grupos: [3, 40, 6], classes: ['milhões', 'milhares', 'unidades'] },
                 'Ligar cada grupo à parcela correspondente, com as unidades alinhadas à direita nas três linhas.',
@@ -274,7 +274,7 @@ export const aula: Aula = {
             },
             {
               texto: '3.000.000 + 400 + 6', erro: 'classe-errada',
-              explica: 'O grupo 040 conta milhares: vale 40.000, não 400.',
+              explica: 'O 040 está nos milhares: vale 40.000, não 400.',
               mostra: quadro(
                 { numero: 3040006, grupoEmFoco: 40, classeEmFoco: 'milhares', valorDoGrupo: 40000 },
                 'Expandir o trio milhares em suas três casas; o 4 ocupa dezenas de milhar e corresponde à parcela 40.000.',
@@ -288,12 +288,11 @@ export const aula: Aula = {
     },
     {
       tipo: 'caderno',
-      instrucao: 'Exemplo imaginado: um arquivo tem 7 milhões, 40 mil e 9 fotos. Monte o número no caderno e digite sem separadores.',
+      instrucao: 'No papel, escreva **7 milhões, 40 mil e 9** com algarismos. Depois digite aqui.',
       resposta: 7040009,
       resolucao: [
         { tex: '\\text{milhões }7\\;|\\;\\text{milhares }040\\;|\\;\\text{unidades }009', fala: 'sete na classe dos milhões, zero quatro zero na classe dos milhares e zero zero nove na classe das unidades' },
         { tex: '7.040.009=7.000.000+40.000+9', fala: 'sete milhões, quarenta mil e nove é sete milhões mais quarenta mil mais nove' },
-        { tex: '\\text{entrada sem separadores: }7040009', fala: 'entrada sem separadores: sete zero quatro zero zero zero nove' },
       ],
       esboco: 'Resolver com trios desenhados no papel antes de digitar. Na conferência, realçar os zeros de 040 e 009 e comparar com a soma das classes.',
     },
@@ -304,8 +303,8 @@ export const aula: Aula = {
     },
     {
       tipo: 'fecho',
-      texto: 'Nos arquivos do gancho, **12.500** e **12,500** são 12 mil e 500 fotos. Próxima aula: comparar números na reta.',
-      fala: 'Nos arquivos do gancho, com os idiomas indicados, são doze mil e quinhentas fotos. Próxima aula: comparar números na reta.',
+      texto: '**12.500** e **12,500** são o mesmo número: doze mil e quinhentos. Só muda o sinal entre os grupos. Na próxima aula: comparar números.',
+      fala: 'Doze, ponto, quinhentos e doze, vírgula, quinhentos são o mesmo número: doze mil e quinhentos. Só muda o sinal entre os grupos. Na próxima aula: comparar números.',
       visual: quadro(
         { numero: 12500, grupos: [12, 500], classes: ['milhares', 'unidades'], escritas: ['12.500', '12,500'], formatos: ['pt-BR', 'en-US'] },
         'Voltar às duas etiquetas do gancho e ligar ambas ao quadro 12 | 500. Ao lado, reservar um espaço para a reta da próxima aula, sem ordenação nova.',

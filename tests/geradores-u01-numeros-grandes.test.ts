@@ -13,7 +13,7 @@ function lerClasses(item: Item): number {
   for (const match of item.enunciado.matchAll(new RegExp(`(\\d+) ${grupo}`, 'g'))) {
     classes[posicao[match[2]]] = match[1].padStart(3, '0')
   }
-  const unidades = item.enunciado.match(/(\d+) (?:unidades|registros)/)!
+  const unidades = item.enunciado.match(/(\d+) (?:unidades|reais)/)!
   classes[3] = unidades[1].padStart(3, '0')
   return Number(classes.join(''))
 }
@@ -33,7 +33,7 @@ describe('números grandes: classes de três e separadores declarados', () => {
       for (let seed = 1; seed <= 300; seed++) {
         const item = gerador.gerar(rng(seed))
         if (item.formato === 'escolha') {
-          const registro = item.enunciado.match(/registra o inteiro ([\d,]+)\./)![1]
+          const registro = item.enunciado.match(/aparece o número ([\d,]+)\./)![1]
           const esperado = Number(registro.replace(/,/g, ''))
           const selecionada = item.opcoes![Number(item.resposta)]
           expect(selecionada).toMatch(/^\d{1,3}(?:\.\d{3})+$/)
@@ -61,7 +61,7 @@ describe('números grandes: classes de três e separadores declarados', () => {
         expect(item.dicas).toHaveLength(3)
         if (gerador.nivel === 3) {
           expect(item.visual).toBeUndefined()
-          expect(item.enunciado).toContain('Exemplo imaginado')
+          expect(item.enunciado).not.toMatch(/imaginad/i)
         } else {
           expect(item.visual?.estado.numero).toBeNull()
           expect(item.visual?.estado.preenchimento).toEqual([])

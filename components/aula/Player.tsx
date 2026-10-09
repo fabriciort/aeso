@@ -67,6 +67,7 @@ export function Player({
   const st = states[index] ?? {}
   const set = useCallback((patch: CardState) => setStates((s) => ({ ...s, [index]: { ...s[index], ...patch } })), [index])
   const isLast = index === total - 1
+  const suaVez = aula.cartoes.findIndex((c) => c.tipo === 'sua-vez')
 
   // Full-body cards drive the bottom button themselves.
   const [custom, setCustom] = useState<{ label: string; enabled: boolean } | null>(null)
@@ -255,14 +256,21 @@ export function Player({
 
       {/* Bottom: back and the one button. */}
       <div className="relative z-30 flex shrink-0 items-center gap-3 pb-[max(env(safe-area-inset-bottom),14px)] pt-3">
-        <button
-          onClick={() => go(index - 1)}
-          disabled={index === 0}
-          aria-label="Cartão anterior"
-          className="focus-ring grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.05] text-white/80 transition active:scale-95 disabled:opacity-30"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+        {index === 0 && suaVez > 0 ? (
+          // On the first card: who already knows the subject goes straight to the exercises.
+          <button onClick={() => go(suaVez)} className="focus-ring h-14 shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-5 text-[15px] text-white/80 transition hover:text-white active:scale-95">
+            Já sei isso
+          </button>
+        ) : (
+          <button
+            onClick={() => go(index - 1)}
+            disabled={index === 0}
+            aria-label="Cartão anterior"
+            className="focus-ring grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.05] text-white/80 transition active:scale-95 disabled:opacity-30"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+        )}
         <motion.button
           whileTap={ready ? { scale: 0.97 } : undefined}
           onClick={() => {
@@ -544,7 +552,8 @@ function CadernoBody({ card, onPrimary, onReady }: { card: CadernoCard; onPrimar
   const [value, setValue] = useState('')
   const [checked, setChecked] = useState<null | 'right' | 'wrong' | 'skip'>(null)
   const check = (skip = false) => {
-    const right = !skip && (numeric ? sameAnswer(value, card.resposta) : norm(value) === norm(String(card.resposta)))
+    // A word answer counts when the student's text has it ("tentar sozinho" for "tentar").
+    const right = !skip && (numeric ? sameAnswer(value, card.resposta) : norm(value).includes(norm(String(card.resposta))))
     setChecked(skip ? 'skip' : right ? 'right' : 'wrong')
     haptic(right ? [8, 40, 8] : 12)
     onReady()

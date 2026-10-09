@@ -58,7 +58,7 @@ function conferir(item: Item) {
       expect(valores[1]).toBe(maisProximo(valores[0], 100))
       expect(valores[2]).toBe(valores[1])
       expect(valores[0]).toBeGreaterThan(valores[2])
-      expect(escolhida).toBe('Não; a aproximação está abaixo do preço exato.')
+      expect(escolhida).toBe('Não. O preço exato é maior que isso.')
       for (const [indice, erro] of Object.entries(item.erros)) {
         const opcao = item.opcoes![Number(indice)]
         expect(opcao.includes('igual')).toBe(erro === 'estimativa-exata')
@@ -81,7 +81,7 @@ describe.each([arredondarN1, arredondarN2, arredondarN3])('$id', (gerador) => {
       enunciados.add(item.enunciado)
       expect(gerador.gerar(rng(s))).toEqual(item)
       expect(Boolean(item.visual)).toBe(gerador.nivel < 3)
-      if (gerador.nivel === 3) expect(item.enunciado).toContain('Exemplo imaginado:')
+      if (gerador.nivel === 3) expect(item.enunciado).not.toMatch(/imaginad/i)
     }
     expect(enunciados.size).toBeGreaterThan(15)
   })

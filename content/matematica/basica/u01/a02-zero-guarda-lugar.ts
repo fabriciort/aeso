@@ -17,8 +17,8 @@ export const aula: Aula = {
   cartoes: [
     {
       tipo: 'gancho',
-      texto: 'Exemplo imaginado: duas peças custam **R$ 305** e **R$ 35**. O zero muda o preço?',
-      fala: 'Exemplo imaginado: duas peças custam trezentos e cinco reais e trinta e cinco reais. O zero muda o preço?',
+      texto: 'Uma peça custa **R$ 305**; outra, **R$ 35**. A diferença é só um zero. Por que o preço muda tanto?',
+      fala: 'Uma peça custa trezentos e cinco reais; outra, trinta e cinco reais. A diferença é só um zero. Por que o preço muda tanto?',
       visual: {
         modelo: 'quadro-posicional',
         estado: { numeros: [305, 35], contexto: 'preços imaginados', casas: ['C', 'D', 'U'], blocosVisiveis: false },
@@ -28,7 +28,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'Monte **305** nas casas. Depois experimente trocar o 0 e o 5.',
+      texto: 'Monte **305** nas casas.',
       visual: {
         modelo: 'quadro-posicional',
         estado: { casas: ['C', 'D', 'U'], algarismos: [3, 0, 5], numero: null },
@@ -37,7 +37,7 @@ export const aula: Aula = {
       },
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Encaixe 3 nas centenas, 0 nas dezenas e 5 nas unidades.',
+        instrucao: 'Ponha o 3 nas centenas, o 0 nas dezenas e o 5 nas unidades.',
         sucesso: { numero: 305 },
         mostre: 'Encaixar as peças uma por vez: 3 placas, nenhuma barra e 5 cubos. Permitir montar 350 e depois voltar a 305.',
       },
@@ -46,17 +46,17 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'Se retirar o zero de **305** e juntar as peças, continua o mesmo número?',
+      pergunta: 'E se você tirar o zero de **305**? Continua o mesmo número?',
       visual: quadro(305, 'Zero com alça de remoção; manter no quadro até a aposta.'),
       opcoes: [
         {
           texto: 'Sim, porque o zero não tem blocos', erro: 'esquece-zero',
-          explica: 'Sem a casa vazia, o 3 vai para as dezenas: 3 barras e 5 cubos, **35**.',
+          explica: 'Sem o zero, o 3 escorrega para as dezenas: 3 barras e 5 cubos. Vira **35**.',
           mostra: quadro(35, 'Comparar 305 e 35, mantendo uma sombra das placas originais.', 'O zero sai; o 3 desliza para D e as placas dão lugar a barras.'),
         },
         {
           texto: 'Não, vira 35', certa: true,
-          explica: 'O zero segura o 3 nas centenas. Sem ele, o 3 passa a valer 30.',
+          explica: 'Isso. O zero segura o 3 nas centenas. Sem ele, o 3 vale só 30.',
           mostra: quadro(35, 'Seta de C para D e três barras; devolver o zero restaura as três placas.'),
         },
       ],
@@ -86,9 +86,9 @@ export const aula: Aula = {
         esboco: 'Quadro vazio e áudio opcional. Não mostrar os blocos da resposta antes da escolha.',
       },
       opcoes: [
-        { texto: '6009', erro: 'concatena-casas', explica: 'Colar 600 e 9 cria seis milhares. São seis centenas e nove unidades.', mostra: quadro(609, '6009 ocupa quatro casas; alinhar 609 embaixo e comparar a casa do 6.') },
-        { texto: '69', erro: 'esquece-zero', explica: '69 tem seis dezenas. São seis centenas; a casa das dezenas fica vazia.', mostra: quadro(609, 'Restituir o zero entre 6 e 9; as seis barras dão lugar a seis placas.') },
-        { texto: '609', certa: true, explica: '6 centenas, nenhuma dezena e 9 unidades: **609**.', mostra: quadro(609, 'Seis placas, faixa D vazia com zero e nove cubos.') },
+        { texto: '6009', erro: 'concatena-casas', explica: '6009 é seis mil e nove. Seiscentos e nove tem só 3 casas: 6, 0, 9.', mostra: quadro(609, '6009 ocupa quatro casas; alinhar 609 embaixo e comparar a casa do 6.') },
+        { texto: '69', erro: 'esquece-zero', explica: '69 é sessenta e nove. Para o 6 valer 600, falta o zero nas dezenas.', mostra: quadro(609, 'Restituir o zero entre 6 e 9; as seis barras dão lugar a seis placas.') },
+        { texto: '609', certa: true, explica: 'Isso. 6 centenas, nenhuma dezena e 9 unidades: **609**.', mostra: quadro(609, 'Seis placas, faixa D vazia com zero e nove cubos.') },
       ],
       esboco: 'Transformar a descoberta em escrita e mostrar a concepção por trás de cada distrator.',
     },
@@ -99,18 +99,18 @@ export const aula: Aula = {
         {
           pergunta: 'Em que casa está o 7?',
           opcoes: [
-            { texto: 'Unidades', erro: 'casa-errada', explica: 'Nas unidades está o 2; o 7 ocupa a casa seguinte à esquerda.', mostra: quadro(4072, 'Acender U sob o 2 e depois D sob o 7.') },
-            { texto: 'Dezenas', certa: true, explica: 'A segunda casa da direita é a das dezenas.', mostra: quadro(4072, 'Acender D e ligar o 7 a sete barras.') },
-            { texto: 'Centenas', erro: 'casa-errada', explica: 'A casa das centenas está vazia; por isso tem 0.', mostra: quadro(4072, 'Acender C sob o zero e D sob o 7.') },
+            { texto: 'Unidades', erro: 'casa-errada', explica: 'Nas unidades está o 2. O 7 está uma casa à esquerda.', mostra: quadro(4072, 'Acender U sob o 2 e depois D sob o 7.') },
+            { texto: 'Dezenas', certa: true, explica: 'Isso. A segunda casa, contando da direita, é a das dezenas.', mostra: quadro(4072, 'Acender D e ligar o 7 a sete barras.') },
+            { texto: 'Centenas', erro: 'casa-errada', explica: 'Nas centenas está o 0. O 7 está uma casa à direita, nas dezenas.', mostra: quadro(4072, 'Acender C sob o zero e D sob o 7.') },
           ],
           linha: { tex: '7\\text{ está nas dezenas}', fala: 'sete está nas dezenas' },
         },
         {
-          pergunta: 'Quanto representam sete dezenas?',
+          pergunta: 'Quanto valem 7 dezenas?',
           opcoes: [
-            { texto: '7', erro: 'valor-de-face', explica: '7 é o algarismo. Cada barra tem dez unidades; são sete barras.', mostra: quadro(4072, 'Abrir as sete barras em dez cubos cada, preservando o total.') },
-            { texto: '70', certa: true, explica: 'Sete barras de dez unidades representam **70**.', mostra: quadro(4072, 'Reagrupar os setenta cubos nas sete barras de D.') },
-            { texto: '700', erro: 'casa-errada', explica: '700 precisaria de sete placas de cem na casa das centenas.', mostra: quadro(4072, 'Sete placas ao lado das sete barras como contraprova, sem trocar o número original.') },
+            { texto: '7', erro: 'valor-de-face', explica: '7 é o algarismo. Nas dezenas, ele vale 7 barras de 10: 70.', mostra: quadro(4072, 'Abrir as sete barras em dez cubos cada, preservando o total.') },
+            { texto: '70', certa: true, explica: 'Isso. 7 barras de 10 dão **70**.', mostra: quadro(4072, 'Reagrupar os setenta cubos nas sete barras de D.') },
+            { texto: '700', erro: 'casa-errada', explica: '700 seriam 7 centenas. O 7 está nas dezenas: vale 70.', mostra: quadro(4072, 'Sete placas ao lado das sete barras como contraprova, sem trocar o número original.') },
           ],
           linha: { tex: '7\\text{ dezenas} = 70', fala: 'sete dezenas são setenta' },
         },
@@ -123,19 +123,19 @@ export const aula: Aula = {
       opcoes: [
         {
           texto: 'Mil e cinquenta', erro: 'casa-errada',
-          explica: 'Cinquenta precisa de cinco dezenas. O 5 de 1.005 está nas unidades.',
+          explica: 'Para ser cinquenta, o 5 teria de estar nas dezenas. Em 1.005, ele está nas unidades.',
           mostra: {
             modelo: 'quadro-posicional', estado: { numeros: [1005, 1050], casas: ['M', 'C', 'D', 'U'] },
             esboco: 'Alinhar os quadros: cinco cubos em 1.005 e cinco barras em 1.050. A posição do 5 muda.',
           },
         },
-        { texto: 'Mil e cinco', certa: true, explica: 'Um milhar, nenhuma centena, nenhuma dezena e cinco unidades.', mostra: quadro(1005, 'Um bloco de mil e cinco cubos; C e D vazias com zeros.') },
+        { texto: 'Mil e cinco', certa: true, explica: 'Isso. 1 milhar, nenhuma centena, nenhuma dezena e 5 unidades.', mostra: quadro(1005, 'Um bloco de mil e cinco cubos; C e D vazias com zeros.') },
       ],
       esboco: 'Dois zeros seguidos aumentam o desafio; a contraprova distingue as leituras sem antecipar milhões.',
     },
     {
       tipo: 'caderno',
-      instrucao: 'No caderno, decomponha **2.408** em soma das casas. Depois digite quanto vale o **4**.',
+      instrucao: 'No papel, escreva **2.408** como soma de milhares, centenas, dezenas e unidades. Depois digite quanto vale o **4**.',
       resposta: 400,
       resolucao: [
         { tex: '2.408 = 2.000 + 400 + 0 + 8', fala: 'dois mil quatrocentos e oito é dois mil mais quatrocentos mais zero mais oito' },
@@ -150,7 +150,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'fecho',
-      texto: 'O zero segura as centenas: **305** e **35** são preços diferentes. A seguir: números grandes.',
+      texto: 'Por isso **R$ 305** e **R$ 35** são tão diferentes: o zero segura o 3 nas centenas. Na próxima aula, números grandes.',
       visual: {
         modelo: 'quadro-posicional', estado: { numeros: [305, 35], casas: ['C', 'D', 'U'], contexto: 'preços imaginados' },
         movimento: 'Voltam as etiquetas, com placas e barras alinhadas embaixo.',

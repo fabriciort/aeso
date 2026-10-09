@@ -13,12 +13,12 @@ const estudos = [estudoMaterial, estudoApoio, estudoRetomada]
 // internas do gerador. Estes itens verificam decisões, não contas ou domínio.
 function estrategiaDoCaso(enunciado: string): RegExp {
   if (enunciado.includes('tem papel')) return /Caderno quadriculado, lápis e borracha/
-  if (enunciado.includes('sem papel')) return /rascunho na tela e conferir/
-  if (enunciado.includes('travou')) return /pista, tentar um passo.*conferir/
-  if (enunciado.includes('em silêncio')) return /voz desligada.*texto e visuais/
-  if (enunciado.includes('Já sei isso')) return /Sua vez.*sem ajuda/
-  if (enunciado.includes('voltou após uma pausa')) return /questão antiga sem olhar.*conferir/
-  if (enunciado.includes('viu uma correção')) return /Fechar a resolução.*outra questão/
+  if (enunciado.includes('sem caderno')) return /folha qualquer ou nas notas do celular/
+  if (enunciado.includes('travou')) return /dica, tentar o próximo passo.*conferir/
+  if (enunciado.includes('em silêncio')) return /voz desligada.*texto/
+  if (enunciado.includes('Já sei isso')) return /direto aos exercícios.*sem ajuda/
+  if (enunciado.includes('dias sem estudar')) return /questão antiga sem olhar.*conferir/
+  if (enunciado.includes('viu a correção')) return /Fechar a resolução.*outra questão/
   throw new Error(`Caso de estudo sem regra independente: ${enunciado}`)
 }
 
@@ -48,7 +48,7 @@ describe('U0: primeira resposta diagnóstica calculada pelo enunciado', () => {
   it('conta cada pacote e preserva os parafusos soltos', () => {
     for (const semente of sementes) {
       const item = diagnosticoAgrupamento.gerar(rng(semente))
-      const [, pacotes, porPacote, soltos] = item.enunciado.match(/há (\d+) pacotes com (\d+) parafusos cada e (\d+) soltos/)!
+      const [, pacotes, porPacote, soltos] = item.enunciado.match(/Há (\d+) pacotes com (\d+) parafusos cada e mais (\d+) parafusos soltos/)!
       const contagem = Array.from({ length: Number(pacotes) }, () => Number(porPacote))
       expect(item.resposta).toBe(contagem.reduce((total, quantidade) => total + quantidade, Number(soltos)))
       expect(item.erros[String(Number(pacotes) + Number(soltos))]).toBe('conta-grupos-como-unidades')
@@ -61,8 +61,10 @@ describe('U0: primeira resposta diagnóstica calculada pelo enunciado', () => {
     let houveRepeticao = false
     for (const semente of sementes) {
       const item = diagnosticoPosicao.gerar(rng(semente))
-      const [, numero, algarismo] = item.enunciado.match(/Em (\d+), quanto vale o algarismo (\d) da esquerda/)!
+      const [, numero, primeiro, algarismo] = item.enunciado.match(/Em (\d+), quanto vale o (primeiro )?(\d)\?/)!
       expect(numero[0]).toBe(algarismo)
+      // Com o algarismo repetido (202), o enunciado diz qual: o primeiro.
+      expect(Boolean(primeiro)).toBe(numero[0] === numero[2])
       const partes = numero.split('')
       const valorPeloTexto = Number(partes[0] + '0'.repeat(partes.length - 1))
       expect(item.resposta).toBe(valorPeloTexto)
@@ -78,7 +80,7 @@ describe('U0: primeira resposta diagnóstica calculada pelo enunciado', () => {
   it('compõe milhões e milhares pela escrita em classes de três algarismos', () => {
     for (const semente of sementes) {
       const item = diagnosticoNumerosGrandes.gerar(rng(semente))
-      const [, milhoes, milhares] = item.enunciado.match(/contém (\d+) milhões e (\d+) mil registros/)!
+      const [, milhoes, milhares] = item.enunciado.match(/é de (\d+) milhões e (\d+) mil reais/)!
       const escritoEmClasses = [milhoes, milhares.padStart(3, '0'), '000'].join('')
       expect(item.resposta).toBe(Number(escritoEmClasses))
       expect(Object.values(item.erros)).toEqual(['classe-errada', 'classe-errada'])
@@ -89,7 +91,7 @@ describe('U0: primeira resposta diagnóstica calculada pelo enunciado', () => {
     const ordens = new Set<boolean>()
     for (const semente of sementes) {
       const item = diagnosticoComparacao.gerar(rng(semente))
-      const [, primeiro, segundo] = item.enunciado.match(/têm (\d+) e (\d+) peças/)!
+      const [, primeiro, segundo] = item.enunciado.match(/tem (\d+) peças no estoque; outra, (\d+)/)!
       const numeros = [Number(primeiro), Number(segundo)]
       const ordenados = [...numeros].sort((a, b) => a - b)
       expect(item.resposta).toBe(ordenados[1])
@@ -103,10 +105,10 @@ describe('U0: primeira resposta diagnóstica calculada pelo enunciado', () => {
   it('arredonda o empate pela convenção declarada no próprio enunciado', () => {
     for (const semente of sementes) {
       const item = diagnosticoArredondamento.gerar(rng(semente))
-      const [, valor] = item.enunciado.match(/orçamento é de R\$ (\d+)/)!
+      const [, valor] = item.enunciado.match(/custa R\$ (\d+)/)!
       const numero = Number(valor)
       const esperado = Math.round(numero / 10) * 10
-      expect(item.enunciado).toContain('no meio, escolha a maior')
+      expect(item.enunciado).toContain('Se ficar no meio, vá para a maior')
       expect(numero % 10).toBe(5)
       expect(item.resposta).toBe(esperado)
       expect(Math.abs(esperado - numero)).toBe(5)

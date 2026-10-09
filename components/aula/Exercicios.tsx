@@ -246,7 +246,7 @@ function Final({ diagnostic, roteiro, results }: { diagnostic: boolean; roteiro?
         return (
           <motion.div key={r.alvo} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="flex items-center gap-3 border-t border-white/[0.06] py-3 first:border-t-0">
             <span className="min-w-0 flex-1 text-[17px] text-white/90">{getLesson(r.alvo)?.lesson.title ?? r.habilidade}</span>
-            <span className={cn('shrink-0 rounded-full px-3 py-1 text-[14px]', ok ? 'bg-white text-black' : 'border border-white/20 text-white/70')}>{ok ? 'Confirmar' : 'Retomar'}</span>
+            <span className={cn('shrink-0 rounded-full px-3 py-1 text-[14px]', ok ? 'bg-white text-black' : 'border border-white/20 text-white/70')}>{ok ? 'Já sabe' : 'Ver a aula'}</span>
           </motion.div>
         )
       })}

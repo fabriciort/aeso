@@ -29,6 +29,8 @@ O palco **fica montado** de um cartão para o outro. Quando dois cartões seguid
 
 O aluno pode sair e voltar: a aula retoma no cartão em que parou. O último cartão marca a aula como concluída no mapa.
 
+No primeiro cartão, no lugar do botão de voltar, fica **Já sei isso**: leva direto ao cartão `sua-vez`, para quem já sabe o assunto.
+
 ## Cartões
 
 | Cartão | O que o aluno vê | Pronto quando |
@@ -54,7 +56,7 @@ Detalhes por cartão:
   - A certa escreve a `linha` no caderno da tela, embaixo do palco.
 - **Caderno:**
   - Uma `resposta` numérica abre o teclado numérico da tela.
-  - Uma `resposta` em texto abre um campo de texto (o texto é comparado sem maiúsculas e sem acentos).
+  - Uma `resposta` em texto abre um campo de texto. Vale se o que o aluno escreveu contém a resposta, sem contar maiúsculas e acentos ("tentar sozinho" vale para `tentar`).
   - A `resolucao` se escreve linha a linha.
 - **Voz:** com a voz ligada, o player lê `fala` (ou o texto sem markdown) ao entrar no cartão, e lê `explica` depois de uma aposta.
 - **Fórmulas** (`$...$` e `Linha.tex`) nunca rolam para o lado: encolhem até caber.
@@ -80,7 +82,7 @@ Detalhes por cartão:
 - **Visual:** o `visual` do item aparece no palco, sem interação.
 - **Diagnóstico:** quando todos os geradores são `diagnostico-*`, o cartão vira o diagnóstico de entrada:
   - um item por gerador, sem dicas, com "Não sei";
-  - no fim, a lista do `ROTEIRO_DIAGNOSTICO_ENTRADA` com "Confirmar" ou "Retomar";
+  - no fim, a lista do `ROTEIRO_DIAGNOSTICO_ENTRADA` com "Já sabe" ou "Ver a aula";
   - o resultado fica guardado no progresso.
 - **Diagnóstico de erros:** o mapa `erros` ainda não aparece para o aluno. O feedback é a próxima dica. O mapa está pronto para a Vega usar depois.
 

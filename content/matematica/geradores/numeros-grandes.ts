@@ -19,9 +19,9 @@ function montar(maior: number, escala: number, unidades: number, nivel: 1 | 2): 
       [`${maior * escala}${unidades}`]: 'concatena-casas',
     },
     dicas: [
-      'Separe as classes de três casas, começando pelas unidades à direita.',
-      `Reserve a classe de ${nome(escala, 2)}; preencha as casas vazias com zeros.`,
-      `${maior} ${nome(escala, maior)} e ${unidades} unidades: ${escrito(total)}. Os zeros mantêm cada grupo no seu lugar.`,
+      'Cada classe tem 3 casas. Comece pelas unidades, à direita.',
+      `Reserve a classe dos ${nome(escala, 2)}. As casas vazias levam zero.`,
+      `${maior} ${nome(escala, maior)} e ${unidades} unidades: ${escrito(total)}. Os zeros seguram cada grupo no lugar.`,
     ],
     visual: {
       modelo: 'quadro-posicional',
@@ -56,15 +56,15 @@ function traduzirSeparador(r: Rng): Item {
     if (opcao.erro) erros[String(indice)] = opcao.erro
   })
   return {
-    enunciado: `Exemplo imaginado: um arquivo em inglês registra o inteiro ${registro}. Qual escrita usa ponto para milhar?`,
+    enunciado: `Num site em inglês, aparece o número ${registro}. Como ele se escreve no Brasil?`,
     formato: 'escolha',
     opcoes: ordem.map((opcao) => opcao.texto),
     resposta: ordem.findIndex((opcao) => !opcao.erro),
     erros,
     dicas: [
-      'O enunciado informa que a vírgula separa milhares no arquivo em inglês.',
-      'Leia os grupos de três casas; no padrão brasileiro, separe-os com ponto.',
-      `${registro} (inglês) e ${escrito(total)} (português do Brasil) registram a mesma quantidade.`,
+      'Em inglês, a vírgula separa os grupos de 3 algarismos.',
+      'No Brasil, os grupos são separados por ponto.',
+      `${registro} em inglês é ${escrito(total)} no Brasil: o mesmo número.`,
     ],
     visual: {
       modelo: 'quadro-posicional',
@@ -117,16 +117,16 @@ export const numerosGrandesN3: Gerador = {
       if (valor !== String(total) && !(valor in erros)) erros[valor] = erro
     }
     return {
-      enunciado: `Exemplo imaginado: arquivo com ${maior} ${nome(escala, maior)}, ${meio} ${nome(escalaMeio, meio)} e ${unidades} registros. Escreva com algarismos.`,
+      enunciado: `Uma obra vai custar ${maior} ${nome(escala, maior)}, ${meio} ${nome(escalaMeio, meio)} e ${unidades} reais. Escreva esse valor com algarismos.`,
       formato: 'numero',
       resposta: total,
       erros,
       dicas: [
-        'Cada classe tem três casas; começar pela direita ajuda a preservar os lugares vazios.',
+        'Cada classe tem 3 casas. Comece pela direita para não perder as casas vazias.',
         escala === 1_000_000_000
           ? 'Reserve bilhões, milhões, milhares e unidades. A classe dos milhares está vazia.'
-          : 'Reserve milhões, milhares e unidades. Complete com zeros as casas não ocupadas.',
-        `Complete cada classe até três casas, exceto a primeira: ${escrito(total)} registros.`,
+          : 'Reserve milhões, milhares e unidades. Complete com zeros as casas vazias.',
+        `Toda classe, menos a primeira, tem 3 algarismos: R$ ${escrito(total)}.`,
       ],
     }
   },
