@@ -1,482 +1,560 @@
 # Formação em Matemática: plano
 
-> Status: **proposta para decisão**. Este documento é a fonte de verdade do que vamos construir, aula por aula. Cada sessão de trabalho constrói um pedaço e marca aqui o que ficou pronto.
+> **Versão 2 · alinhamento antes da implementação.** Este é o documento-mestre da formação. Nada vira código sem estar aqui: primeiro o plano, depois o roteiro de cada aula (seção 8), e só então a construção. Cada sessão de trabalho marca o que ficou pronto.
 
-## Para quem
+## 0. Em uma página
 
-Um adulto que **não sabe matemática** (não aprendeu na escola, ou esqueceu tudo), mas é esperto e quer aprender. E também quem **sabe um pouco** e precisa fechar lacunas.
+- **O quê:** uma **formação** em matemática, não um curso solto. Começa do zero absoluto e pode levar, com tempo e esforço, até o Cálculo.
+- **Para quem:**
+  - o adulto que não aprendeu (ou esqueceu) e é esperto;
+  - quem sabe um pouco e tem lacunas.
+- **Como:**
+  - aulas curtas em formato de **story**, com toques, animações e manipulação direta, no celular ou no computador;
+  - o **caderno de papel** do lado;
+  - exercícios sem fim, com dicas e diagnóstico do erro;
+  - a Vega como tutora.
+- **Primeiro passo:** a **Matemática Básica**, a fundação. Tem que ficar perfeita e coesa, porque todo o resto se apoia nela.
+- **Critério de qualidade:** o menor número de passos que realmente ensina. Valor não é volume.
 
-O que esse aluno precisa sentir:
-- **Ninguém me apressa.** Sem cronômetro, sem "é fácil!", sem vergonha de errar.
-- **Eu entendo o porquê.** Nada de decoreba: toda regra nasce de algo que ele viu e mexeu.
-- **Eu consigo fazer sozinho.** Ao fim de cada aula ele resolve, no papel, um problema que antes não conseguia.
-- **Isso serve para a minha vida.** Troco, desconto, receita, reforma, juros do cartão, conta de luz, notícia com gráfico.
+## 1. Aonde a formação leva (com honestidade)
 
-## 1. Estrutura da formação
+A ambição é grande e real: formar quem consiga trabalhar com matemática na indústria, nas finanças e em laboratórios, e seguir até vestibulares exigentes. Para não prometer o que não entregamos, cada etapa tem uma saída clara.
 
-### Crítica à divisão atual
+| Etapa | O aluno sai capaz de… | Marco externo |
+|---|---|---|
+| **Matemática Básica** | Fazer as contas da vida e do trabalho com segurança: proporção, porcentagem, unidades, medidas, equações simples, gráficos, média | Preparado para a prova de Matemática do **ENCCEJA Ensino Fundamental** |
+| + Álgebra e Funções + Geometria e Trigonometria | Ler e montar modelos (funções), resolver equações e sistemas, usar trigonometria | Base para o ENEM e para o ENCCEJA Ensino Médio |
+| + Cálculo 1 a 4 | Acompanhar matemática de graduação em exatas | Base para engenharia, física e cursos técnicos avançados |
+| + Trilha Desafio (futuro) | Resolver problemas difíceis, de olimpíada e de vestibulares como ITA e IME | Exige muito treino de resolução de problemas, além do conteúdo; **não prometemos**, oferecemos o caminho |
 
-A divisão atual (Matemática básica, Ensino médio, Pré-cálculo, Cálculo 1 a 4) mistura duas lógicas.
+### O que é o ENCCEJA, e como usamos
 
-1. **"Ensino médio" é um nome de série, não de assunto.** Para um adulto, não diz o que ele vai aprender. Também junta coisas que pedem preparos diferentes: álgebra, funções, geometria, estatística.
-2. **"Pré-cálculo" não é uma matéria.** É o conjunto de álgebra, funções e trigonometria de que o Cálculo precisa. Como trilha separada, ele repete conteúdo ou deixa buracos.
-3. **Funções e gráficos: a ideia sim, as famílias não.** A *ideia* de função e a leitura de gráficos entram já na Matemática Básica: são usadas na vida (conta de luz, gráfico de notícia) e preparam o terreno. Já as *famílias* de funções (afim, quadrática, exponencial, logaritmo) e a teoria (domínio, composição, inversa) pedem fluência em álgebra, que vem depois.
+- **O que é:** o Exame Nacional para Certificação de Competências de Jovens e Adultos, aplicado pelo Inep (governo federal). Quem não terminou a escola faz a prova e, se passar, recebe o certificado do Ensino Fundamental ou do Médio. Matemática é uma das provas.
+- **O que nós fazemos:** **nós não emitimos o certificado oficial.** Nós **preparamos** a pessoa para a prova e cobrimos a matriz de Matemática do Ensino Fundamental. No fim da Básica, a pessoa recebe o **nosso certificado de conclusão** e está pronta para o ENCCEJA.
+- **A fazer antes de fechar cada unidade:** conferir a matriz de referência oficial do Inep e a BNCC do Ensino Fundamental, item a item. Idades mínimas, inscrição e nota de corte também vêm do edital, sempre do documento oficial.
 
-### Proposta: módulos por assunto, em ordem de dependência
+### Matemática que o trabalho pede: onde ela está na formação
 
-| # | Módulo | O que forma | Absorve |
-|---|---|---|---|
-| 1 | **Matemática Básica** | Números, operações, frações, porcentagem, proporção, medidas, negativos, potências, primeira álgebra e equações do 1º grau, geometria plana, gráficos e a ideia de função, estatística básica | — |
-| 2 | **Álgebra e Funções** | Expressões, produtos notáveis, fatoração, equações do 2º grau, sistemas, inequações; funções: afim, quadrática, exponencial, logaritmo, transformações, composição e inversa | "Ensino médio" (parte) + "Pré-cálculo" (parte) |
-| 3 | **Geometria e Trigonometria** | Semelhança, trigonometria no triângulo, círculo trigonométrico, funções trigonométricas, identidades, geometria analítica (reta e circunferência), vetores | "Ensino médio" (parte) + "Pré-cálculo" (parte) |
-| 4 | **Cálculo 1** · Limites e derivadas | | |
-| 5 | **Cálculo 2** · Integrais e séries | | |
-| 6 | **Cálculo 3** · Várias variáveis | | |
-| 7 | **Cálculo 4** · Cálculo vetorial e equações diferenciais | | |
+As áreas que você citou ficam como **contextos de aplicação**, e nunca como promessa de emprego. Cada uma depende de conteúdo de etapas diferentes.
 
-- Entre os módulos 3 e 4, um **"Pronto para o Cálculo?"**: um diagnóstico que mostra exatamente o que falta revisar. Ele substitui a trilha de Pré-cálculo.
-- A numeração de Cálculo muda de universidade para universidade. Por isso cada módulo leva o conteúdo no nome, e não só o número.
-- Os 8 laboratórios já feitos continuam valendo:
-  - "Equações na balança" vira o laboratório da Unidade 15 desta formação.
-  - Os outros 7 passam a ser o laboratório de unidades dos módulos 2 a 7.
+| Área | O que usa de matemática | Onde está |
+|---|---|---|
+| **Laboratório farmacêutico** (controle de qualidade, dissolução, equivalência) | Unidades (mg, µg, mL), concentração (mg/mL, %, ppm), diluição (C₁·V₁ = C₂·V₂, uma proporção), % dissolvido, média e desvio padrão | Básica (U9 a U11, U19). O fator de similaridade f₂ e as escalas logarítmicas ficam para Álgebra e Funções |
+| **Finanças** | Porcentagem, juros simples e compostos, parcelamento | Básica (U11). Prazos e taxas equivalentes usam exponencial e logaritmo: Álgebra e Funções |
+| **Aviação** | Conversão de unidades (pés, milhas náuticas, nós), velocidade, tempo e distância, consumo, proporção | Básica (U9, U10, U16). O triângulo do vento usa trigonometria e vetores: Geometria e Trigonometria |
+| **Indústria em geral** | Medidas e tolerâncias, escalas, porcentagem, leitura de gráficos, estatística | Básica (U9 a U11, U18, U19) |
 
-### Certificação real: alinhar ao ENCCEJA
+- **Regra:** todo contexto profissional é **revisado por alguém da área** (farmacêutico, piloto, analista financeiro) antes de ir ao ar.
+- Valores de regulamentos (dosagens, normas, limites) só entram com fonte citada e rótulo "exemplo didático".
 
-Muitos adultos que não terminaram a escola fazem o **ENCCEJA**, o exame do governo que certifica o Ensino Fundamental e o Médio.
+## 2. Estrutura da formação
 
-- **Proposta:** a Matemática Básica cobre a matriz de referência de Matemática do ENCCEJA Ensino Fundamental e a BNCC dos anos finais do Fundamental.
-- **Ganho:** a formação passa a valer um diploma, não só conhecimento.
-- **Pendência:** a matriz precisa ser conferida item a item com o documento oficial antes de fecharmos cada unidade.
+Os módulos são organizados por assunto e em ordem de dependência. Saem "Ensino médio", que é nome de série, e "Pré-cálculo", que não é uma matéria.
 
-## 2. Como uma pessoa aprende aqui
+| # | Módulo | Conteúdo |
+|---|---|---|
+| 1 | **Matemática Básica** | Seção 6, completa |
+| 2 | **Álgebra e Funções** | Expressões, produtos notáveis, fatoração, 2º grau, sistemas, inequações; funções afim, quadrática, exponencial, logaritmo; transformações, composição, inversa |
+| 3 | **Geometria e Trigonometria** | Semelhança, trigonometria no triângulo, círculo trigonométrico, funções trigonométricas, identidades, geometria analítica, vetores |
+| — | **"Pronto para o Cálculo?"** | Um diagnóstico que mostra o que revisar. Faz o papel do antigo "Pré-cálculo" |
+| 4–7 | **Cálculo 1 a 4** | Limites e derivadas · Integrais e séries · Várias variáveis · Vetorial e EDOs (o nome sempre traz o conteúdo, além do número) |
+
+- **Os 8 laboratórios já prontos são mantidos.** "Equações na balança" fecha a U15. Os outros fecham unidades dos módulos 2 a 7.
+- **Funções e gráficos.**
+  - **Na Básica:** a *ideia* de função e a leitura de gráficos (U18), porque são do dia a dia.
+  - **No Módulo 2:** as *famílias* de funções, que pedem álgebra.
+
+## 3. A experiência: aula em formato de story
 
 ### Hierarquia
 
 ```
-Formação → Módulo → Unidade → Aula → Prática
-                            ↘ Laboratório (fecha a unidade)
-                            ↘ Checkpoint (domínio da unidade)
+Formação → Módulo → Unidade → Aula (story) → Prática
+                            ↘ Missão (aplicação real)   ↘ Checkpoint (domínio)
 ```
 
-- **Aula:** uma ideia só, de 5 a 10 minutos, em no máximo 6 telas. Esse é o tijolo da formação.
-- **Prática:** exercícios gerados por parâmetros, ilimitados, com dicas e diagnóstico do erro.
-- **Laboratório** (o formato que já existe, com Imagine → Conclua): fecha a unidade com uma aplicação real maior. É a síntese, não a primeira aula.
-- **Checkpoint:** 6 a 10 questões que misturam a unidade inteira. Ele libera a próxima unidade e entra na revisão espaçada.
-
-### Roteiro de uma aula (menos passos, mais valor)
-
-| Tela | O que acontece | Regra |
+| Peça | O que é | Tamanho |
 |---|---|---|
-| 1. **A pergunta** | Um problema real e curto, que o aluno ainda não sabe resolver | A pergunta vem antes da explicação |
-| 2. **Mexa** | O aluno manipula o modelo visual e descobre o padrão | O aluno faz; ele não assiste |
-| 3. **A ideia** | O nome e a notação, como resumo do que ele viu. Aparece o cartão **"Anote no caderno"** com o que copiar | Uma ideia, uma frase, uma notação |
-| 4. **Exemplo guiado** | O aluno resolve passo a passo escolhendo o próximo passo; o caderno na tela se escreve | Os distratores são erros comuns de verdade |
-| 5. **Sua vez** | 3 a 5 exercícios, primeiro no papel e depois com a resposta digitada | O suporte diminui a cada exercício |
-| 6. **Fecho** | A pergunta da tela 1 resolvida e uma frase do que vem depois | O aluno vê o próprio progresso |
+| **Aula** | Uma ideia só, contada como story | 5 a 10 min, até 8 cartões |
+| **Prática** | Exercícios gerados por parâmetros, sem fim | No ritmo do aluno |
+| **Missão** | Um problema real que junta a unidade (ou várias), com uma pequena história. Usa o formato de laboratório que já existe | 10 a 20 min |
+| **Checkpoint** | 6 a 10 questões misturadas; libera a próxima unidade | 10 min |
+| **Revisão do dia** | Questões antigas, espaçadas e misturadas | 5 a 10 min |
 
-O critério de qualidade: se dá para ensinar com 4 telas, não use 6. Toda tela precisa mudar alguma coisa na cabeça do aluno.
+### Como o story funciona
 
-### Modelos-âncora: poucos visuais que atravessam a formação inteira
+- **Barra no topo:** segmentos, um por cartão, como nos stories (já existe nos laboratórios).
+- **Avançar:**
+  - em cartão de narração, tocar na metade direita avança e na metade esquerda volta;
+  - em cartão com tarefa, só avança depois da ação; aí aparece "Continuar".
+- **Voltar:** sempre permitido. Nada se perde.
+- **Palco contínuo:** o desenho não pisca de um cartão para o outro, ele **se transforma**. Esse é o diferencial em relação a um story comum.
+- **Texto:** até ~25 palavras por cartão. A voz da Vega lê, se o aluno quiser.
+- **Sem rolagem**, sem cronômetro, no celular e no computador.
 
-Para "tudo se casar", o aluno não aprende um desenho novo em cada aula. Uns poucos modelos voltam sempre, e cada volta estende o anterior.
+### Tipos de cartão (o "vocabulário" de toda aula)
 
-| Modelo | Onde nasce | Para onde vai |
+| Cartão | Para quê | Regras |
 |---|---|---|
-| **Reta numérica** | Naturais (U1) | Frações → decimais → negativos → inequações → eixos do gráfico → limites |
-| **Retângulo (área)** | Multiplicação (U3) | Distributiva → fração de fração → azulejos algébricos (x²) → produtos notáveis (Módulo 2) → integral (Cálculo) |
-| **Balança** | Igualdade (U15) | Equações → inequações (balança inclinada) → sistemas (duas balanças) |
-| **Barra** (modelo de barras) | Parte-todo (U2) | Frações → razão → porcentagem → problemas em texto |
-| **Grade 10 × 10** | Centésimos (U8) | Porcentagem → probabilidade |
-| **Blocos de base 10** | Valor posicional (U1) | Contas armadas → decimais → potências de 10 |
+| **Gancho** | Uma situação real e uma pergunta que o aluno ainda não sabe responder | Sempre o primeiro. Concreto, adulto, do dia a dia ou do trabalho |
+| **Mexa** | Manipular o modelo visual e descobrir o padrão | Uma ação clara ("arraste", "toque"), com resposta visual imediata |
+| **Aposta** | Prever antes de ver | 2 a 4 opções; os erros são concepções comuns reais. A resposta explica os dois casos |
+| **Ideia** | Dar nome e notação ao que ele já viu | Uma frase e uma notação. Gera o cartão **Anote** |
+| **Anote** | O que copiar no caderno | Definição, um exemplo e um alerta de erro. Formato fixo, para o caderno ficar organizado |
+| **Passo a passo** | Exemplo guiado: o aluno escolhe o próximo passo e o caderno da tela se escreve | Distratores = erros comuns; erro mostrado no desenho |
+| **Caderno** | Pausa para resolver no papel e depois conferir | O aluno digita a resposta final; o passo a passo aparece para comparar |
+| **Sua vez** | 3 a 5 exercícios, com o suporte diminuindo | Primeiro com dica disponível, por último sem |
+| **Fecho** | A pergunta do Gancho respondida e o que vem depois | O aluno vê que agora sabe |
 
-### Papel, rascunho e caderno
+Uma aula típica: Gancho → Mexa → Aposta → Ideia + Anote → Passo a passo → Caderno → Sua vez → Fecho. Cartões que não acrescentam nada **saem**.
 
-- **O papel é central.** Escrever à mão fixa o aprendizado. Toda aula tem momentos **"Pegue o caderno"** com a instrução exata do que fazer.
-- **Cartões "Anote"** dizem o que copiar, no formato certo: uma definição, um exemplo e um alerta de erro comum.
-- **Rascunho na tela:** uma área de desenho com o dedo sobre qualquer exercício, para quem está sem papel.
-- **Folha de treino imprimível** (PDF) em cada unidade, gerada com exercícios novos e gabarito comentado no final.
-- **Ficha-resumo** por unidade: uma página com tudo o que importa, para consultar depois.
-- Futuro: o aluno fotografa a resolução e a Vega comenta os passos (depende de um modelo de IA com visão).
+### O caderno de papel
 
-### Exercícios
+- **Material:** um caderno quadriculado (ajuda a alinhar contas), lápis e borracha. Isso é dito na U0.
+- **Organização:** cada unidade começa numa página nova, com o título. Cada cartão **Anote** vira um bloco no caderno.
+- **Rascunho na tela:** desenhar com o dedo sobre qualquer exercício, para quem está sem papel no momento.
+- **Folha de treino em PDF** por unidade, gerada com exercícios novos e gabarito comentado. Fica para depois do piloto.
+- **Ficha-resumo** por unidade: uma página para revisar.
 
-- **Gerados por parâmetros:** cada habilidade tem um gerador. Não acabam, e o aluno não decora a resposta.
-- **Teclado próprio:** números, vírgula, fração e sinal de menos. Chega de brigar com o teclado do celular.
-- **Formatos de resposta:** digitar, marcar na reta numérica, pintar na grade, arrastar para a balança, escolher o passo.
-- **Diagnóstico do erro:** cada resposta errada comum é mapeada para a concepção errada que a gera. Exemplo: em 1/2 + 1/3, a resposta 2/5 significa que o aluno somou cima com cima e baixo com baixo. A explicação ataca a causa, não só o resultado.
-- **Dicas em 3 níveis:** (1) lembra a ideia; (2) dá o primeiro passo; (3) mostra a resolução e oferece um exercício parecido.
-- **Domínio:** a habilidade fica "dominada" depois de 3 acertos seguidos sem dica.
-  - **Revisão espaçada:** depois volta na **Revisão do dia**, com 5 a 10 minutos de questões antigas misturadas, em 1, 3, 7 e 21 dias.
-  - **Base:** prática de recuperação, espaçamento e intercalação, as técnicas com melhor evidência para fixar o que se aprendeu.
+## 4. Coesão: o que mantém tudo encaixado
 
-### Dois níveis de entrada, uma formação só
+### 4.1 Modelos-âncora
 
-Não fazemos dois cursos; fazemos um, com rotas diferentes.
+Poucos modelos visuais, sempre desenhados do mesmo jeito, que voltam e crescem ao longo da formação.
 
-- **Diagnóstico de entrada** (adaptativo, cerca de 20 minutos) indica onde o aluno começa.
-- **Do zero:**
+| Modelo | Nasce em | Volta em |
+|---|---|---|
+| **Blocos de base 10** | U1 (valor posicional) | Contas armadas (U2–U4), decimais (U8), potências de 10 (U13) |
+| **Reta numérica** | U1 | Frações (U7), decimais (U8), negativos (U12), inequações (U15), eixos (U18), limites (Cálculo) |
+| **Barra** | U2 (parte-todo) | Divisão (U4), frações (U7), razão (U10), porcentagem (U11), problemas em texto (U15) |
+| **Retângulo (área)** | U3 (multiplicação) | Distributiva (U3, U14), fração × fração (U7), área (U16), azulejos algébricos (U14), produtos notáveis (Módulo 2), integral (Cálculo) |
+| **Grade 10 × 10** | U8 (centésimos) | Porcentagem (U11), probabilidade (U19) |
+| **Balança** | U15 (igualdade) | Inequações (U15), sistemas (Módulo 2) |
+
+### 4.2 Convenções de notação (iguais em toda a formação)
+
+| Assunto | Convenção | Quando muda |
+|---|---|---|
+| Decimal | Vírgula: `2,5` | Ensinamos que calculadoras e planilhas em inglês usam ponto (U8) |
+| Milhar | Ponto: `12.500` | Ensinamos a ler os dois formatos (U1) |
+| Multiplicação | `×` | A partir da U14 aparecem `·` e a escrita junta (`3x`), apresentadas explicitamente |
+| Divisão | `÷` | A partir da U7 entra a barra de fração `a/b`, mostrando que é a mesma coisa |
+| Unidades | Número, espaço, unidade: `5 m`, `250 mL`, `10 %` | — |
+| Negativos | Sinal de menos verdadeiro (−) e parênteses em operações: `3 × (−2)` | — |
+| Igualdade | `=` só entre coisas iguais. Nunca "encadear" contas erradas (3 + 2 = 5 × 2 = 10) | Ensinado na U5 |
+
+### 4.3 Vocabulário: o nome oficial, sempre com o nome popular
+
+Apresentamos o nome oficial e o popular juntos ("reagrupamento", o famoso "vai um"). Depois usamos sempre o oficial, para o aluno conseguir ler provas e livros.
+
+### 4.4 Uma definição canônica por conceito
+
+Cada conceito tem **uma** frase de definição, escrita uma vez no cartão Anote e repetida igual sempre que voltar. Exemplo: "Fração é um número: a quantidade que se obtém ao dividir um inteiro em partes iguais e tomar algumas delas." O glossário da formação nasce desses cartões.
+
+### 4.5 Mapa de habilidades
+
+- **Identificador:** toda habilidade tem um código (`B.U7.H3`: Básica, Unidade 7, Habilidade 3).
+- **Grafo de pré-requisitos:** toda habilidade aponta para as habilidades de que precisa.
+- **Para que serve o grafo:**
+  - **roteamento:** quem erra uma habilidade é levado exatamente à habilidade que falta;
+  - **diagnóstico de entrada;**
+  - **conferência de cobertura:** nenhuma habilidade que o Módulo 2 exige pode ficar sem dono.
+
+### 4.6 Histórias e contextos que voltam
+
+Em vez de um personagem infantil, usamos **cenários adultos recorrentes**. O aluno reencontra lugares conhecidos, e cada unidade puxa um ou dois.
+
+| Cenário | Exemplos de uso |
+|---|---|
+| **Casa e reforma** | Piso, tinta, rodapé, planta baixa, orçamento |
+| **Mercado e dinheiro** | Troco, preço por kg, promoções, parcelamento, juros |
+| **Cozinha** | Receitas, frações, ampliar e reduzir porções |
+| **Saúde** | Dose de remédio (mg/kg), gotas, horários |
+| **Trabalho** | Laboratório (concentração, diluição), oficina (medidas, tolerância), escritório (planilha, gráficos) |
+| **Viagem** | Distância, velocidade, consumo, fuso, mapas e escalas |
+
+Os nomes e as situações são diversos e respeitosos: adulto falando com adulto.
+
+## 5. Dois níveis de entrada, uma formação só
+
+- **Diagnóstico de entrada** (adaptativo, ~20 min) indica o ponto de partida no mapa.
+- **"Do zero":**
   - percorre todas as aulas;
-  - recebe **Pontes** quando precisa: micro-reforços como tabuada em treino curto, contar de 5 em 5 ou ler números grandes, oferecidos só a quem errou o que eles cobrem.
-- **Já sei um pouco:**
-  - em cada aula aparece **"Já sei isso"**: o aluno vai direto para a tela "Sua vez";
-  - se acertar, a aula fica dominada;
-  - se errar, a aula abre do começo, sem castigo.
-- **Erro recorrente vira roteamento:** quem erra uma habilidade é levado à habilidade anterior exata que falta, pelo grafo de pré-requisitos.
+  - recebe **Pontes**: micro-reforços (tabuada em treino curto, ler números grandes) oferecidos só a quem errou o que elas cobrem.
+- **"Já sei um pouco":**
+  - em cada aula aparece **"Já sei isso"**, que leva direto ao "Sua vez";
+  - acertou: a aula fica dominada;
+  - errou: a aula abre do começo, sem castigo.
+- **Domínio:**
+  - 3 acertos seguidos sem dica marcam a habilidade como dominada;
+  - ela volta na Revisão do dia em 1, 3, 7 e 21 dias;
+  - essas são as técnicas com melhor evidência para fixar (prática de recuperação, espaçamento, intercalação).
 
-### A Vega na formação
+## 6. Matemática Básica: as unidades
 
-- Conhece a aula, o exercício e o erro que o aluno cometeu.
-- Pergunta antes de explicar e nunca entrega a resposta de "Sua vez".
-- Pode ler em voz alta (a voz da Vega já existe) e reformular com outras palavras ou outro exemplo.
-
-### Tom
-
-- Adulto falando com adulto. Respeito, sem infantilizar.
-- Nunca "é fácil" nem "é simples": para quem não sabe, não é.
-- Elogie o esforço e a estratégia, não o "talento".
-- Ansiedade com matemática é comum: sem cronômetro, sem ranking, e o erro é tratado como pista.
-
-## 3. Matemática Básica: as unidades
-
-**21 unidades, cerca de 105 aulas**, em 6 partes. A ordem respeita os pré-requisitos (seção 4). Cada unidade lista:
-- as aulas, com a ideia central de cada uma;
-- o modelo-âncora;
-- os erros comuns que vamos atacar;
-- um uso real;
-- o que o aluno consegue fazer ao final.
+**21 unidades, ~107 aulas, 6 partes e um projeto final.** Para cada unidade:
+- **Aulas:** a lista, com a ideia central de cada uma.
+- **Modelo:** o modelo-âncora.
+- **Erros:** os erros comuns que vamos atacar.
+- **Real:** um uso real.
+- **Ao final:** o que o aluno consegue fazer sozinho.
+- **Missão**, quando houver.
 
 ### Parte A: Números e operações
 
 #### U0. Comece aqui (2 aulas)
-1. **Como esta formação funciona:** caderno, rascunho, ritmo, voz, Vega; errar é parte.
-2. **Diagnóstico de entrada:** onde você começa.
+1. **Como esta formação funciona:** o caderno quadriculado, o rascunho, a voz, a Vega, o ritmo; errar é parte do caminho.
+2. **Diagnóstico de entrada.**
 
-#### U1. O sistema de numeração (5 aulas)
-1. **Agrupar de 10 em 10:** por que contamos em dezenas, centenas e milhares (blocos de base 10).
-2. **O valor de cada posição, e o zero:** 305 ≠ 35; o zero guarda o lugar.
-3. **Números grandes:** mil, milhão, bilhão; ler valores de notícias e o ponto de milhar.
+#### U1. O sistema de numeração (5 aulas) · *piloto*
+1. **Agrupar de 10 em 10:** por que contamos em dezenas, centenas e milhares.
+2. **O valor de cada posição, e o zero** (roteiro completo na seção 8).
+3. **Números grandes:** mil, milhão, bilhão; os dois formatos de milhar.
 4. **Comparar e ordenar na reta numérica.**
 5. **Arredondar e estimar:** a ferramenta para conferir qualquer conta.
 
-- **Modelo:** blocos de base 10 e reta numérica.
-- **Erros comuns:** ler 1.005 como "mil e cinquenta"; achar que número com mais algarismos à esquerda é sempre maior sem alinhar as posições.
-- **Real:** salários, populações, valores do orçamento público em notícias.
-- **Ao final:** lê, escreve, compara e arredonda qualquer número natural; estima ordens de grandeza.
+- **Modelo:** blocos e reta.
+- **Erros:** ler 1.005 como "mil e cinquenta"; escrever "seiscentos e nove" como 6009.
+- **Real:** valores em notícias, salário, orçamento.
+- **Ao final:** lê, escreve, compara, arredonda e estima números naturais.
 
 #### U2. Adição e subtração (5 aulas)
-1. **Juntar, tirar, comparar, completar:** os quatro sentidos (o troco é "completar").
+1. **Juntar, tirar, comparar, completar:** o troco é "completar".
 2. **Contas de cabeça:** decompor e completar a dezena.
-3. **A conta armada da adição:** o "vai um" explicado com a troca de 10 unidades por 1 dezena.
-4. **A conta armada da subtração:** o "empresta" explicado.
+3. **Adição armada:** o reagrupamento, o famoso "vai um".
+4. **Subtração armada:** o desagrupamento, o famoso "empresta".
 5. **Conferir:** estimativa e operação inversa.
 
 - **Modelo:** blocos, barra, reta.
-- **Erros comuns:** subtrair o menor do maior em cada coluna (52 − 17 = 45); esquecer a reserva.
-- **Real:** troco, saldo, diferença de preço.
-- **Ao final:** soma e subtrai com e sem papel e confere o resultado.
+- **Erros:** em 52 − 17, subtrair o menor do maior em cada coluna e achar 45; esquecer a reserva.
+- **Ao final:** soma e subtrai com e sem papel e confere.
 
 #### U3. Multiplicação (5 aulas)
 1. **Grupos iguais e retângulos.**
-2. **A tabuada com estratégia:** dobro, comutativa ao girar o retângulo, derivar 7 × 8 de 7 × 4. Treino curto e espaçado dos fatos.
-3. **Multiplicar por 10, 100, 1000:** a posição anda, não "acrescenta zero".
-4. **Quebrar para multiplicar:** distributiva com o retângulo partido (14 × 6 = 10 × 6 + 4 × 6).
-5. **A conta armada:** do método da área ao algoritmo.
+2. **A tabuada com estratégia:** dobro, comutativa girando o retângulo, fatos derivados. A partir daqui entra o treino curto e espaçado da tabuada.
+3. **Multiplicar por 10, 100, 1000:** a posição anda.
+4. **Quebrar para multiplicar:** a distributiva com o retângulo partido.
+5. **Multiplicação armada:** do método da área ao algoritmo.
 
-- **Modelo:** retângulo (área).
-- **Erros comuns:** somar no lugar de multiplicar em problemas; esquecer de deslocar a linha na conta armada.
-- **Real:** compras em quantidade, piso de um cômodo.
-- **Ao final:** multiplica com fluência e explica por que a conta funciona.
+- **Modelo:** retângulo.
+- **Erros:** somar no lugar de multiplicar; esquecer de deslocar a linha.
+- **Ao final:** multiplica com fluência e explica por que funciona.
 
 #### U4. Divisão (5 aulas)
 1. **Repartir e "quantos cabem".**
-2. **O resto, e o que fazer com ele** (quantos ônibus para 130 pessoas?).
-3. **A divisão longa, passo a passo:** repartir notas de 100, de 10 e de 1.
-4. **Divisão e multiplicação são inversas:** a prova real.
+2. **O resto, e o que fazer com ele.**
+3. **Divisão longa:** repartir notas de 100, 10 e 1.
+4. **A prova real:** divisão e multiplicação são inversas.
 5. **Por que não se divide por zero.**
 
 - **Modelo:** barra e retângulo.
-- **Erros comuns:** esquecer o zero no quociente (612 ÷ 6 = 12); ignorar o contexto do resto.
-- **Real:** dividir a conta, parcelas, embalagens.
-- **Ao final:** divide com e sem resto, interpreta o resto e confere com a multiplicação.
+- **Erros:** em 612 ÷ 6, esquecer o zero do quociente e achar 12; ignorar o contexto do resto.
+- **Ao final:** divide, interpreta o resto e confere.
 
 #### U5. Expressões numéricas (3 aulas)
-1. **A ordem das operações:** por que existe uma convenção.
-2. **Parênteses:** como mudar a ordem.
-3. **Calculadora:** a do celular e a científica dão resultados diferentes para 2 + 3 × 4; quando cada uma "engana".
+1. **A ordem das operações**, e por que existe uma convenção.
+2. **Parênteses**, e o uso correto do sinal de igual.
+3. **Calculadora:** a do celular e a científica podem dar resultados diferentes para 2 + 3 × 4; entender por quê.
 
-- **Erros comuns:** calcular da esquerda para a direita sem prioridade.
 - **Ao final:** resolve expressões e usa a calculadora com consciência.
 
 #### U6. Múltiplos, divisores e primos (4 aulas)
 1. **Múltiplos e divisores.**
 2. **Regras de divisibilidade**, e por que funcionam.
-3. **Números primos e fatoração** (árvore).
-4. **MMC e MDC em situações reais:** ônibus que coincidem; cortar em pedaços iguais.
+3. **Primos e fatoração.**
+4. **MMC e MDC em situações reais.**
 
-- **Erros comuns:** achar que 1 é primo; confundir MMC com MDC.
-- **Ao final:** fatora e usa MMC e MDC, o que prepara a soma de frações.
+- **Erros:** achar que 1 é primo; confundir MMC com MDC.
+- **Ao final:** fatora e usa MMC e MDC, que preparam a soma de frações.
 
 ### Parte B: Partes do todo
 
-#### U7. Frações (10 aulas) · a unidade mais importante
-1. **O que é uma fração:** partes **iguais** de um todo.
-2. **Fração é um número:** um ponto na reta, não só um "pedaço de pizza".
-3. **Fração como divisão:** 3/4 = 3 ÷ 4 (3 pizzas para 4 pessoas).
-4. **Frações equivalentes:** cortar mais fino sem mudar a quantidade.
+#### U7. Frações (10 aulas) · *a unidade mais delicada*
+1. **Partes iguais de um todo.**
+2. **Fração é um número:** um ponto na reta.
+3. **Fração como divisão:** 3 pizzas para 4 pessoas.
+4. **Equivalentes:** cortar mais fino.
 5. **Simplificar.**
-6. **Comparar:** mesmo denominador, mesmo numerador, ou usando 1/2 como referência.
+6. **Comparar.**
 7. **Somar e subtrair com pedaços iguais.**
-8. **Somar com pedaços diferentes:** primeiro deixar do mesmo tamanho (MMC).
-9. **Multiplicar:** fração de uma fração, que é a área de um retângulo.
-10. **Dividir:** "quantas metades cabem em 3?" e por que se inverte a segunda fração.
+8. **Somar com pedaços diferentes** (MMC).
+9. **Multiplicar:** fração de fração, que é a área de um retângulo.
+10. **Dividir:** "quantas metades cabem em 3?"
 
 - **Modelo:** barra, retângulo, reta.
-- **Erros comuns:**
-  - 1/2 + 1/3 = 2/5;
-  - "1/8 > 1/6 porque 8 > 6";
-  - partes desiguais contadas como fração;
-  - "multiplicar sempre aumenta".
-- **Real:** receitas, medidas em polegadas, divisão de herança e de conta.
-- **Ao final:** opera com frações e **sabe explicar** cada regra com o desenho.
+- **Erros:** 1/2 + 1/3 = 2/5; "1/8 > 1/6 porque 8 > 6"; partes desiguais; "multiplicar sempre aumenta".
+- **Ao final:** opera com frações e explica cada regra com o desenho.
+- **Missão:** *Ampliar uma receita* (cozinha).
 
 #### U8. Decimais (6 aulas)
-1. **Décimos e centésimos:** o centavo, e o valor posicional à direita da vírgula.
+1. **Décimos e centésimos:** o centavo.
 2. **Fração ↔ decimal.**
-3. **Comparar e arredondar** (0,5 > 0,25, mesmo sendo "mais curto").
-4. **Somar e subtrair:** vírgula embaixo de vírgula, e por quê.
-5. **Multiplicar:** por que se contam as casas.
-6. **Dividir, e as dízimas** (1/3 = 0,333…).
+3. **Comparar e arredondar.**
+4. **Somar e subtrair.**
+5. **Multiplicar.**
+6. **Dividir, e as dízimas.**
 
 - **Modelo:** grade 10 × 10 e reta.
-- **Erros comuns:** "0,25 > 0,5 porque 25 > 5"; vírgula e ponto (pt-BR × calculadora em inglês).
-- **Real:** dinheiro, combustível (R$/L), nota fiscal.
-- **Ao final:** usa decimais com segurança e converte de e para fração.
+- **Erros:** "0,25 > 0,5"; confundir vírgula e ponto.
+- **Ao final:** usa decimais com segurança.
 
-#### U9. Medidas (5 aulas)
-1. **Comprimento e o sistema métrico:** prefixos k, c, m, que são potências de 10.
-2. **Massa e capacidade.**
-3. **Área:** o metro quadrado. 1 m² = 10.000 cm², não 100.
-4. **Volume e o litro:** 1 L = 1 dm³; uma caixa-d'água de 1 m³ guarda 1.000 L.
-5. **Tempo:** base 60, por isso 1,5 h = 1 h 30 min.
+#### U9. Medidas (6 aulas)
+1. **Comprimento:** o sistema métrico; os prefixos são potências de 10.
+2. **Massa e capacidade**, incluindo mg, µg e mL.
+3. **Área:** 1 m² = 10.000 cm².
+4. **Volume e o litro.**
+5. **Tempo:** base 60.
+6. **Outras unidades:** polegada, pé, milha, milha náutica; converter com fator.
 
 - **Modelo:** reta, blocos, retângulo.
-- **Erros comuns:** converter área como comprimento; tratar horas como decimais.
-- **Real:** reforma, receita, remédio (mg e mL), viagem.
-- **Ao final:** converte unidades com sentido e calcula área e volume simples.
+- **Erros:** converter área como comprimento; tratar 1,5 h como 1 h 50 min.
+- **Ao final:** converte unidades com sentido, inclusive entre sistemas.
+- **Missão:** *O piso da sala* (casa e reforma).
 
-#### U10. Razão e proporção (5 aulas)
-1. **Razão:** receitas e misturas (2 de cimento para 3 de areia).
+#### U10. Razão e proporção (6 aulas)
+1. **Razão:** receitas e misturas.
 2. **Escala:** mapa e planta baixa.
 3. **Proporção e regra de três**, entendida e não decorada.
-4. **Grandezas inversamente proporcionais:** mais pedreiros, menos dias.
-5. **Taxa unitária:** preço por kg, km/L, velocidade média; qual embalagem compensa.
+4. **Inversamente proporcional.**
+5. **Taxa unitária:** preço por kg, km/L, velocidade.
+6. **Concentração e diluição:** mg/mL, a mistura que fica mais fraca, C₁·V₁ = C₂·V₂ como proporção.
 
 - **Modelo:** barra e tabela de proporção.
-- **Erros comuns:** usar regra de três direta onde a relação é inversa; pensar aditivamente ("+2 dos dois lados").
-- **Real:** comparar preços no mercado, consumo do carro, ampliar uma receita.
-- **Ao final:** reconhece e resolve situações proporcionais e inversamente proporcionais.
+- **Erros:** usar regra de três direta quando a relação é inversa; pensar aditivamente.
+- **Ao final:** reconhece e resolve situações proporcionais, inclusive concentração e diluição.
+- **Missão:** *Preparar uma solução* (laboratório, revisada por farmacêutico).
 
 #### U11. Porcentagem (6 aulas)
-1. **Por cento = por cem:** % ↔ fração ↔ decimal.
-2. **Porcentagem de um valor:** 10 %, 1 % e 50 % de cabeça.
-3. **Aumento e desconto com o fator:** ×1,1 e ×0,9.
-4. **Que porcentagem é?** (parte ÷ todo).
-5. **Variações sucessivas:** por que dois descontos de 20 % não dão 40 %; ponto percentual × porcentagem.
-6. **Juros simples e compostos:** o cartão de crédito e a poupança.
+1. **Por cento = por cem.**
+2. **% de um valor, de cabeça.**
+3. **Aumento e desconto com fator.**
+4. **Que porcentagem é?**
+5. **Variações sucessivas:** ponto percentual × porcentagem.
+6. **Juros simples e compostos.**
 
 - **Modelo:** grade 10 × 10 e barra.
-- **Erros comuns:**
-  - somar porcentagens sucessivas;
-  - achar que subir 10 % e depois cair 10 % volta ao valor inicial;
-  - calcular a porcentagem sobre a base errada.
-- **Real:** promoções, juros do cartão, inflação, reajuste de salário.
-- **Ao final:** decide entre à vista e parcelado e entende juros compostos. Isso prepara a função exponencial do Módulo 2.
+- **Erros:** somar porcentagens sucessivas; "subiu 10 %, caiu 10 %, voltou ao mesmo".
+- **Ao final:** decide entre à vista e parcelado e entende juros compostos.
+- **Missão:** *À vista ou parcelado?* (dinheiro).
 
 ### Parte C: Além dos naturais
 
 #### U12. Números negativos (5 aulas)
-1. **Abaixo de zero:** temperatura, saldo, subsolo; a reta nos dois sentidos.
+1. **Abaixo de zero.**
 2. **Somar e subtrair na reta.**
-3. **Tirar um negativo:** cancelar uma dívida aumenta o saldo.
-4. **Multiplicar e dividir:** a regra dos sinais pelo padrão (3 × 2, 3 × 1, 3 × 0, 3 × (−1)…).
-5. **Negativos com frações e decimais:** os números racionais.
+3. **Tirar um negativo.**
+4. **Multiplicar e dividir:** a regra dos sinais pelo padrão.
+5. **Os números racionais.**
 
-- **Modelo:** reta numérica.
-- **Erros comuns:** "−5 > −2"; "menos com menos dá mais" aplicado à soma.
-- **Real:** extrato bancário, fuso horário, temperatura.
+- **Modelo:** reta.
+- **Erros:** "−5 > −2"; aplicar "menos com menos dá mais" na soma.
 - **Ao final:** opera com negativos e explica a regra dos sinais.
 
 #### U13. Potências e raízes (6 aulas)
-1. **Potência:** multiplicação repetida; dobrar 10 vezes.
-2. **Propriedades sem decorar:** escrevendo as multiplicações por extenso.
-3. **Expoente zero e negativo**, pelo padrão (÷10 a cada passo).
-4. **Potências de 10 e notação científica:** distâncias no espaço, vírus, PIB.
-5. **Raiz quadrada:** o lado do quadrado com área dada.
-6. **Estimar raízes, e a raiz cúbica.**
+1. **Potência:** multiplicação repetida.
+2. **Propriedades sem decorar.**
+3. **Expoente zero e negativo.**
+4. **Notação científica.**
+5. **Raiz quadrada:** o lado do quadrado.
+6. **Estimar raízes; raiz cúbica.**
 
-- **Modelo:** retângulo (quadrado) e blocos.
-- **Erros comuns:** 2³ = 6; (−3)² × −3²; √(a + b) = √a + √b.
-- **Real:** crescimento que dobra, astronomia, armazenamento de dados.
+- **Erros:** 2³ = 6; confundir (−3)² com −3²; achar que √(a + b) = √a + √b.
 - **Ao final:** usa potências e raízes e lê notação científica.
 
 ### Parte D: Álgebra inicial
 
 #### U14. Linguagem algébrica (5 aulas)
-1. **Uma letra no lugar de um número:** generalizar padrões (palitos de fósforo).
+1. **Uma letra no lugar de um número.**
 2. **Expressões e valor numérico.**
-3. **Termos semelhantes:** x + x = 2x, mas x · x = x² (azulejos algébricos).
-4. **Distributiva com letras:** o retângulo de novo.
-5. **Traduzir frases para expressões:** "o dobro de um número menos 3".
+3. **Termos semelhantes:** azulejos algébricos.
+4. **Distributiva com letras.**
+5. **Traduzir frases para expressões.**
 
-- **Modelo:** retângulo (azulejos) e barra.
-- **Erros comuns:** 2x + 3 = 5x; ler 3x como "trinta e alguma coisa"; achar que a letra é sempre um objeto ("a de abacaxi").
-- **Ao final:** escreve e simplifica expressões e calcula o valor delas.
+- **Erros:** 2x + 3 = 5x; "a letra é um objeto".
+- **Ao final:** escreve, simplifica e avalia expressões.
 
-#### U15. Equações do 1º grau (6 aulas) · laboratório: *Equações na balança* (já pronto)
-1. **Igualdade é equilíbrio:** a balança.
-2. **Resolver passo a passo:** operações inversas dos dois lados.
+#### U15. Equações do 1º grau (6 aulas) · laboratório *Equações na balança*
+1. **Igualdade é equilíbrio.**
+2. **Resolver passo a passo.**
 3. **x dos dois lados.**
-4. **Equações com parênteses e frações.**
-5. **Do problema à equação:** modelar, a habilidade mais difícil e mais valiosa.
-6. **Inequações simples:** a balança inclinada e a solução na reta.
+4. **Parênteses e frações.**
+5. **Do problema à equação:** modelar.
+6. **Inequações simples.**
 
 - **Modelo:** balança e reta.
-- **Erros comuns:**
-  - "passar para o outro lado trocando o sinal" sem saber por quê;
-  - errar a divisão de um lado só;
-  - não verificar a solução.
-- **Real:** plano de celular, corrida por aplicativo, conversão °F → °C.
-- **Ao final:** resolve e **monta** equações do 1º grau e confere a solução.
+- **Erros:** "passa para o outro lado trocando o sinal" sem entender por quê; operar só de um lado; não verificar a resposta.
+- **Ao final:** resolve e **monta** equações e confere a solução.
 
 ### Parte E: Espaço e forma
 
 #### U16. Geometria plana (8 aulas)
 1. **Ponto, reta, ângulo.**
-2. **Medir ângulos:** transferidor na tela, graus.
-3. **Triângulos, e por que os ângulos somam 180°:** recortar e juntar os cantos.
-4. **Quadriláteros e polígonos.**
+2. **Medir ângulos.**
+3. **Triângulos e os 180°.**
+4. **Polígonos.**
 5. **Perímetro.**
-6. **Área:** do retângulo ao paralelogramo, ao triângulo e ao trapézio, recortando e movendo pedaços.
-7. **Círculo e π:** descobrir π medindo objetos; área do círculo desenrolando fatias.
-8. **Teorema de Pitágoras:** a prova visual com quadrados e o esquadro de pedreiro 3-4-5.
+6. **Área:** recortar e mover pedaços.
+7. **Círculo e π.**
+8. **Pitágoras:** o esquadro 3-4-5.
 
-- **Modelo:** retângulo, recortar e mover.
-- **Erros comuns:** confundir área e perímetro; achar que "π = 3,14" é a definição de π.
-- **Real:** piso, rodapé, cerca, terreno, esquadro na obra.
+- **Erros:** confundir área com perímetro; achar que π "é" 3,14.
 - **Ao final:** calcula perímetros e áreas e usa Pitágoras.
 
 #### U17. Sólidos e volume (3 aulas)
-1. **Sólidos e planificações.**
-2. **Volume de prismas e cilindros:** área da base × altura.
-3. **Área de superfície:** tinta, embalagem.
+1. **Planificações.**
+2. **Volume de prismas e cilindros.**
+3. **Área de superfície.**
 
-- **Real:** caixa-d'água, concreto, quantas latas de tinta comprar.
-- **Ao final:** calcula volumes e áreas de superfície de sólidos simples.
+- **Ao final:** calcula volumes e superfícies.
+- **Missão:** *A caixa-d'água e a tinta* (casa).
 
 ### Parte F: Relações e dados
 
-#### U18. Plano cartesiano e gráficos (5 aulas) · a ponte para Funções
-1. **Coordenadas:** mapa e "batalha naval".
-2. **Ler gráficos:** barras, linhas, setores.
-3. **Gráficos que enganam:** eixo cortado, escala torta.
-4. **Relações entre grandezas:** da tabela ao gráfico; proporcional é uma reta que passa pela origem.
-5. **A ideia de função:** uma máquina de entrada e saída. A conta de luz é uma taxa fixa mais um valor por kWh, e o gráfico é uma reta.
+#### U18. Plano cartesiano e gráficos (5 aulas) · *a ponte para Funções*
+1. **Coordenadas.**
+2. **Ler gráficos.**
+3. **Gráficos que enganam.**
+4. **Relações entre grandezas:** proporcional é uma reta pela origem.
+5. **A ideia de função:** a conta de luz como uma máquina de entrada e saída.
 
-- **Modelo:** reta numérica, que vira os dois eixos.
-- **Erros comuns:** trocar x e y; ler o gráfico sem olhar a escala.
-- **Real:** gráficos de notícias, conta de luz, evolução de preços.
-- **Ao final:** lê e constrói gráficos e descreve uma relação como regra de entrada e saída.
+- **Ao final:** lê e constrói gráficos e descreve relações como regras de entrada e saída.
 
-#### U19. Estatística e probabilidade (5 aulas)
-1. **Média, mediana e moda:** o salário médio e o mediano.
-2. **Quando a média engana:** dispersão e amplitude.
-3. **Contagem:** o princípio multiplicativo (senhas, combinações de roupa).
-4. **Probabilidade:** casos favoráveis ÷ casos possíveis.
-5. **Frequência e simulação:** jogar 1.000 dados na tela; o que significa "30 % de chance de chuva".
+#### U19. Estatística e probabilidade (6 aulas)
+1. **Média, mediana e moda.**
+2. **Quando a média engana:** amplitude.
+3. **Desvio padrão, a ideia:** o quanto os valores se espalham, como no controle de qualidade.
+4. **Contagem.**
+5. **Probabilidade.**
+6. **Frequência e simulação.**
 
-- **Modelo:** grade 10 × 10, barra, gráficos.
-- **Erros comuns:** achar que "deu cara 5 vezes, agora vai dar coroa"; usar sempre a média.
-- **Ao final:** resume dados e calcula probabilidades simples.
+- **Erros:** a "falácia do jogador"; usar sempre a média.
+- **Ao final:** resume dados, entende dispersão e calcula probabilidades simples.
+- **Missão:** *O lote passou no controle?* (indústria).
 
-#### U20. Projeto final e certificação
-- **Projeto:** planejar a reforma de um cômodo, do piso à tinta e ao orçamento, ou o orçamento de um mês. Usa medidas, área, proporção, porcentagem e equações juntas.
-- **Avaliação final** no formato do ENCCEJA, que dá o certificado da Matemática Básica.
+#### U20. Projeto final e conclusão
+- **Projeto:** a reforma de um cômodo (medidas, área, proporção, porcentagem, orçamento) ou o orçamento do mês.
+- **Avaliação final** no estilo da prova do ENCCEJA Ensino Fundamental.
+- **Certificado de conclusão AESo** e o encaminhamento para o ENCCEJA.
 
-## 4. Pré-requisitos (grafo resumido)
+### Pré-requisitos (resumo)
 
 ```
-U1 Sistema de numeração
- ├─ U2 Adição/subtração ─ U3 Multiplicação ─ U4 Divisão ─ U5 Expressões
- │                                              └─ U6 Múltiplos e primos ─ U7 Frações
- │                                                                            ├─ U8 Decimais ─ U9 Medidas
- │                                                                            ├─ U10 Razão e proporção ─ U11 Porcentagem
- │                                                                            └─ U12 Negativos ─ U13 Potências e raízes
- └──────────────────────────────────────────────── U14 Linguagem algébrica (U5, U7, U12) ─ U15 Equações
-U16 Geometria plana (U3, U4, U8, U13)   U17 Sólidos (U16)
-U18 Plano e gráficos (U10, U12, U15)    U19 Estatística (U7, U8, U11)
+U1 ─ U2 ─ U3 ─ U4 ─ U5
+            └─ U6 ─ U7 Frações ─┬─ U8 Decimais ─ U9 Medidas
+                                ├─ U10 Proporção ─ U11 Porcentagem
+                                └─ U12 Negativos ─ U13 Potências
+U14 Linguagem algébrica (U5, U7, U12) ─ U15 Equações
+U16 Geometria (U3, U4, U8, U13) ─ U17 Sólidos
+U18 Gráficos e função (U10, U12, U15)   U19 Estatística (U7, U8, U11)
 ```
 
-**O que o Módulo 2 (Álgebra e Funções) exige, e onde está coberto:**
+**Cobertura do que o Módulo 2 exige:**
 
-| Exige | Onde |
+| O Módulo 2 exige | Coberto em |
 |---|---|
-| Fluência com frações | U7 |
+| Frações | U7 |
 | Negativos | U12 |
 | Ordem das operações | U5 |
 | Distributiva | U3, U14 |
 | Potências | U13 |
-| Resolver e montar equações do 1º grau | U15 |
+| Equações do 1º grau | U15 |
 | Plano cartesiano e ideia de função | U18 |
-| Porcentagem e juros compostos (para a exponencial) | U11 |
+| Juros compostos | U11 |
 
-Nada fica de fora.
+## 7. Do roteiro ao ar: como cada aula é produzida
 
-## 5. O que precisa existir no app (infraestrutura)
+Cada aula passa por estas etapas, nesta ordem. Nenhuma é pulada.
+
+1. **Roteiro** (texto, no formato da seção 8), com:
+   - o objetivo;
+   - o gancho;
+   - cartão a cartão: o texto, o que o palco mostra e a ação do aluno;
+   - as falas da Vega;
+   - o cartão Anote;
+   - os erros mapeados e os exercícios com seus geradores.
+2. **Revisão do roteiro:** você aprova; quando possível, também um educador matemático. É aqui que cortamos cartões que não acrescentam.
+3. **Construção:** animações, interações e exercícios, no player de aula.
+4. **Verificação:**
+   - percorrer no celular (390 × 844) e no desktop;
+   - sem rolagem e sem erros;
+   - toda tarefa com saída;
+   - voz e textos conferidos.
+5. **Teste com uma pessoa real** do público "do zero". Observar onde ela trava e ajustar.
+6. **Publicar** e marcar a aula como pronta neste documento.
+
+**Métricas por aula** (depois que houver alunos):
+- taxa de conclusão;
+- acerto no "Sua vez" na primeira tentativa;
+- quais erros mapeados aparecem mais;
+- domínio que se mantém na Revisão de 7 dias.
+
+## 8. Exemplo de roteiro: U1 · Aula 2 · "O zero que guarda o lugar"
+
+Este exemplo serve para validar o formato **antes** de construir.
+
+- **Objetivo:** o aluno entende que o valor de um algarismo depende da posição e que o zero guarda um lugar vazio.
+- **Habilidades:** `B.U1.H2` (valor posicional) e `B.U1.H3` (decompor um número).
+- **Modelo:** blocos de base 10 sob um quadro de posições (centenas | dezenas | unidades).
+
+| # | Cartão | Texto (≤ 25 palavras) | Palco | Ação |
+|---|---|---|---|---|
+| 1 | Gancho | "305 e 35: os mesmos algarismos 3 e 5. Por que um vale quase dez vezes o outro?" | Duas etiquetas de preço, R$ 305 e R$ 35 | Tocar para continuar |
+| 2 | Mexa | "Arraste os cartões 3, 0 e 5 para as casas. Veja o que cada um vale." | Quadro de posições; abaixo de cada casa nascem os blocos (3 placas, 0 barras, 5 cubos) | Arrastar os algarismos; o número e os blocos mudam juntos |
+| 3 | Aposta | "No 305 o zero não tem blocos. Se eu tirar o zero, muda alguma coisa?" | O mesmo quadro | Escolher: "Não muda" / "Muda o número" |
+| 3b | (resposta) | "Muda! Sem o zero, o 3 escorrega para as dezenas: 3 placas viram 3 barras. Sobra 35." | As placas encolhem e viram barras, animadas | — |
+| 4 | Ideia | "Cada casa vale 10 vezes a casa da direita. O zero guarda o lugar de uma casa vazia." | As setas ×10 entre as casas | — |
+| 5 | Anote | **Valor posicional.** Exemplo: 305 = 3 centenas + 0 dezenas + 5 unidades = 300 + 5. Alerta: sem o zero, vira 35. | Cartão com o formato do caderno | "Já anotei" |
+| 6 | Passo a passo | "No 4.072, quanto vale o 7?" | O número no quadro | Escolher 7 / 70 / 700; o erro acende a casa certa |
+| 7 | Caderno | "No caderno, escreva 2.408 como soma das casas. Depois digite quanto vale o 4." | Quadro vazio | Digitar 400 e ver a decomposição para comparar |
+| 8 | Sua vez | 4 exercícios gerados: valor de um algarismo; de palavras para número ("seiscentos e nove"); comparar dois números com zeros | — | Responder; dica em 3 níveis |
+| 9 | Fecho | "Agora você lê o valor de cada algarismo pela casa dele. Na próxima: mil, milhão, bilhão." | Os dois preços do Gancho, com os blocos embaixo | — |
+
+**Erros mapeados nesta aula:**
+
+| Resposta errada | Causa | Explicação dada |
+|---|---|---|
+| 6009 para "seiscentos e nove" | Escreveu 600 e depois 9, colados | Mostrar as casas: 6 centenas, 0 dezenas, 9 unidades |
+| 69 para "seiscentos e nove" | Esqueceu o zero que guarda o lugar | O zero guarda o lugar das dezenas |
+| "7" como valor do 7 em 4.072 | Leu o algarismo, não o valor da posição | Acender a casa das dezenas: 7 dezenas = 70 |
+
+**Fala da Vega quando o aluno trava:** "Olhe para os blocos embaixo de cada casa. Quantos cubos cabem numa barra?"
+
+## 9. Infraestrutura a construir (Etapa 0)
 
 | Peça | Para quê | Reaproveita |
 |---|---|---|
-| **Player de Aula** (≤ 6 telas, palco contínuo) | O tijolo da formação | `StepFrame`, palco contínuo, voz, dicas |
+| **Player de Aula em formato de story** | Cartões, barra no topo, toque para avançar, palco contínuo | `StepFrame`, palco contínuo, voz, dicas |
 | **Motor de exercícios** | Geradores por habilidade, correção, diagnóstico do erro, dicas em 3 níveis | O "Resolva" dos laboratórios |
 | **Teclado de matemática** | Número, vírgula, fração, sinal de menos | — |
-| **Rascunho** | Desenhar com o dedo sobre o exercício | — |
-| **Cartões "Anote" e ficha-resumo** | O caderno de papel guiado | `Tex` |
-| **Folha de treino em PDF** | Treino no papel com gabarito | Geradores de exercícios |
-| **Domínio por habilidade + Revisão do dia** | Fixar de verdade (espaçamento) | `lib/progress.ts` (expandir) |
-| **Diagnóstico de entrada e "Já sei isso"** | Dois níveis numa formação só | Motor de exercícios |
-| **Mapa da formação** | Ver o caminho e o progresso | `MathView` (evoluir) |
-| **Kit de modelos-âncora** | Reta, retângulo, balança, barra, grade, blocos, sempre iguais | `lib/math/view`, `components/math/canvas` |
+| **Rascunho** | Desenhar com o dedo | — |
+| **Cartão Anote e ficha-resumo** | Caderno guiado | `Tex` |
+| **Domínio + Revisão do dia** | Fixação | `lib/progress.ts` |
+| **Mapa de habilidades** | Pré-requisitos, roteamento, diagnóstico | — |
+| **Kit de modelos-âncora** | Blocos e reta primeiro; depois barra, retângulo, grade, balança | `lib/math/view`, `components/math/canvas`, laboratório da balança |
+| **Mapa da formação** | Progresso visível | `MathView` |
 
-Modelo de dados (rascunho):
+## 10. Ordem de construção
 
-```ts
-Module { id, title, units: Unit[] }
-Unit   { id, title, lessons: Lesson[], lab?: slug, checkpoint: SkillId[] }
-Lesson { id, title, idea, skills: SkillId[], screens, note /* cartão Anote */ }
-Skill  { id, title, requires: SkillId[], generator, misconceptions: Misconception[] }
-Misconception { id, detect(answer, item) → boolean, explain, routeTo?: SkillId }
-```
+| Etapa | O quê | Pronto quando |
+|---|---|---|
+| **0 · Fundação** | Itens da seção 9 (sem PDF) e a reorganização dos módulos no app | Uma aula de teste roda de ponta a ponta |
+| **1 · Piloto** | U0 e U1, com roteiros aprovados | 3 a 5 adultos "do zero" testaram e ajustamos |
+| **2** | U2 a U5 | Inclui o treino de tabuada na Revisão do dia |
+| **3** | U6 e U7 (frações) | Revisão extra por educador |
+| **4** | U8 a U11 | Missões revisadas por profissionais da área |
+| **5** | U12 a U15 | Laboratório da balança integrado |
+| **6** | U16 a U19 | |
+| **7** | U20, diagnóstico completo, folhas em PDF, certificado | Conferência final com a matriz do ENCCEJA e a BNCC |
 
-## 6. Ordem de construção (um pouco a cada dia)
+## 11. Decisões
 
-1. **Etapa 0 · Fundação:** player de Aula, motor de exercícios com teclado e rascunho, domínio por habilidade e cartões "Anote". O kit de modelos-âncora começa com reta numérica e blocos.
-2. **Etapa 1 · Piloto: U0 + U1.** Testar com 3 a 5 adultos reais "do zero" antes de escalar e ajustar o formato com o que aprendermos.
-3. **Etapa 2 · U2 a U5 (operações).** Liga a Revisão do dia e o treino de tabuada.
-4. **Etapa 3 · U6 e U7 (frações).** A unidade mais delicada, com mais cuidado.
-5. **Etapa 4 · U8 a U11.** Decimais, medidas, proporção, porcentagem.
-6. **Etapa 5 · U12 a U15.** Negativos, potências, álgebra, equações; integra o laboratório da balança.
-7. **Etapa 6 · U16 a U19.** Geometria, gráficos, estatística.
-8. **Etapa 7 · U20, diagnóstico de entrada completo, folhas em PDF e certificação.**
-
-Cada unidade só é marcada como pronta quando:
-- cada aula tem ≤ 6 telas, uma ideia e o cartão "Anote";
-- cada habilidade tem gerador, os erros comuns mapeados e as 3 dicas;
-- há checkpoint e ficha-resumo;
-- foi percorrida em 390 × 844, sem rolagem e sem erros;
-- foi revisada por alguém da área de educação matemática.
-
-## 7. Decisões pendentes
-
-1. Reorganizar os módulos como na seção 1 (sai "Ensino médio" e "Pré-cálculo"; entram "Álgebra e Funções" e "Geometria e Trigonometria")?
-2. Alinhar a Matemática Básica ao ENCCEJA para dar certificado?
-3. Começar pelo piloto U0 + U1, como proposto?
-4. Folha de treino em PDF desde o piloto ou só depois?
+| # | Decisão | Status |
+|---|---|---|
+| 1 | Módulos por assunto (seção 2) | **Adotado**, salvo objeção |
+| 2 | Preparar para o ENCCEJA Ensino Fundamental; certificado próprio de conclusão | **Adotado** |
+| 3 | Aula em formato de story com os tipos de cartão da seção 3 | **Adotado** |
+| 4 | Começar pela Fundação e depois pelo piloto U0 + U1 | **Adotado**, salvo objeção |
+| 5 | Folha de treino em PDF | Depois do piloto |
+| 6 | Contextos profissionais como Missões revisadas por especialistas, sem promessa de emprego | **Adotado** |
+| 7 | Quem revisa os roteiros além de você (educador matemático?) | **Pendente** |
+| 8 | Como recrutar os 3 a 5 adultos do teste do piloto | **Pendente** |
