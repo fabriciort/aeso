@@ -499,6 +499,13 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 
 ## 7. Do roteiro ao ar: como cada aula é produzida
 
+**Duas frentes.**
+- **Conteúdo:** o que ensinar, as palavras, as perguntas, os erros comuns, os exercícios e os esboços do visual. É escrito por um agente de código dedicado (Codex), seguindo `docs/CONTEUDO.md` e o contrato `lib/formation/schema.ts`, em `content/matematica/`.
+- **Experiência:** o player, o desenho, o movimento, a interação e a lapidação de UX. É feita aqui, a partir do conteúdo e dos esboços.
+
+O ponto de encontro é o contrato tipado, que os testes validam (`tests/conteudo.test.ts`).
+
+
 Cada aula passa por estas etapas, nesta ordem. Nenhuma é pulada.
 
 1. **Roteiro** (texto, no formato da seção 8), com:
