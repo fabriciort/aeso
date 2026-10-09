@@ -7,11 +7,18 @@ export const metadata: Metadata = {
   title: 'AESo · Aprenda o universo fazendo ciência',
   description:
     'Laboratórios interativos de física e astronomia com dados reais de telescópios, um céu inteiro para explorar e uma guia de IA. Em português, direto no navegador.',
+  applicationName: 'AESo',
+  appleWebApp: { capable: true, title: 'AESo', statusBarStyle: 'black-translucent' },
+  icons: { apple: '/icons/apple-touch-icon.png' },
+  formatDetection: { telephone: false },
 }
 
 export const viewport: Viewport = {
   themeColor: '#030407',
   colorScheme: 'dark',
+  viewportFit: 'cover',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

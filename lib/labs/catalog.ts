@@ -1,4 +1,9 @@
 import type { Lab } from './types'
+import { COR_DAS_ESTRELAS } from './cor-das-estrelas'
+import { DIAGRAMA_HR } from './diagrama-hr'
+import { MATH_LABS } from './math'
+import { ORBITAS } from './orbitas'
+import { UNIVERSO_EM_EXPANSAO } from './universo-em-expansao'
 
 // The lab catalog. Content components live in components/labs/<slug>/.
 
@@ -89,58 +94,15 @@ export const EXOPLANETA: Lab = {
   ],
 }
 
-export const LABS: Lab[] = [
-  EXOPLANETA,
-  {
-    slug: 'cor-das-estrelas',
-    title: 'Por que as estrelas têm cores',
-    subtitle: 'Aqueça um objeto imaginário e descubra a temperatura de Betelgeuse e de Rigel.',
-    area: 'Física',
-    level: 'Todos',
-    minutes: 15,
-    status: 'em-breve',
-    concepts: ['Radiação de corpo negro', 'Lei de Wien', 'Temperatura'],
-    accent: '#ff8a65',
-    steps: [],
-  },
-  {
-    slug: 'diagrama-hr',
-    title: 'Monte o diagrama H-R',
-    subtitle: 'Coloque milhares de estrelas reais do Gaia num gráfico e veja a vida das estrelas aparecer.',
-    area: 'Astronomia',
-    level: 'Graduação',
-    minutes: 25,
-    status: 'em-breve',
-    concepts: ['Luminosidade', 'Temperatura', 'Evolução estelar', 'Dados do Gaia'],
-    accent: '#7cc4ff',
-    steps: [],
-  },
-  {
-    slug: 'universo-em-expansao',
-    title: 'Meça a expansão do universo',
-    subtitle: 'Do apito de uma ambulância ao redshift das galáxias: refaça a descoberta de Hubble.',
-    area: 'Astronomia',
-    level: 'Graduação',
-    minutes: 25,
-    status: 'em-breve',
-    concepts: ['Efeito Doppler', 'Redshift', 'Lei de Hubble'],
-    accent: '#b993ff',
-    steps: [],
-  },
-  {
-    slug: 'orbitas',
-    title: 'Coloque um planeta em órbita',
-    subtitle: 'Lance um satélite imaginário e descubra as leis de Kepler na prática.',
-    area: 'Física',
-    level: 'Ensino médio',
-    minutes: 15,
-    status: 'em-breve',
-    concepts: ['Gravitação', 'Leis de Kepler', 'Órbitas'],
-    accent: '#46d9c6',
-    steps: [],
-  },
-]
+export const LABS: Lab[] = [EXOPLANETA, COR_DAS_ESTRELAS, ORBITAS, UNIVERSO_EM_EXPANSAO, DIAGRAMA_HR]
+
+/** Every lab: ciências (LABS) and Matemática (MATH_LABS). */
+export const ALL_LABS: Lab[] = [...LABS, ...MATH_LABS]
 
 export function getLab(slug: string): Lab | undefined {
-  return LABS.find((l) => l.slug === slug)
+  return ALL_LABS.find((l) => l.slug === slug)
+}
+
+export function isMathLab(lab: Lab | undefined): boolean {
+  return lab?.area === 'Matemática'
 }

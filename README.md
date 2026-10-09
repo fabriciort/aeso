@@ -1,6 +1,6 @@
 # AESo
 
-![release](https://img.shields.io/badge/release-v0.3.0-green)
+![release](https://img.shields.io/badge/release-v0.5.0-green)
 ![next](https://img.shields.io/badge/next.js-15.5-blue?logo=next.js)
 ![code-license](https://img.shields.io/badge/code%20license-MIT-red)
 ![content-license](https://img.shields.io/badge/content%20license-CC%20BY--SA%204.0-red)
@@ -16,6 +16,7 @@
   - **Início**: continuar de onde parou, objeto do dia, buscas recentes.
   - **Céu**: busca por nome, catálogo, coordenadas ou características; céu interativo (Aladin Lite); ficha do objeto; observações e downloads do MAST.
   - **Laboratórios**: experiências guiadas. O primeiro, *Encontre um exoplaneta*, usa a curva de luz real do TESS para medir o tamanho de WASP-121 b.
+  - **Matemática**: trilhas da matemática básica ao Cálculo 4. Cada laboratório vai do concreto ao gráfico e só então à fórmula, com resolução passo a passo guiada.
   - **Vega**: guia de IA que sabe em que etapa o aluno está e dá pistas em vez de respostas.
 
 ## Documentação
@@ -25,6 +26,7 @@
 | [docs/PRODUTO.md](docs/PRODUTO.md) | Visão, público, princípios de experiência, **nomenclatura**, voz e tom |
 | [docs/DESIGN.md](docs/DESIGN.md) | Tipografia, cor, movimento, abertura, layout |
 | [docs/LABORATORIOS.md](docs/LABORATORIOS.md) | Como criar um novo laboratório |
+| [docs/MATEMATICA.md](docs/MATEMATICA.md) | Plano da Formação em Matemática (estrutura, aulas, exercícios) |
 | [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Estrutura do código, IA, fontes de dados, modo offline |
 
 ## Stack
@@ -54,8 +56,11 @@ pnpm build && pnpm start
 - [x] Observatório: abertura, boas-vindas, navegação contínua
 - [x] Laboratório 1: Encontre um exoplaneta (TESS)
 - [x] Vega, guia de IA
-- [ ] Laboratórios: cor das estrelas, diagrama H-R (Gaia), expansão do universo, órbitas
-- [ ] Contas, Caderno do aluno e planos pagos
+- [x] Laboratórios: cor das estrelas, diagrama H-R (Gaia), expansão do universo, órbitas
+- [x] Ajustes opcionais: tela cheia e voz da Vega
+- [x] Matemática: trilhas da básica ao Cálculo 4, com 8 laboratórios (equações, função quadrática, círculo trigonométrico, derivada, integral, séries de Taylor, gradiente, equações diferenciais)
+- [ ] Matemática: frações, porcentagem, função afim, exponencial, transformações, limites, técnicas de integração, integrais múltiplas, campos vetoriais
+- [ ] Contas e planos pagos
 - [ ] Biblioteca: artigos vivos
 - [ ] Turma: painel do professor
 

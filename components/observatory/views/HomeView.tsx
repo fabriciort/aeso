@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Search } from 'lucide-react'
 import { FAMOUS_OBJECTS } from '@/lib/astro/catalog'
-import { LABS } from '@/lib/labs/catalog'
+import { ALL_LABS, LABS } from '@/lib/labs/catalog'
+import { TRACKS } from '@/lib/labs/math'
 import { rise, stagger } from '@/lib/motion'
 import { useRouter } from '@/lib/observatory/router'
 import { useVegaScreen } from '@/lib/observatory/vega-context'
@@ -41,7 +42,7 @@ export default function HomeView() {
   useEffect(() => setNow(new Date()), [])
   useVegaScreen({ state: 'Início do Observatório.' })
 
-  const inProgress = LABS.find((l) => progress.labs[l.slug] && !progress.labs[l.slug].completedAt && l.status === 'disponivel')
+  const inProgress = ALL_LABS.find((l) => progress.labs[l.slug] && !progress.labs[l.slug].completedAt && l.status === 'disponivel')
   const first = LABS.find((l) => l.status === 'disponivel')!
   const featuredLab = inProgress ?? first
   const lp = progress.labs[featuredLab.slug]
@@ -160,6 +161,29 @@ export default function HomeView() {
                 <p className="line-clamp-1 text-[14px] font-medium text-white">{l.title}</p>
                 <p className="mt-0.5 text-[12px] text-white/40">{l.status === 'disponivel' ? `${l.minutes} min` : 'Em breve'}</p>
               </div>
+            </button>
+          ))}
+        </div>
+      </motion.section>
+
+      <motion.section variants={rise}>
+        <div className="mb-4 flex items-end justify-between">
+          <h3 className="text-[20px] font-semibold tracking-[-0.02em] text-white">Matemática</h3>
+          <button onClick={() => navigate({ area: 'matematica' })} className="text-[14px] text-white/50 hover:text-white">
+            Ver trilhas
+          </button>
+        </div>
+        <div className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+          {TRACKS.map((t, i) => (
+            <button
+              key={t.id}
+              onClick={() => navigate({ area: 'matematica' })}
+              className="focus-ring flex shrink-0 snap-start items-center gap-2.5 rounded-full border border-white/[0.07] bg-white/[0.03] py-2 pl-2 pr-4 text-left transition hover:border-white/20"
+            >
+              <span className="grid h-7 w-7 place-items-center rounded-full text-[12px] font-semibold tabular-nums" style={{ background: `${t.accent}1f`, color: t.accent }}>
+                {i + 1}
+              </span>
+              <span className="text-[14px] text-white/85">{t.title}</span>
             </button>
           ))}
         </div>

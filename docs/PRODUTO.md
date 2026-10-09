@@ -36,13 +36,22 @@ Use estes termos **exatamente assim** na interface, no código e na comunicaçã
 | **Início** | A área inicial do Observatório: continuar de onde parou, próximos passos | `views/HomeView.tsx` |
 | **Céu** | A área de exploração: busca, céu interativo, ficha do objeto, observações do MAST | `views/SkyView.tsx` |
 | **Laboratórios** | A área com o catálogo de laboratórios | `views/LabsView.tsx` |
+| **Matemática** | A área com as trilhas de matemática, da básica ao Cálculo 4 | `views/MathView.tsx`, `lib/labs/math.ts` |
+| **Trilha** | Uma sequência de laboratórios de matemática (ex.: Cálculo 1) | `Track` |
+| **Caderno** (no Resolva) | A resolução que se escreve sozinha, uma linha por passo certo | palco de cada lab de matemática |
 | **Laboratório** | Uma experiência guiada sobre um fenômeno. Ex.: "Encontre um exoplaneta" | `lib/labs/*.ts` |
-| **Etapa** | Uma unidade de um laboratório (ver tipos abaixo) | `LabStep` |
+| **Etapa** | Uma unidade de um laboratório (ver tipos abaixo), sempre numa tela só | `LabStep` |
+| **Cena** | Um momento dentro de uma etapa: legenda + estado do palco. Continuar avança as cenas | `useScenes` |
+| **Palco** | A área do instrumento, sempre visível na etapa | `StepFrame` (`stage`) |
+| **Palco contínuo** | Um palco único que se transforma de etapa em etapa | `LabModule.Stage` |
+| **Ajustes** | Tela cheia e Voz da Vega, opcionais e desligados por padrão | `lib/preferences.ts`, `Settings.tsx` |
+| **Voz da Vega** | Narração das cenas e respostas em voz alta | `lib/observatory/voice.ts` |
+| **Dica** | Balão da Vega quando o aluno fica parado numa tarefa | `StepFrame` (`nudge`) |
 | **Instrumento** | Um componente interativo reutilizável dentro das etapas | `components/instruments/` |
 | **Vega** | A guia de IA que acompanha o aluno | `components/observatory/Vega.tsx`, `/api/vega` |
 | **Conquista** | O marco registrado ao concluir um laboratório | `lib/progress.ts` |
 
-Termos futuros (já reservados): **Biblioteca** (artigos vivos), **Caderno** (projetos e anotações do aluno), **Turma** (área do professor).
+Termos futuros (já reservados): **Biblioteca** (artigos vivos), **Turma** (área do professor).
 
 ### Tipos de etapa
 
@@ -55,6 +64,8 @@ Termos futuros (já reservados): **Biblioteca** (artigos vivos), **Caderno** (pr
 | `medicao` | Meça | O aluno ajusta um modelo ao dado e extrai um número |
 | `desafio` | E se…? | Problemas hipotéticos para aplicar o que aprendeu |
 | `conclusao` | Conclua | Resumo, conquista e próximos caminhos |
+
+Em Matemática, a etapa `medicao` se chama **Resolva** (o aluno resolve um problema passo a passo, escolhendo a próxima operação) e a `observacao` pode se chamar **No mundo real**. Use `label` no `LabStep`.
 
 ## Voz e tom
 

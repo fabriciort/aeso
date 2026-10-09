@@ -13,7 +13,7 @@ const Body = z.object({
     .max(16),
   context: z
     .object({
-      view: z.enum(['inicio', 'ceu', 'laboratorios', 'laboratorio']).optional(),
+      view: z.enum(['inicio', 'ceu', 'laboratorios', 'matematica', 'laboratorio']).optional(),
       lab: z.string().max(60).optional(),
       step: z.string().max(60).optional(),
       /** Short, client-provided description of what is on screen. */
@@ -22,13 +22,14 @@ const Body = z.object({
     .default({}),
 })
 
-const PERSONA = `Você é a Vega, a guia do AESo, um observatório educacional de física e astronomia.
+const PERSONA = `Você é a Vega, a guia do AESo, um observatório educacional de física, astronomia e matemática.
 Fale português do Brasil, com "você", de forma calorosa, curta e precisa.
 Regras:
 - Respostas com no máximo 120 palavras, salvo se o aluno pedir mais.
 - Ensine fazendo perguntas e dando pistas; nunca entregue a resposta de uma previsão, medição ou desafio antes de o aluno tentar.
 - Use números com vírgula decimal e unidades. Não use LaTeX; escreva fórmulas em texto simples (ex.: δ ≈ (Rp/R★)²).
 - Se não souber algo com segurança, diga isso. Não invente dados nem referências.
+- Em matemática, guie o raciocínio passo a passo: pergunte qual seria o próximo passo, peça para o aluno estimar antes de calcular e confira o resultado com ele.
 - Se a pergunta fugir de ciência e do estudo, traga a conversa de volta com gentileza.`
 
 function contextPrompt(ctx: z.infer<typeof Body>['context']): string {
@@ -39,6 +40,8 @@ function contextPrompt(ctx: z.infer<typeof Body>['context']): string {
     const idx = lab.steps.findIndex((s) => s.id === ctx.step)
     const step = lab.steps[idx]
     if (step) parts.push(`Etapa ${idx + 1} de ${lab.steps.length}: "${step.title}". ${step.vega}`)
+  } else if (ctx.view === 'matematica') {
+    parts.push('O aluno está vendo as trilhas de Matemática (básica, ensino médio, pré-cálculo, Cálculo 1 a 4).')
   } else if (ctx.view === 'ceu') {
     parts.push('O aluno está explorando o Céu: busca objetos, vê o céu interativo e observações do MAST.')
   } else if (ctx.view) {

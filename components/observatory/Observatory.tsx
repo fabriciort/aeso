@@ -1,12 +1,14 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { viewTransition } from '@/lib/motion'
+import { useImmersive } from '@/lib/observatory/immersive'
 import { ObservatoryRouter, parseRoute, useRouter, type Route } from '@/lib/observatory/router'
 import { VegaProvider } from '@/lib/observatory/vega-context'
 import { useProgress } from '@/lib/progress'
 import Starfield from '@/components/aeso/Starfield'
+import { cn } from '@/lib/utils'
 import Boot from './Boot'
 import { Rail, TabBar } from './Nav'
 import Vega from './Vega'
@@ -14,6 +16,7 @@ import Welcome from './Welcome'
 import HomeView from './views/HomeView'
 import LabsView from './views/LabsView'
 import LabView from './views/LabView'
+import MathView from './views/MathView'
 import SkyView from './views/SkyView'
 
 // O Observatório: one continuous environment. Areas swap in place with a
@@ -21,11 +24,13 @@ import SkyView from './views/SkyView'
 
 export default function Observatory({ path, search }: { path: string; search: string }) {
   return (
-    <ObservatoryRouter initial={parseRoute(path, search)}>
-      <VegaProvider>
-        <Shell />
-      </VegaProvider>
-    </ObservatoryRouter>
+    <MotionConfig reducedMotion="user">
+      <ObservatoryRouter initial={parseRoute(path, search)}>
+        <VegaProvider>
+          <Shell />
+        </VegaProvider>
+      </ObservatoryRouter>
+    </MotionConfig>
   )
 }
 
@@ -47,9 +52,19 @@ function Shell() {
   }, [])
 
   const key = route.area === 'laboratorio' ? `lab:${route.slug}` : route.area
+  const immersive = useImmersive()
+  // Inside a lab in fullscreen the rail disappears: nothing but the lab.
+  const focus = route.area === 'laboratorio' && immersive
+
+  // Installable app (see app/manifest.ts): register the service worker.
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {})
+    }
+  }, [])
 
   return (
-    <>
+    <div style={{ '--rail': focus ? '0px' : '84px' } as React.CSSProperties}>
       <Starfield dimmed={route.area === 'laboratorio' || route.area === 'ceu'} />
       <AnimatePresence>{stage === 'boot' && <Boot key="boot" onDone={onBooted} />}</AnimatePresence>
       <AnimatePresence>
@@ -64,21 +79,22 @@ function Shell() {
         )}
       </AnimatePresence>
 
-      <Rail />
+      {!focus && <Rail />}
       <TabBar />
-      <main className="min-h-dvh px-4 pb-28 pt-3 sm:px-6 lg:pb-10 lg:pl-[calc(84px+40px)] lg:pr-10">
+      <main className={cn('min-h-dvh px-4 sm:px-6 lg:pr-10', route.area === 'laboratorio' ? 'pb-0 pt-0' : 'pb-28 pt-3 lg:pb-10', focus ? 'lg:pl-10' : 'lg:pl-[calc(84px+40px)]')}>
         <AnimatePresence mode="wait" initial={false}>
           {stage !== 'boot' && (
             <motion.div key={key} variants={viewTransition} initial="initial" animate="enter" exit="exit">
               {route.area === 'inicio' && <HomeView />}
               {route.area === 'ceu' && <SkyView />}
               {route.area === 'laboratorios' && <LabsView />}
+              {route.area === 'matematica' && <MathView />}
               {route.area === 'laboratorio' && <LabView slug={route.slug} stepId={route.step} />}
             </motion.div>
           )}
         </AnimatePresence>
       </main>
       <Vega />
-    </>
+    </div>
   )
 }
