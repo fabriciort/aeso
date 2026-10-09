@@ -26,6 +26,7 @@
 | [docs/PRODUTO.md](docs/PRODUTO.md) | Visão, público, princípios de experiência, **nomenclatura**, voz e tom |
 | [docs/DESIGN.md](docs/DESIGN.md) | Tipografia, cor, movimento, abertura, layout |
 | [docs/LABORATORIOS.md](docs/LABORATORIOS.md) | Como criar um novo laboratório |
+| [docs/MATEMATICA.md](docs/MATEMATICA.md) | Plano da Formação em Matemática (estrutura, aulas, exercícios) |
 | [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Estrutura do código, IA, fontes de dados, modo offline |
 
 ## Stack
