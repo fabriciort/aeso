@@ -125,7 +125,7 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
                   exit={{ opacity: 0, y: 30, scale: 0.8 }}
                   transition={springX}
                   className={cn(
-                    'rounded-xl border px-4 py-2 text-[20px] font-semibold tabular-nums transition-colors',
+                    'rounded-xl border px-4 py-2 text-[20px] font-semibold tabular-nums transition-colors disabled:pointer-events-none',
                     sel ? 'border-[#f6b74e] bg-[#f6b74e] text-black' : 'border-white/20 bg-white/[0.06] text-white',
                   )}
                 >

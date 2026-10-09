@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, Check, Hand, NotebookPen, PencilLine, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Hand, NotebookPen, PencilLine, X } from 'lucide-react'
 import type { Aposta, Aula, Cartao, Caderno as CadernoCard, Anote as AnoteCard, Gerador, Mexa, Opcao, PassoAPasso, Visual, Linha } from '@/lib/formation/schema'
 import { markLessonDone, saveCard } from '@/lib/math/formation-progress'
 import { haptic } from '@/lib/observatory/immersive'
 import { useVega, useVegaScreen } from '@/lib/observatory/vega-context'
 import { speak, stopSpeaking, unlockVoice } from '@/lib/observatory/voice'
 import { getPreferences } from '@/lib/preferences'
+import { som } from '@/lib/sound'
 import { cn } from '@/lib/utils'
 import { VegaOrb } from '@/components/observatory/Nav'
 import { LabSettings } from '@/components/observatory/Settings'
@@ -23,6 +24,11 @@ import { Stage, hasStage, type Interact } from './visual/Stage'
 // cima (o mesmo de um cartão para o outro, para as peças se moverem), o texto
 // embaixo, um botão só. O botão diz o que acontece agora (Continuar,
 // Conferir, Próximo passo, Anotei) e só acende quando o cartão está pronto.
+// Nos cartões só de leitura, um toque em qualquer lugar segue (no terço
+// esquerdo, volta), como num story. No fim, a próxima aula está a um toque.
+
+const NEXT = '#f6b74e'
+const READING = new Set<Cartao['tipo']>(['gancho', 'ideia', 'anote', 'fecho'])
 
 interface CardState {
   mexa?: MexaState
@@ -52,12 +58,17 @@ export function Player({
   roteiro,
   start,
   onExit,
+  next,
+  onNext,
 }: {
   aula: Aula
   getGerador: (id: string) => Gerador | undefined
   roteiro?: readonly Diagnostico[]
   start: number
   onExit: () => void
+  /** The lesson after this one, if it is ready. */
+  next?: { id: string; titulo: string }
+  onNext?: () => void
 }) {
   const total = aula.cartoes.length
   const [index, setIndex] = useState(() => Math.min(Math.max(0, start), total - 1))
@@ -68,6 +79,8 @@ export function Player({
   const set = useCallback((patch: CardState) => setStates((s) => ({ ...s, [index]: { ...s[index], ...patch } })), [index])
   const isLast = index === total - 1
   const suaVez = aula.cartoes.findIndex((c) => c.tipo === 'sua-vez')
+  const [concluida, setConcluida] = useState(false)
+  const startedAt = useRef(Date.now())
 
   // Full-body cards drive the bottom button themselves.
   const [custom, setCustom] = useState<{ label: string; enabled: boolean } | null>(null)
@@ -132,9 +145,12 @@ export function Player({
       break
     case 'mexa': {
       const m = st.mexa ?? initMexa(card)
-      const out = mexaStage(card, m, (next) => {
-        if (next.done && !m.done) haptic([8, 40, 8])
-        set({ mexa: next })
+      const out = mexaStage(card, m, (n) => {
+        if (n.done && !m.done) {
+          haptic([8, 40, 8])
+          if (!n.shown) som('certo')
+        } else if (n.wrong > m.wrong) som('erro')
+        set({ mexa: n })
       })
       visual = out.visual
       interact = out.interact
@@ -176,7 +192,9 @@ export function Player({
   function finish() {
     markLessonDone(aula.id)
     haptic([10, 50, 10])
-    onExit()
+    som('fim')
+    stopSpeaking()
+    setConcluida(true)
   }
 
   const primary = useRef(run)
@@ -197,6 +215,13 @@ export function Player({
 
   const full = card.tipo === 'anote' || card.tipo === 'caderno' || card.tipo === 'sua-vez'
   const staged = !full && hasStage(visual)
+  const reading = READING.has(card.tipo)
+  // Story taps: the left third goes back, the rest goes on.
+  const onStoryTap = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    if (e.clientX - r.left < r.width * 0.28) go(index - 1)
+    else primary.current()
+  }
 
   return (
     <div className="relative mx-auto flex h-[100svh] max-w-[720px] flex-col overflow-hidden">
@@ -205,7 +230,7 @@ export function Player({
         <ol className="flex gap-[3px]" aria-label="Cartões">
           {aula.cartoes.map((_, i) => (
             <li key={i} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/10">
-              <motion.span className="block h-full rounded-full bg-white/80" initial={false} animate={{ scaleX: i <= index ? 1 : 0 }} style={{ originX: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 30 }} />
+              <motion.span className="block h-full rounded-full bg-white/80" initial={false} animate={{ scaleX: i <= index || concluida ? 1 : 0 }} style={{ originX: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 30 }} />
             </li>
           ))}
         </ol>
@@ -221,8 +246,12 @@ export function Player({
         </div>
       </div>
 
+      {concluida ? (
+        <Concluida titulo={aula.titulo} minutos={Math.max(1, Math.round((Date.now() - startedAt.current) / 60000))} next={next} onNext={onNext} onExit={onExit} />
+      ) : (
+      <>
       {/* Middle: the stage and the card. */}
-      <div className="relative flex min-h-0 flex-1 flex-col">
+      <div className={cn('relative flex min-h-0 flex-1 flex-col', reading && 'cursor-pointer select-none')} onClick={reading ? onStoryTap : undefined}>
         {staged && (
           <div className="relative flex min-h-[150px] flex-1 flex-col">
             <div className="relative min-h-0 flex-1">
@@ -239,14 +268,14 @@ export function Player({
               custom={dir}
               className={cn(full && 'h-full')}
               variants={{
-                enter: (d: number) => ({ opacity: 0, x: d * 36, filter: 'blur(8px)' }),
+                enter: (d: number) => ({ opacity: 0, x: d * 28, filter: 'blur(6px)' }),
                 center: { opacity: 1, x: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } },
-                exit: (d: number) => ({ opacity: 0, x: d * -36, filter: 'blur(8px)' }),
+                exit: (d: number) => ({ opacity: 0, x: d * -28, filter: 'blur(6px)' }),
               }}
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
             >
               <CardBody card={card} st={st} set={set} staged={staged} getGerador={getGerador} roteiro={roteiro} onPrimary={onPrimary} />
             </motion.div>
@@ -288,7 +317,54 @@ export function Player({
           {label}
         </motion.button>
       </div>
+      </>
+      )}
     </div>
+  )
+}
+
+/** The end of a lesson: done, how long it took, and the next lesson one tap away. */
+function Concluida({ titulo, minutos, next, onNext, onExit }: { titulo: string; minutos: number; next?: { id: string; titulo: string }; onNext?: () => void; onExit: () => void }) {
+  return (
+    <>
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 text-center">
+        <motion.span
+          initial={{ scale: 0.4, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 15 }}
+          className="grid h-20 w-20 place-items-center rounded-full bg-white text-black"
+        >
+          <Check className="h-10 w-10" strokeWidth={2.6} />
+        </motion.span>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.4 }}>
+          <p className="text-[30px] font-semibold tracking-[-0.03em] text-white">Aula concluída</p>
+          <p className="mt-1.5 text-[16px] text-white/55">
+            {titulo} · {minutos} min
+          </p>
+        </motion.div>
+        {next && (
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="text-[15px] text-white/55">
+            A seguir: <span className="text-white">{next.titulo}</span>
+          </motion.p>
+        )}
+      </div>
+      <div className="relative z-30 flex shrink-0 items-center gap-3 pb-[max(env(safe-area-inset-bottom),14px)] pt-3">
+        {next && onNext ? (
+          <>
+            <button onClick={onExit} className="focus-ring h-14 shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-5 text-[15px] text-white/80 transition hover:text-white active:scale-95">
+              Mapa
+            </button>
+            <motion.button whileTap={{ scale: 0.97 }} onClick={onNext} className="focus-ring flex h-14 flex-1 items-center justify-center gap-2 rounded-full text-[17px] font-medium text-[#0b0904]" style={{ background: NEXT }}>
+              Próxima aula <ArrowRight className="h-5 w-5" />
+            </motion.button>
+          </>
+        ) : (
+          <motion.button whileTap={{ scale: 0.97 }} onClick={onExit} className="focus-ring flex h-14 flex-1 items-center justify-center rounded-full bg-white text-[17px] font-medium text-black">
+            Voltar ao mapa
+          </motion.button>
+        )}
+      </div>
+    </>
   )
 }
 
@@ -461,6 +537,8 @@ function ApostaBody({ card, st, set }: { card: Aposta; st: CardState; set: (p: C
   const chosen = st.choice ?? null
   const pick = (i: number) => {
     haptic(card.opcoes[i].certa ? [8, 40, 8] : 12)
+    // Sound only on the first choice; the others are just reading.
+    if (chosen === null) som(card.opcoes[i].certa ? 'certo' : 'erro')
     set({ choice: i, tried: [...new Set([...(st.tried ?? []), i])] })
     const prefs = getPreferences()
     if (prefs.voice) speak(card.opcoes[i].explica, 'aposta')
@@ -482,9 +560,11 @@ function PassoBody({ card, st, set }: { card: PassoAPasso; st: CardState; set: (
     const o = passo.opcoes[i]
     if (o.certa) {
       haptic([8, 40, 8])
+      som('certo')
       set({ passoSolved: true, passoMostra: o.mostra ?? st.passoMostra, passoExplica: o.explica, lines: [...(st.lines ?? []).slice(0, p), passo.linha] })
     } else {
       haptic(12)
+      som('erro')
       set({ passoWrong: [...new Set([...(st.passoWrong ?? []), i])], passoMostra: o.mostra ?? st.passoMostra, passoExplica: o.explica })
     }
   }
@@ -556,6 +636,7 @@ function CadernoBody({ card, onPrimary, onReady }: { card: CadernoCard; onPrimar
     const right = !skip && (numeric ? sameAnswer(value, card.resposta) : norm(value).includes(norm(String(card.resposta))))
     setChecked(skip ? 'skip' : right ? 'right' : 'wrong')
     haptic(right ? [8, 40, 8] : 12)
+    if (!skip) som(right ? 'certo' : 'erro')
     onReady()
   }
   useEffect(() => {

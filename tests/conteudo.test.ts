@@ -120,6 +120,15 @@ describe('aulas', () => {
         expect(tipos.some((t) => t === 'mexa' || t === 'aposta'), 'a aula precisa de interação antes da ideia (mexa ou aposta)').toBe(true)
         expect(a.vega.length, 'contexto da Vega vazio').toBeGreaterThan(40)
       })
+      it('tem ritmo: no máximo 2 cartões só de leitura seguidos', () => {
+        // Ritmo (docs/CONTEUDO.md): ler e tocar em "Continuar" três vezes seguidas cansa.
+        const leitura = new Set(['gancho', 'ideia', 'anote', 'fecho'])
+        let seguidos = 0
+        a.cartoes.forEach((c, i) => {
+          seguidos = leitura.has(c.tipo) ? seguidos + 1 : 0
+          expect(seguidos, `${a.id} › cartão ${i + 1}: 3 cartões só de leitura seguidos. Junte, corte ou ponha uma interação no meio.`).toBeLessThanOrEqual(2)
+        })
+      })
       it('cada cartão segue o contrato', () => {
         a.cartoes.forEach((c, i) => cartao(c, `${a.id} › cartão ${i + 1} (${c.tipo})`))
       })

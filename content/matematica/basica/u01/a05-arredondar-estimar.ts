@@ -186,7 +186,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Para arredondar à dezena, olhe a **unidade**. De 0 a 4, desce. De 5 a 9, sobe.',
+      texto: 'À dezena, olhe a **unidade**: de 0 a 4 desce, de 5 a 9 sobe. À centena, olhe a **dezena**. Ao milhar, a **centena**.',
       visual: {
         modelo: 'quadro-posicional',
         estado: { numero: 243, casas: ['C', 'D', 'U'], casaDecisiva: 'U', destinos: [240, 250], faixaMenor: [0, 4], faixaMaior: [5, 9] },
@@ -194,17 +194,6 @@ export const aula: Aula = {
         esboco: 'A regra de algarismo aparece como resumo da posição do ponto; não omitir a unidade zerada no resultado.',
       },
       esboco: 'Recuperar o valor posicional da A2 e ligar a unidade ao trecho da reta explorado.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'À centena, olhe a **dezena**. Ao milhar, olhe a **centena**. As casas da direita viram zero.',
-      visual: {
-        modelo: 'quadro-posicional',
-        estado: { numeros: [243, 2460], precisao: [100, 1000], casasDecisivas: ['D', 'C'], aproximacoes: [200, 2000] },
-        movimento: 'O realce muda de unidade para dezena e depois centena; as casas descartadas viram zeros nos destinos.',
-        esboco: 'Apresentar uma precisão por vez: 243 à centena; 2.460 ao milhar. Manter visível qual precisão foi pedida.',
-      },
-      esboco: 'Não olhar sempre a unidade: a casa decisiva é a primeira à direita da precisão escolhida.',
     },
     {
       tipo: 'aposta',
@@ -243,18 +232,6 @@ export const aula: Aula = {
         },
       ],
       esboco: 'Apostar na escrita antes de nomear ≈; a diferença de posições explica por que = não serve.',
-    },
-    {
-      tipo: 'ideia',
-      texto: '**≈** quer dizer “aproximadamente igual”. **=** é só para números iguais: **200 = 200**.',
-      fala: 'O sinal de aproximação significa aproximadamente igual. O sinal de igual fica para valores iguais: duzentos é igual a duzentos.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 200, ate: 300, passo: 10, marcas: [200, 243], aproximacao: '243 ≈ 200', igualdade: '200 = 200' },
-        movimento: 'Dois rótulos 200 apontam para um mesmo ponto; 243 permanece separado e ligado por aproximação.',
-        esboco: 'Comparar a aproximação entre pontos distintos à igualdade de dois rótulos do mesmo ponto.',
-      },
-      esboco: 'A voz lê os símbolos por extenso. Um múltiplo já na precisão pedida continua igual a ele mesmo.',
     },
     {
       tipo: 'anote',
@@ -300,41 +277,6 @@ export const aula: Aula = {
         },
       ],
       esboco: 'Depois da primeira escolha, marcar as centenas; depois da segunda, o meio; depois da terceira, escrever ≈ e pousar um segundo marcador em 2.500.',
-    },
-    {
-      tipo: 'aposta',
-      pergunta: 'Arredonde **995** à dezena. Ele fica bem no meio de **990** e **1.000**. Qual fica?',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 990, ate: 1000, passo: 1, marcas: [990, 995, 1000], meio: 995, precisao: 10 },
-        movimento: 'A régua aproxima a fronteira de mil; cada trecho de uma unidade conserva o mesmo comprimento.',
-        esboco: 'Mostrar 1.000 como dezena vizinha de 990, mesmo quando o destino ganha uma casa.',
-      },
-      opcoes: [
-        {
-          texto: '990',
-          erro: 'empate-para-baixo',
-          explica: 'Empatou. No empate, fica o maior: 1.000, mesmo ganhando uma casa a mais.',
-          mostra: {
-            modelo: 'quadro-posicional',
-            estado: { numero: 995, aproximacao: 1000, precisao: 10, casas: ['M', 'C', 'D', 'U'] },
-            movimento: 'O destino passa a 1.000; a casa de milhar aparece e centenas, dezenas e unidades ficam zeradas.',
-            esboco: 'Não colar 10 no lugar de um algarismo; o destino inteiro é mil.',
-          },
-        },
-        {
-          texto: '1.000',
-          certa: true,
-          explica: 'Isso. No empate, 995 vai para 1.000.',
-          mostra: {
-            modelo: 'reta',
-            estado: { de: 990, ate: 1000, passo: 1, marcas: [990, 995, 1000], vizinho: 1000, escrita: '995 ≈ 1.000' },
-            movimento: 'O marcador aproximado vai a 1.000; o ponto 995 e as duas distâncias iguais permanecem.',
-            esboco: 'Momento-chave: a fronteira troca a escrita do número, mas conserva o motivo da escolha.',
-          },
-        },
-      ],
-      esboco: 'Forçar a decisão por proximidade e empate, sem depender de um atalho de algarismo que falha na troca de casas.',
     },
     {
       tipo: 'mexa',
@@ -390,17 +332,6 @@ export const aula: Aula = {
       esboco: 'Perguntar sobre a interpretação da aproximação, além de treinar o número de destino.',
     },
     {
-      tipo: 'ideia',
-      texto: 'Isso tem nome: **estimar**. É usar um número arredondado para ter uma ideia do tamanho.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 30000, passo: 10000, marcas: [0, 2470, 10000, 20000, 30000], comparacao: [2470, 20000] },
-        movimento: 'A régua afasta: 2.470 fica nos poucos milhares; um registro de 20.000 aparece muito distante.',
-        esboco: 'Avaliar ordem de grandeza por posições na mesma escala, sem exigir operações novas.',
-      },
-      esboco: 'O ponto aproximado permite estranhar uma contagem anotada muito maior; ele não comprova uma operação.',
-    },
-    {
       tipo: 'anote',
       titulo: 'Estimar',
       definicao: 'Estimar é usar um número arredondado para ter uma ideia do tamanho de uma quantidade.',
@@ -442,17 +373,6 @@ export const aula: Aula = {
         },
       ],
       esboco: 'Desmontar a confiança excessiva no valor aproximado com a mesma reta usada para comparar.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Para ter uma ideia, arredonde. Para saber se dá ou não dá, use os **números exatos**.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 90, ate: 110, passo: 1, marcas: [100, 104], exato: 104, aproximado: 100, limite: 100 },
-        movimento: 'O marcador aproximado encosta no limite, mas uma linha guia mantém o ponto exato 104 à direita.',
-        esboco: 'Distinguir os três papéis: quantidade real, número arredondado e limite, mesmo quando dois valores coincidem.',
-      },
-      esboco: 'A frase responde à aposta e delimita o uso da estimativa; não oferecer uma regra de segurança fora da matemática.',
     },
     {
       tipo: 'caderno',

@@ -29,6 +29,12 @@ O palco **fica montado** de um cartão para o outro. Quando dois cartões seguid
 
 O aluno pode sair e voltar: a aula retoma no cartão em que parou. O último cartão marca a aula como concluída no mapa.
 
+**Como num story:** nos cartões só de leitura (gancho, ideia, anote, fecho), um toque em qualquer lugar da tela segue; um toque no terço esquerdo volta.
+
+**Fim da aula:** "Concluir" mostra "Aula concluída", o tempo da aula e o botão **Próxima aula**, que abre a aula seguinte direto, sem passar pelo mapa.
+
+**Sons:** acerto, erro e fim de aula têm sons curtos e baixos. O aluno desliga em Ajustes.
+
 No primeiro cartão, no lugar do botão de voltar, fica **Já sei isso**: leva direto ao cartão `sua-vez`, para quem já sabe o assunto.
 
 ## Cartões
@@ -65,10 +71,9 @@ Detalhes por cartão:
 
 - **Ordem e domínio:**
   - Os geradores vêm na ordem do cartão.
-  - Cada gerador pede acertos **de primeira** (sem dica e sem erro antes):
-    - nível 1: 1 acerto;
-    - níveis 2 e 3: 2 acertos.
-  - Errar ou usar dica zera a sequência daquele gerador, e vem outro item do mesmo gerador.
+  - Quem sabe passa rápido: **um acerto de primeira** (sem dica e sem erro antes) em cada gerador basta.
+  - Quem errou ou usou dica num gerador precisa de **dois acertos de primeira seguidos** nele, com outro item do mesmo gerador.
+  - Depois de um acerto, o próximo exercício vem sozinho em pouco mais de 1 segundo (tocar em "Próximo" adianta).
 - **Erros:** cada erro abre a próxima dica:
   1. a ideia;
   2. o primeiro passo;

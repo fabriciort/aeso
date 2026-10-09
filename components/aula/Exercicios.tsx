@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Lightbulb } from 'lucide-react'
 import type { Gerador, Item } from '@/lib/formation/schema'
@@ -9,6 +9,7 @@ import { getLesson } from '@/lib/math/curriculum'
 import { saveDiagnostico } from '@/lib/math/formation-progress'
 import { speak } from '@/lib/observatory/voice'
 import { getPreferences } from '@/lib/preferences'
+import { som } from '@/lib/sound'
 import { cn } from '@/lib/utils'
 import { Display, Keypad, sameAnswer } from './Keypad'
 import { Rich, plain } from './Rich'
@@ -17,12 +18,12 @@ import { Stage, hasStage } from './visual/Stage'
 // "Sua vez": exercícios dos geradores, do mais fácil ao mais difícil, até o
 // aluno mostrar que sabe. Errar abre uma dica de cada vez (a ideia, o
 // primeiro passo, a resolução); acertar sem ajuda é o que conta para o
-// domínio. No diagnóstico de entrada, nada de dicas: só registrar.
+// domínio. Quem já sabe passa rápido: um acerto de primeira por gerador
+// basta, e o próximo exercício vem sozinho. Quem errou naquele gerador
+// precisa de dois acertos seguidos. No diagnóstico de entrada, nada de
+// dicas: só registrar.
 
 export type Primary = (label: string | null, enabled: boolean, run?: () => void) => void
-
-/** First-try answers needed, by level. */
-const NEED: Record<1 | 2 | 3, number> = { 1: 1, 2: 2, 3: 2 }
 
 type Status = 'answer' | 'right' | 'wrong' | 'reveal' | 'registered'
 
@@ -38,6 +39,7 @@ export function Exercicios({ geradores, roteiro, onPrimary, onReady }: { gerador
   const counter = useRef(0)
   const [gi, setGi] = useState(0)
   const [streak, setStreak] = useState<number[]>(() => geradores.map(() => 0))
+  const [missed, setMissed] = useState<boolean[]>(() => geradores.map(() => false))
   const [item, setItem] = useState<Item>(() => geradores[0].gerar(rng(seed.current)))
   const [input, setInput] = useState('')
   const [wrongOptions, setWrongOptions] = useState<number[]>([])
@@ -47,7 +49,9 @@ export function Exercicios({ geradores, roteiro, onPrimary, onReady }: { gerador
   const [results, setResults] = useState<Record<string, boolean>>({})
   const [finished, setFinished] = useState(false)
   const gerador = geradores[gi]
-  const need = (g: Gerador) => (diagnostic ? 1 : NEED[g.nivel])
+  /** First-try answers in a row needed on generator i: 1, or 2 after a miss on it. */
+  const need = (i: number) => (diagnostic ? 1 : missed[i] ? 2 : 1)
+  const miss = () => setMissed((m) => m.map((v, i) => (i === gi ? true : v)))
 
   const newItem = useCallback(
     (g: Gerador, previous?: Item) => {
@@ -78,11 +82,16 @@ export function Exercicios({ geradores, roteiro, onPrimary, onReady }: { gerador
       return
     }
     if (right) {
+      const firstTry = hints === 0 && !wrongOptions.length && status === 'answer'
       setStatus('right')
-      setStreak((s) => s.map((v, i) => (i === gi ? (hints === 0 && !wrongOptions.length && status === 'answer' ? v + 1 : 0) : v)))
+      setStreak((s) => s.map((v, i) => (i === gi ? (firstTry ? v + 1 : 0) : v)))
+      if (!firstTry) miss()
+      som('certo')
       return
     }
     void wrongAnswer
+    miss()
+    som('erro')
     const next = hints + 1
     if (next >= 3) {
       setHints(3)
@@ -111,7 +120,7 @@ export function Exercicios({ geradores, roteiro, onPrimary, onReady }: { gerador
 
   const advance = () => {
     // Mastery: enough first-try answers on this generator moves on.
-    const done = streak[gi] >= need(gerador)
+    const done = streak[gi] >= need(gi)
     if (done || diagnostic) {
       if (gi + 1 < geradores.length) {
         setGi(gi + 1)
@@ -128,6 +137,15 @@ export function Exercicios({ geradores, roteiro, onPrimary, onReady }: { gerador
     } else newItem(gerador, item)
   }
 
+  // After a right answer the next exercise comes by itself (a tap is faster).
+  const advanceRef = useRef(advance)
+  advanceRef.current = advance
+  useEffect(() => {
+    if (status !== 'right' && status !== 'registered') return
+    const t = setTimeout(() => advanceRef.current(), status === 'right' ? 1100 : 700)
+    return () => clearTimeout(t)
+  }, [status, item])
+
   // The bottom button: Conferir while answering, Próximo after.
   const isNumber = item.formato !== 'escolha'
   useEffect(() => {
@@ -136,8 +154,8 @@ export function Exercicios({ geradores, roteiro, onPrimary, onReady }: { gerador
     else onPrimary('Próximo', true, advance)
   })
 
-  const totalNeed = useMemo(() => geradores.reduce((a, g) => a + need(g), 0), [geradores]) // eslint-disable-line react-hooks/exhaustive-deps
-  const got = diagnostic ? gi + (status === 'registered' || finished ? 1 : 0) : streak.reduce((a, v, i) => a + Math.min(v, need(geradores[i])), 0)
+  const totalNeed = geradores.length
+  const got = finished ? totalNeed : gi + (diagnostic ? (status === 'registered' ? 1 : 0) : Math.min(1, streak[gi] / need(gi)))
 
   if (finished) return <Final diagnostic={diagnostic} roteiro={roteiro} results={results} />
 

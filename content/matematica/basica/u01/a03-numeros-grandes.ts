@@ -77,23 +77,13 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Cada grupo de 3 é uma **classe**. Da direita para a esquerda: unidades, milhares, milhões, bilhões.',
+      texto: 'Cada grupo de 3 é uma **classe**. Da direita: unidades, milhares, milhões, bilhões. Mil milhares formam um **milhão**.',
       visual: quadro(
         { classes: ['bilhões', 'milhões', 'milhares', 'unidades'], casasPorClasse: 3, grupos: [0, 0, 12, 500] },
         'Expandir o quadro em quatro trios. Dentro de cada classe repetir C, D e U; em cima manter o nome completo da classe.',
         'Os novos trios entram pela esquerda; as unidades permanecem na posição que o aluno já conhece.',
       ),
       esboco: 'Dar nomes à extensão do quadro, mantendo casas e classes visualmente distintas. Cada trio pode ser tocado para ouvir seu nome.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Mil milhares formam um **milhão**. Mil milhões formam um **bilhão**.',
-      visual: quadro(
-        { transicoes: [[1000, 1000000], [1000000, 1000000000]], saltosPorClasse: 3, agrupamentoPorOrdem: 10 },
-        'Sobre as casas, traçar três saltos curtos de dez entre unidades de classes vizinhas. Ao fim dos três saltos, mudar mil para milhão e milhão para bilhão.',
-        'Mostrar três reagrupamentos consecutivos, sem comprimir o raciocínio num salto sem explicação.',
-      ),
-      esboco: 'Retomar os grupos de dez da A1: dez, cem e mil grupos. Cada toque avança um dos três reagrupamentos e deixa o anterior disponível para conferir. Não pedir operação de multiplicação nem notação de potência.',
     },
     {
       tipo: 'aposta',
@@ -154,17 +144,6 @@ export const aula: Aula = {
         'Manter o número montado. Ao tocar um trio, destacá-lo e ler sua quantidade com o nome da classe; no último, ler apenas seis.',
       ),
       esboco: 'Converter a montagem anterior em leitura. Os zeros continuam desenhados, embora a leitura de 005 seja cinco e a de 006 seja seis.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'No Brasil, separamos os grupos com ponto: **12.500**. Em inglês, com vírgula: **12,500**.',
-      fala: 'No Brasil, separamos os grupos com ponto. Em inglês, com vírgula. Os dois são doze mil e quinhentos.',
-      visual: quadro(
-        { numero: 12500, grupos: [12, 500], classes: ['milhares', 'unidades'], formatos: ['pt-BR', 'en-US'], escritas: ['12.500', '12,500'] },
-        'Um único quadro 12 | 500 sustenta as duas etiquetas com idioma. Trocar somente o separador, mantendo cada algarismo na mesma casa.',
-        'O ponto da etiqueta portuguesa vira vírgula na inglesa; o quadro e a quantidade permanecem imóveis.',
-      ),
-      esboco: 'Resolver a dúvida do gancho por convenção explícita. Usar o idioma por extenso, sem exigir familiaridade com códigos de localização.',
     },
     {
       tipo: 'aposta',

@@ -84,8 +84,6 @@ export function LabSettings() {
     }
   }, [open])
 
-  if (!caps.fullscreen && !caps.voice) return null
-
   return (
     <div ref={ref} className="relative">
       <button
@@ -106,6 +104,7 @@ export function LabSettings() {
             style={{ originX: 1, originY: 0 }}
             className="glass-strong absolute right-0 top-12 z-50 w-[272px] rounded-[22px] p-2"
           >
+            <Row label="Sons" hint="Acerto, erro e fim de aula" on={prefs.sounds} onChange={(on) => setPreferences({ sounds: on })} />
             {caps.voice && (
               <>
                 <Row label="Voz da Vega" hint="Lê cada cena em voz alta" on={prefs.voice} onChange={toggleVoice} />

@@ -40,41 +40,6 @@ export const aula: Aula = {
       esboco: 'O trecho 0–10 desliza como gabarito sobre 10–20. Uma colocação em 30 deixa dois intervalos expostos.',
     },
     {
-      tipo: 'aposta',
-      pergunta: 'Depois do 20, a próxima marca pode ser 50?',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 30, passo: 10, marcas: [0, 10, 20], marcaSemRotulo: 30 },
-        movimento: 'Aparece mais um traço com a mesma distância entre os anteriores.',
-        esboco: 'Manter os intervalos de dez; deixar apenas o último rótulo escondido.',
-      },
-      opcoes: [
-        {
-          texto: 'Sim, posso pôr qualquer número',
-          erro: 'intervalos-desiguais',
-          explica: 'Os espaços entre as marcas são todos iguais. Se cada um vale 10, depois do 20 vem o 30.',
-          mostra: {
-            modelo: 'reta',
-            estado: { de: 0, ate: 50, passo: 10, marcas: [0, 10, 20, 30, 50] },
-            movimento: 'O 50 desliza para três intervalos depois de 20; o rótulo 30 ocupa o intervalo seguinte.',
-            esboco: 'Comparar um intervalo de dez com os três necessários para chegar a cinquenta.',
-          },
-        },
-        {
-          texto: 'Não. A próxima é 30',
-          certa: true,
-          explica: 'Isso. Cada espaço vale 10: 10, 20, 30.',
-          mostra: {
-            modelo: 'reta',
-            estado: { de: 0, ate: 30, passo: 10, marcas: [0, 10, 20, 30] },
-            movimento: 'Os três intervalos acendem em sequência e recebem o mesmo rótulo de avanço: 10.',
-            esboco: 'O rótulo 30 entra depois da previsão, preservando a régua.',
-          },
-        },
-      ],
-      esboco: 'Desmontar a ideia de que os traços podem ter valores arbitrários em uma escala fixa.',
-    },
-    {
       tipo: 'ideia',
       texto: 'Os espaços entre as marcas são os **intervalos**. Na reta, todos têm o mesmo tamanho e valem o mesmo: aqui, 10.',
       visual: {
@@ -140,45 +105,15 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: '**12 é maior que 7**: escrevemos **12 > 7**. **7 é menor que 12**: escrevemos **7 < 12**.',
-      fala: 'Doze é maior que sete. Sete é menor que doze.',
+      texto: '**12 > 7**: 12 é maior que 7. **7 < 12**: 7 é menor que 12. E números iguais? **12 = 12**.',
+      fala: 'Doze é maior que sete. Sete é menor que doze. E doze é igual a doze.',
       visual: {
         modelo: 'reta',
-        estado: { de: 0, ate: 20, passo: 1, marcas: [7, 12], comparacoes: ['12 > 7', '7 < 12'] },
+        estado: { de: 0, ate: 20, passo: 1, marcas: [7, 12], comparacoes: ['12 > 7', '7 < 12', '12 = 12'] },
         movimento: 'As frases surgem sob a reta; maior que e menor que são substituídos pelos símbolos.',
         esboco: 'Primeiro a leitura por extenso; depois > e < como abreviações da mesma relação.',
       },
       esboco: 'Apresentar os símbolos depois da experiência. A voz lê as relações por extenso.',
-    },
-    {
-      tipo: 'mexa',
-      texto: 'Agora ponha outro **12** na reta. Ele fica em outro lugar?',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 20, passo: 1, marcas: [12], etiquetaSolta: 12 },
-        movimento: 'A etiqueta 7 sai; uma segunda etiqueta 12 aparece para ser colocada.',
-        esboco: 'Duas etiquetas podem apontar para um único ponto, sem criar duas posições diferentes.',
-      },
-      acao: {
-        tipo: 'arrastar',
-        instrucao: 'Ponha o 12 na marca dele.',
-        sucesso: { posicao: 12 },
-        mostre: 'Encaixar a segunda etiqueta sobre a primeira; abrir dois pequenos rótulos ligados ao mesmo ponto 12.',
-      },
-      descoberta: 'Números iguais ocupam a mesma posição, ainda que tenham duas etiquetas.',
-      esboco: 'As etiquetas se empilham por um instante e depois apontam para o mesmo ponto, sem deslocá-lo.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Números iguais ocupam o mesmo ponto: **12 = 12**. O sinal **=** diz que os valores são iguais.',
-      fala: 'Doze é igual a doze. O sinal de igual diz que os valores são iguais.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 20, passo: 1, marcas: [12], etiquetas: [12, 12], comparacao: '12 = 12' },
-        movimento: 'A relação de igualdade aparece embaixo das duas etiquetas que compartilham o ponto.',
-        esboco: 'A igualdade nasce da coincidência das posições, preparando o contraste com aproximação na aula seguinte.',
-      },
-      esboco: 'Dar significado a = sem antecipar contas; a relação é entre valores iguais.',
     },
     {
       tipo: 'aposta',
