@@ -14,7 +14,7 @@
   - exercícios sem fim, com dicas e diagnóstico do erro;
   - a Vega como tutora.
 - **Primeiro passo:** a **Matemática Básica**, a fundação. Tem que ficar perfeita e coesa, porque todo o resto se apoia nela.
-- **Critério de qualidade:** o menor número de passos que realmente ensina. Valor não é volume.
+- **Critério de qualidade:** cada aula leva **o tempo que o conceito precisa** para ser entendido de verdade. Não há limite de cartões, de tempo nem de texto. A única regra é: nenhum cartão sem propósito, e nenhum passo de raciocínio pulado. Valor não é volume, e também não é pressa.
 
 ## 1. Aonde a formação leva (com honestidade)
 
@@ -73,13 +73,17 @@ Formação → Módulo → Unidade → Aula (story) → Prática
                             ↘ Missão (aplicação real)   ↘ Checkpoint (domínio)
 ```
 
-| Peça | O que é | Tamanho |
-|---|---|---|
-| **Aula** | Uma ideia só, contada como story | 5 a 10 min, até 8 cartões |
-| **Prática** | Exercícios gerados por parâmetros, sem fim | No ritmo do aluno |
-| **Missão** | Um problema real que junta a unidade (ou várias), com uma pequena história. Usa o formato de laboratório que já existe | 10 a 20 min |
-| **Checkpoint** | 6 a 10 questões misturadas; libera a próxima unidade | 10 min |
-| **Revisão do dia** | Questões antigas, espaçadas e misturadas | 5 a 10 min |
+| Peça | O que é |
+|---|---|
+| **Aula** | Um conceito, contado como story, com quantos cartões ele precisar |
+| **Prática** | Exercícios gerados por parâmetros, sem fim, no ritmo do aluno |
+| **Missão** | Um problema real que junta a unidade (ou várias), com uma história. Usa o formato de laboratório que já existe |
+| **Checkpoint** | Questões misturadas da unidade inteira; libera a próxima unidade |
+| **Revisão do dia** | Questões antigas, espaçadas e misturadas |
+
+**Sem limites artificiais.** O tamanho de cada aula, de cada explicação e de cada lista de exercícios é decidido pelo conceito e pelo aluno, nunca por uma regra fixa. Se uma ideia precisa de vinte cartões para ficar clara, ela terá vinte. Se precisa de três, terá três. O que define o fim de uma aula é o aluno ter entendido, não um número.
+
+**Uma aula, um conceito.** Isso não é limite de tamanho: é foco. Um conceito grande pode ocupar uma aula longa; dois conceitos diferentes ficam em aulas diferentes, para o aluno saber exatamente o que aprendeu em cada uma.
 
 ### Como o story funciona
 
@@ -89,7 +93,7 @@ Formação → Módulo → Unidade → Aula (story) → Prática
   - em cartão com tarefa, só avança depois da ação; aí aparece "Continuar".
 - **Voltar:** sempre permitido. Nada se perde.
 - **Palco contínuo:** o desenho não pisca de um cartão para o outro, ele **se transforma**. Esse é o diferencial em relação a um story comum.
-- **Texto:** até ~25 palavras por cartão. A voz da Vega lê, se o aluno quiser.
+- **Texto:** o necessário para a explicação ficar completa. A tela tem tamanho fixo e não rola, então uma explicação longa se divide em vários cartões, e nunca é cortada para caber. A voz da Vega lê, se o aluno quiser.
 - **Sem rolagem**, sem cronômetro, no celular e no computador.
 
 ### Tipos de cartão (o "vocabulário" de toda aula)
@@ -98,15 +102,15 @@ Formação → Módulo → Unidade → Aula (story) → Prática
 |---|---|---|
 | **Gancho** | Uma situação real e uma pergunta que o aluno ainda não sabe responder | Sempre o primeiro. Concreto, adulto, do dia a dia ou do trabalho |
 | **Mexa** | Manipular o modelo visual e descobrir o padrão | Uma ação clara ("arraste", "toque"), com resposta visual imediata |
-| **Aposta** | Prever antes de ver | 2 a 4 opções; os erros são concepções comuns reais. A resposta explica os dois casos |
+| **Aposta** | Prever antes de ver | As opções erradas são concepções comuns reais. A resposta explica os dois casos |
 | **Ideia** | Dar nome e notação ao que ele já viu | Uma frase e uma notação. Gera o cartão **Anote** |
 | **Anote** | O que copiar no caderno | Definição, um exemplo e um alerta de erro. Formato fixo, para o caderno ficar organizado |
 | **Passo a passo** | Exemplo guiado: o aluno escolhe o próximo passo e o caderno da tela se escreve | Distratores = erros comuns; erro mostrado no desenho |
 | **Caderno** | Pausa para resolver no papel e depois conferir | O aluno digita a resposta final; o passo a passo aparece para comparar |
-| **Sua vez** | 3 a 5 exercícios, com o suporte diminuindo | Primeiro com dica disponível, por último sem |
+| **Sua vez** | Exercícios até o aluno mostrar que sabe, com o suporte diminuindo | Primeiro com dica disponível, por último sem. Quem precisa de mais treino recebe mais |
 | **Fecho** | A pergunta do Gancho respondida e o que vem depois | O aluno vê que agora sabe |
 
-Uma aula típica: Gancho → Mexa → Aposta → Ideia + Anote → Passo a passo → Caderno → Sua vez → Fecho. Cartões que não acrescentam nada **saem**.
+Uma aula típica: Gancho → Mexa → Aposta → Ideia + Anote → Passo a passo → Caderno → Sua vez → Fecho. Os cartões podem se repetir e se combinar quantas vezes o conceito pedir (vários Mexa, várias Apostas, vários Passos a passo). Cartão que não ensina nada sai; cartão que falta, entra.
 
 ### O caderno de papel
 
@@ -177,7 +181,7 @@ Os nomes e as situações são diversos e respeitosos: adulto falando com adulto
 
 ## 5. Dois níveis de entrada, uma formação só
 
-- **Diagnóstico de entrada** (adaptativo, ~20 min) indica o ponto de partida no mapa.
+- **Diagnóstico de entrada** (adaptativo) indica o ponto de partida no mapa.
 - **"Do zero":**
   - percorre todas as aulas;
   - recebe **Pontes**: micro-reforços (tabuada em treino curto, ler números grandes) oferecidos só a quem errou o que elas cobrem.
@@ -186,13 +190,13 @@ Os nomes e as situações são diversos e respeitosos: adulto falando com adulto
   - acertou: a aula fica dominada;
   - errou: a aula abre do começo, sem castigo.
 - **Domínio:**
-  - 3 acertos seguidos sem dica marcam a habilidade como dominada;
+  - a habilidade é marcada como dominada quando o aluno acerta seguidas vezes, sem dica, em exercícios variados (critério inicial: 3 acertos; ajustamos com os dados do piloto);
   - ela volta na Revisão do dia em 1, 3, 7 e 21 dias;
   - essas são as técnicas com melhor evidência para fixar (prática de recuperação, espaçamento, intercalação).
 
 ## 6. Matemática Básica: as unidades
 
-**21 unidades, ~107 aulas, 6 partes e um projeto final.** Para cada unidade:
+**21 unidades em 6 partes e um projeto final.** A lista de aulas abaixo é o ponto de partida: ao escrever os roteiros, uma unidade pode ganhar aulas (se um conceito pedir mais espaço) ou juntar aulas (se dois tópicos forem, na verdade, a mesma ideia). Para cada unidade:
 - **Aulas:** a lista, com a ideia central de cada uma.
 - **Modelo:** o modelo-âncora.
 - **Erros:** os erros comuns que vamos atacar.
@@ -496,7 +500,7 @@ Este exemplo serve para validar o formato **antes** de construir.
 - **Habilidades:** `B.U1.H2` (valor posicional) e `B.U1.H3` (decompor um número).
 - **Modelo:** blocos de base 10 sob um quadro de posições (centenas | dezenas | unidades).
 
-| # | Cartão | Texto (≤ 25 palavras) | Palco | Ação |
+| # | Cartão | Texto | Palco | Ação |
 |---|---|---|---|---|
 | 1 | Gancho | "305 e 35: os mesmos algarismos 3 e 5. Por que um vale quase dez vezes o outro?" | Duas etiquetas de preço, R$ 305 e R$ 35 | Tocar para continuar |
 | 2 | Mexa | "Arraste os cartões 3, 0 e 5 para as casas. Veja o que cada um vale." | Quadro de posições; abaixo de cada casa nascem os blocos (3 placas, 0 barras, 5 cubos) | Arrastar os algarismos; o número e os blocos mudam juntos |
@@ -506,7 +510,7 @@ Este exemplo serve para validar o formato **antes** de construir.
 | 5 | Anote | **Valor posicional.** Exemplo: 305 = 3 centenas + 0 dezenas + 5 unidades = 300 + 5. Alerta: sem o zero, vira 35. | Cartão com o formato do caderno | "Já anotei" |
 | 6 | Passo a passo | "No 4.072, quanto vale o 7?" | O número no quadro | Escolher 7 / 70 / 700; o erro acende a casa certa |
 | 7 | Caderno | "No caderno, escreva 2.408 como soma das casas. Depois digite quanto vale o 4." | Quadro vazio | Digitar 400 e ver a decomposição para comparar |
-| 8 | Sua vez | 4 exercícios gerados: valor de um algarismo; de palavras para número ("seiscentos e nove"); comparar dois números com zeros | — | Responder; dica em 3 níveis |
+| 8 | Sua vez | Exercícios gerados até o domínio: valor de um algarismo; de palavras para número ("seiscentos e nove"); comparar dois números com zeros | — | Responder; dica em 3 níveis |
 | 9 | Fecho | "Agora você lê o valor de cada algarismo pela casa dele. Na próxima: mil, milhão, bilhão." | Os dois preços do Gancho, com os blocos embaixo | — |
 
 **Erros mapeados nesta aula:**
