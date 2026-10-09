@@ -536,7 +536,7 @@ function Cover({ lab, resume, onEnter }: { lab: Lab; resume: boolean; onEnter: (
           <motion.li key={s.id} variants={rise} className="flex items-center gap-4 rounded-2xl px-3 py-2.5">
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/10 font-mono text-[12px] text-white/55">{i + 1}</span>
             <span className="min-w-0">
-              <span className="block text-[10.5px] font-medium uppercase tracking-[0.14em]" style={{ color: lab.accent }}>
+              <span className="block text-[13px] font-medium" style={{ color: lab.accent }}>
                 {stepLabel(s)}
               </span>
               <span className="block truncate text-[15px] text-white">{s.title}</span>

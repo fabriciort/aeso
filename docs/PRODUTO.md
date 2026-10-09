@@ -36,8 +36,12 @@ Use estes termos **exatamente assim** na interface, no código e na comunicaçã
 | **Início** | A área inicial do Observatório: continuar de onde parou, próximos passos | `views/HomeView.tsx` |
 | **Céu** | A área de exploração: busca, céu interativo, ficha do objeto, observações do MAST | `views/SkyView.tsx` |
 | **Laboratórios** | A área com o catálogo de laboratórios | `views/LabsView.tsx` |
-| **Matemática** | A área com as trilhas de matemática, da básica ao Cálculo 4 | `views/MathView.tsx`, `lib/labs/math.ts` |
-| **Trilha** | Uma sequência de laboratórios de matemática (ex.: Cálculo 1) | `Track` |
+| **Matemática** | A área da Formação em Matemática, com o mapa da formação | `views/MathView.tsx` |
+| **Formação** | O percurso completo de matemática, do zero ao Cálculo (`docs/MATEMATICA.md`) | `lib/math/curriculum.ts` |
+| **Módulo** | Uma grande etapa da formação (ex.: Matemática Básica, Cálculo 1) | `Module` |
+| **Unidade** | Um tema dentro do módulo (ex.: Frações), com pré-requisitos | `Unit` |
+| **Aula** | Um conceito, em formato de story | `Lesson` |
+| **Mapa da formação** | A árvore de pré-requisitos de módulos e unidades | `components/math/FormationMap.tsx` |
 | **Caderno** (no Resolva) | A resolução que se escreve sozinha, uma linha por passo certo | palco de cada lab de matemática |
 | **Laboratório** | Uma experiência guiada sobre um fenômeno. Ex.: "Encontre um exoplaneta" | `lib/labs/*.ts` |
 | **Etapa** | Uma unidade de um laboratório (ver tipos abaixo), sempre numa tela só | `LabStep` |

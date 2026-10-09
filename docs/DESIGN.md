@@ -1,12 +1,42 @@
 # Design e movimento
 
+## Princípio número 1: pouco texto
+
+Nosso aluno tem pouco tempo e pouco foco, como quase todo mundo hoje. Por isso, **o desenho explica e o texto só acompanha.**
+
+- **O que se mostra não se escreve.** Se o mapa, a animação ou o gesto já dizem, não há legenda repetindo.
+- **Uma frase curta por vez**, em letra grande:
+  - ≥ 17 px para o que se lê;
+  - ≥ 14 px para rótulos;
+  - nunca parágrafos cinza miúdos.
+- **Sem instruções do tipo "toque aqui para…"** quando o próprio elemento convida ao toque (brilho, movimento).
+- **Explicação longa vira sequência:** mais cartões, cada um com pouco texto, e nunca uma tela cheia de palavras.
+- **Antes de publicar uma tela, corte tudo o que puder sair** sem o aluno perder nada. O que sobra é o necessário.
+
+## Princípio número 2: aprender mexendo
+
+- **O aluno aprende interagindo**, não lendo. Toda ideia tem algo para tocar, arrastar ou prever.
+- **Toda ação tem resposta visual imediata** (em até 100 ms): o desenho muda junto com o dedo, o erro aparece no próprio desenho, o acerto acende.
+- **O feedback ensina:** não é só "certo/errado", é ver *por que*. A balança tomba, o pedaço não encaixa, a reta não passa pelo ponto.
+- **Cada lição é planejada cartão a cartão** antes de ser construída (roteiro em `docs/MATEMATICA.md`).
+
+## Identidade
+
+Detalhes e histórico em `docs/ESTUDO_UX.md`.
+
+- **Preto, branco e uma luz:** a interface é monocromática e a única cor de destaque é o âmbar "luz de estrela" (`#f6b74e`), que marca só o próximo passo.
+- **Cor só com significado:** concluído é branco sólido; próximo é âmbar; o resto é contorno discreto.
+- **Sem os vícios genéricos:** nada de caixa alta espaçada, bolinhas decorativas, arco-íris pastel, halos pulsando ou etiquetas empilhadas.
+- **Papel quadriculado:** a textura nossa, discreta, nas telas da formação.
+- **Sempre uma ação óbvia:** toda tela de entrada mostra o próximo passo, grande, no topo.
+
 ## Fundamentos
 
 - **Tema:** escuro ("céu noturno"), fundo `#030407`, superfícies de vidro fosco (`.glass`, `.glass-strong`).
 - **Tipografia:** Geist Sans (interface) e Geist Mono (números, coordenadas, identificadores). Títulos com `tracking` negativo (−0,02 a −0,045 em).
 - **Cor:** quase toda a interface é neutra. A cor de destaque é o azul `sky-300/400`. Cada missão do MAST tem uma cor fixa (`lib/missions.ts`). O âmbar (`#f6b74e`) indica "estrela/energia" nos laboratórios.
 - **Raios:** 22–28 px para cartões e painéis; `rounded-full` para botões e chips.
-- **Rótulos pequenos** usam `.eyebrow` (11 px, caixa alta, espaçamento 0,16 em).
+- **Rótulos** usam `.eyebrow` (14 px, letra normal, branco a 50 %).
 
 ## Movimento
 
@@ -75,7 +105,11 @@ Laboratórios novos têm um único palco que atravessa todas as etapas e se tran
 
 ## Matemática
 
-- As trilhas aparecem como um caminho vertical numerado; cada trilha tem sua cor, que vira o `accent` dos seus laboratórios. Os laboratórios prontos vêm primeiro; os "em breve" ficam esmaecidos, para o aluno ver o caminho inteiro.
+- O **mapa da formação** é uma árvore de pré-requisitos.
+  - As unidades são quadrados arredondados com o número em mono e o nome embaixo, na cor da parte do módulo.
+  - As ligações são curvas finas. As longas correm em faixas próprias e nunca atravessam outra unidade.
+  - Ao tocar numa unidade, a cadeia de pré-requisitos acende na cor dela, o que ela abre aparece pontilhado e o resto esmaece.
+  - A unidade recomendada agora pulsa devagar. Nada é bloqueado: o mapa recomenda, nunca proíbe.
 - No palco: fundo de grade leve, eixos discretos, a curva principal em branco, o objeto da ideia (tangente, retângulos, vetor) na cor do laboratório, dados reais em azul-claro (`#7dd3fc`).
 - Fórmulas em KaTeX herdam a cor do texto. Frações em opções de escolha usam `\displaystyle`; no Caderno, o estilo de texto, para caber.
 
