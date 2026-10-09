@@ -8,6 +8,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 export interface VegaContextValue {
   lab?: string
+  aula?: string
   step?: string
   state?: string
 }

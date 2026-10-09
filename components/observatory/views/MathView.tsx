@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion, useDragControls } from 'framer-motion'
-import { getModule, getUnit, MODULES, unitStatus, type ModuleId } from '@/lib/math/curriculum'
+import { getLesson, getModule, getUnit, MODULES, unitStatus, type ModuleId } from '@/lib/math/curriculum'
 import { doneUnits, useFormationProgress } from '@/lib/math/formation-progress'
 import { rise, spring, stagger } from '@/lib/motion'
 import { useRouter } from '@/lib/observatory/router'
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
 import { FormationMap, NEXT } from '@/components/math/FormationMap'
 import { UnitPanel } from '@/components/math/UnitPanel'
+import { useConteudo } from '@/components/aula/useConteudo'
 
 // Matemática: the map of the Formação. Módulos on top, the prerequisite tree
 // below. Almost no text: the map is the explanation.
@@ -18,20 +19,30 @@ import { UnitPanel } from '@/components/math/UnitPanel'
 const MODULE_KEY = 'aeso:formacao:modulo'
 
 export default function MathView() {
-  const { navigate } = useRouter()
+  const { route, navigate } = useRouter()
   const progress = useFormationProgress()
   const done = useMemo(() => doneUnits(progress), [progress])
-  const [moduleId, setModuleId] = useState<ModuleId>('basica')
-  const [selected, setSelected] = useState<string | null>(null)
+  const conteudo = useConteudo()
+  const available = useMemo(() => new Set(conteudo?.AULAS.map((a) => a.id) ?? []), [conteudo])
+  // Coming back from an aula, its unit stays open.
+  const fromUnit = route.area === 'matematica' && route.unit ? getUnit(route.unit) : undefined
+  const [moduleId, setModuleId] = useState<ModuleId>(fromUnit?.module ?? 'basica')
+  const [selected, setSelected] = useState<string | null>(fromUnit?.id ?? null)
   const mod = getModule(moduleId)!
   const unit = selected ? getUnit(selected) : undefined
   const sheetDrag = useDragControls()
 
   useEffect(() => {
+    if (fromUnit) {
+      requestAnimationFrame(() => document.querySelector(`[data-unit="${fromUnit.id}"]`)?.scrollIntoView({ block: 'center' }))
+      return
+    }
     try {
       const saved = window.localStorage.getItem(MODULE_KEY) as ModuleId | null
       if (saved && getModule(saved)) setModuleId(saved)
     } catch {}
+    // Only on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const remember = (id: ModuleId) => {
     try {
@@ -65,10 +76,18 @@ export default function MathView() {
   })
 
   const openLab = (slug: string) => navigate({ area: 'laboratorio', slug })
+  const openLesson = (id: string) => navigate({ area: 'aula', id })
 
-  // The one obvious next action: the first recommended unit of the formation.
-  const next = MODULES.flatMap((m) => m.units).find((u) => unitStatus(u.id, done) === 'recomendada')
+  // The one obvious next action: the next aula ready to study, in the order
+  // of the formation; without one, the first recommended unit.
+  const units = MODULES.flatMap((m) => m.units)
+  const nextLesson = units
+    .filter((u) => unitStatus(u.id, done) === 'recomendada')
+    .flatMap((u) => u.lessons)
+    .find((l) => available.has(l.id) && !progress.lessons[l.id])
+  const next = nextLesson ? getLesson(nextLesson.id)!.unit : units.find((u) => unitStatus(u.id, done) === 'recomendada')
   const goNext = () => {
+    if (nextLesson) return openLesson(nextLesson.id)
     if (!next) return
     select(next.id)
     requestAnimationFrame(() => document.querySelector(`[data-unit="${next.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
@@ -91,7 +110,7 @@ export default function MathView() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-[14px] text-white/50">Próximo passo</span>
-            <span className="block truncate text-[20px] font-semibold tracking-[-0.02em] text-white">{next.title}</span>
+            <span className="block truncate text-[20px] font-semibold tracking-[-0.02em] text-white">{nextLesson?.title ?? next.title}</span>
           </span>
           <ArrowRight className="h-5 w-5 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-white" />
         </motion.button>
@@ -138,7 +157,7 @@ export default function MathView() {
           <AnimatePresence mode="wait" initial={false}>
             {unit ? (
               <motion.div key={unit.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.25 }}>
-                <UnitPanel unit={unit} done={done} onSelect={select} onOpenLab={openLab} />
+                <UnitPanel unit={unit} done={done} lessonsDone={progress.lessons} available={available} onSelect={select} onOpenLab={openLab} onOpenLesson={openLesson} />
               </motion.div>
             ) : (
               <motion.p key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-12 text-center text-[17px] text-white/45">
@@ -174,7 +193,7 @@ export default function MathView() {
               </div>
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div key={unit.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.22 }}>
-                  <UnitPanel unit={unit} done={done} onSelect={select} onOpenLab={openLab} />
+                  <UnitPanel unit={unit} done={done} lessonsDone={progress.lessons} available={available} onSelect={select} onOpenLab={openLab} onOpenLesson={openLesson} />
                 </motion.div>
               </AnimatePresence>
             </motion.div>

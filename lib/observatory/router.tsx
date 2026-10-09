@@ -10,8 +10,9 @@ export type Route =
   | { area: 'inicio' }
   | { area: 'ceu'; q?: string }
   | { area: 'laboratorios' }
-  | { area: 'matematica' }
+  | { area: 'matematica'; unit?: string }
   | { area: 'laboratorio'; slug: string; step?: string }
+  | { area: 'aula'; id: string }
 
 export const BASE = '/app'
 
@@ -26,8 +27,9 @@ export function parseRoute(pathname: string, search: string): Route {
   if (parts[0] === 'ceu') return { area: 'ceu', q: params.get('q') ?? undefined }
   if (parts[0] === 'laboratorios' && parts[1]) return { area: 'laboratorio', slug: parts[1], step: params.get('etapa') ?? undefined }
   if (parts[0] === 'laboratorios') return { area: 'laboratorios' }
+  if (parts[0] === 'matematica' && parts[1] === 'aula' && parts[2]) return { area: 'aula', id: decodeURIComponent(parts[2]) }
   if (parts[0] === 'matematica' && parts[1]) return { area: 'laboratorio', slug: parts[1], step: params.get('etapa') ?? undefined }
-  if (parts[0] === 'matematica') return { area: 'matematica' }
+  if (parts[0] === 'matematica') return { area: 'matematica', unit: params.get('unidade') ?? undefined }
   return { area: 'inicio' }
 }
 
@@ -40,7 +42,9 @@ export function routeToUrl(r: Route): string {
     case 'laboratorios':
       return `${BASE}/laboratorios`
     case 'matematica':
-      return `${BASE}/matematica`
+      return `${BASE}/matematica${r.unit ? `?unidade=${encodeURIComponent(r.unit)}` : ''}`
+    case 'aula':
+      return `${BASE}/matematica/aula/${encodeURIComponent(r.id)}`
     case 'laboratorio':
       return `${BASE}/${isMathLab(getLab(r.slug)) ? 'matematica' : 'laboratorios'}/${r.slug}${r.step ? `?etapa=${r.step}` : ''}`
   }

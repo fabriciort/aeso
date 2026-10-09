@@ -46,7 +46,7 @@ export default function Vega() {
   const view = route.area
   const lab = ctx.lab ? getLab(ctx.lab) : undefined
   const stepIndex = lab ? lab.steps.findIndex((s) => s.id === ctx.step) : -1
-  const where = lab ? (stepIndex >= 0 ? `${lab.title} · etapa ${stepIndex + 1}` : lab.title) : view === 'ceu' ? 'Céu' : view === 'laboratorios' ? 'Laboratórios' : view === 'matematica' ? 'Matemática' : 'Início'
+  const where = lab ? (stepIndex >= 0 ? `${lab.title} · etapa ${stepIndex + 1}` : lab.title) : view === 'ceu' ? 'Céu' : view === 'laboratorios' ? 'Laboratórios' : view === 'matematica' || view === 'aula' ? 'Matemática' : 'Início'
   const stepAsk = stepIndex >= 0 ? lab?.steps[stepIndex].ask : undefined
   const suggestions = stepAsk ?? (lab?.slug === 'exoplaneta' ? SUGGESTIONS[ctx.step ?? ''] : undefined) ?? (view === 'ceu' ? SUGGESTIONS.ceu : view === 'matematica' ? SUGGESTIONS.matematica : SUGGESTIONS.default)
 
@@ -80,7 +80,7 @@ export default function Vega() {
         signal: controller.signal,
         body: JSON.stringify({
           messages: history.slice(-12).map(({ role, content }) => ({ role, content: content.slice(0, 2000) })),
-          context: { view, lab: ctx.lab, step: ctx.step, state: ctx.state?.slice(0, 600) },
+          context: { view, lab: ctx.lab, aula: ctx.aula, step: ctx.step, state: ctx.state?.slice(0, 600) },
         }),
       })
       if (!res.ok || !res.body) {

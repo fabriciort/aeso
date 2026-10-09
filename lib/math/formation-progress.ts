@@ -9,6 +9,10 @@ import { MODULES } from './curriculum'
 interface FormationProgress {
   /** Lesson id → when it was mastered (ISO). */
   lessons: Record<string, string>
+  /** Lesson id → the card the student was on (to resume). */
+  cards?: Record<string, number>
+  /** Diagnóstico de entrada: lesson id → answered right on the first try. */
+  diagnostico?: Record<string, boolean>
 }
 
 const KEY = 'aeso:formacao:v1'
@@ -27,14 +31,35 @@ function load(): FormationProgress {
   return cache
 }
 
-export function markLessonDone(id: string) {
-  const cur = load()
-  if (cur.lessons[id]) return
-  cache = { ...cur, lessons: { ...cur.lessons, [id]: new Date().toISOString() } }
+function save(next: FormationProgress) {
+  cache = next
   try {
     window.localStorage.setItem(KEY, JSON.stringify(cache))
   } catch {}
   listeners.forEach((l) => l())
+}
+
+export function markLessonDone(id: string) {
+  const cur = load()
+  if (cur.lessons[id]) return
+  save({ ...cur, lessons: { ...cur.lessons, [id]: new Date().toISOString() } })
+}
+
+/** Remember the card the student is on, to resume the lesson later. */
+export function saveCard(id: string, card: number) {
+  const cur = load()
+  if (cur.cards?.[id] === card) return
+  save({ ...cur, cards: { ...cur.cards, [id]: card } })
+}
+
+export function saveDiagnostico(result: Record<string, boolean>) {
+  const cur = load()
+  save({ ...cur, diagnostico: { ...cur.diagnostico, ...result } })
+}
+
+/** Where to resume a lesson (0 when it was never opened). */
+export function lessonCard(p: FormationProgress, id: string): number {
+  return p.cards?.[id] ?? 0
 }
 
 function subscribe(l: () => void) {

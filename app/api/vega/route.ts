@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { getAula } from '@/content/matematica'
 import { getLab } from '@/lib/labs/catalog'
 import { aiProvider, streamChat, AIError, type ChatMessage } from '@/lib/server/ai'
 import { isMock } from '@/lib/server/http'
@@ -13,8 +14,10 @@ const Body = z.object({
     .max(16),
   context: z
     .object({
-      view: z.enum(['inicio', 'ceu', 'laboratorios', 'matematica', 'laboratorio']).optional(),
+      view: z.enum(['inicio', 'ceu', 'laboratorios', 'matematica', 'laboratorio', 'aula']).optional(),
       lab: z.string().max(60).optional(),
+      /** Aula da Formação em Matemática (ex.: "B.U1.A2"). */
+      aula: z.string().max(40).optional(),
       step: z.string().max(60).optional(),
       /** Short, client-provided description of what is on screen. */
       state: z.string().max(600).optional(),
@@ -35,7 +38,11 @@ Regras:
 function contextPrompt(ctx: z.infer<typeof Body>['context']): string {
   const parts: string[] = []
   const lab = ctx.lab ? getLab(ctx.lab) : undefined
-  if (lab) {
+  const aula = ctx.aula ? getAula(ctx.aula) : undefined
+  if (aula) {
+    parts.push(`O aluno está na aula "${aula.titulo}" da Formação em Matemática. Objetivo: ${aula.objetivo}`)
+    parts.push(`Como guiar (não mostre isto ao aluno): ${aula.vega}`)
+  } else if (lab) {
     parts.push(`O aluno está no laboratório "${lab.title}".`)
     const idx = lab.steps.findIndex((s) => s.id === ctx.step)
     const step = lab.steps[idx]
