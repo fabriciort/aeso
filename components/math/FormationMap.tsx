@@ -138,7 +138,7 @@ export function FormationMap({
                 {(() => {
                   const ext = [...new Set(u.requires.map((r) => getUnit(r)!.module).filter((m) => m !== module.id))]
                   return ext.length ? (
-                    <span className="pointer-events-none absolute -top-[26px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/[0.08] bg-[#0b0c12] px-2 py-0.5 text-[10.5px] text-white/50">
+                    <span className="pointer-events-none absolute -top-[26px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/[0.08] bg-[#0b0c12] px-2.5 py-0.5 text-[12px] text-white/55">
                       vem de {ext.map((m) => getModule(m)!.short).join(' · ')}
                     </span>
                   ) : null
@@ -166,7 +166,7 @@ export function FormationMap({
                     />
                   )}
                 </motion.span>
-                <span className={cn('line-clamp-2 text-[12.5px] leading-tight transition-colors', isSel ? 'text-white' : status === 'depois' ? 'text-white/55' : 'text-white/80')}>
+                <span className={cn('line-clamp-2 text-[14px] leading-tight transition-colors', isSel ? 'text-white' : status === 'depois' ? 'text-white/55' : 'text-white/80')}>
                   {u.short}
                 </span>
               </motion.button>

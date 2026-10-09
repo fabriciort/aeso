@@ -93,7 +93,10 @@ Formação → Módulo → Unidade → Aula (story) → Prática
   - em cartão com tarefa, só avança depois da ação; aí aparece "Continuar".
 - **Voltar:** sempre permitido. Nada se perde.
 - **Palco contínuo:** o desenho não pisca de um cartão para o outro, ele **se transforma**. Esse é o diferencial em relação a um story comum.
-- **Texto:** o necessário para a explicação ficar completa. A tela tem tamanho fixo e não rola, então uma explicação longa se divide em vários cartões, e nunca é cortada para caber. A voz da Vega lê, se o aluno quiser.
+- **Texto mínimo** (princípio número 1 do `docs/DESIGN.md`).
+  - Quem explica é a animação e a manipulação; o texto é uma frase curta, em letra grande, que acompanha.
+  - Não há limite de cartões: uma explicação longa vira **mais cartões, cada um com pouco texto**, nunca um cartão cheio de palavras.
+  - A voz da Vega lê, se o aluno quiser.
 - **Sem rolagem**, sem cronômetro, no celular e no computador.
 
 ### Tipos de cartão (o "vocabulário" de toda aula)

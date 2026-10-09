@@ -1,5 +1,25 @@
 # Design e movimento
 
+## Princípio número 1: pouco texto
+
+Nosso aluno tem pouco tempo e pouco foco, como quase todo mundo hoje. Por isso, **o desenho explica e o texto só acompanha.**
+
+- **O que se mostra não se escreve.** Se o mapa, a animação ou o gesto já dizem, não há legenda repetindo.
+- **Uma frase curta por vez**, em letra grande:
+  - ≥ 17 px para o que se lê;
+  - ≥ 14 px para rótulos;
+  - nunca parágrafos cinza miúdos.
+- **Sem instruções do tipo "toque aqui para…"** quando o próprio elemento convida ao toque (brilho, movimento).
+- **Explicação longa vira sequência:** mais cartões, cada um com pouco texto, e nunca uma tela cheia de palavras.
+- **Antes de publicar uma tela, corte tudo o que puder sair** sem o aluno perder nada. O que sobra é o necessário.
+
+## Princípio número 2: aprender mexendo
+
+- **O aluno aprende interagindo**, não lendo. Toda ideia tem algo para tocar, arrastar ou prever.
+- **Toda ação tem resposta visual imediata** (em até 100 ms): o desenho muda junto com o dedo, o erro aparece no próprio desenho, o acerto acende.
+- **O feedback ensina:** não é só "certo/errado", é ver *por que*. A balança tomba, o pedaço não encaixa, a reta não passa pelo ponto.
+- **Cada lição é planejada cartão a cartão** antes de ser construída (roteiro em `docs/MATEMATICA.md`).
+
 ## Fundamentos
 
 - **Tema:** escuro ("céu noturno"), fundo `#030407`, superfícies de vidro fosco (`.glass`, `.glass-strong`).
