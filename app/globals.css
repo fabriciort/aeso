@@ -57,7 +57,7 @@
   }
 
   .eyebrow {
-    @apply text-[11px] font-medium uppercase tracking-[0.16em] text-white/40;
+    @apply text-[14px] font-medium text-white/50;
   }
 
   .chip {

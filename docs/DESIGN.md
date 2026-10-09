@@ -20,13 +20,23 @@ Nosso aluno tem pouco tempo e pouco foco, como quase todo mundo hoje. Por isso, 
 - **O feedback ensina:** não é só "certo/errado", é ver *por que*. A balança tomba, o pedaço não encaixa, a reta não passa pelo ponto.
 - **Cada lição é planejada cartão a cartão** antes de ser construída (roteiro em `docs/MATEMATICA.md`).
 
+## Identidade
+
+Detalhes e histórico em `docs/ESTUDO_UX.md`.
+
+- **Preto, branco e uma luz:** a interface é monocromática e a única cor de destaque é o âmbar "luz de estrela" (`#f6b74e`), que marca só o próximo passo.
+- **Cor só com significado:** concluído é branco sólido; próximo é âmbar; o resto é contorno discreto.
+- **Sem os vícios genéricos:** nada de caixa alta espaçada, bolinhas decorativas, arco-íris pastel, halos pulsando ou etiquetas empilhadas.
+- **Papel quadriculado:** a textura nossa, discreta, nas telas da formação.
+- **Sempre uma ação óbvia:** toda tela de entrada mostra o próximo passo, grande, no topo.
+
 ## Fundamentos
 
 - **Tema:** escuro ("céu noturno"), fundo `#030407`, superfícies de vidro fosco (`.glass`, `.glass-strong`).
 - **Tipografia:** Geist Sans (interface) e Geist Mono (números, coordenadas, identificadores). Títulos com `tracking` negativo (−0,02 a −0,045 em).
 - **Cor:** quase toda a interface é neutra. A cor de destaque é o azul `sky-300/400`. Cada missão do MAST tem uma cor fixa (`lib/missions.ts`). O âmbar (`#f6b74e`) indica "estrela/energia" nos laboratórios.
 - **Raios:** 22–28 px para cartões e painéis; `rounded-full` para botões e chips.
-- **Rótulos pequenos** usam `.eyebrow` (11 px, caixa alta, espaçamento 0,16 em).
+- **Rótulos** usam `.eyebrow` (14 px, letra normal, branco a 50 %).
 
 ## Movimento
 

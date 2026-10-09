@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion, useDragControls } from 'framer-motion'
-import { getModule, getUnit, MODULES, type ModuleId } from '@/lib/math/curriculum'
+import { getModule, getUnit, MODULES, unitStatus, type ModuleId } from '@/lib/math/curriculum'
 import { doneUnits, useFormationProgress } from '@/lib/math/formation-progress'
 import { rise, spring, stagger } from '@/lib/motion'
 import { useRouter } from '@/lib/observatory/router'
 import { useVegaScreen } from '@/lib/observatory/vega-context'
 import { cn } from '@/lib/utils'
-import { FormationMap } from '@/components/math/FormationMap'
+import { ArrowRight } from 'lucide-react'
+import { FormationMap, NEXT } from '@/components/math/FormationMap'
 import { UnitPanel } from '@/components/math/UnitPanel'
 
 // Matemática: the map of the Formação. Módulos on top, the prerequisite tree
@@ -65,11 +66,36 @@ export default function MathView() {
 
   const openLab = (slug: string) => navigate({ area: 'laboratorio', slug })
 
+  // The one obvious next action: the first recommended unit of the formation.
+  const next = MODULES.flatMap((m) => m.units).find((u) => unitStatus(u.id, done) === 'recomendada')
+  const goNext = () => {
+    if (!next) return
+    select(next.id)
+    requestAnimationFrame(() => document.querySelector(`[data-unit="${next.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
+  }
+
   return (
     <motion.div variants={stagger(0.06)} initial="hidden" animate="show" className="mx-auto max-w-6xl pb-16 pt-4">
       <motion.h1 variants={rise} className="text-[40px] font-semibold leading-none tracking-[-0.04em] text-white sm:text-[52px]">
         Matemática
       </motion.h1>
+
+      {next && (
+        <motion.button
+          variants={rise}
+          onClick={goNext}
+          className="focus-ring group mt-6 flex w-full items-center gap-4 rounded-[24px] bg-white/[0.05] p-4 text-left transition hover:bg-white/[0.08] active:scale-[0.99]"
+        >
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] text-[20px] font-semibold tabular-nums text-[#0b0904]" style={{ background: NEXT }}>
+            {next.n}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[14px] text-white/50">Próximo passo</span>
+            <span className="block truncate text-[20px] font-semibold tracking-[-0.02em] text-white">{next.title}</span>
+          </span>
+          <ArrowRight className="h-5 w-5 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-white" />
+        </motion.button>
+      )}
 
       {/* Módulos, in order. */}
       <motion.nav variants={rise} aria-label="Módulos" className="-mx-4 mt-6 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0">
@@ -83,11 +109,8 @@ export default function MathView() {
                   aria-current={active ? 'true' : undefined}
                   className={cn('focus-ring relative h-11 rounded-full px-5 text-[16px] transition-colors', active ? 'text-white' : 'text-white/50 hover:text-white/80')}
                 >
-                  {active && <motion.span layoutId="module-pill" transition={spring.snappy} className="absolute inset-0 rounded-full border border-white/15" style={{ background: `${m.color}1c` }} />}
-                  <span className="relative inline-flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full" style={{ background: m.color, opacity: m.planned ? 0.45 : 1 }} />
-                    {m.short}
-                  </span>
+                  {active && <motion.span layoutId="module-pill" transition={spring.snappy} className="absolute inset-0 rounded-full bg-white/[0.09]" />}
+                  <span className="relative">{m.short}</span>
                 </button>
               </li>
             )

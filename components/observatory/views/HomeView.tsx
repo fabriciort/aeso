@@ -180,7 +180,7 @@ export default function HomeView() {
               onClick={() => navigate({ area: 'matematica' })}
               className="focus-ring flex shrink-0 snap-start items-center gap-2.5 rounded-full border border-white/[0.07] bg-white/[0.03] py-2 pl-2 pr-4 text-left transition hover:border-white/20"
             >
-              <span className="grid h-7 w-7 place-items-center rounded-full text-[12px] font-semibold tabular-nums" style={{ background: `${t.color}1f`, color: t.color }}>
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-white/[0.08] text-[13px] font-semibold tabular-nums text-white/80">
                 {i + 1}
               </span>
               <span className="text-[14px] text-white/85">{t.title}</span>

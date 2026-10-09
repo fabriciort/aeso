@@ -217,7 +217,7 @@ export function StepFrame({
     <div className={cn('relative flex flex-col gap-3.5', continuous ? 'h-full justify-start pt-1 lg:justify-center' : 'shrink-0 lg:justify-center', !stage && !continuous && 'flex-1 justify-center')}>
       <Nudge id={id} text={nudge} voice={voice} />
       <div className="flex items-center gap-2">
-        <p className="min-w-0 flex-1 truncate text-[11px] font-medium uppercase tracking-[0.16em]" style={{ color: lab.accent }}>
+        <p className="min-w-0 flex-1 truncate text-[14px] font-medium" style={{ color: lab.accent }}>
           {stepLabel(step)} <span className="text-white/35">· {step.title}</span>
         </p>
         <VoiceButton id={id} textRef={textRef} narration={narration} />
