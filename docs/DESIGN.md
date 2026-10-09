@@ -75,7 +75,11 @@ Laboratórios novos têm um único palco que atravessa todas as etapas e se tran
 
 ## Matemática
 
-- As trilhas aparecem como um caminho vertical numerado; cada trilha tem sua cor, que vira o `accent` dos seus laboratórios. Os laboratórios prontos vêm primeiro; os "em breve" ficam esmaecidos, para o aluno ver o caminho inteiro.
+- O **mapa da formação** é uma árvore de pré-requisitos.
+  - As unidades são quadrados arredondados com o número em mono e o nome embaixo, na cor da parte do módulo.
+  - As ligações são curvas finas. As longas correm em faixas próprias e nunca atravessam outra unidade.
+  - Ao tocar numa unidade, a cadeia de pré-requisitos acende na cor dela, o que ela abre aparece pontilhado e o resto esmaece.
+  - A unidade recomendada agora pulsa devagar. Nada é bloqueado: o mapa recomenda, nunca proíbe.
 - No palco: fundo de grade leve, eixos discretos, a curva principal em branco, o objeto da ideia (tangente, retângulos, vetor) na cor do laboratório, dados reais em azul-claro (`#7dd3fc`).
 - Fórmulas em KaTeX herdam a cor do texto. Frações em opções de escolha usam `\displaystyle`; no Caderno, o estilo de texto, para caber.
 

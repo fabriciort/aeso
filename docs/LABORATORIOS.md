@@ -93,7 +93,7 @@ Se o laboratório usa dados de telescópio, declare um `target` e crie uma rota 
 
 ## 5. Laboratórios de Matemática
 
-Mesmo formato (etapas, cenas, palco contínuo, voz, dicas), com `area: 'Matemática'` e `track` (veja `lib/labs/math.ts`, onde ficam as trilhas e a ordem dos laboratórios). A rota é `/app/matematica/<slug>`.
+Mesmo formato (etapas, cenas, palco contínuo, voz, dicas), com `area: 'Matemática'`. Registre o laboratório em `lib/labs/math.ts` e ligue-o à unidade que ele fecha com `lab: '<slug>'` em `lib/math/curriculum.ts`. A rota é `/app/matematica/<slug>`.
 
 - **Pedagogia:** concreto → visual → simbólico. A fórmula aparece como resumo do que o aluno já viu e manipulou, nunca antes. Antes de cada revelação, o aluno prevê.
 - **Resolva:** pelo menos um problema resolvido passo a passo. A cada passo o aluno escolhe a próxima operação entre 2–4 opções, cujos distratores são erros comuns; a escolha errada é explicada com gentileza e mostrada no palco. A ajuda diminui do 1º ao 3º problema. O **Caderno** no palco escreve uma linha em Tex por passo certo.

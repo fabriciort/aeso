@@ -440,17 +440,46 @@ Os nomes e as situações são diversos e respeitosos: adulto falando com adulto
 - **Avaliação final** no estilo da prova do ENCCEJA Ensino Fundamental.
 - **Certificado de conclusão AESo** e o encaminhamento para o ENCCEJA.
 
-### Pré-requisitos (resumo)
+### Pré-requisitos
+
+A fonte de verdade é `lib/math/curriculum.ts`: cada unidade e cada aula declaram o que exigem. Os testes (`tests/curriculum.test.ts`) garantem que:
+- não há ciclos;
+- toda referência existe;
+- uma aula só usa aulas de unidades anteriores a ela no grafo.
+
+Escrever esses testes revelou quatro lacunas no plano, já corrigidas:
+- U10 (Razão e proporção) agora exige U9 (Medidas): concentração usa mg e mL.
+- U13 (Potências e raízes) agora exige U9: notação científica usa decimais, e a raiz quadrada nasce da área.
+- U14 (Linguagem algébrica) agora exige U13: x · x = x².
+- U19 (Estatística) agora exige U13: o desvio padrão usa raiz quadrada.
 
 ```
-U1 ─ U2 ─ U3 ─ U4 ─ U5
-            └─ U6 ─ U7 Frações ─┬─ U8 Decimais ─ U9 Medidas
-                                ├─ U10 Proporção ─ U11 Porcentagem
-                                └─ U12 Negativos ─ U13 Potências
-U14 Linguagem algébrica (U5, U7, U12) ─ U15 Equações
-U16 Geometria (U3, U4, U8, U13) ─ U17 Sólidos
-U18 Gráficos e função (U10, U12, U15)   U19 Estatística (U7, U8, U11)
+U0 ─ U1 ─ U2 ─ U3 ─ U4 ─┬─ U5 Expressões ──────────────┐
+                        └─ U6 Múltiplos ─ U7 Frações ─┬─ U12 Negativos
+                                                      └─ U8 Decimais ─ U9 Medidas ─┬─ U10 Proporção ─ U11 Porcentagem
+U13 Potências (U9, U12) ─┬─ U14 Linguagem algébrica ─ U15 Equações                 │
+                         ├─ U16 Geometria ─ U17 Sólidos                            │
+                         └─ U19 Estatística (U11)                                  │
+U18 Gráficos e função (U10, U12, U15)  ────────────────────────────────────────────┘
+U20 Projeto final (U9, U11, U15, U17, U18, U19)
 ```
+
+### O mapa no app
+
+Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requisitos**:
+- **Módulos no topo:** os sete, em ordem. O aluno escolhe um.
+- **Árvore do módulo:** pré-requisitos sempre acima. Só aparecem as ligações essenciais; uma ligação que já está implícita em outro caminho fica de fora, para a árvore continuar legível no celular. Ligações longas correm em faixas próprias e nunca atravessam outra unidade.
+- **Cores:** cada unidade tem a cor da sua parte (A a F).
+- **Status de cada unidade:**
+  - **concluída:** preenchida, com um ✓;
+  - **recomendada agora:** brilha, porque o aluno já tem a base;
+  - **recomendada depois:** mais apagada.
+  - **Nada é bloqueado.** O app recomenda e explica o porquê, mas não proíbe.
+- **Tocar numa unidade:**
+  - acende, na cor dela, toda a cadeia do que ela exige;
+  - mostra pontilhado o que ela abre;
+  - abre o painel (gaveta no celular, painel lateral no desktop) com o objetivo, o que falta antes, o que vem depois e as aulas. Cada aula mostra a aula de outra unidade que ela usa.
+- **Pré-requisitos de outros módulos:** aparecem como uma etiqueta "vem de…" acima da unidade. Tocar num deles leva ao outro módulo.
 
 **Cobertura do que o Módulo 2 exige:**
 
