@@ -28,6 +28,7 @@ Você escreve o conteúdo no formato do contrato `lib/formation/schema.ts`. A ou
    - `content/matematica/basica/u01/a02-zero-guarda-lugar.ts`;
    - `content/matematica/geradores/valor-posicional.ts`;
    - `tests/geradores-u01.test.ts`.
+7. `docs/PLAYER.md`: como o player mostra cada cartão e quais chaves de `estado` cada modelo já entende. Use essas chaves; se precisar de outra, peça no PR.
 
 ## Onde você escreve
 

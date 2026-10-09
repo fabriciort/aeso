@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { viewTransition } from '@/lib/motion'
 import { useImmersive } from '@/lib/observatory/immersive'
@@ -18,6 +19,16 @@ import LabsView from './views/LabsView'
 import LabView from './views/LabView'
 import MathView from './views/MathView'
 import SkyView from './views/SkyView'
+
+// The lesson player (and KaTeX with it) loads only when a lesson opens.
+const AulaView = dynamic(() => import('./views/AulaView'), {
+  ssr: false,
+  loading: () => (
+    <div className="grid h-[100svh] place-items-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
+    </div>
+  ),
+})
 
 // O Observatório: one continuous environment. Areas swap in place with a
 // crossfade; the URL follows along so links and back/forward work.
@@ -51,7 +62,8 @@ function Shell() {
     setStage(!onboarded && area === 'inicio' ? 'welcome' : 'ready')
   }, [])
 
-  const key = route.area === 'laboratorio' ? `lab:${route.slug}` : route.area
+  const key = route.area === 'laboratorio' ? `lab:${route.slug}` : route.area === 'aula' ? `aula:${route.id}` : route.area
+  const fullscreen = route.area === 'laboratorio' || route.area === 'aula'
   const immersive = useImmersive()
   // Inside a lab in fullscreen the rail disappears: nothing but the lab.
   const focus = route.area === 'laboratorio' && immersive
@@ -65,7 +77,7 @@ function Shell() {
 
   return (
     <div style={{ '--rail': focus ? '0px' : '84px' } as React.CSSProperties}>
-      <Starfield dimmed={route.area === 'laboratorio' || route.area === 'ceu'} />
+      <Starfield dimmed={fullscreen || route.area === 'ceu'} />
       <AnimatePresence>{stage === 'boot' && <Boot key="boot" onDone={onBooted} />}</AnimatePresence>
       <AnimatePresence>
         {stage === 'welcome' && (
@@ -81,7 +93,7 @@ function Shell() {
 
       {!focus && <Rail />}
       <TabBar />
-      <main className={cn('min-h-dvh px-4 sm:px-6 lg:pr-10', route.area === 'laboratorio' ? 'pb-0 pt-0' : 'pb-28 pt-3 lg:pb-10', focus ? 'lg:pl-10' : 'lg:pl-[calc(84px+40px)]')}>
+      <main className={cn('min-h-dvh px-4 sm:px-6 lg:pr-10', fullscreen ? 'pb-0 pt-0' : 'pb-28 pt-3 lg:pb-10', focus ? 'lg:pl-10' : 'lg:pl-[calc(84px+40px)]')}>
         <AnimatePresence mode="wait" initial={false}>
           {stage !== 'boot' && (
             <motion.div key={key} variants={viewTransition} initial="initial" animate="enter" exit="exit">
@@ -90,6 +102,7 @@ function Shell() {
               {route.area === 'laboratorios' && <LabsView />}
               {route.area === 'matematica' && <MathView />}
               {route.area === 'laboratorio' && <LabView slug={route.slug} stepId={route.step} />}
+              {route.area === 'aula' && <AulaView id={route.id} />}
             </motion.div>
           )}
         </AnimatePresence>

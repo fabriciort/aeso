@@ -157,3 +157,14 @@ input,
 .tex.block .katex-display {
   margin: 0.2em 0;
 }
+
+/* Caderno: a página quadriculada das aulas (Anote, Caderno, passo a passo). */
+.caderno {
+  background-color: rgb(255 255 255 / 0.035);
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+}

@@ -19,6 +19,7 @@ const ITEMS: { area: 'inicio' | 'ceu' | 'laboratorios' | 'matematica'; label: st
 
 function activeArea(r: Route) {
   if (r.area === 'laboratorio') return isMathLab(getLab(r.slug)) ? 'matematica' : 'laboratorios'
+  if (r.area === 'aula') return 'matematica'
   return r.area
 }
 
@@ -67,7 +68,7 @@ export function Rail() {
 export function TabBar() {
   const { route, navigate } = useRouter()
   const { setOpen } = useVega()
-  if (route.area === 'laboratorio') return null
+  if (route.area === 'laboratorio' || route.area === 'aula') return null
   const active = activeArea(route)
   return (
     <nav aria-label="Áreas do Observatório" className="fixed inset-x-3 bottom-[max(env(safe-area-inset-bottom),10px)] z-40 lg:hidden">

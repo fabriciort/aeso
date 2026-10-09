@@ -28,6 +28,7 @@
 | [docs/LABORATORIOS.md](docs/LABORATORIOS.md) | Como criar um novo laboratório |
 | [docs/MATEMATICA.md](docs/MATEMATICA.md) | Plano da Formação em Matemática (estrutura, aulas, exercícios) |
 | [docs/CONTEUDO.md](docs/CONTEUDO.md) | Diretrizes e formato do conteúdo das aulas |
+| [docs/PLAYER.md](docs/PLAYER.md) | O player de aulas: como cada cartão e cada modelo aparecem na tela |
 | [docs/ESTUDO_UX.md](docs/ESTUDO_UX.md) | Estudo de caso de identidade e experiência |
 | [AGENTS.md](AGENTS.md) | Instruções para o agente que escreve o conteúdo |
 | [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Estrutura do código, IA, fontes de dados, modo offline |

@@ -14,14 +14,25 @@ import { NEXT } from './FormationMap'
 export function UnitPanel({
   unit,
   done,
+  lessonsDone = {},
+  available = new Set(),
   onSelect,
   onOpenLab,
+  onOpenLesson,
 }: {
   unit: Unit
   done: Set<string>
+  /** Lesson id → when it was done. */
+  lessonsDone?: Record<string, string>
+  /** Lessons whose content is ready. */
+  available?: Set<string>
   onSelect: (id: string) => void
   onOpenLab: (slug: string) => void
+  onOpenLesson?: (id: string) => void
 }) {
+  const ready = unit.lessons.filter((l) => available.has(l.id))
+  const nextLesson = ready.find((l) => !lessonsDone[l.id])
+  const cta = !ready.length ? null : nextLesson ? (ready.some((l) => lessonsDone[l.id]) ? 'Continuar' : 'Começar') : 'Rever'
   const status = unitStatus(unit.id, done)
   const next = unlocks(unit.id)
   const lab = unit.lab ? getLab(unit.lab) : undefined
@@ -64,10 +75,20 @@ export function UnitPanel({
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.03 * i, type: 'spring', stiffness: 260, damping: 30 }}
-                className="flex items-center gap-3 border-t border-white/[0.06] py-3 first:border-t-0"
+                className="flex items-center gap-3 border-t border-white/[0.06] first:border-t-0"
               >
-                <span className="w-5 shrink-0 font-mono text-[14px] tabular-nums text-white/35">{i + 1}</span>
-                <span className="min-w-0 flex-1 text-[17px] leading-snug text-white/90">{l.title}</span>
+                {available.has(l.id) && onOpenLesson ? (
+                  <button onClick={() => onOpenLesson(l.id)} className="focus-ring group -mx-2 flex min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-3 text-left transition hover:bg-white/[0.04]">
+                    <span className="grid w-5 shrink-0 place-items-center font-mono text-[14px] tabular-nums text-white/50">{lessonsDone[l.id] ? <Check className="h-4 w-4 text-white" /> : i + 1}</span>
+                    <span className="min-w-0 flex-1 text-[17px] leading-snug text-white">{l.title}</span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-white/35 transition group-hover:translate-x-0.5 group-hover:text-white" />
+                  </button>
+                ) : (
+                  <span className="flex min-w-0 flex-1 items-center gap-3 py-3">
+                    <span className="w-5 shrink-0 font-mono text-[14px] tabular-nums text-white/35">{i + 1}</span>
+                    <span className="min-w-0 flex-1 text-[17px] leading-snug text-white/60">{l.title}</span>
+                  </span>
+                )}
                 {uses.map((u) => (
                   <button
                     key={u.id}
@@ -99,7 +120,17 @@ export function UnitPanel({
         </button>
       )}
 
-      <div className="rounded-full bg-white/[0.06] py-3.5 text-center text-[16px] text-white/50">Em breve</div>
+      {cta && onOpenLesson ? (
+        <button
+          onClick={() => onOpenLesson((nextLesson ?? ready[0]).id)}
+          className="focus-ring flex h-14 items-center justify-center gap-2 rounded-full text-[17px] font-medium text-[#0b0904] transition active:scale-[0.98]"
+          style={{ background: cta === 'Rever' ? '#f4f4f5' : NEXT }}
+        >
+          {cta} <ArrowRight className="h-5 w-5" />
+        </button>
+      ) : (
+        <div className="rounded-full bg-white/[0.06] py-3.5 text-center text-[16px] text-white/50">Em breve</div>
+      )}
     </div>
   )
 }
