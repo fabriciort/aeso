@@ -36,7 +36,7 @@ Conteúdo riquíssimo **não é conteúdo longo**. É conteúdo em que cada cart
 5. **Papel na mão.**
    - O cartão "caderno" pede que ele resolva no papel e depois confira.
    - O cartão "anote" diz exatamente o que copiar: definição, exemplo, alerta.
-6. **Uma aula, um conceito.** Sem limite de cartões: use quantos o conceito pedir. Mas um conceito por aula, para o aluno saber o que aprendeu.
+6. **Uma aula, um conceito.** Sem limite rígido de cartões, mas com ritmo (veja "Ritmo"). Um conceito por aula, para o aluno saber o que aprendeu.
 
 ## Pouco texto, muita interação
 
@@ -51,6 +51,17 @@ Princípios 1 e 2 de `docs/DESIGN.md`:
 | "Agora vamos aprender sobre o valor posicional, que é um conceito muito importante na matemática e que nos ajuda a entender como os números são formados." | "**305** e **35** usam o 3 e o 5. Por que um vale quase dez vezes o outro?" |
 | "Muito bem! Você acertou! Parabéns pelo seu excelente desempenho!" | "Isso. O zero segura o 3 na casa das centenas." |
 | "Errado. Tente novamente." | "Esse é o algarismo. Olhe os blocos: 7 barras de 10." |
+
+## Ritmo
+
+A aula tem de andar. Cada toque em "Continuar" que não traz nada novo é tempo perdido e cansa.
+
+- **No máximo 2 cartões só de leitura seguidos** (gancho, ideia, anote, fecho). Os testes cobram.
+- **Não repita a explicação.** Se a opção da aposta já explicou ("Isso. Na reta, quem fica à direita é o maior."), não faça em seguida uma "ideia" dizendo o mesmo: siga para o próximo passo.
+- **O "anote" dá o nome e a definição.** Não faça antes uma "ideia" com a mesma frase.
+- **Dois cartões curtos sobre a mesma coisa viram um.** Um toque a menos.
+- **Tamanho de referência:** de 10 a 16 cartões, de 5 a 8 minutos. Passou muito disso? Provavelmente são dois conceitos: proponha duas aulas.
+- **A unidade 0 (orientação) é curta.** O aluno veio aprender matemática.
 
 ## Tom e linguagem
 
@@ -169,6 +180,7 @@ O contrato é `lib/formation/schema.ts` (tipos comentados). Os arquivos:
 - [ ] O passo a passo deixa o aluno escolher cada passo, e o caderno conferir.
 - [ ] Os geradores cobrem do nível 1 ao 3, com testes de cálculo independente.
 - [ ] Cada cartão tem uma frase curta; nada que o visual já mostra.
+- [ ] Ritmo: nenhuma "ideia" repete a explicação anterior; no máximo 2 cartões de leitura seguidos.
 - [ ] Li cada frase em voz alta: entende-se de primeira, sem jargão, sem códigos (U1) e sem "exemplo imaginado".
 - [ ] Os esboços dizem como você imagina o visual e o movimento, e qual é o momento-chave.
 - [ ] O campo `vega` explica a ideia central, os erros esperados e como guiar sem entregar.

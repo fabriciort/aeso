@@ -56,48 +56,6 @@ export const aula: Aula = {
       esboco: 'Momento-chave: cobrir a resolução e abrir uma questão diferente da mesma ideia. A ausência de passos próprios vira uma pista útil, sem humilhar quem precisa retomar.',
     },
     {
-      tipo: 'ideia',
-      texto: 'Tente sozinho. Confira. Depois tente de novo, agora sem olhar a resolução.',
-      visual: percurso('tentar de novo', 'As fichas ganham uma terceira estação: uma folha nova, após a conferência. A seta volta à ideia se a tentativa ainda não avançar.'),
-      esboco: 'Dar nome à sequência que o aluno acabou de prever. Manter os objetos concretos no percurso: lápis, conferência e página nova.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Tenha do lado um **caderno quadriculado**, lápis e borracha. Os quadradinhos ajudam a alinhar as contas.',
-      visual: mesa({ materiais: ['caderno quadriculado', 'lápis', 'borracha'], colunasAlinhadas: true }, 'Abrir o caderno e alinhar três espaços verticais na quadricula. A borracha muda um traço específico, preservando o raciocínio já registrado.'),
-      esboco: 'Apresentar cada material pela função que cumpre. A quadricula sustenta o alinhamento; a borracha não apaga o esforço inteiro.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Cada unidade começa numa página nova, com o título no alto. Ali você anota as definições e os exemplos.',
-      visual: mesa({ pagina: { titulo: 'Comece aqui', blocos: ['definição', 'exemplo', 'cuidado'] } }, 'A página vira para uma folha nova. O título fica no topo, seguido de três espaços separados para o Anote; deixar margem para rascunhar.'),
-      esboco: 'Mostrar uma organização que o aluno pode copiar, sem exigir caderno perfeito. O modelo se repete nas unidades seguintes.',
-    },
-    {
-      tipo: 'aposta',
-      pergunta: 'Hoje você está sem o caderno. Dá para estudar mesmo assim?',
-      visual: mesa({ papelDisponivel: false, materiais: ['lápis', 'celular'] }, 'O caderno se afasta; a superfície da tela mantém uma grade leve e um lápis digital. Não sugerir que o recurso já foi implementado: é o desenho proposto para o player.'),
-      opcoes: [
-        {
-          texto: 'Sim. Escrevo numa folha qualquer ou nas notas do celular', certa: true,
-          explica: 'Isso. O caderno ajuda, mas o importante é escrever sua tentativa em algum lugar.',
-          mostra: mesa({ materiais: ['folha solta', 'celular'], tentativaRegistrada: true }, 'O mesmo traço antes visto no papel aparece no rascunho. Conservar a comparação com a resolução sem exigir transcrição no momento.'),
-        },
-        {
-          texto: 'Não. Sem caderno, melhor deixar para outro dia', erro: 'estudo-sem-papel',
-          explica: 'O caderno ajuda, mas não é obrigatório. Qualquer folha serve para escrever sua tentativa.',
-          mostra: mesa({ materiais: ['caderno', 'folha solta', 'celular'], finalidade: 'registrar tentativa' }, 'Papel e tela ficam lado a lado, ambos com uma tentativa registrada. O aluno vê a função compartilhada dos dois suportes.'),
-        },
-      ],
-      esboco: 'Evitar transformar os materiais recomendados numa barreira de entrada. Propor rascunho desenhável, com alternativa por teclado, e retorno ao caderno quando possível.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Travou? A **Vega** dá dicas, uma de cada vez. Se quiser, ela também lê as aulas em voz alta.',
-      visual: mesa({ dicas: ['ideia', 'primeiro passo', 'resolução'], vozLigada: false }, 'Três abas de dica, abertas apenas sob pedido. O controle de voz começa desligado; ligar áudio não abre dica nem entrega resposta.'),
-      esboco: 'Separar a escolha de ouvir da escolha de pedir ajuda. A primeira aba orienta o olhar, a segunda inicia um passo, a terceira abre resolução; registrar apoio na prática.',
-    },
-    {
       tipo: 'anote',
       titulo: 'Estudo ativo',
       definicao: 'Estudo ativo é tentar sozinho, conferir e tentar de novo sem olhar a resolução.',
@@ -106,73 +64,10 @@ export const aula: Aula = {
       esboco: 'A página-modelo recebe os três blocos do Anote. Deixar a definição igual nas retomadas; o exemplo é uma sequência, sem usar igualdade entre ações.',
     },
     {
-      tipo: 'passo',
-      problema: 'Você travou num exercício. Já escreveu uma parte no caderno. E agora?',
-      visual: mesa({ tentativaRegistrada: true, dicaAberta: null, resolucaoAberta: false }, 'Uma tentativa parcial permanece no caderno, com a linha onde houve dúvida. Vega aponta para essa linha, sem preencher o resultado.'),
-      passos: [
-        {
-          pergunta: 'Como pedir ajuda?',
-          opcoes: [
-            {
-              texto: 'Mostrar onde travei e pedir uma dica', certa: true,
-              explica: 'Isso. A dica parte do que você já fez e destrava o próximo passo.',
-              mostra: mesa({ tentativaRegistrada: true, apoio: 'pista' }, 'Destacar só a linha da dúvida e abrir a primeira aba de dica. A linha seguinte permanece vazia para a tentativa do aluno.'),
-            },
-            {
-              texto: 'Abrir a resolução e copiar tudo', erro: 'estudo-dica-resposta',
-              explica: 'Copiando, você não descobre onde travou. Com uma dica, o próximo passo continua sendo seu.',
-              mostra: mesa({ comparacao: ['copiar tudo', 'pedir uma dica'] }, 'Cobrir a cópia completa e deixar a tentativa parcial com um espaço para o próximo passo. Mostrar que a pista orienta sem preencher todo o registro.'),
-            },
-          ],
-          linha: { tex: '\\text{Onde travei} \\longrightarrow \\text{peço uma dica}', fala: 'mostro onde travei e peço uma dica' },
-        },
-        {
-          pergunta: 'Você conferiu a resolução. Como saber se aprendeu?',
-          opcoes: [
-            {
-              texto: 'Fechar a resolução e tentar outra questão', certa: true,
-              explica: 'Isso. Se você resolve outra sem olhar, aprendeu.',
-              mostra: percurso('tentar de novo', 'A aba da resolução se fecha e outra questão da mesma ideia entra numa página limpa. Preservar a tentativa anterior para comparar depois.'),
-            },
-            {
-              texto: 'Reler a resolução e seguir em frente', erro: 'estudo-so-observar',
-              explica: 'Reler não testa nada. Tente outra questão sem olhar.',
-              mostra: percurso('tentar de novo', 'Uma folha só relida não tem passos próprios; uma folha nova convida a produzi-los. O contraste se faz pelo registro, sem ícone de fracasso.'),
-            },
-          ],
-          linha: { tex: '\\text{Conferi} \\longrightarrow \\text{tento outra sem olhar}', fala: 'depois de conferir, tento outra sem olhar' },
-        },
-      ],
-      esboco: 'Guiar decisões, sem ensinar matemática antes do diagnóstico. Cada escolha muda a folha e a aba de apoio para tornar sua consequência visível.',
-    },
-    {
-      tipo: 'caderno',
-      instrucao: 'No papel, escreva os 3 passos do estudo ativo. Depois digite aqui o primeiro.',
-      resposta: 'tentar',
-      resolucao: [
-        { tex: '\\text{1. Tentar sozinho.}', fala: 'um: tentar sozinho' },
-        { tex: '\\text{2. Conferir com a resolução.}', fala: 'dois: conferir com a resolução' },
-        { tex: '\\text{3. Tentar de novo, sem olhar.}', fala: 'três: tentar de novo, sem olhar' },
-      ],
-      esboco: 'Pedir os três passos no papel; o primeiro, digitado, confere a ordem. A resolução numerada serve para comparar com o que o aluno escreveu.',
-    },
-    {
       tipo: 'ideia',
-      texto: 'Você escolhe o ritmo. Pode sair quando quiser: a aula continua de onde parou.',
-      visual: percurso('tentar', 'A tentativa permanece quando o percurso pausa. Ao voltar, a mesma linha ainda aparece; oferecer retornar à ideia sem retirar o que já foi feito.'),
-      esboco: 'Propor preservação do estado no player. Não usar cronômetro, penalidade por pausa ou promessa de progresso salvo antes dessa integração existir.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Já sabe o assunto de uma aula? No começo dela, toque em **Já sei isso** e vá direto aos exercícios.',
-      visual: mesa({ atalho: 'Já sei isso', destino: 'Sua vez', dominioAutomatico: false }, 'Uma ligação encurta o caminho até a prática, preservando uma seta de retorno à explicação. O atalho não acende selo de domínio.'),
-      esboco: 'Proposta de navegação: pular a exposição, fazer tentativas e voltar à ideia se precisar. Na orientação, os itens verificam a rotina de estudo; a matemática será verificada na U1.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Para revisar, refaça uma questão antiga sem olhar. Só depois confira.',
-      visual: percurso('revisar', 'Uma folha antiga volta fechada, sem resposta visível. Após a tentativa, abrir a conferência e desenhar um retorno à ideia quando necessário.'),
-      esboco: 'Revisar pela recuperação, sem repetir só leitura. O agendamento futuro segue 1, 3, 7 e 21 dias; não exibir notificações ou calendário como recurso implementado.',
+      texto: 'Travou? A **Vega** dá dicas, uma de cada vez. Já sabe o assunto? No começo da aula, toque em **Já sei isso**.',
+      visual: mesa({ dicas: ['ideia', 'primeiro passo', 'resolução'], vozLigada: false }, 'Três abas de dica, abertas apenas sob pedido. O controle de voz começa desligado; ligar áudio não abre dica nem entrega resposta.'),
+      esboco: 'Separar a escolha de ouvir da escolha de pedir ajuda. A primeira aba orienta o olhar, a segunda inicia um passo, a terceira abre resolução; registrar apoio na prática.',
     },
     {
       tipo: 'sua-vez',
@@ -181,8 +76,8 @@ export const aula: Aula = {
     },
     {
       tipo: 'fecho',
-      texto: 'É assim que se estuda aqui: tentar, conferir, tentar de novo. Agora, umas perguntas rápidas para ver por onde você começa.',
-      visual: percurso('tentar', 'Retornar à mesa do gancho, agora com uma tentativa própria e um plano de retomada. Ao lado, cinco cartões da U1 ainda sem marcas de domínio.'),
+      texto: 'Para aprender de verdade: tente, confira e tente de novo. Deixe do lado um **caderno quadriculado**, lápis e borracha.',
+      visual: mesa({ materiais: ['caderno quadriculado', 'lápis', 'borracha'] }, 'Retornar à mesa do gancho, agora com uma tentativa própria e um plano de retomada. Ao lado, cinco cartões da U1 ainda sem marcas de domínio.'),
       esboco: 'Responder à pergunta inicial pela rotina que ficou visível. Fazer a ponte para o diagnóstico sem apresentar os acertos de orientação como prova de capacidade matemática.',
     },
   ],
