@@ -20,8 +20,10 @@ export function Fit({ size, min = 12, className, children }: { size: number; min
       setFs(ratio < 1 ? Math.max(min, Math.floor(size * ratio * 0.98)) : size)
     }
     fit()
+    // The formula renders after KaTeX loads: watch the inner line too.
     const ro = new ResizeObserver(fit)
     ro.observe(o)
+    ro.observe(i)
     return () => ro.disconnect()
   }, [size, min, children])
   return (

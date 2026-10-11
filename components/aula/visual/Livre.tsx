@@ -1,7 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, Eraser, Grid3x3, NotebookPen, Pencil, Smartphone } from 'lucide-react'
+import { ArrowRight, Check, Eraser, Grid3x3, NotebookPen, Pencil, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Modelo livre: quando nenhum modelo-âncora serve (U0: como estudar). Mostra
@@ -10,6 +10,10 @@ import { cn } from '@/lib/utils'
 // desenham nada: o cartão fica só com o texto.
 
 export interface LivreState {
+  /** A jornada da formação: as paradas, a atual e (opcional) as já feitas. */
+  jornada?: string[]
+  aqui?: number
+  feitas?: number
   etapas?: string[]
   etapa?: string
   materiais?: string[]
@@ -35,13 +39,15 @@ export interface LivreInteract {
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
-export function Livre({ s, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
+export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
-      {s.fichas && s.lugares ? (
+      {s.jornada ? (
+        <Jornada paradas={s.jornada} aqui={s.aqui ?? 0} feitas={s.feitas ?? 0} h={size.h} />
+      ) : s.fichas && s.lugares ? (
         <Ordenar fichas={s.fichas} lugares={s.lugares} order={it.order ?? []} onFicha={it.onFicha} wrong={it.wrong} />
       ) : s.etapas ? (
         <Ciclo etapas={s.etapas} atual={s.etapa} />
@@ -153,5 +159,67 @@ function Ordenar({ fichas, lugares, order, onFicha, wrong }: { fichas: string[];
         ))}
       </div>
     </div>
+  )
+}
+
+/**
+ * The journey of the formation: a path of stops, from counting to Calculus.
+ * The stops already done are checked, the current one is lit and says "você
+ * está aqui", the ones ahead wait, dim. The path draws itself on arrival.
+ */
+function Jornada({ paradas, aqui, feitas, h }: { paradas: string[]; aqui: number; feitas: number; h: number }) {
+  const row = Math.max(26, Math.min(46, (h - 24) / paradas.length))
+  const dot = Math.min(22, row * 0.55)
+  return (
+    <ol className="relative flex flex-col" style={{ gap: 0 }} aria-label="A jornada da formação">
+      {/* The path behind the stops. */}
+      <motion.span
+        aria-hidden
+        className="absolute w-[2px] origin-top rounded-full bg-white/15"
+        style={{ left: dot / 2 - 1, top: row / 2, height: row * (paradas.length - 1) }}
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.span
+        aria-hidden
+        className="absolute w-[2px] origin-top rounded-full bg-white/80"
+        style={{ left: dot / 2 - 1, top: row / 2 }}
+        initial={{ height: 0 }}
+        animate={{ height: row * Math.max(0, aqui) }}
+        transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      />
+      {paradas.map((p, i) => {
+        const done = i < Math.max(feitas, aqui)
+        const on = i === aqui
+        return (
+          <motion.li
+            key={p}
+            className="relative flex items-center gap-4"
+            style={{ height: row }}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.12 + i * 0.07, duration: 0.35 }}
+          >
+            <span
+              className={cn(
+                'relative grid shrink-0 place-items-center rounded-full transition-colors duration-500',
+                on ? 'bg-[#f6b74e]' : done ? 'bg-white' : 'border-2 border-white/20 bg-[#05060a]',
+              )}
+              style={{ width: dot, height: dot }}
+            >
+              {on && <motion.span aria-hidden className="absolute inset-0 rounded-full bg-[#f6b74e]" animate={{ scale: [1, 1.9], opacity: [0.5, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }} />}
+              {done && !on && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
+            </span>
+            <span className={cn('text-[17px] leading-none transition-colors duration-500', on ? 'font-semibold text-white' : done ? 'text-white/70' : 'text-white/40')}>{p}</span>
+            {on && (
+              <motion.span initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }} className="rounded-full bg-[#f6b74e]/15 px-2.5 py-1 text-[13px] font-medium leading-none text-[#f6b74e]">
+                você está aqui
+              </motion.span>
+            )}
+          </motion.li>
+        )
+      })}
+    </ol>
   )
 }

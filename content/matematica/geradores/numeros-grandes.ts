@@ -7,10 +7,15 @@ const nome = (escala: number, quantidade: number) => {
   return quantidade === 1 ? 'milhar' : 'milhares'
 }
 
+// Como se fala: "3 mil", "mil", "12 milhões". A casa vazia não é dita.
+const termo = (quantidade: number, escala: number) =>
+  escala === 1_000 ? (quantidade === 1 ? 'mil' : `${quantidade} mil`) : `${quantidade} ${nome(escala, quantidade)}`
+const juntar = (partes: string[]) => (partes.length < 2 ? partes.join('') : `${partes.slice(0, -1).join(', ')} e ${partes[partes.length - 1]}`)
+
 function montar(maior: number, escala: number, unidades: number, nivel: 1 | 2): Item {
   const total = maior * escala + unidades
   return {
-    enunciado: `Escreva com algarismos: ${maior} ${nome(escala, maior)} e ${unidades} unidades.`,
+    enunciado: `Escreva com algarismos: ${juntar([termo(maior, escala), ...(unidades ? [String(unidades)] : [])])}.`,
     formato: 'numero',
     resposta: total,
     erros: {
@@ -21,7 +26,7 @@ function montar(maior: number, escala: number, unidades: number, nivel: 1 | 2): 
     dicas: [
       'Cada classe tem 3 casas. Comece pelas unidades, à direita.',
       `Reserve a classe dos ${nome(escala, 2)}. As casas vazias levam zero.`,
-      `${maior} ${nome(escala, maior)} e ${unidades} unidades: ${escrito(total)}. Os zeros seguram cada grupo no lugar.`,
+      `${juntar([termo(maior, escala), ...(unidades ? [String(unidades)] : [])])}: ${escrito(total)}. Os zeros seguram cada grupo no lugar.`,
     ],
     visual: {
       modelo: 'quadro-posicional',
@@ -117,7 +122,7 @@ export const numerosGrandesN3: Gerador = {
       if (valor !== String(total) && !(valor in erros)) erros[valor] = erro
     }
     return {
-      enunciado: `Uma obra vai custar ${maior} ${nome(escala, maior)}, ${meio} ${nome(escalaMeio, meio)} e ${unidades} reais. Escreva esse valor com algarismos.`,
+      enunciado: `Uma obra vai custar ${juntar([termo(maior, escala), ...(meio ? [termo(meio, escalaMeio)] : []), ...(unidades ? [String(unidades)] : [])])}${unidades ? ' reais' : meio ? ' reais' : ' de reais'}. Escreva esse valor com algarismos.`,
       formato: 'numero',
       resposta: total,
       erros,

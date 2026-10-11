@@ -31,11 +31,13 @@ O aluno pode sair e voltar: a aula retoma no cartão em que parou. O último car
 
 **Como num story:** nos cartões só de leitura (gancho, ideia, anote, fecho), um toque em qualquer lugar da tela segue; um toque no terço esquerdo volta.
 
-**Fim da aula:** "Concluir" mostra "Aula concluída", o tempo da aula e o botão **Próxima aula**, que abre a aula seguinte direto, sem passar pelo mapa.
+**Fim da aula:** "Concluir" mostra "Aula concluída", o tempo da aula, as aulas da unidade (as feitas marcadas, a próxima acesa com "a seguir") e o botão **Próxima aula**, que abre a aula seguinte direto, sem passar pelo mapa.
+
+**Primeira visita:** enquanto o aluno não abriu nenhuma aula, o mapa da Matemática abre com a apresentação da formação ("Do zero ao Cálculo, uma aula de cada vez") e o botão **Começar a formação**. Depois, o cartão "Próximo passo" diz a unidade e a aula.
 
 **Sons:** acerto, erro e fim de aula têm sons curtos e baixos. O aluno desliga em Ajustes.
 
-No primeiro cartão, no lugar do botão de voltar, fica **Já sei isso**: leva direto ao cartão `sua-vez`, para quem já sabe o assunto.
+No primeiro cartão, no lugar do botão de voltar, fica **Já sei isso**: leva direto ao cartão `sua-vez`, para quem já sabe o assunto. O diagnóstico de entrada não tem esse botão.
 
 ## Cartões
 
@@ -103,7 +105,7 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `grupos` + `soltos` / `unidadesSoltas` | o mesmo, com o nome dos geradores (grupos de 10 = dezenas) |
 | `total` | mostra o número embaixo (`totalVisivel: false` esconde) |
 | `destaque` | `'unidades'`, `'dezenas'`… acende o grupo |
-| `rotulos` | legendas embaixo |
+| `rotulos` | legendas: uma lista embaixo de tudo, ou `{ unidades: 'unidade', dezenas: 'dezena' }` para uma legenda embaixo de cada grupo |
 | `tamanhoGrupo` | moldura de 10 lugares para as peças soltas |
 | `abrirDezenas`, `abrirCentenas` | barras e placas abertas em peças |
 
@@ -145,6 +147,7 @@ Um destes, nesta ordem:
 
 | Chave | Efeito |
 |---|---|
+| `jornada` + `aqui` (+ `feitas`) | o caminho da formação: paradas ligadas por uma linha, a atual acesa com "você está aqui" |
 | `fichas` + `lugares` | fichas para pôr em ordem |
 | `etapas` + `etapa` | o ciclo, com a etapa atual acesa |
 | `pagina` | uma página de caderno com os blocos |

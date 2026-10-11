@@ -4,11 +4,11 @@ import { rng } from '@/lib/formation/rng'
 import type { Item, Rng } from '@/lib/formation/schema'
 
 const geradores = [agrupamentoN1, agrupamentoN2, agrupamentoN3]
-const numero = (s: string) => Number(s.replace(/\./g, ''))
+const numero = (s: string) => (s === 'nenhuma' ? 0 : Number(s.replace(/\./g, '')))
 
 function dados(item: Item) {
-  const [, grupos, tamanho, soltas] = item.enunciado.match(/São (\d+) grupos de ([\d.]+) e (\d+) unidades soltas/)
-    ?? item.enunciado.match(/(\d+) caixas com ([\d.]+) peças cada, e mais (\d+) peças soltas/)!
+  const [, grupos, tamanho, soltas] = item.enunciado.match(/(?:São|É) (\d+) grupos? de ([\d.]+) e (\d+|nenhuma) unidades? soltas?/)
+    ?? item.enunciado.match(/(\d+) caixas com ([\d.]+) peças cada, (?:e mais )?(\d+|nenhuma) peças? soltas?/)!
   return { grupos: numero(grupos), tamanho: numero(tamanho), soltas: numero(soltas) }
 }
 
@@ -27,6 +27,8 @@ describe('agrupamento: conservar unidades ao trocar embalagens', () => {
       const vistos = new Set<string>()
       for (let seed = 1; seed <= 300; seed++) {
         const item = gerador.gerar(rng(seed))
+        // Concordância: nada de "1 grupos" nem "1 unidades".
+        expect(item.enunciado).not.toMatch(/\b1 (grupos|unidades|peças)\b/)
         const { grupos, tamanho, soltas } = dados(item)
         // Reconstrói o total contando o conteúdo de cada grupo, sem usar o visual/resposta.
         let dentroDosGrupos = 0

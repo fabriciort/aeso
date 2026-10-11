@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check, Hand, NotebookPen, PencilLine, X } from 'lucide-react'
 import type { Aposta, Aula, Cartao, Caderno as CadernoCard, Anote as AnoteCard, Gerador, Mexa, Opcao, PassoAPasso, Visual, Linha } from '@/lib/formation/schema'
-import { markLessonDone, saveCard } from '@/lib/math/formation-progress'
+import { getLesson } from '@/lib/math/curriculum'
+import { markLessonDone, saveCard, useFormationProgress } from '@/lib/math/formation-progress'
 import { haptic } from '@/lib/observatory/immersive'
 import { useVega, useVegaScreen } from '@/lib/observatory/vega-context'
 import { speak, stopSpeaking, unlockVoice } from '@/lib/observatory/voice'
@@ -79,6 +80,9 @@ export function Player({
   const set = useCallback((patch: CardState) => setStates((s) => ({ ...s, [index]: { ...s[index], ...patch } })), [index])
   const isLast = index === total - 1
   const suaVez = aula.cartoes.findIndex((c) => c.tipo === 'sua-vez')
+  // The diagnóstico has no "Já sei isso": its exercises are the whole point.
+  const sv = aula.cartoes[suaVez]
+  const diagnostico = sv?.tipo === 'sua-vez' && sv.geradores.every((g) => g.startsWith('diagnostico-'))
   const [concluida, setConcluida] = useState(false)
   const startedAt = useRef(Date.now())
 
@@ -247,7 +251,7 @@ export function Player({
       </div>
 
       {concluida ? (
-        <Concluida titulo={aula.titulo} minutos={Math.max(1, Math.round((Date.now() - startedAt.current) / 60000))} next={next} onNext={onNext} onExit={onExit} />
+        <Concluida id={aula.id} titulo={aula.titulo} minutos={Math.max(1, Math.round((Date.now() - startedAt.current) / 60000))} next={next} onNext={onNext} onExit={onExit} />
       ) : (
       <>
       {/* Middle: the stage and the card. */}
@@ -285,7 +289,7 @@ export function Player({
 
       {/* Bottom: back and the one button. */}
       <div className="relative z-30 flex shrink-0 items-center gap-3 pb-[max(env(safe-area-inset-bottom),14px)] pt-3">
-        {index === 0 && suaVez > 0 ? (
+        {index === 0 && suaVez > 0 && !diagnostico ? (
           // On the first card: who already knows the subject goes straight to the exercises.
           <button onClick={() => go(suaVez)} className="focus-ring h-14 shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-5 text-[15px] text-white/80 transition hover:text-white active:scale-95">
             Já sei isso
@@ -324,7 +328,9 @@ export function Player({
 }
 
 /** The end of a lesson: done, how long it took, and the next lesson one tap away. */
-function Concluida({ titulo, minutos, next, onNext, onExit }: { titulo: string; minutos: number; next?: { id: string; titulo: string }; onNext?: () => void; onExit: () => void }) {
+function Concluida({ id, titulo, minutos, next, onNext, onExit }: { id: string; titulo: string; minutos: number; next?: { id: string; titulo: string }; onNext?: () => void; onExit: () => void }) {
+  const where = getLesson(id)
+  const progress = useFormationProgress()
   return (
     <>
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 text-center">
@@ -342,10 +348,42 @@ function Concluida({ titulo, minutos, next, onNext, onExit }: { titulo: string; 
             {titulo} · {minutos} min
           </p>
         </motion.div>
-        {next && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="text-[15px] text-white/55">
-            A seguir: <span className="text-white">{next.titulo}</span>
-          </motion.p>
+        {/* Where this lesson sits in its unit: the path so far and what comes next. */}
+        {where && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }} className="w-full max-w-[340px] text-left">
+            <p className="mb-3 text-center text-[14px] text-white/45">
+              Unidade {where.unit.n} · {where.unit.title}
+            </p>
+            <ol className="flex flex-col gap-1.5">
+              {where.unit.lessons.map((l, i) => {
+                const done = l.id === id || Boolean(progress.lessons[l.id])
+                const isNext = l.id === next?.id
+                return (
+                  <motion.li
+                    key={l.id}
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.45 + i * 0.06 }}
+                    className={cn('flex items-center gap-3 rounded-2xl px-3 py-2', isNext && 'bg-white/[0.06]')}
+                  >
+                    <span
+                      className={cn('grid h-6 w-6 shrink-0 place-items-center rounded-full text-[12px] font-semibold tabular-nums', done ? 'bg-white text-black' : isNext ? 'text-[#0b0904]' : 'border border-white/20 text-white/40')}
+                      style={isNext && !done ? { background: NEXT } : undefined}
+                    >
+                      {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : i + 1}
+                    </span>
+                    <span className={cn('min-w-0 flex-1 truncate text-[15px]', l.id === id ? 'font-medium text-white' : done ? 'text-white/70' : isNext ? 'text-white' : 'text-white/40')}>{l.title}</span>
+                    {isNext && <span className="shrink-0 text-[13px] text-[#f6b74e]">a seguir</span>}
+                  </motion.li>
+                )
+              })}
+            </ol>
+            {next && !where.unit.lessons.some((l) => l.id === next.id) && (
+              <p className="mt-3 text-center text-[15px] text-white/55">
+                A seguir: <span className="text-white">{next.titulo}</span>
+              </p>
+            )}
+          </motion.div>
         )}
       </div>
       <div className="relative z-30 flex shrink-0 items-center gap-3 pb-[max(env(safe-area-inset-bottom),14px)] pt-3">

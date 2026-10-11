@@ -18,16 +18,21 @@ function contar(grupos: number, tamanho: number, soltas: number, nivel: 1 | 2 | 
   }
   return {
     enunciado: nivel === 3
-      ? `Chegaram ${grupos} caixas com ${escrito(tamanho)} peças cada, e mais ${soltas} peças soltas. Quantas peças são ao todo?`
-      : `São ${grupos} grupos de ${escrito(tamanho)} e ${soltas} unidades soltas. Quantas unidades ao todo?`,
+      ? `Chegaram ${grupos} caixas com ${escrito(tamanho)} peças cada, ${soltas === 0 ? 'nenhuma peça solta' : `e mais ${soltas} ${soltas === 1 ? 'peça solta' : 'peças soltas'}`}. Quantas peças são ao todo?`
+      : `${grupos === 1 ? 'É 1 grupo' : `São ${grupos} grupos`} de ${escrito(tamanho)} e ${soltas === 0 ? 'nenhuma unidade solta' : soltas === 1 ? '1 unidade solta' : `${soltas} unidades soltas`}. Quantas unidades ao todo?`,
     formato: 'numero',
     resposta: total,
     erros,
     dicas: [
       'Cada grupo vale todas as peças que tem dentro.',
-      `Conte primeiro os ${grupos} grupos de ${escrito(tamanho)}. Depois some as ${soltas} soltas.`,
-      `${grupos} grupos de ${escrito(tamanho)} dão ${escrito(grupos * tamanho)}. Com mais ${soltas} soltas, são ${escrito(total)}.`,
+      soltas === 0
+        ? `Conte ${grupos === 1 ? 'o grupo' : `os ${grupos} grupos`} de ${escrito(tamanho)}. Não há soltas para somar.`
+        : `Conte primeiro ${grupos === 1 ? 'o grupo' : `os ${grupos} grupos`} de ${escrito(tamanho)}. Depois some ${soltas === 1 ? 'a solta' : `as ${soltas} soltas`}.`,
+      soltas === 0
+        ? `${grupos} ${grupos === 1 ? 'grupo' : 'grupos'} de ${escrito(tamanho)} ${grupos === 1 ? 'dá' : 'dão'} ${escrito(total)}.`
+        : `${grupos} ${grupos === 1 ? 'grupo' : 'grupos'} de ${escrito(tamanho)} ${grupos === 1 ? 'dá' : 'dão'} ${escrito(grupos * tamanho)}. Com mais ${soltas} ${soltas === 1 ? 'solta' : 'soltas'}, são ${escrito(total)}.`,
     ],
+
     ...(nivel < 3 ? {
       visual: {
         modelo: 'blocos' as const,

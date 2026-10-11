@@ -81,7 +81,7 @@ export const aula: Aula = {
       tipo: 'ideia',
       texto: 'Cada peça é uma **unidade**. Um grupo de 10 unidades é uma **dezena**.',
       visual: blocos(
-        { centenas: 0, dezenas: 1, unidades: 0, abrirDezenas: true, rotulos: ['unidade', 'dezena'] },
+        { centenas: 0, dezenas: 1, unidades: 1, rotulos: { unidades: 'unidade', dezenas: 'dezena' } },
         'Comparar uma barra fechada com a mesma barra aberta em dez cubos; rotular um cubo como unidade e a barra como dezena.',
         'Os nomes aparecem depois do gesto que o aluno já realizou.',
       ),
@@ -198,7 +198,7 @@ export const aula: Aula = {
               texto: '7 dezenas e 13 unidades', erro: 'sobra-na-casa-errada',
               explica: 'Ao contrário: são 13 grupos de 10, e sobram 7 soltas.',
               mostra: blocos(
-                { centenas: 0, dezenas: 13, unidades: 7, total: 137, rotulos: ['D', 'U'] },
+                { centenas: 0, dezenas: 13, unidades: 7, total: 137, rotulos: { dezenas: 'D', unidades: 'U' } },
                 'Pôr o rótulo D nas treze barras e U nos sete cubos. Confrontar com a tentativa, que teria sete barras e treze cubos.',
               ),
             },
@@ -228,7 +228,7 @@ export const aula: Aula = {
               texto: '7 dezenas e 3 unidades', erro: 'sobra-na-casa-errada',
               explica: 'Ficam 3 barras e 7 cubos, não o contrário.',
               mostra: blocos(
-                { centenas: 1, dezenas: 3, unidades: 7, total: 137, rotulos: ['C', 'D', 'U'] },
+                { centenas: 1, dezenas: 3, unidades: 7, total: 137, rotulos: { centenas: 'C', dezenas: 'D', unidades: 'U' } },
                 'Rotular os três tipos de peça e contornar separadamente as três barras e os sete cubos.',
               ),
             },
@@ -266,7 +266,7 @@ export const aula: Aula = {
       resposta: 336,
       resolucao: [
         { tex: '13\\text{ dezenas}=1\\text{ centena}+3\\text{ dezenas}', fala: 'treze dezenas formam uma centena e três dezenas' },
-        { tex: '2\\text{ centenas}+13\\text{ dezenas}+6\\text{ unidades}=3\\text{ centenas}+3\\text{ dezenas}+6\\text{ unidades}', fala: 'duas centenas, treze dezenas e seis unidades equivalem a três centenas, três dezenas e seis unidades' },
+        { tex: '\\text{Ficam 3 placas, 3 barras e 6 cubos.}', fala: 'ficam três placas, três barras e seis cubos' },
         { tex: '336=300+30+6', fala: 'trezentos e trinta e seis é trezentos mais trinta mais seis' },
       ],
       esboco: 'Pedir desenho com placas e barras esquemáticas, sem 336 cubinhos. Ao conferir, circular dez barras e a nova placa; comparar estratégia e total.',

@@ -130,8 +130,8 @@ const numeroPtBr = (numero: number) => numero.toLocaleString('pt-BR')
 export const diagnosticoAgrupamento: Gerador = {
   id: 'diagnostico-agrupamento-n1', aula: 'B.U0.A2', nivel: 1,
   gerar(rng) {
-    const grupos = rng.int(1, 5)
-    const soltos = rng.int(1, 8)
+    const grupos = rng.int(2, 6)
+    const soltos = rng.int(2, 8)
     return {
       enunciado: `Há ${grupos} pacotes com 10 parafusos cada e mais ${soltos} parafusos soltos. Quantos parafusos são ao todo?`,
       formato: 'numero',

@@ -12,7 +12,7 @@ export const aula: Aula = {
   cartoes: [
     {
       tipo: 'gancho',
-      texto: 'Talvez você já saiba parte da unidade 1. São 5 perguntas rápidas, sem dicas, para ver por qual aula começar.',
+      texto: 'Talvez você já saiba um pouco. São **5 perguntas rápidas**, sem dicas, para ver por qual aula começar.',
       visual: coleta({ alvos: ['Agrupar de 10 em 10', 'O zero que guarda o lugar', 'Números grandes', 'Comparar na reta numérica', 'Arredondar e estimar'], avaliados: [] }, 'Cinco cartões da U1, todos sem preenchimento. Ao fundo, o restante da formação fica fora da área avaliada, sem porcentagem de conclusão nem selo de domínio.'),
       esboco: 'Apresentar uma dúvida real de retomada. O painel delimita U1 e evita transformar o diagnóstico do piloto numa avaliação da Matemática Básica inteira.',
     },
@@ -36,11 +36,11 @@ export const aula: Aula = {
     },
     {
       tipo: 'anote',
-      titulo: 'Diagnóstico de entrada',
-      definicao: 'O diagnóstico de entrada são perguntas sem ajuda que mostram por onde começar.',
-      exemplo: { tex: '\\text{Errei o valor do 3 em 305} \\longrightarrow \\text{começo pela aula 2}', fala: 'errei o valor do três em trezentos e cinco, então começo pela aula dois' },
+      titulo: 'Seu ponto de partida',
+      definicao: 'No fim, cada aula recebe **Já sabe** ou **Ver a aula**. Comece pela primeira que pedir **Ver a aula**.',
+      exemplo: { tex: '\\text{Errei o valor do 3 em 305: começo por O zero que guarda o lugar.}', fala: 'errei o valor do três em trezentos e cinco, então começo por O zero que guarda o lugar' },
       alerta: 'Não procure a resposta. O diagnóstico só ajuda se mostrar o que você sabe hoje.',
-      esboco: 'Copiar após a coleta. Guardar uma anotação da próxima aula a retomar, não uma nota global. O exemplo é uma recomendação condicional, sem fingir que já existe roteamento automático.',
+      esboco: 'O que fazer com o resultado, dito antes das perguntas, para o resumo final já ter sentido. O exemplo é uma recomendação, não uma nota.',
     },
     {
       tipo: 'sua-vez',
@@ -55,9 +55,9 @@ export const aula: Aula = {
     },
     {
       tipo: 'fecho',
-      texto: 'Pronto. Onde você errou ou tocou em **Não sei**, vale ver a aula. Onde acertou, vá direto aos exercícios.',
-      visual: coleta({ caminhos: ['ver a aula', 'ir aos exercícios'], escopo: 'U1' }, 'Voltar aos cinco cartões do gancho. Destacar a próxima ação recomendada sem preencher as unidades seguintes; oferecer o mapa para quem quiser escolher outro ponto.'),
-      esboco: 'Fechar a pergunta inicial com uma indicação provisória. A sugestão depende dos registros coletados pela experiência; se essa integração faltar, informar a limitação e oferecer começar por Agrupar de 10 em 10.',
+      texto: 'Pronto. A próxima parada é **Contar**, a primeira aula de verdade. Onde você já sabe, toque em **Já sei isso**.',
+      visual: { modelo: 'livre', estado: { jornada: ['Contar', 'Somar e subtrair', 'Multiplicar e dividir', 'Frações', 'Porcentagem', 'Equações', 'Funções', 'Cálculo'], aqui: 0 }, esboco: 'A jornada da primeira aula volta, com a luz em Contar: o diagnóstico acabou e o caminho começa.' },
+      esboco: 'Fechar com o próximo passo concreto. O resumo "Já sabe / Ver a aula" acabou de aparecer no cartão anterior; aqui só o caminho.',
     },
   ],
 }

@@ -15,7 +15,8 @@ export interface BlocosState {
   total?: number
   totalVisivel?: boolean
   destaque?: string
-  rotulos?: string[]
+  /** Legendas: uma lista embaixo de tudo, ou { unidades: 'unidade', … } embaixo de cada grupo. */
+  rotulos?: string[] | Partial<Record<Ordem, string>>
   tamanhoGrupo?: number
   faltam?: number
   abrirDezenas?: boolean
@@ -37,37 +38,39 @@ export function Blocos({ s, size, onTap, canTap }: { s: BlocosState; size: { w: 
   const groups = [m, c, d, u].filter(Boolean).length || 1
   const rowsU = Math.ceil(u / 10)
   const wide = m * 13.5 + (c ? 10 + (c - 1) * 2.8 : 0) + Math.min(d, 12) * 1.3 + Math.min(Math.max(u, s.tamanhoGrupo ?? 0), 10) * 1.05
-  const tall = Math.max(d || c ? 10.5 : 0, m ? 13.5 : 0, rowsU * 1.05, 3) + (s.total !== undefined || s.rotulos ? 3 : 0)
+  const tall = Math.max(d || c ? 10.5 : 0, m ? 13.5 : 0, rowsU * 1.05, 3) + (s.total !== undefined || s.rotulos ? 3 : 0) + (s.total !== undefined && s.rotulos ? 2 : 0)
   const k = Math.round(Math.max(6, Math.min(m || c ? 24 : 34, (size.w - 24 - 20 * (groups - 1)) / Math.max(wide, 8), (size.h - 24) / tall)))
   const total = s.total ?? m * 1000 + c * 100 + d * 10 + u
   const showTotal = s.totalVisivel !== false && s.total !== undefined
   const hl = (ordem: string) => s.destaque === ordem
+  const lista = Array.isArray(s.rotulos) ? s.rotulos : undefined
+  const legenda = (o: Ordem) => (s.rotulos && !Array.isArray(s.rotulos) ? s.rotulos[o] : undefined)
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-4">
       <div className="flex max-w-full flex-wrap items-end justify-center gap-x-5 gap-y-4">
-        <Group show={m > 0} highlight={hl('milhares')} onTap={tap('milhares')}>
+        <Group show={m > 0} highlight={hl('milhares')} onTap={tap('milhares')} label={legenda('milhares')}>
           {Array.from({ length: m }).map((_, i) => (
             <motion.div key={`m${i}`} layout initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }} transition={spring}>
               <Mil k={k} />
             </motion.div>
           ))}
         </Group>
-        <Group show={c > 0} highlight={hl('centenas')} onTap={tap('centenas')}>
+        <Group show={c > 0} highlight={hl('centenas')} onTap={tap('centenas')} label={legenda('centenas')} nowrap>
           {Array.from({ length: c }).map((_, i) => (
             <motion.div key={`c${i}`} layout initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }} transition={spring} style={{ marginLeft: i ? -k * 7.2 : 0 }}>
               <Placa k={k} open={s.abrirCentenas} />
             </motion.div>
           ))}
         </Group>
-        <Group show={d > 0} highlight={hl('dezenas')} onTap={tap('dezenas')}>
+        <Group show={d > 0} highlight={hl('dezenas')} onTap={tap('dezenas')} label={legenda('dezenas')}>
           {Array.from({ length: d }).map((_, i) => (
             <motion.div key={`d${i}`} layout initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.6 }} transition={spring}>
               <Barra k={k} open={s.abrirDezenas} />
             </motion.div>
           ))}
         </Group>
-        <Group show={u > 0 || Boolean(s.tamanhoGrupo)} highlight={hl('unidades')} onTap={tap('unidades')}>
+        <Group show={u > 0 || Boolean(s.tamanhoGrupo)} highlight={hl('unidades')} onTap={tap('unidades')} label={legenda('unidades')}>
           <Cubos n={u} k={k} frame={s.tamanhoGrupo && u <= (s.tamanhoGrupo ?? 0) ? s.tamanhoGrupo : undefined} />
         </Group>
       </div>
@@ -78,9 +81,9 @@ export function Blocos({ s, size, onTap, canTap }: { s: BlocosState; size: { w: 
           </motion.p>
         )}
       </AnimatePresence>
-      {s.rotulos && (
+      {lista && (
         <div className="flex gap-4 text-[15px] text-white/60">
-          {s.rotulos.map((r) => (
+          {lista.map((r) => (
             <span key={r}>{r}</span>
           ))}
         </div>
@@ -89,16 +92,17 @@ export function Blocos({ s, size, onTap, canTap }: { s: BlocosState; size: { w: 
   )
 }
 
-function Group({ show, highlight, onTap, children }: { show: boolean; highlight?: boolean; onTap?: () => void; children: React.ReactNode }) {
+function Group({ show, highlight, onTap, label, nowrap, children }: { show: boolean; highlight?: boolean; onTap?: () => void; label?: string; nowrap?: boolean; children: React.ReactNode }) {
   if (!show) return null
-  return (
+  const group = (
     <motion.div
       layout
       onClick={onTap}
       role={onTap ? 'button' : undefined}
       whileTap={onTap ? { scale: 0.96 } : undefined}
       className={cn(
-        'relative flex flex-wrap items-end justify-center gap-[3px] rounded-2xl p-2 transition-colors',
+        'relative flex items-end justify-center gap-[3px] rounded-2xl p-2 transition-colors',
+        nowrap ? 'flex-nowrap' : 'flex-wrap',
         onTap && 'cursor-pointer hover:bg-white/[0.04]',
         highlight && 'bg-[#f6b74e]/[0.12] ring-1 ring-[#f6b74e]/60',
       )}
@@ -107,6 +111,15 @@ function Group({ show, highlight, onTap, children }: { show: boolean; highlight?
       <AnimatePresence initial={false} mode="popLayout">
         {children}
       </AnimatePresence>
+    </motion.div>
+  )
+  if (!label) return group
+  return (
+    <motion.div layout className="flex flex-col items-center gap-2">
+      {group}
+      <motion.span initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="text-[15px] text-white/65">
+        {label}
+      </motion.span>
     </motion.div>
   )
 }

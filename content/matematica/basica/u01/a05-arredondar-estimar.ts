@@ -79,7 +79,7 @@ export const aula: Aula = {
       texto: '**Arredondar** à centena é trocar o número pela marca de **100 em 100** mais perto dele.',
       visual: {
         modelo: 'reta',
-        estado: { de: 0, ate: 400, passo: 100, marcas: [0, 100, 200, 300, 400], numeros: [243, 287], vizinhos: [200, 300] },
+        estado: { de: 100, ate: 400, passo: 100, marcas: [100, 200, 300, 400], numeros: [243, 360], vizinhos: [200, 400] },
         movimento: 'A régua afasta; as marcas de cem em cem aparecem e os dois exemplos apontam para seus vizinhos.',
         esboco: 'Apresentar múltiplo como nome das marcas já conhecidas, sem antecipar a teoria da U6.',
       },
