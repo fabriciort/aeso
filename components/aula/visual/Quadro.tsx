@@ -117,7 +117,8 @@ function Colunas({ s, size, filled, onSlot, wrong }: { s: QuadroState; size: { w
                 disabled={!onSlot}
                 onClick={() => onSlot?.(i)}
                 className={cn(
-                  'relative grid place-items-center rounded-xl transition-colors',
+                  // Not interactive: let the tap through (story taps on reading cards).
+                  'relative grid place-items-center rounded-xl transition-colors disabled:pointer-events-none',
                   onSlot && 'cursor-pointer active:scale-[0.97]',
                   empty && 'border border-dashed border-white/25',
                   onSlot && empty && 'border-white/40 bg-white/[0.03]',
@@ -223,7 +224,7 @@ function Classes({ s, size, values, onClass, wrong }: { s: QuadroState; size: { 
                 disabled={!onClass}
                 onClick={() => onClass?.(i)}
                 className={cn(
-                  'grid w-full place-items-center rounded-2xl border transition-colors',
+                  'grid w-full place-items-center rounded-2xl border transition-colors disabled:pointer-events-none',
                   empty ? 'border-dashed border-white/30' : 'border-white/15 bg-white/[0.05]',
                   onClass && 'cursor-pointer active:scale-[0.97]',
                   onClass && empty && 'border-white/45 bg-white/[0.03]',
@@ -284,7 +285,7 @@ function Separar({ s, seps, onGap, size }: { s: QuadroState; seps: number[]; onG
                 type="button"
                 disabled={!onGap}
                 onClick={() => onGap?.(i)}
-                className={cn('relative grid place-items-end rounded-lg pb-2', onGap && 'cursor-pointer hover:bg-white/[0.05]')}
+                className={cn('relative grid place-items-end rounded-lg pb-2 disabled:pointer-events-none', onGap && 'cursor-pointer hover:bg-white/[0.05]')}
                 style={{ width: cell * 0.45, height: cell * 1.4 }}
                 aria-label={seps.includes(i) ? `Tirar o ponto depois do ${i + 1}º algarismo` : `Pôr um ponto depois do ${i + 1}º algarismo`}
               >

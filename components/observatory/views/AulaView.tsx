@@ -39,5 +39,18 @@ export default function AulaView({ id }: { id: string }) {
   }
   // A finished lesson starts over; an unfinished one resumes where it stopped.
   const start = progress.lessons[id] ? 0 : lessonCard(progress, id)
-  return <Player key={id} aula={aula} getGerador={conteudo.getGerador} roteiro={conteudo.ROTEIRO_DIAGNOSTICO_ENTRADA} start={start} onExit={back} />
+  // The next lesson in the order of the formation, when its content is ready.
+  const next = conteudo.AULAS[conteudo.AULAS.findIndex((a) => a.id === id) + 1]
+  return (
+    <Player
+      key={id}
+      aula={aula}
+      getGerador={conteudo.getGerador}
+      roteiro={conteudo.ROTEIRO_DIAGNOSTICO_ENTRADA}
+      start={start}
+      onExit={back}
+      next={next && { id: next.id, titulo: next.titulo }}
+      onNext={next && (() => navigate({ area: 'aula', id: next.id }))}
+    />
+  )
 }

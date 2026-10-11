@@ -8,7 +8,7 @@ const numero = (s: string) => Number(s.replace(/\./g, ''))
 
 function dados(item: Item) {
   const [, grupos, tamanho, soltas] = item.enunciado.match(/São (\d+) grupos de ([\d.]+) e (\d+) unidades soltas/)
-    ?? item.enunciado.match(/(\d+) caixas com ([\d.]+) peças cada e (\d+) peças soltas/)!
+    ?? item.enunciado.match(/(\d+) caixas com ([\d.]+) peças cada, e mais (\d+) peças soltas/)!
   return { grupos: numero(grupos), tamanho: numero(tamanho), soltas: numero(soltas) }
 }
 
@@ -42,7 +42,7 @@ describe('agrupamento: conservar unidades ao trocar embalagens', () => {
         for (const texto of [item.enunciado, ...item.dicas]) expect(texto.length).toBeLessThanOrEqual(140)
         if (gerador.nivel === 3) {
           expect(item.visual).toBeUndefined()
-          expect(item.enunciado).toContain('Exemplo imaginado')
+          expect(item.enunciado).not.toMatch(/imaginad/i)
           expect(contagem).toBeLessThan(10_000)
         } else {
           expect(item.visual?.modelo).toBe('blocos')

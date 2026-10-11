@@ -8,7 +8,7 @@ describe('valor posicional com e sem apoio', () => {
       const respostas = new Set()
       for (let s = 1; s <= 500; s++) {
         const item = gerador.gerar(rng(s))
-        const [, numero, digito] = item.enunciado.match(/(?:Em |há )([\d.]+).*?(?:vale o )(\d)/)!
+        const [, numero, digito] = item.enunciado.match(/(?:Em |há |deu )([\d.]+).*?(?:vale o )(\d)/)!
         const digits = numero.replace(/\./g, '')
         // Somar o peso de cada casa lendo o número da direita; não usar o cálculo do gerador.
         let peso = 1

@@ -12,7 +12,7 @@ export const aula: Aula = {
   cartoes: [
     {
       tipo: 'gancho',
-      texto: 'Exemplo imaginado: uma viagem tem **243 km**. Para dizer “cerca de”, você usaria **200 km** ou **300 km**?',
+      texto: 'Você vai viajar **243 km**. Contando para alguém, você diria “uns **200 km**” ou “uns **300 km**”?',
       visual: {
         modelo: 'reta',
         estado: { de: 200, ate: 300, passo: 10, marcas: [200, 300], etiquetaSolta: 243, unidade: 'km' },
@@ -23,7 +23,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'Qual extremo fica mais perto de **243**?',
+      texto: 'Qual fica mais perto de **243**: 200 ou 300?',
       visual: {
         modelo: 'reta',
         estado: { de: 200, ate: 300, passo: 10, marcas: [200, 243, 300], escolhas: [200, 300] },
@@ -32,7 +32,7 @@ export const aula: Aula = {
       },
       acao: {
         tipo: 'tocar',
-        instrucao: 'Escolha a marca mais próxima de 243: 200 ou 300.',
+        instrucao: 'Toque na marca mais perto.',
         sucesso: { vizinho: 200 },
         mostre: 'Sobrepor o trecho 243–200 ao trecho 243–300; destacar o mais curto e escolher 200.',
       },
@@ -52,7 +52,7 @@ export const aula: Aula = {
         {
           texto: '200: começa com 2',
           erro: 'olha-casa-errada',
-          explica: '287 está depois do meio, 250. O trecho até 300 é mais curto; o primeiro algarismo sozinho não decide.',
+          explica: '287 já passou do meio, que é 250. Até 300 faltam só 13. Começar com 2 não decide.',
           mostra: {
             modelo: 'reta',
             estado: { de: 200, ate: 300, passo: 10, marcas: [200, 250, 287, 300], vizinho: 300 },
@@ -63,7 +63,7 @@ export const aula: Aula = {
         {
           texto: '300: está mais perto',
           certa: true,
-          explica: 'Isso. Para 287, a centena mais próxima é 300.',
+          explica: 'Isso. De 287 até 300 faltam só 13.',
           mostra: {
             modelo: 'reta',
             estado: { de: 200, ate: 300, passo: 10, marcas: [200, 250, 287, 300], vizinho: 300 },
@@ -76,7 +76,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Arredondar à centena é escolher a marca de **100 em 100** mais próxima: um **múltiplo de 100**.',
+      texto: '**Arredondar** à centena é trocar o número pela marca de **100 em 100** mais perto dele.',
       visual: {
         modelo: 'reta',
         estado: { de: 0, ate: 400, passo: 100, marcas: [0, 100, 200, 300, 400], numeros: [243, 287], vizinhos: [200, 300] },
@@ -87,7 +87,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'À **dezena**, as marcas vizinhas de 243 são **240** e **250**. Qual é a mais próxima?',
+      pergunta: 'Arredondando à **dezena**, 243 fica entre **240** e **250**. Qual está mais perto?',
       visual: {
         modelo: 'reta',
         estado: { de: 240, ate: 250, passo: 1, marcas: [240, 243, 250], meio: 245, escolhas: [240, 250] },
@@ -98,7 +98,7 @@ export const aula: Aula = {
         {
           texto: '250: arredondar é sempre subir',
           erro: 'arredonda-sempre-para-cima',
-          explica: '243 fica antes do meio, 245. O trecho até 240 é mais curto; arredondar também pode baixar.',
+          explica: '243 ainda não chegou ao meio, 245. Está mais perto de 240. Arredondar também pode descer.',
           mostra: {
             modelo: 'reta',
             estado: { de: 240, ate: 250, passo: 1, marcas: [240, 243, 245, 250], vizinho: 240 },
@@ -109,7 +109,7 @@ export const aula: Aula = {
         {
           texto: '240: está mais perto',
           certa: true,
-          explica: 'Isso. À dezena, 243 vai para 240; à centena, foi para 200. A precisão pedida muda as marcas vizinhas.',
+          explica: 'Isso. À dezena, 243 vira 240. À centena, virou 200. Depende de quanto você arredonda.',
           mostra: {
             modelo: 'reta',
             estado: { de: 240, ate: 250, passo: 1, marcas: [240, 243, 245, 250], vizinho: 240 },
@@ -122,7 +122,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: '**245** está no meio entre **240** e **250**. No empate, combinamos escolher o maior. Qual fica?',
+      pergunta: '**245** fica bem no meio de **240** e **250**. Quando empata, a regra é ficar com o maior. Qual fica?',
       visual: {
         modelo: 'reta',
         estado: { de: 240, ate: 250, passo: 1, marcas: [240, 245, 250], meio: 245 },
@@ -133,7 +133,7 @@ export const aula: Aula = {
         {
           texto: '240',
           erro: 'empate-para-baixo',
-          explica: 'As duas distâncias empatam. Pela convenção desta formação, escolhemos o maior: 250.',
+          explica: 'Empatou: 5 para cada lado. No empate, a regra é ficar com o maior: 250.',
           mostra: {
             modelo: 'reta',
             estado: { de: 240, ate: 250, passo: 1, marcas: [240, 245, 250], vizinho: 250 },
@@ -144,7 +144,7 @@ export const aula: Aula = {
         {
           texto: '250',
           certa: true,
-          explica: 'Isso. Não é mais perto: é a marca maior escolhida no empate.',
+          explica: 'Isso. Não é que 250 esteja mais perto: empatou, e a regra manda ficar com o maior.',
           mostra: {
             modelo: 'reta',
             estado: { de: 240, ate: 250, passo: 1, marcas: [240, 245, 250], vizinho: 250 },
@@ -157,7 +157,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Antes do meio, escolha a marca menor. Depois do meio, a maior. **No empate, escolhemos a maior**.',
+      texto: 'Antes do meio, vá para a marca menor. Depois do meio, para a maior. **No meio, fique com a maior**.',
       visual: {
         modelo: 'reta',
         estado: { de: 240, ate: 250, passo: 1, marcas: [240, 245, 250], exemplos: [243, 245, 247], vizinhos: [240, 250, 250] },
@@ -168,7 +168,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'Mude só a **unidade** de 240 a 249. Em que algarismo o arredondamento passa de 240 para 250?',
+      texto: 'Arraste o ponto de 240 até 249. A partir de qual número o arredondamento vira **250**?',
       visual: {
         modelo: 'reta',
         estado: { de: 240, ate: 250, passo: 1, marcas: [240, 245, 250], numero: 240, casaVariavel: 'U', unidadeDe: 0, unidadeAte: 9 },
@@ -177,7 +177,7 @@ export const aula: Aula = {
       },
       acao: {
         tipo: 'deslizar',
-        instrucao: 'Pare no primeiro algarismo que leva o arredondamento para 250.',
+        instrucao: 'Pare no primeiro número que vai para 250.',
         sucesso: { unidade: 5, numero: 245, vizinho: 250 },
         mostre: 'Mover de 240 até 245, uma unidade por vez; o destino fica em 240 até 244 e muda para 250 ao chegar a 245.',
       },
@@ -186,7 +186,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'À dezena, olhe a **unidade**: de 0 a 4, escolha a dezena menor; de 5 a 9, a maior.',
+      texto: 'À dezena, olhe a **unidade**: de 0 a 4 desce, de 5 a 9 sobe. À centena, olhe a **dezena**. Ao milhar, a **centena**.',
       visual: {
         modelo: 'quadro-posicional',
         estado: { numero: 243, casas: ['C', 'D', 'U'], casaDecisiva: 'U', destinos: [240, 250], faixaMenor: [0, 4], faixaMaior: [5, 9] },
@@ -196,20 +196,9 @@ export const aula: Aula = {
       esboco: 'Recuperar o valor posicional da A2 e ligar a unidade ao trecho da reta explorado.',
     },
     {
-      tipo: 'ideia',
-      texto: 'À centena, olhe a **dezena**. Ao milhar, a **centena**. As casas à direita ficam zeradas.',
-      visual: {
-        modelo: 'quadro-posicional',
-        estado: { numeros: [243, 2460], precisao: [100, 1000], casasDecisivas: ['D', 'C'], aproximacoes: [200, 2000] },
-        movimento: 'O realce muda de unidade para dezena e depois centena; as casas descartadas viram zeros nos destinos.',
-        esboco: 'Apresentar uma precisão por vez: 243 à centena; 2.460 ao milhar. Manter visível qual precisão foi pedida.',
-      },
-      esboco: 'Não olhar sempre a unidade: a casa decisiva é a primeira à direita da precisão escolhida.',
-    },
-    {
       tipo: 'aposta',
-      pergunta: 'A viagem continua com **243 km**. Qual escrita diz “aproximadamente 200 km”?',
-      fala: 'A viagem continua com duzentos e quarenta e três quilômetros. Qual escrita diz aproximadamente duzentos quilômetros?',
+      pergunta: 'A viagem tem **243 km**. Como escrever “mais ou menos 200 km”?',
+      fala: 'A viagem tem duzentos e quarenta e três quilômetros. Como escrever mais ou menos duzentos quilômetros?',
       visual: {
         modelo: 'reta',
         estado: { de: 200, ate: 300, passo: 10, marcas: [200, 243], unidade: 'km' },
@@ -221,7 +210,7 @@ export const aula: Aula = {
           texto: '243 = 200',
           fala: 'duzentos e quarenta e três é igual a duzentos',
           erro: 'estimativa-exata',
-          explica: 'O sinal = exige valores iguais. Os pontos são diferentes: 243 não virou 200.',
+          explica: 'O sinal = só vale para números iguais. E 243 não é igual a 200.',
           mostra: {
             modelo: 'reta',
             estado: { de: 200, ate: 300, passo: 10, marcas: [200, 243], escrita: '243 ≈ 200' },
@@ -233,7 +222,7 @@ export const aula: Aula = {
           texto: '243 ≈ 200',
           fala: 'duzentos e quarenta e três é aproximadamente igual a duzentos',
           certa: true,
-          explica: 'Isso. O sinal ≈ indica uma aproximação; a distância exata permanece 243 km.',
+          explica: 'Isso. O ≈ quer dizer “mais ou menos”. A viagem continua tendo 243 km.',
           mostra: {
             modelo: 'reta',
             estado: { de: 200, ate: 300, passo: 10, marcas: [200, 243], escrita: '243 ≈ 200' },
@@ -245,23 +234,11 @@ export const aula: Aula = {
       esboco: 'Apostar na escrita antes de nomear ≈; a diferença de posições explica por que = não serve.',
     },
     {
-      tipo: 'ideia',
-      texto: '**≈** significa “aproximadamente igual”. **=** fica para valores iguais: **200 = 200**.',
-      fala: 'O sinal de aproximação significa aproximadamente igual. O sinal de igual fica para valores iguais: duzentos é igual a duzentos.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 200, ate: 300, passo: 10, marcas: [200, 243], aproximacao: '243 ≈ 200', igualdade: '200 = 200' },
-        movimento: 'Dois rótulos 200 apontam para um mesmo ponto; 243 permanece separado e ligado por aproximação.',
-        esboco: 'Comparar a aproximação entre pontos distintos à igualdade de dois rótulos do mesmo ponto.',
-      },
-      esboco: 'A voz lê os símbolos por extenso. Um múltiplo já na precisão pedida continua igual a ele mesmo.',
-    },
-    {
       tipo: 'anote',
       titulo: 'Arredondar',
-      definicao: 'Arredondar é trocar um número pelo múltiplo de 10, 100 ou 1.000 mais próximo; no empate, escolhemos o maior.',
+      definicao: 'Arredondar é trocar um número pela marca de 10 em 10, 100 em 100 ou 1.000 em 1.000 mais perto dele. No meio, fica a maior.',
       exemplo: { tex: '243 \\approx 240 \\quad\\text{à dezena}', fala: 'duzentos e quarenta e três é aproximadamente duzentos e quarenta, à dezena' },
-      alerta: 'Olhe a primeira casa à direita da precisão. Arredondar pode baixar ou subir; não é sempre para cima.',
+      alerta: 'Olhe a casa logo à direita da que você quer. Arredondar pode descer ou subir: não é sempre para cima.',
       esboco: 'Copiar a definição, a reta 240–250 com o ponto 243 e a escrita com ≈. Revelar cada parte separadamente para caber no celular.',
     },
     {
@@ -277,24 +254,24 @@ export const aula: Aula = {
         {
           pergunta: 'Quais são as centenas vizinhas de 2.460?',
           opcoes: [
-            { texto: '2.400 e 2.500', certa: true, explica: 'Isso. São as marcas de cem em cem que cercam 2.460.' },
-            { texto: '2.000 e 3.000', erro: 'olha-casa-errada', explica: 'Essas são marcas de milhar. A precisão pedida foi a centena.' },
+            { texto: '2.400 e 2.500', certa: true, explica: 'Isso. 2.460 fica entre 2.400 e 2.500.' },
+            { texto: '2.000 e 3.000', erro: 'olha-casa-errada', explica: 'Essas são de mil em mil. Aqui é de cem em cem: 2.400 e 2.500.' },
           ],
           linha: { tex: '2.400 < 2.460 < 2.500', fala: 'dois mil quatrocentos e sessenta está entre dois mil quatrocentos e dois mil e quinhentos' },
         },
         {
           pergunta: 'O meio é 2.450. De que lado fica 2.460?',
           opcoes: [
-            { texto: 'Depois do meio', certa: true, explica: 'Isso. 2.460 está à direita de 2.450 e mais perto de 2.500.' },
-            { texto: 'Antes, porque termina em 0', erro: 'olha-casa-errada', explica: 'À centena, olhe a dezena: 6. O zero da unidade não decide esta precisão.' },
+            { texto: 'Depois do meio', certa: true, explica: 'Isso. 2.460 passou do meio, então fica mais perto de 2.500.' },
+            { texto: 'Antes, porque termina em 0', erro: 'olha-casa-errada', explica: 'À centena, quem decide é a dezena: 6. O zero do final não importa aqui.' },
           ],
           linha: { tex: '2.460 > 2.450', fala: 'dois mil quatrocentos e sessenta é maior que dois mil quatrocentos e cinquenta' },
         },
         {
-          pergunta: 'Qual aproximação registra a centena mais próxima?',
+          pergunta: 'Como escrever o arredondamento?',
           opcoes: [
-            { texto: '2.460 ≈ 2.500', certa: true, explica: 'Isso. A centena maior está mais perto; as dezenas e unidades do destino ficam zeradas.' },
-            { texto: '2.460 = 2.500', erro: 'estimativa-exata', explica: 'Os dois valores não são iguais. Use ≈ para esta aproximação.' },
+            { texto: '2.460 ≈ 2.500', certa: true, explica: 'Isso. 2.460 fica mais perto de 2.500.' },
+            { texto: '2.460 = 2.500', erro: 'estimativa-exata', explica: '2.460 não é igual a 2.500. Use ≈, que quer dizer “mais ou menos”.' },
           ],
           linha: { tex: '2.460 \\approx 2.500', fala: 'dois mil quatrocentos e sessenta é aproximadamente dois mil e quinhentos' },
         },
@@ -302,43 +279,8 @@ export const aula: Aula = {
       esboco: 'Depois da primeira escolha, marcar as centenas; depois da segunda, o meio; depois da terceira, escrever ≈ e pousar um segundo marcador em 2.500.',
     },
     {
-      tipo: 'aposta',
-      pergunta: '**995** à dezena: está no meio entre **990** e **1.000**. Qual escolhemos?',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 990, ate: 1000, passo: 1, marcas: [990, 995, 1000], meio: 995, precisao: 10 },
-        movimento: 'A régua aproxima a fronteira de mil; cada trecho de uma unidade conserva o mesmo comprimento.',
-        esboco: 'Mostrar 1.000 como dezena vizinha de 990, mesmo quando o destino ganha uma casa.',
-      },
-      opcoes: [
-        {
-          texto: '990',
-          erro: 'empate-para-baixo',
-          explica: 'As distâncias empatam. Escolhemos a marca maior: 1.000, mesmo que abra uma nova casa.',
-          mostra: {
-            modelo: 'quadro-posicional',
-            estado: { numero: 995, aproximacao: 1000, precisao: 10, casas: ['M', 'C', 'D', 'U'] },
-            movimento: 'O destino passa a 1.000; a casa de milhar aparece e centenas, dezenas e unidades ficam zeradas.',
-            esboco: 'Não colar 10 no lugar de um algarismo; o destino inteiro é mil.',
-          },
-        },
-        {
-          texto: '1.000',
-          certa: true,
-          explica: 'Isso. No empate, 995 vai para 1.000 à dezena.',
-          mostra: {
-            modelo: 'reta',
-            estado: { de: 990, ate: 1000, passo: 1, marcas: [990, 995, 1000], vizinho: 1000, escrita: '995 ≈ 1.000' },
-            movimento: 'O marcador aproximado vai a 1.000; o ponto 995 e as duas distâncias iguais permanecem.',
-            esboco: 'Momento-chave: a fronteira troca a escrita do número, mas conserva o motivo da escolha.',
-          },
-        },
-      ],
-      esboco: 'Forçar a decisão por proximidade e empate, sem depender de um atalho de algarismo que falha na troca de casas.',
-    },
-    {
       tipo: 'mexa',
-      texto: 'Agora **9.950** à **centena**. Está no meio de **9.900** e **10.000**. Escolha o destino.',
+      texto: 'Agora **9.950** à **centena**. Fica no meio de **9.900** e **10.000**. Para onde vai?',
       visual: {
         modelo: 'reta',
         estado: { de: 9900, ate: 10000, passo: 10, marcas: [9900, 9950, 10000], meio: 9950, escolhas: [9900, 10000], precisao: 100 },
@@ -347,7 +289,7 @@ export const aula: Aula = {
       },
       acao: {
         tipo: 'tocar',
-        instrucao: 'Escolha a centena maior no empate.',
+        instrucao: 'Lembre: no empate, fica o maior.',
         sucesso: { vizinho: 10000 },
         mostre: 'Comparar os trechos iguais e mover apenas o marcador aproximado para 10.000; mostrar 9.950 ≈ 10.000.',
       },
@@ -356,7 +298,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'aposta',
-      pergunta: 'Exemplo imaginado: há **2.470 livros**. Arredondar ao milhar e dizer “cerca de 2.000” muda a contagem exata?',
+      pergunta: 'Uma biblioteca tem **2.470 livros**. Se você diz “uns 2.000”, o número de livros muda?',
       visual: {
         modelo: 'reta',
         estado: { de: 2000, ate: 3000, passo: 100, marcas: [2000, 2470, 3000], meio: 2500 },
@@ -365,9 +307,9 @@ export const aula: Aula = {
       },
       opcoes: [
         {
-          texto: 'Sim: passam a ser exatamente 2.000',
+          texto: 'Sim: passam a ser 2.000',
           erro: 'estimativa-exata',
-          explica: 'A quantidade continua 2.470. A aproximação só ajuda a falar do tamanho da quantidade.',
+          explica: 'Continuam 2.470 livros. O “uns 2.000” só dá uma ideia do tamanho.',
           mostra: {
             modelo: 'reta',
             estado: { de: 2000, ate: 3000, passo: 100, marcas: [2000, 2470], exato: 2470, aproximado: 2000 },
@@ -376,9 +318,9 @@ export const aula: Aula = {
           },
         },
         {
-          texto: 'Não: a contagem continua 2.470',
+          texto: 'Não: continuam 2.470',
           certa: true,
-          explica: 'Isso. Uma estimativa fala do tamanho, sem trocar a quantidade real.',
+          explica: 'Isso. Arredondar dá uma ideia do tamanho. Os livros continuam sendo 2.470.',
           mostra: {
             modelo: 'reta',
             estado: { de: 2000, ate: 3000, passo: 100, marcas: [2000, 2470], escrita: '2.470 ≈ 2.000' },
@@ -390,27 +332,16 @@ export const aula: Aula = {
       esboco: 'Perguntar sobre a interpretação da aproximação, além de treinar o número de destino.',
     },
     {
-      tipo: 'ideia',
-      texto: 'Estimar é usar uma aproximação para avaliar o tamanho de uma quantidade.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 30000, passo: 10000, marcas: [0, 2470, 10000, 20000, 30000], comparacao: [2470, 20000] },
-        movimento: 'A régua afasta: 2.470 fica nos poucos milhares; um registro de 20.000 aparece muito distante.',
-        esboco: 'Avaliar ordem de grandeza por posições na mesma escala, sem exigir operações novas.',
-      },
-      esboco: 'O ponto aproximado permite estranhar uma contagem anotada muito maior; ele não comprova uma operação.',
-    },
-    {
       tipo: 'anote',
       titulo: 'Estimar',
-      definicao: 'Estimar é usar uma aproximação para avaliar o tamanho de uma quantidade.',
+      definicao: 'Estimar é usar um número arredondado para ter uma ideia do tamanho de uma quantidade.',
       exemplo: { tex: '2.470 \\approx 2.000 \\quad\\text{ao milhar}', fala: 'dois mil quatrocentos e setenta é aproximadamente dois mil, ao milhar' },
-      alerta: 'Uma estimativa ajuda a conferir o tamanho; não prova igualdade nem garante que um valor cabe num limite.',
+      alerta: 'A estimativa dá uma ideia, não a conta exata. Para saber se algo cabe ou basta, use o número exato.',
       esboco: 'Copiar a definição, a aproximação ao milhar e o alerta. Cada linha entra separadamente; o aluno confirma no papel.',
     },
     {
       tipo: 'aposta',
-      pergunta: 'Exemplo imaginado: há **104 convites** e **100 envelopes**. Arredondar 104 para 100 garante um envelope por convite?',
+      pergunta: 'Você tem **104 convites** e **100 envelopes**. 104 é “uns 100”. Dá um envelope para cada convite?',
       visual: {
         modelo: 'reta',
         estado: { de: 90, ate: 110, passo: 1, marcas: [100, 104], convites: 104, envelopes: 100, precisao: 10 },
@@ -419,9 +350,9 @@ export const aula: Aula = {
       },
       opcoes: [
         {
-          texto: 'Sim: cerca de 100 cabe em 100',
+          texto: 'Sim: uns 100 cabem em 100',
           erro: 'aproximacao-garante-limite',
-          explica: 'O valor exato é 104, maior que 100. Arredondar para baixo não cria envelopes nem reduz os convites.',
+          explica: 'São 104 convites, não 100. Faltam 4 envelopes. Arredondar não faz os convites sumirem.',
           mostra: {
             modelo: 'reta',
             estado: { de: 90, ate: 110, passo: 1, marcas: [100, 104], limite: 100, escrita: '104 > 100' },
@@ -432,7 +363,7 @@ export const aula: Aula = {
         {
           texto: 'Não: 104 é maior que 100',
           certa: true,
-          explica: 'Isso. Para garantir um envelope por convite, compare as quantidades exatas.',
+          explica: 'Isso. Faltam 4 envelopes. Para saber se dá, compare os números exatos.',
           mostra: {
             modelo: 'reta',
             estado: { de: 90, ate: 110, passo: 1, marcas: [100, 104], escrita: '104 > 100' },
@@ -444,19 +375,8 @@ export const aula: Aula = {
       esboco: 'Desmontar a confiança excessiva no valor aproximado com a mesma reta usada para comparar.',
     },
     {
-      tipo: 'ideia',
-      texto: 'Arredondar pode baixar ou subir o valor. Para garantir que algo cabe num limite, compare os **valores exatos**.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 90, ate: 110, passo: 1, marcas: [100, 104], exato: 104, aproximado: 100, limite: 100 },
-        movimento: 'O marcador aproximado encosta no limite, mas uma linha guia mantém o ponto exato 104 à direita.',
-        esboco: 'Distinguir os três papéis: quantidade real, número arredondado e limite, mesmo quando dois valores coincidem.',
-      },
-      esboco: 'A frase responde à aposta e delimita o uso da estimativa; não oferecer uma regra de segurança fora da matemática.',
-    },
-    {
       tipo: 'caderno',
-      instrucao: 'No caderno, arredonde **2.470 ao milhar**. Desenhe os vizinhos e o meio. Digite a aproximação e confira.',
+      instrucao: 'No papel, arredonde **2.470** ao milhar. Desenhe os dois milhares vizinhos e o meio. Depois digite o resultado.',
       resposta: 2000,
       resolucao: [
         { tex: '2.000 < 2.470 < 3.000', fala: 'dois mil quatrocentos e setenta está entre dois mil e três mil' },
@@ -472,8 +392,8 @@ export const aula: Aula = {
     },
     {
       tipo: 'fecho',
-      texto: 'Na viagem imaginada, **243 km ≈ 200 km**, à centena. O trajeto continua com 243 km. A próxima unidade começa as contas.',
-      fala: 'Na viagem imaginada, duzentos e quarenta e três quilômetros são aproximadamente duzentos quilômetros, à centena. O trajeto continua com duzentos e quarenta e três quilômetros.',
+      texto: 'Na viagem: **243 km ≈ 200 km**. Dá para dizer “uns 200 km”, e a estrada continua com 243. Na próxima unidade, as contas.',
+      fala: 'Na viagem: duzentos e quarenta e três quilômetros é aproximadamente duzentos. Dá para dizer uns duzentos quilômetros, e a estrada continua com duzentos e quarenta e três. Na próxima unidade, as contas.',
       visual: {
         modelo: 'reta',
         estado: { de: 200, ate: 300, passo: 10, marcas: [200, 243, 300], exato: 243, aproximado: 200, unidade: 'km' },

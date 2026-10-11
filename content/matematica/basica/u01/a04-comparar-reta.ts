@@ -12,7 +12,7 @@ export const aula: Aula = {
   cartoes: [
     {
       tipo: 'gancho',
-      texto: 'Exemplo imaginado: uma estante tem **89 livros**; outra, **104**. Qual tem mais, mesmo terminando em 4?',
+      texto: 'Uma estante tem **89 livros** e outra tem **104**. Qual tem mais? Como ter certeza?',
       visual: {
         modelo: 'reta',
         estado: { de: 0, ate: 120, passo: 10, marcas: [], etiquetas: [89, 104] },
@@ -32,7 +32,7 @@ export const aula: Aula = {
       },
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Coloque 20 na marca que vem um intervalo depois de 10.',
+        instrucao: 'Toque na marca onde fica o 20.',
         sucesso: { posicao: 20 },
         mostre: 'Realçar o intervalo de 0 a 10 e repetir seu comprimento de 10 a 20; encaixar a etiqueta no traço 20.',
       },
@@ -40,43 +40,8 @@ export const aula: Aula = {
       esboco: 'O trecho 0–10 desliza como gabarito sobre 10–20. Uma colocação em 30 deixa dois intervalos expostos.',
     },
     {
-      tipo: 'aposta',
-      pergunta: 'Na mesma escala, a marca depois de 20 pode ser 50?',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 30, passo: 10, marcas: [0, 10, 20], marcaSemRotulo: 30 },
-        movimento: 'Aparece mais um traço com a mesma distância entre os anteriores.',
-        esboco: 'Manter os intervalos de dez; deixar apenas o último rótulo escondido.',
-      },
-      opcoes: [
-        {
-          texto: 'Sim, posso escolher qualquer número',
-          erro: 'intervalos-desiguais',
-          explica: 'De 20 a 50 o avanço seria 30. Este intervalo tem o mesmo tamanho dos que valem 10.',
-          mostra: {
-            modelo: 'reta',
-            estado: { de: 0, ate: 50, passo: 10, marcas: [0, 10, 20, 30, 50] },
-            movimento: 'O 50 desliza para três intervalos depois de 20; o rótulo 30 ocupa o intervalo seguinte.',
-            esboco: 'Comparar um intervalo de dez com os três necessários para chegar a cinquenta.',
-          },
-        },
-        {
-          texto: 'Não; nessa escala, é 30',
-          certa: true,
-          explica: 'Isso. Cada intervalo mantém o avanço de 10.',
-          mostra: {
-            modelo: 'reta',
-            estado: { de: 0, ate: 30, passo: 10, marcas: [0, 10, 20, 30] },
-            movimento: 'Os três intervalos acendem em sequência e recebem o mesmo rótulo de avanço: 10.',
-            esboco: 'O rótulo 30 entra depois da previsão, preservando a régua.',
-          },
-        },
-      ],
-      esboco: 'Desmontar a ideia de que os traços podem ter valores arbitrários em uma escala fixa.',
-    },
-    {
       tipo: 'ideia',
-      texto: 'Na reta, **intervalos iguais** representam o mesmo avanço. Nesta escala, cada intervalo vale 10.',
+      texto: 'Os espaços entre as marcas são os **intervalos**. Na reta, todos têm o mesmo tamanho e valem o mesmo: aqui, 10.',
       visual: {
         modelo: 'reta',
         estado: { de: 0, ate: 30, passo: 10, marcas: [0, 10, 20, 30], destaqueIntervalos: true },
@@ -96,7 +61,7 @@ export const aula: Aula = {
       },
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Arraste cada etiqueta até a marca do seu número.',
+        instrucao: 'Ponha cada número na sua marca.',
         sucesso: { posicoes: [7, 12] },
         mostre: 'Contar sete intervalos desde 0 e marcar 7; partir de 10, avançar dois intervalos e marcar 12.',
       },
@@ -116,7 +81,7 @@ export const aula: Aula = {
         {
           texto: '7, porque fica à esquerda',
           erro: 'inverte-reta',
-          explica: 'À direita de 7 ainda contamos até chegar a 12. O maior fica à direita.',
+          explica: 'Do 7 ao 12 ainda contamos mais 5. Quem fica à direita é o maior.',
           mostra: {
             modelo: 'reta',
             estado: { de: 0, ate: 20, passo: 1, marcas: [7, 12], sentido: 'direita' },
@@ -127,7 +92,7 @@ export const aula: Aula = {
         {
           texto: '12, porque fica à direita',
           certa: true,
-          explica: 'Isso. A posição à direita representa o número maior.',
+          explica: 'Isso. Na reta, quem fica à direita é o maior.',
           mostra: {
             modelo: 'reta',
             estado: { de: 0, ate: 20, passo: 1, marcas: [7, 12], maior: 12 },
@@ -140,49 +105,19 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: '**12 é maior que 7**: escrevemos **12 > 7**. **7 é menor que 12**: escrevemos **7 < 12**.',
-      fala: 'Doze é maior que sete. Sete é menor que doze.',
+      texto: '**12 > 7**: 12 é maior que 7. **7 < 12**: 7 é menor que 12. E números iguais? **12 = 12**.',
+      fala: 'Doze é maior que sete. Sete é menor que doze. E doze é igual a doze.',
       visual: {
         modelo: 'reta',
-        estado: { de: 0, ate: 20, passo: 1, marcas: [7, 12], comparacoes: ['12 > 7', '7 < 12'] },
+        estado: { de: 0, ate: 20, passo: 1, marcas: [7, 12], comparacoes: ['12 > 7', '7 < 12', '12 = 12'] },
         movimento: 'As frases surgem sob a reta; maior que e menor que são substituídos pelos símbolos.',
         esboco: 'Primeiro a leitura por extenso; depois > e < como abreviações da mesma relação.',
       },
       esboco: 'Apresentar os símbolos depois da experiência. A voz lê as relações por extenso.',
     },
     {
-      tipo: 'mexa',
-      texto: 'Coloque outra etiqueta **12**. Ela ocupa um lugar diferente?',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 20, passo: 1, marcas: [12], etiquetaSolta: 12 },
-        movimento: 'A etiqueta 7 sai; uma segunda etiqueta 12 aparece para ser colocada.',
-        esboco: 'Duas etiquetas podem apontar para um único ponto, sem criar duas posições diferentes.',
-      },
-      acao: {
-        tipo: 'arrastar',
-        instrucao: 'Coloque a segunda etiqueta no ponto 12.',
-        sucesso: { posicao: 12 },
-        mostre: 'Encaixar a segunda etiqueta sobre a primeira; abrir dois pequenos rótulos ligados ao mesmo ponto 12.',
-      },
-      descoberta: 'Números iguais ocupam a mesma posição, ainda que tenham duas etiquetas.',
-      esboco: 'As etiquetas se empilham por um instante e depois apontam para o mesmo ponto, sem deslocá-lo.',
-    },
-    {
-      tipo: 'ideia',
-      texto: 'Números iguais ocupam o mesmo ponto: **12 = 12**. O sinal **=** diz que os valores são iguais.',
-      fala: 'Doze é igual a doze. O sinal de igual diz que os valores são iguais.',
-      visual: {
-        modelo: 'reta',
-        estado: { de: 0, ate: 20, passo: 1, marcas: [12], etiquetas: [12, 12], comparacao: '12 = 12' },
-        movimento: 'A relação de igualdade aparece embaixo das duas etiquetas que compartilham o ponto.',
-        esboco: 'A igualdade nasce da coincidência das posições, preparando o contraste com aproximação na aula seguinte.',
-      },
-      esboco: 'Dar significado a = sem antecipar contas; a relação é entre valores iguais.',
-    },
-    {
       tipo: 'aposta',
-      pergunta: 'Voltando às estantes: **89** ou **104**, qual passa de 100?',
+      pergunta: 'Voltando às estantes: qual passa de 100, **89** ou **104**?',
       visual: {
         modelo: 'reta',
         estado: { de: 0, ate: 120, passo: 10, marcas: [0, 100], etiquetas: [89, 104] },
@@ -193,7 +128,7 @@ export const aula: Aula = {
         {
           texto: '89, porque começa com 8 e 104 com 1',
           erro: 'ignora-quantidade-casas',
-          explica: '89 ainda não chega a 100. Em 104 há uma centena inteira, além das unidades.',
+          explica: '89 nem chega a 100. 104 passa de 100: tem uma centena inteira.',
           mostra: {
             modelo: 'quadro-posicional',
             estado: { numeros: [89, 104], casas: ['C', 'D', 'U'], destaque: 'C' },
@@ -204,7 +139,7 @@ export const aula: Aula = {
         {
           texto: '104: tem uma centena',
           certa: true,
-          explica: 'Isso. 104 fica depois de 100; 89 fica antes.',
+          explica: 'Isso. 104 fica depois do 100, e 89 fica antes.',
           mostra: {
             modelo: 'reta',
             estado: { de: 0, ate: 120, passo: 10, marcas: [89, 100, 104] },
@@ -217,8 +152,8 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Nos naturais escritos **sem zeros à esquerda**, mais algarismos indicam um número maior: **104 > 89**.',
-      fala: 'Nos naturais escritos sem zeros à esquerda, mais algarismos indicam um número maior: cento e quatro é maior que oitenta e nove.',
+      texto: 'Quem tem **mais algarismos** é maior: 104 tem 3, 89 tem 2. Por isso **104 > 89**.',
+      fala: 'Quem tem mais algarismos é maior: cento e quatro tem três, oitenta e nove tem dois. Por isso cento e quatro é maior que oitenta e nove.',
       visual: {
         modelo: 'quadro-posicional',
         estado: { numeros: [89, 104], casas: ['C', 'D', 'U'], quantidadeAlgarismos: [2, 3] },
@@ -240,7 +175,7 @@ export const aula: Aula = {
         {
           texto: '479, porque termina em 9',
           erro: 'compara-pela-ultima-casa',
-          explica: 'As centenas empatam. As dezenas já decidem: 8 dezenas são mais que 7; não precisamos da unidade.',
+          explica: 'As centenas empatam. Nas dezenas, 8 é mais que 7, e isso já decide. O 9 do final não importa.',
           mostra: {
             modelo: 'quadro-posicional',
             estado: { numeros: [482, 479], casas: ['C', 'D', 'U'], destaque: 'D', casasIguais: ['C'] },
@@ -251,7 +186,7 @@ export const aula: Aula = {
         {
           texto: '482, porque tem mais dezenas',
           certa: true,
-          explica: 'Isso. Depois das centenas iguais, a primeira diferença está nas dezenas: 8 é maior que 7.',
+          explica: 'Isso. As centenas empatam, e nas dezenas 8 é mais que 7.',
           mostra: {
             modelo: 'reta',
             estado: { de: 470, ate: 490, passo: 1, marcas: [479, 480, 482] },
@@ -264,7 +199,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'ideia',
-      texto: 'Com a mesma quantidade de algarismos, compare **da esquerda para a direita**, até a primeira casa diferente.',
+      texto: 'Mesmo número de algarismos? Compare **da esquerda para a direita**, até achar uma casa diferente.',
       visual: {
         modelo: 'quadro-posicional',
         estado: { numeros: [482, 479], casas: ['C', 'D', 'U'], casasIguais: ['C'], primeiraDiferente: 'D' },
@@ -278,7 +213,7 @@ export const aula: Aula = {
       titulo: 'Comparar na reta',
       definicao: 'Na reta numérica, o número maior fica à direita e o menor fica à esquerda.',
       exemplo: { tex: '12 > 7 \\quad\\text{e}\\quad 7 < 12', fala: 'doze é maior que sete, e sete é menor que doze' },
-      alerta: 'Nos naturais sem zeros à esquerda, conte os algarismos; se empatar, compare as casas desde a esquerda.',
+      alerta: 'Não compare pelo último algarismo. Conte os algarismos. Se empatar, compare a partir da esquerda.',
       esboco: 'No caderno, copiar a definição, a reta com 7 e 12 e as duas leituras. A escrita aparece uma linha por vez.',
     },
     {
@@ -292,18 +227,18 @@ export const aula: Aula = {
       },
       passos: [
         {
-          pergunta: 'Milhares e centenas empatam. Qual casa diferente vem primeiro, lendo da esquerda?',
+          pergunta: 'Os milhares e as centenas são iguais. Qual é a primeira casa diferente, lendo da esquerda?',
           opcoes: [
-            { texto: 'Dezenas: 7 e 2', certa: true, explica: 'Isso. Primeiro comparamos as dezenas, antes das unidades.' },
-            { texto: 'Unidades: 2 e 7', erro: 'compara-pela-ultima-casa', explica: 'Da esquerda, as dezenas aparecem antes das unidades. Elas já diferem.' },
+            { texto: 'Dezenas: 7 e 2', certa: true, explica: 'Isso. As dezenas vêm antes das unidades: 7 contra 2.' },
+            { texto: 'Unidades: 2 e 7', erro: 'compara-pela-ultima-casa', explica: 'Lendo da esquerda, as dezenas vêm antes. E elas já são diferentes: 7 e 2.' },
           ],
           linha: { tex: '\\text{primeira diferença: dezenas, }7 > 2', fala: 'a primeira diferença está nas dezenas: sete é maior que dois' },
         },
         {
-          pergunta: 'Com as dezenas decididas, como lemos a comparação?',
+          pergunta: 'Então, qual é o maior?',
           opcoes: [
-            { texto: '4.072 é maior que 4.027', certa: true, explica: 'Isso. Com os mesmos milhares e centenas, sete dezenas vencem duas.' },
-            { texto: '4.027 é maior que 4.072', erro: 'compara-pela-ultima-casa', explica: 'As sete unidades não vencem a diferença já encontrada nas dezenas.' },
+            { texto: '4.072 é maior que 4.027', certa: true, explica: 'Isso. 7 dezenas ganham de 2 dezenas.' },
+            { texto: '4.027 é maior que 4.072', erro: 'compara-pela-ultima-casa', explica: 'O 7 das unidades não conta mais: as dezenas já decidiram.' },
           ],
           linha: { tex: '4.072 > 4.027', fala: 'quatro mil e setenta e dois é maior que quatro mil e vinte e sete' },
         },
@@ -321,7 +256,7 @@ export const aula: Aula = {
       },
       acao: {
         tipo: 'arrastar',
-        instrucao: 'Coloque cada etiqueta na sua marca e leia da esquerda para a direita.',
+        instrucao: 'Ponha cada número na sua marca e leia da esquerda para a direita.',
         sucesso: { posicoes: [7, 12, 19], ordem: [7, 12, 19] },
         mostre: 'Localizar 7 antes de 10, 12 depois de 10 e 19 antes de 20; percorrer a reta da esquerda para a direita.',
       },
@@ -330,7 +265,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'caderno',
-      instrucao: 'No caderno, marque **89** e **104** numa reta com intervalos de 10. Digite o maior e confira sua posição.',
+      instrucao: 'No papel, desenhe uma reta de 10 em 10 e marque **89** e **104**. Depois digite o maior.',
       resposta: 104,
       resolucao: [
         { tex: '80 < 89 < 90', fala: 'oitenta e nove fica entre oitenta e noventa' },

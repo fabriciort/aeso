@@ -13,10 +13,12 @@ export interface Preferences {
   voice: boolean
   /** Speech rate: 0.9 calm, 1 normal, 1.15 quick. */
   voiceRate: number
+  /** Short sounds in the lessons (right, wrong, lesson done). On by default. */
+  sounds: boolean
 }
 
 const KEY = 'aeso:prefs:v1'
-export const DEFAULT_PREFERENCES: Preferences = { fullscreen: false, voice: false, voiceRate: 1 }
+export const DEFAULT_PREFERENCES: Preferences = { fullscreen: false, voice: false, voiceRate: 1, sounds: true }
 
 let cache: Preferences | null = null
 const listeners = new Set<() => void>()

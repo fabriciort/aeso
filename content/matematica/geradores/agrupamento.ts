@@ -18,15 +18,15 @@ function contar(grupos: number, tamanho: number, soltas: number, nivel: 1 | 2 | 
   }
   return {
     enunciado: nivel === 3
-      ? `Exemplo imaginado: ${grupos} caixas com ${escrito(tamanho)} peças cada e ${soltas} peças soltas. Quantas peças ao todo?`
+      ? `Chegaram ${grupos} caixas com ${escrito(tamanho)} peças cada, e mais ${soltas} peças soltas. Quantas peças são ao todo?`
       : `São ${grupos} grupos de ${escrito(tamanho)} e ${soltas} unidades soltas. Quantas unidades ao todo?`,
     formato: 'numero',
     resposta: total,
     erros,
     dicas: [
-      'Um grupo vale todas as unidades que ele reúne; trocar a embalagem não muda a quantidade.',
-      `Conte os ${grupos} grupos de ${escrito(tamanho)} primeiro; deixe as ${soltas} unidades soltas para o fim.`,
-      `${grupos} grupos de ${escrito(tamanho)} são ${escrito(grupos * tamanho)} unidades; com ${soltas} soltas, são ${escrito(total)}.`,
+      'Cada grupo vale todas as peças que tem dentro.',
+      `Conte primeiro os ${grupos} grupos de ${escrito(tamanho)}. Depois some as ${soltas} soltas.`,
+      `${grupos} grupos de ${escrito(tamanho)} dão ${escrito(grupos * tamanho)}. Com mais ${soltas} soltas, são ${escrito(total)}.`,
     ],
     ...(nivel < 3 ? {
       visual: {

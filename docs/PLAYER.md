@@ -29,6 +29,14 @@ O palco **fica montado** de um cartão para o outro. Quando dois cartões seguid
 
 O aluno pode sair e voltar: a aula retoma no cartão em que parou. O último cartão marca a aula como concluída no mapa.
 
+**Como num story:** nos cartões só de leitura (gancho, ideia, anote, fecho), um toque em qualquer lugar da tela segue; um toque no terço esquerdo volta.
+
+**Fim da aula:** "Concluir" mostra "Aula concluída", o tempo da aula e o botão **Próxima aula**, que abre a aula seguinte direto, sem passar pelo mapa.
+
+**Sons:** acerto, erro e fim de aula têm sons curtos e baixos. O aluno desliga em Ajustes.
+
+No primeiro cartão, no lugar do botão de voltar, fica **Já sei isso**: leva direto ao cartão `sua-vez`, para quem já sabe o assunto.
+
 ## Cartões
 
 | Cartão | O que o aluno vê | Pronto quando |
@@ -54,7 +62,7 @@ Detalhes por cartão:
   - A certa escreve a `linha` no caderno da tela, embaixo do palco.
 - **Caderno:**
   - Uma `resposta` numérica abre o teclado numérico da tela.
-  - Uma `resposta` em texto abre um campo de texto (o texto é comparado sem maiúsculas e sem acentos).
+  - Uma `resposta` em texto abre um campo de texto. Vale se o que o aluno escreveu contém a resposta, sem contar maiúsculas e acentos ("tentar sozinho" vale para `tentar`).
   - A `resolucao` se escreve linha a linha.
 - **Voz:** com a voz ligada, o player lê `fala` (ou o texto sem markdown) ao entrar no cartão, e lê `explica` depois de uma aposta.
 - **Fórmulas** (`$...$` e `Linha.tex`) nunca rolam para o lado: encolhem até caber.
@@ -63,10 +71,9 @@ Detalhes por cartão:
 
 - **Ordem e domínio:**
   - Os geradores vêm na ordem do cartão.
-  - Cada gerador pede acertos **de primeira** (sem dica e sem erro antes):
-    - nível 1: 1 acerto;
-    - níveis 2 e 3: 2 acertos.
-  - Errar ou usar dica zera a sequência daquele gerador, e vem outro item do mesmo gerador.
+  - Quem sabe passa rápido: **um acerto de primeira** (sem dica e sem erro antes) em cada gerador basta.
+  - Quem errou ou usou dica num gerador precisa de **dois acertos de primeira seguidos** nele, com outro item do mesmo gerador.
+  - Depois de um acerto, o próximo exercício vem sozinho em pouco mais de 1 segundo (tocar em "Próximo" adianta).
 - **Erros:** cada erro abre a próxima dica:
   1. a ideia;
   2. o primeiro passo;
@@ -80,7 +87,7 @@ Detalhes por cartão:
 - **Visual:** o `visual` do item aparece no palco, sem interação.
 - **Diagnóstico:** quando todos os geradores são `diagnostico-*`, o cartão vira o diagnóstico de entrada:
   - um item por gerador, sem dicas, com "Não sei";
-  - no fim, a lista do `ROTEIRO_DIAGNOSTICO_ENTRADA` com "Confirmar" ou "Retomar";
+  - no fim, a lista do `ROTEIRO_DIAGNOSTICO_ENTRADA` com "Já sabe" ou "Ver a aula";
   - o resultado fica guardado no progresso.
 - **Diagnóstico de erros:** o mapa `erros` ainda não aparece para o aluno. O feedback é a próxima dica. O mapa está pronto para a Vega usar depois.
 

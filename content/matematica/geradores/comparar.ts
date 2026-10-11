@@ -133,13 +133,13 @@ export const compararN3: Gerador = {
     }
     const fichas = misture(valores, r)
     return {
-      enunciado: `Exemplo imaginado: viagens de ${fichas.map(numero).join(', ')} m. Ordene as distâncias do menor ao maior.`,
+      enunciado: `Três trilhas medem ${fichas.slice(0, -1).map(numero).join(' m, ')} m e ${numero(fichas[fichas.length - 1])} m. Ordene do menor ao maior.`,
       formato: 'escolha',
       ...escolhasDeOrdem(valores, r),
       dicas: [
-        'O menor vem primeiro. Compare a quantidade de algarismos antes de comparar cada casa.',
+        'Conte os algarismos primeiro: quem tem menos é menor.',
         `${numero(valores[0])} é o menor. Agora compare ${numero(valores[1])} e ${numero(valores[2])}.`,
-        `${ordem(valores)}. As três distâncias estão em metros, na mesma unidade.`,
+        `Do menor ao maior: ${ordem(valores)}.`,
       ],
     }
   },

@@ -96,7 +96,7 @@ describe('comparar: três níveis', () => {
             expect([...item.visual!.estado.fichas as number[]].sort((a, b) => a - b))
               .toEqual([...numeros].sort((a, b) => a - b))
           } else {
-            expect(item.enunciado).toContain('Exemplo imaginado')
+            expect(item.enunciado).not.toMatch(/imaginad/i)
             expect(item.visual).toBeUndefined()
           }
         }

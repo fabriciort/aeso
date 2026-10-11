@@ -30,79 +30,79 @@ function escolha(rng: Rng, situacao: Situacao, nivel: 1 | 2 | 3): Item {
 
 const MATERIAL: readonly Situacao[] = [
   {
-    enunciado: 'Exemplo imaginado: você tem papel e vai estudar. Qual material ajuda a registrar e alinhar tentativas?',
+    enunciado: 'Você vai estudar e tem papel à mão. O que deixar do lado?',
     opcoes: [
       { texto: 'Caderno quadriculado, lápis e borracha' },
-      { texto: 'Só a tela; observar basta para aprender', erro: 'estudo-so-observar' },
-      { texto: 'Só o gabarito; copiar substitui tentar', erro: 'estudo-dica-resposta' },
+      { texto: 'Só o celular: olhar já basta', erro: 'estudo-so-observar' },
+      { texto: 'Só as respostas, para copiar', erro: 'estudo-dica-resposta' },
     ],
-    dicas: ['Registre seu raciocínio para poder conferir depois.', 'Procure o material que permite escrever, alinhar e corrigir.', 'Caderno quadriculado, lápis e borracha ajudam a registrar e alinhar tentativas.'],
+    dicas: ['Você vai precisar escrever suas tentativas.', 'Procure o que serve para escrever, alinhar e apagar.', 'Caderno quadriculado, lápis e borracha: para escrever, alinhar e corrigir.'],
     cena: 'mesa-com-papel',
   },
   {
-    enunciado: 'Exemplo imaginado: você está sem papel agora. Como continuar registrando suas tentativas?',
+    enunciado: 'Você está sem caderno agora. Como continuar estudando?',
     opcoes: [
-      { texto: 'Usar o rascunho na tela e conferir a tentativa' },
-      { texto: 'Esperar ter papel; sem ele não se aprende', erro: 'estudo-sem-papel' },
+      { texto: 'Escrever numa folha qualquer ou nas notas do celular' },
+      { texto: 'Esperar ter caderno: sem ele não dá', erro: 'estudo-sem-papel' },
       { texto: 'Só assistir às respostas, sem tentar', erro: 'estudo-so-observar' },
     ],
-    dicas: ['O que importa é tentar e guardar seu raciocínio.', 'Procure um jeito de escrever na tela.', 'Use o rascunho na tela, registre uma tentativa e depois confira.'],
+    dicas: ['O importante é escrever sua tentativa em algum lugar.', 'Qualquer folha serve. O celular também.', 'Escreva numa folha qualquer ou nas notas do celular, e depois confira.'],
     cena: 'mesa-sem-papel',
   },
 ]
 
 const APOIO: readonly Situacao[] = [
   {
-    enunciado: 'Exemplo imaginado: você travou num exercício de prática. Como pedir uma dica sem pular sua tentativa?',
+    enunciado: 'Você travou num exercício. Como pedir ajuda sem pular sua tentativa?',
     opcoes: [
-      { texto: 'Pedir uma pista, tentar um passo e só depois conferir' },
+      { texto: 'Pedir uma dica, tentar o próximo passo e depois conferir' },
       { texto: 'Abrir a resolução e copiar a resposta', erro: 'estudo-dica-resposta' },
-      { texto: 'Só assistir ao exemplo, sem fazer uma tentativa', erro: 'estudo-so-observar' },
+      { texto: 'Só olhar o exemplo, sem tentar', erro: 'estudo-so-observar' },
     ],
-    dicas: ['A dica deve ajudar você a dar o próximo passo.', 'Comece pela pista sobre a ideia; registre o que conseguiu.', 'Peça uma pista, tente um passo e depois confira seu raciocínio.'],
+    dicas: ['A dica serve para você dar o próximo passo.', 'Comece pela dica mais leve e tente de novo.', 'Peça uma dica, tente um passo e depois confira.'],
     cena: 'pratica-com-dica',
   },
   {
-    enunciado: 'Exemplo imaginado: você prefere estudar em silêncio. O que fazer com a voz da Vega?',
+    enunciado: 'Você prefere estudar em silêncio. E a voz da Vega?',
     opcoes: [
-      { texto: 'Deixar a voz desligada e usar texto e visuais' },
+      { texto: 'Deixar a voz desligada e seguir pelo texto' },
       { texto: 'Ligar a voz: ouvir é obrigatório', erro: 'estudo-voz-obrigatoria' },
       { texto: 'Só ouvir a resolução, sem tentar', erro: 'estudo-so-observar' },
     ],
-    dicas: ['O áudio é uma opção de acesso, não uma exigência.', 'Procure a escolha que respeita sua preferência.', 'Deixe a voz desligada; as tarefas continuam disponíveis em texto e nos visuais.'],
+    dicas: ['A voz é opcional.', 'Escolha o que respeita o seu jeito de estudar.', 'Deixe a voz desligada. Tudo continua no texto e nos desenhos.'],
     cena: 'voz-opcional',
   },
   {
-    enunciado: 'Exemplo imaginado: você já conhece a ideia da aula. O que deve acontecer ao escolher “Já sei isso”?',
+    enunciado: 'Você já sabe o assunto e toca em “Já sei isso”. O que acontece?',
     opcoes: [
-      { texto: 'Ir à Sua vez e tentar sem ajuda' },
-      { texto: 'Marcar domínio sem resolver nada', erro: 'estudo-pula-sem-tentar' },
-      { texto: 'Só reler a definição e seguir', erro: 'estudo-so-observar' },
+      { texto: 'Vou direto aos exercícios, sem ajuda' },
+      { texto: 'A aula fica marcada como feita, sem exercício', erro: 'estudo-pula-sem-tentar' },
+      { texto: 'Releio a definição e sigo em frente', erro: 'estudo-so-observar' },
     ],
-    dicas: ['Conhecer uma ideia precisa ser conferido numa tentativa.', 'O atalho leva à prática da mesma aula.', '“Já sei isso” leva à Sua vez; a tentativa sem ajuda verifica o que você sabe.'],
+    dicas: ['Saber precisa ser conferido num exercício.', '“Já sei isso” leva aos exercícios da mesma aula.', '“Já sei isso” leva direto aos exercícios. Acertando, você mostra que sabe.'],
     cena: 'atalho-para-pratica',
   },
 ]
 
 const RETOMADA: readonly Situacao[] = [
   {
-    enunciado: 'Exemplo imaginado: você voltou após uma pausa. Como retomar e verificar o que lembra?',
+    enunciado: 'Você ficou uns dias sem estudar. Como ver o que ainda lembra?',
     opcoes: [
-      { texto: 'Tentar uma questão antiga sem olhar e conferir depois' },
-      { texto: 'Só reler as respostas: reconhecer é saber resolver', erro: 'estudo-so-observar' },
-      { texto: 'Pular toda questão antiga porque já terminou a aula', erro: 'estudo-sem-revisao' },
+      { texto: 'Refazer uma questão antiga sem olhar e depois conferir' },
+      { texto: 'Reler as respostas: reconhecer já é saber', erro: 'estudo-so-observar' },
+      { texto: 'Pular as questões antigas: a aula já acabou', erro: 'estudo-sem-revisao' },
     ],
-    dicas: ['Lembrar aparece quando você tenta sem a resposta à vista.', 'Escolha uma questão anterior e registre uma tentativa.', 'Tente uma questão antiga sem olhar; confira depois e retome a ideia se precisar.'],
+    dicas: ['Você lembra de verdade quando consegue sem olhar.', 'Pegue uma questão que já fez e tente de novo.', 'Refaça uma questão antiga sem olhar. Depois confira e reveja a ideia, se precisar.'],
     cena: 'retomar-depois-da-pausa',
   },
   {
-    enunciado: 'Exemplo imaginado: você viu uma correção e ela fez sentido. Como verificar que consegue sozinho?',
+    enunciado: 'Você viu a correção e entendeu. Como saber se consegue sozinho?',
     opcoes: [
-      { texto: 'Fechar a resolução e tentar outra questão da mesma ideia' },
-      { texto: 'Copiar a correção como se fosse uma tentativa própria', erro: 'estudo-dica-resposta' },
-      { texto: 'Nunca voltar à ideia: a correção já encerrou o assunto', erro: 'estudo-sem-revisao' },
+      { texto: 'Fechar a resolução e tentar outra questão parecida' },
+      { texto: 'Copiar a correção como se fosse minha', erro: 'estudo-dica-resposta' },
+      { texto: 'Não voltar mais ao assunto: já entendi', erro: 'estudo-sem-revisao' },
     ],
-    dicas: ['Entender a correção é um começo; resolver exige tentar.', 'Tire a resolução da vista e busque uma nova questão.', 'Feche a resolução e tente outra questão da mesma ideia, sem ajuda.'],
+    dicas: ['Entender a correção é o começo. Resolver é outra coisa.', 'Feche a resolução e procure outra questão.', 'Feche a resolução e tente outra questão parecida, sem ajuda.'],
     cena: 'apos-conferir',
   },
 ]
@@ -133,11 +133,11 @@ export const diagnosticoAgrupamento: Gerador = {
     const grupos = rng.int(1, 5)
     const soltos = rng.int(1, 8)
     return {
-      enunciado: `Exemplo imaginado: há ${grupos} pacotes com 10 parafusos cada e ${soltos} soltos. Quantos parafusos há ao todo?`,
+      enunciado: `Há ${grupos} pacotes com 10 parafusos cada e mais ${soltos} parafusos soltos. Quantos parafusos são ao todo?`,
       formato: 'numero',
       resposta: grupos * 10 + soltos,
       erros: { [String(grupos + soltos)]: 'conta-grupos-como-unidades', [String(grupos * 10)]: 'descarta-sobra' },
-      dicas: ['Cada pacote reúne 10 parafusos; os soltos também contam.', `Conte ${grupos} grupos de 10 e depois acrescente ${soltos} soltos.`, `${grupos} grupos de 10 e ${soltos} soltos: ${grupos * 10 + soltos} parafusos.`],
+      dicas: ['Cada pacote tem 10 parafusos. Os soltos também contam.', `Conte ${grupos} grupos de 10 e depois acrescente ${soltos} soltos.`, `${grupos} grupos de 10 e ${soltos} soltos: ${grupos * 10 + soltos} parafusos.`],
       visual: {
         modelo: 'blocos', estado: { grupos, tamanhoDoGrupo: 10, soltos, totalVisivel: false },
         esboco: 'Pacotes fechados, cada um rotulado 10, e parafusos soltos. Na coleta, não abrir pacotes, animar contagem ou exibir o total. Depois da coleta, cada pacote vira uma barra de 10; os soltos ficam ao lado.',
@@ -152,11 +152,13 @@ export const diagnosticoPosicao: Gerador = {
     const centena = rng.int(2, 9)
     const unidade = rng.int(1, 9)
     const numero = centena * 100 + unidade
+    // Em 202, há dois 2: a pergunta diz qual.
+    const qual = unidade === centena ? `o primeiro ${centena}` : `o ${centena}`
     return {
-      enunciado: `Em ${numero}, quanto vale o algarismo ${centena} da esquerda?`,
+      enunciado: `Em ${numero}, quanto vale ${qual}?`,
       formato: 'numero', resposta: centena * 100,
       erros: { [String(centena)]: 'valor-de-face', [String(centena * 10)]: 'casa-errada' },
-      dicas: ['O valor de um algarismo depende da casa em que ele está.', 'Conte as casas da direita: unidades, dezenas, centenas.', `O ${centena} da esquerda está nas centenas e vale ${centena * 100}.`],
+      dicas: ['O valor de um algarismo depende da casa em que ele está.', 'Conte as casas a partir da direita: unidades, dezenas, centenas.', `${qual[0].toUpperCase()}${qual.slice(1)} está nas centenas e vale ${centena * 100}.`],
       visual: {
         modelo: 'quadro-posicional', estado: { numero, casasRotuladas: false, blocosVisiveis: false, destaque: null },
         esboco: 'Na coleta, mostrar apenas o número, sem casas nomeadas, blocos ou destaque de valor. Após concluir os slots, revelar U, D, C da direita para a esquerda e as placas sob a centena.',
@@ -172,10 +174,10 @@ export const diagnosticoNumerosGrandes: Gerador = {
     const milhares = rng.int(2, 9)
     const total = milhoes * 1_000_000 + milhares * 1_000
     return {
-      enunciado: `Exemplo imaginado: um arquivo contém ${milhoes} milhões e ${milhares} mil registros. Escreva o total com algarismos.`,
+      enunciado: `Um prêmio é de ${milhoes} milhões e ${milhares} mil reais. Escreva esse valor com algarismos.`,
       formato: 'numero', resposta: total,
       erros: { [String(milhoes * 1_000 + milhares)]: 'classe-errada', [String(milhoes * 1_000_000_000 + milhares * 1_000)]: 'classe-errada' },
-      dicas: ['Mil e milhão são classes diferentes: cada milhão reúne 1.000 milhares.', `Separe ${milhoes} milhões e ${milhares} mil em grupos de três algarismos.`, `${milhoes} milhões e ${milhares} mil registros correspondem a ${numeroPtBr(total)} registros.`],
+      dicas: ['Milhões e milhares são classes diferentes. Cada classe tem 3 algarismos.', `Ponha ${milhoes} nos milhões e ${milhares} nos milhares. Complete com zeros.`, `${milhoes} milhões e ${milhares} mil reais: R$ ${numeroPtBr(total)}.`],
     }
   },
 }
@@ -189,10 +191,10 @@ export const diagnosticoComparacao: Gerador = {
     const maior = (centenas + 1) * 100 + rng.int(1, 4) * 10 + unidades
     const numeros = rng.pick([[menor, maior], [maior, menor]])
     return {
-      enunciado: `Exemplo imaginado: duas lojas têm ${numeros[0]} e ${numeros[1]} peças em estoque. Qual quantidade é maior?`,
+      enunciado: `Uma loja tem ${numeros[0]} peças no estoque; outra, ${numeros[1]}. Qual é o maior número?`,
       formato: 'numero', resposta: maior,
       erros: { [String(menor)]: 'compara-pela-ultima-casa' },
-      dicas: ['Compare as casas de maior valor primeiro.', 'Os números têm três algarismos; comece pelas centenas.', `${maior} tem mais centenas que ${menor}; portanto, ${maior} é a maior quantidade.`],
+      dicas: ['Compare primeiro as casas que valem mais.', 'Os dois têm três algarismos. Comece pelas centenas.', `${maior} tem mais centenas que ${menor}. O maior é ${maior}.`],
     }
   },
 }
@@ -205,10 +207,10 @@ export const diagnosticoArredondamento: Gerador = {
     const inferior = dezenas * 10
     const superior = inferior + 10
     return {
-      enunciado: `Exemplo imaginado: um orçamento é de R$ ${numero}. Arredonde à dezena mais próxima; no meio, escolha a maior.`,
+      enunciado: `Um conserto custa R$ ${numero}. Arredonde à dezena. Se ficar no meio, vá para a maior.`,
       formato: 'numero', resposta: superior,
       erros: { [String(inferior)]: 'empate-para-baixo' },
-      dicas: ['Arredondar troca o valor pelo múltiplo de 10 mais próximo.', `As dezenas vizinhas são ${inferior} e ${superior}; ${numero} está no meio.`, `Como há empate, usamos a maior dezena: R$ ${superior}.`],
+      dicas: ['Arredondar é trocar pela marca de 10 em 10 mais perto.', `${numero} fica entre ${inferior} e ${superior}, bem no meio.`, `No meio, fica a maior: R$ ${superior}.`],
     }
   },
 }
