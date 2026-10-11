@@ -351,9 +351,13 @@ function Concluida({ id, titulo, minutos, next, onNext, onExit }: { id: string; 
         {/* Where this lesson sits in its unit: the path so far and what comes next. */}
         {where && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }} className="w-full max-w-[340px] text-left">
-            <p className="mb-3 text-center text-[14px] text-white/45">
-              Unidade {where.unit.n} · {where.unit.title}
-            </p>
+            {where.unit.lessons.every((l) => l.id === id || progress.lessons[l.id]) ? (
+              <p className="mb-3 text-center text-[16px] font-medium text-[#f6b74e]">Unidade {where.unit.n} completa: {where.unit.title}</p>
+            ) : (
+              <p className="mb-3 text-center text-[14px] text-white/45">
+                Unidade {where.unit.n} · {where.unit.title}
+              </p>
+            )}
             <ol className="flex flex-col gap-1.5">
               {where.unit.lessons.map((l, i) => {
                 const done = l.id === id || Boolean(progress.lessons[l.id])

@@ -17,11 +17,11 @@ export const aula: Aula = {
   cartoes: [
     {
       tipo: 'gancho',
-      texto: 'Uma peça custa **R$ 305**; outra, **R$ 35**. A diferença é só um zero. Por que o preço muda tanto?',
-      fala: 'Uma peça custa trezentos e cinco reais; outra, trinta e cinco reais. A diferença é só um zero. Por que o preço muda tanto?',
+      texto: 'Uma peça custa **R$ 305**. Outra custa **R$ 35**. A diferença é só um zero. Por que o preço muda tanto?',
+      fala: 'Uma peça custa trezentos e cinco reais. Outra custa trinta e cinco reais. A diferença é só um zero. Por que o preço muda tanto?',
       visual: {
         modelo: 'quadro-posicional',
-        estado: { numeros: [305, 35], contexto: 'preços imaginados', casas: ['C', 'D', 'U'], blocosVisiveis: false },
+        estado: { numeros: [305, 35], casas: ['C', 'D', 'U'], blocosVisiveis: false },
         esboco: 'Etiquetas sobre dois quadros alinhados pela direita, ainda sem blocos. Manter o espaço vazio à esquerda de 35.',
       },
       esboco: 'Pedir uma previsão antes da decomposição. As etiquetas continuam pequenas no topo do palco.',
@@ -152,7 +152,7 @@ export const aula: Aula = {
       tipo: 'fecho',
       texto: 'Por isso **R$ 305** e **R$ 35** são tão diferentes: o zero segura o 3 nas centenas. Na próxima aula, números grandes.',
       visual: {
-        modelo: 'quadro-posicional', estado: { numeros: [305, 35], casas: ['C', 'D', 'U'], contexto: 'preços imaginados' },
+        modelo: 'quadro-posicional', estado: { numeros: [305, 35], casas: ['C', 'D', 'U'] },
         movimento: 'Voltam as etiquetas, com placas e barras alinhadas embaixo.',
         esboco: '305 tem três placas e cinco cubos; 35, três barras e cinco cubos. Deixar C do segundo vazia, sem zero à esquerda.',
       },
