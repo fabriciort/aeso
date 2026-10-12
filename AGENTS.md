@@ -1,64 +1,99 @@
 # AGENTS.md
 
-Instruções para agentes de código (Codex) que trabalham neste repositório.
+Guia para agentes de código que trabalham neste repositório. Leia inteiro antes de começar.
 
-## O projeto
+## O propósito
 
-AESo é uma plataforma educacional (Next.js 15, React 19, TypeScript, Tailwind, framer-motion), toda em português do Brasil. Este trabalho é a **Formação em Matemática**: uma formação completa, do zero absoluto ao Cálculo, para adultos. Comece pela Matemática Básica.
+O AESo é, antes de tudo, a **Formação em Matemática**: uma formação interativa para o adulto que parte do zero absoluto e pode chegar ao Cálculo. Tudo em português do Brasil, no celular ou no computador.
 
-## O seu papel: o conteúdo
+- O aluno aprende **mexendo**: junta blocos, corta retângulos, salta na reta. O texto só acompanha.
+- Cada aula é um **story** curto, com um conceito só.
+- O **onboarding é o começo de uma jornada**: a pessoa precisa sentir, desde a primeira tela, que começou uma formação e que vai ser guiada aula por aula.
 
-O trabalho está dividido em duas frentes:
+O app também tem o Céu e os laboratórios de astronomia (a origem do projeto). Eles continuam no código e funcionando, mas o trabalho em andamento é a formação.
 
-| Frente | Quem | O quê |
+## Estado atual (outubro de 2026)
+
+| Unidade | Aulas | Situação |
 |---|---|---|
-| **Conteúdo** | **você** | O que ensinar e como explicar, aula por aula: cartões, textos, perguntas, opções, erros comuns, exercícios (geradores), dicas, e **esboços** de como apresentaria cada visual e cada animação |
-| Experiência | outro agente | Player de aulas, desenho, movimento, interação, UX |
+| U0 Comece aqui | 2 | pronta |
+| U1 O sistema de numeração | 5 | pronta |
+| U2 Adição e subtração | 5 | pronta |
+| U3 Multiplicação | 5 | pronta |
+| U4 Divisão | 5 | pronta |
+| U5 Expressões numéricas | 3 | pronta |
+| U6 Múltiplos, divisores e primos | 4 | pronta |
+| **U7 Frações** | 10 | **a próxima**; pede o modelo `barra` no player |
+| U8 em diante | | planejadas em `docs/MATEMATICA.md`, seção 6 |
 
-Você escreve o conteúdo no formato do contrato `lib/formation/schema.ts`. A outra frente transforma seus esboços em telas e animações. Seus esboços são bem-vindos e importantes: diga como você apresentaria cada conceito.
+São 29 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
-1. `docs/CONTEUDO.md`: as diretrizes de conteúdo (missão, pedagogia, tom, notação, formato, checklist). **Obrigatório.**
-2. `docs/MATEMATICA.md`: o plano da formação (módulos, unidades, aulas, modelos-âncora, erros comuns por unidade).
-3. `docs/DESIGN.md`: princípios 1 (pouco texto) e 2 (aprender mexendo).
-4. `lib/formation/schema.ts`: o contrato (tipos comentados).
-5. `lib/math/curriculum.ts`: os ids e títulos de todas as aulas, com pré-requisitos.
-6. O exemplo de formato:
-   - `content/matematica/basica/u01/a02-zero-guarda-lugar.ts`;
-   - `content/matematica/geradores/valor-posicional.ts`;
-   - `tests/geradores-u01.test.ts`.
-7. `docs/PLAYER.md`: como o player mostra cada cartão e quais chaves de `estado` cada modelo já entende. Use essas chaves; se precisar de outra, peça no PR.
+1. `docs/CONTEUDO.md`: como escrever uma aula (pedagogia, tom, ritmo, notação, checklist). **Obrigatório.**
+2. `docs/PLAYER.md`: o que o player já desenha e quais chaves de `estado` cada modelo entende.
+3. `docs/MATEMATICA.md`: o plano da formação (unidades, aulas, modelos-âncora, erros comuns por unidade).
+4. `lib/formation/schema.ts`: o contrato tipado de aula, cartão, gerador e erro comum.
+5. `lib/math/curriculum.ts`: ids, títulos e pré-requisitos de todas as aulas.
+6. Uma unidade pronta como modelo. A U6 é a mais recente e mostra a organização atual:
+   - `content/matematica/basica/u06/` (as aulas e o `index.ts`);
+   - `content/matematica/geradores/divisibilidade.ts` (os exercícios);
+   - `content/matematica/erros-u06.ts` (os erros comuns novos);
+   - `tests/geradores-u06.test.ts` (os testes dos exercícios).
 
-## Onde você escreve
+## Como criar uma unidade nova
 
-- `content/matematica/**`: aulas, geradores, erros comuns, índice.
-- `tests/geradores-*.test.ts`: testes dos seus geradores.
-- `lib/math/curriculum.ts`: **só** para ajustar títulos ou ideias de aulas da unidade em que você está trabalhando, ou para acrescentar uma aula que o conceito exige. Explique a mudança no PR.
+O mesmo agente escreve o conteúdo **e** estende o player quando a unidade pede um visual novo. Não há mais uma divisão entre "frente de conteúdo" e "frente de experiência".
 
-## Onde você NÃO escreve
+1. **Planeje.** Leia a unidade em `docs/MATEMATICA.md` e em `lib/math/curriculum.ts`. Para cada aula, decida o momento-chave (o instante em que o aluno entende) e o que ele vai mexer.
+2. **Veja se o player desenha o que você precisa** (`docs/PLAYER.md`). Se não desenha:
+   - estenda o modelo em `components/aula/visual/` (ou crie um, como `barra` para Frações);
+   - se for um Mexa novo, ensine o player a jogá-lo em `components/aula/mexa.ts`, para `tests/aula-mexa.test.ts` passar;
+   - documente as chaves novas em `docs/PLAYER.md`.
+3. **Escreva as aulas**, uma por arquivo: `content/matematica/basica/uNN/aNN-nome-curto.ts`, exportando `aula: Aula`. Junte-as em `content/matematica/basica/uNN/index.ts` (`AULAS_UNN`), na ordem do currículo.
+4. **Escreva os erros comuns novos** em `content/matematica/erros-uNN.ts` (`ERROS_UNN`) e some-os ao catálogo em `content/matematica/erros.ts`. Reaproveite ids que já existem.
+5. **Escreva os geradores** em `content/matematica/geradores/<tema>.ts` (`GERADORES_UN`), três níveis por aula, e os testes em `tests/geradores-uNN.test.ts`: cada teste lê o enunciado e refaz a conta por um cálculo independente.
+6. **Registre tudo** em `content/matematica/index.ts` (aulas e geradores). Uma aula entra no mapa assim que está em `AULAS`.
+7. **Valide:** `pnpm test`, `pnpm typecheck`, `pnpm lint` e `pnpm build`.
+8. **Percorra cada aula no navegador**, cartão por cartão, em 390 × 844 e no desktop. Cada aula abre direto em `/app/matematica/aula/<id>` (ex.: `/app/matematica/aula/B.U6.A4`); use `pnpm dev` e o Playwright. Procure: texto cortado ou sobreposto, visual que não bate com a frase, Mexa sem saída, fórmula que encolhe demais. Corrija antes de entregar.
+9. **Entregue** (veja abaixo).
 
-- `components/`, `app/`, `lib/` (exceto o caso acima), `docs/DESIGN.md`, estilos, dependências. Se precisar de algo da experiência, descreva no esboço ou no PR.
-- Não mude `lib/formation/schema.ts`. Se o contrato não comportar uma ideia sua, proponha a mudança no PR.
+Se o título ou a ideia de uma aula precisar mudar, ou se o conceito pedir uma aula a mais, ajuste `lib/math/curriculum.ts` e diga no PR. O título da aula tem de ser igual ao do currículo (os testes cobram).
+
+## Onde mexer com cuidado
+
+- **`lib/formation/schema.ts`** é o contrato. Mude só quando uma ideia não couber nele, de forma compatível com o conteúdo que já existe, e explique no PR.
+- **Céu, laboratórios, Vega e APIs** (`components/aeso/`, `components/labs/`, `lib/astro/`, `lib/server/`, `app/api/`) não fazem parte do trabalho da formação. Não mexa sem um pedido.
+- **Dependências novas:** só com motivo forte, dito no PR.
 
 ## Comandos
 
 ```bash
 pnpm install
-pnpm test        # vitest: inclui tests/conteudo.test.ts, que valida todo o conteúdo
+pnpm dev         # http://localhost:3000/app/matematica
+pnpm test        # vitest; tests/conteudo.test.ts valida todo o conteúdo
 pnpm typecheck   # tsc --noEmit
 pnpm lint        # eslint
+pnpm build
 ```
 
-Antes de entregar: os três passam.
+Antes de entregar, os quatro passam.
 
 ## Entrega
 
-- **Uma unidade por branch e por PR** (ex.: `conteudo/basica-u01`). Comece pelo piloto: U0 e U1.
+- **Uma unidade por branch e por PR**, aberto em rascunho.
+- **Commits em português**, descritivos ("Unidade 6: Múltiplos, divisores e primos, quatro aulas novas").
 - **No PR, escreva:**
   - as aulas entregues, com o momento-chave de cada uma;
   - os erros comuns novos;
   - os geradores e os seus níveis;
-  - as propostas de visual novo, se houver;
+  - o que mudou no player (modelos, chaves de `estado`, Mexa novos);
+  - capturas de tela das telas principais;
   - dúvidas e decisões que você tomou.
-- **Commits** em português, descritivos.
+- **Depois do merge**, atualize a tabela "Estado atual" acima e a seção 10 de `docs/MATEMATICA.md`.
+
+## Com o Fabricio (dono do projeto)
+
+- Fale em português, com frases curtas e sem jargão.
+- Na produção de aulas, siga de uma unidade para a próxima sem parar para perguntar se deve continuar. Pare só por uma decisão que muda o rumo da formação.
+- Entregue coisas que ele possa abrir e testar: o link do PR e a prévia da Vercel.
