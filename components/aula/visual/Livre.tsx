@@ -212,7 +212,7 @@ function Ordenar({ fichas, lugares, order, onFicha, wrong }: { fichas: string[];
           </div>
         ))}
       </motion.div>
-      <div className="flex min-h-16 gap-3">
+      <div className="flex min-h-16 flex-wrap justify-center gap-3">
         {loose.map((f) => (
           <motion.button key={f} layoutId={`ficha-${f}`} type="button" onClick={() => onFicha?.(f)} className="h-14 rounded-2xl border border-white/20 bg-white/[0.06] px-5 text-[18px] font-medium text-white active:scale-95">
             {f}
