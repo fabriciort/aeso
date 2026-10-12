@@ -67,8 +67,12 @@ describe('respostas e suporte dos geradores do piloto', () => {
           }
           for (const opcao of opcoes) expect(opcao.length, gerador.id).toBeLessThanOrEqual(140)
         } else {
-          expect(Number.isSafeInteger(item.resposta), gerador.id).toBe(true)
-          expect(Number(item.resposta), gerador.id).toBeGreaterThanOrEqual(0)
+          // Um natural, ou um decimal escrito com vírgula, como o aluno digita ('0,25').
+          if (typeof item.resposta === 'string') expect(item.resposta, gerador.id).toMatch(/^\d+(,\d+)?$/)
+          else {
+            expect(Number.isSafeInteger(item.resposta), gerador.id).toBe(true)
+            expect(Number(item.resposta), gerador.id).toBeGreaterThanOrEqual(0)
+          }
         }
       }
     }

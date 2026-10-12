@@ -5,6 +5,8 @@ import { ERROS_U05 } from './erros-u05'
 import { ERROS_U06 } from './erros-u06'
 import { ERROS_U07A } from './erros-u07a'
 import { ERROS_U07B } from './erros-u07b'
+import { ERROS_U08A } from './erros-u08a'
+import { ERROS_U08B } from './erros-u08b'
 
 // Catálogo de erros comuns da formação. Cada erro tem um id estável, usado
 // por opções de cartões e por exercícios para diagnosticar o que o aluno
@@ -266,7 +268,7 @@ const ERROS_BASE: ErroComum[] = [
   },
 ]
 
-export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B]
+export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B, ...ERROS_U08A, ...ERROS_U08B]
 
 export function getErro(id: string): ErroComum | undefined {
   return ERROS.find((e) => e.id === id)
