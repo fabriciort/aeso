@@ -22,6 +22,8 @@ export interface RetanguloState {
   altura?: number[]
   /** O resto: quadradinhos soltos numa linha incompleta, embaixo do retângulo. */
   sobra?: number
+  /** Fração de fração: as primeiras [linhas, colunas] ficam claras; o cruzamento das duas, em âmbar. */
+  faixas?: [number, number]
 }
 
 export interface RetanguloInteract {
@@ -79,7 +81,7 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   const k = Math.max(
     6,
     Math.min(
-      40,
+      s.faixas ? 56 : 40,
       (size.w - 32 - labelW - gap * (colParts.length - 1)) / C,
       (size.h - 24 - labelH - totalH - gap * (rowParts.length - 1) - rowGap * (roomRows - 1)) / roomRows,
     ),
@@ -129,6 +131,11 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
     if (Array.isArray(s.destaque)) return partOfRow(r)[0] === s.destaque[0] && partOfCol(c) === s.destaque[1]
     return false
   }
+  const faixa = (r: number, c: number) => {
+    const inR = r < s.faixas![0]
+    const inC = c < s.faixas![1]
+    return inR && inC ? amber : inR || inC ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.14)'
+  }
   const areaText = (i: number, j: number) => {
     if (Array.isArray(s.areas)) return s.areas[i]?.[j]
     if (s.areas) return rowParts[i] * colParts[j]
@@ -163,7 +170,7 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
             width={cell}
             height={cell}
             rx={Math.min(5, k * 0.18)}
-            fill={lit(r, c) ? amber : 'rgba(255,255,255,0.88)'}
+            fill={s.faixas ? faixa(r, c) : lit(r, c) ? amber : 'rgba(255,255,255,0.88)'}
             onClick={canRemove && r === L - 1 ? (ev) => (ev.stopPropagation(), onRemove!()) : undefined}
             style={{ cursor: canRemove && r === L - 1 ? 'pointer' : undefined }}
           />

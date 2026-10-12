@@ -35,10 +35,26 @@ export interface QuadroState {
   conta?: ContaState
   /** Divisão na chave. */
   divisao?: DivisaoState
+  /** Quadro de unidades (km … mm): o número numa unidade e a vírgula que anda para outra. */
+  medida?: MedidaState
+}
+
+export interface MedidaState {
+  /** As unidades, da maior para a menor: ['km', 'hm', 'dam', 'm', 'dm', 'cm', 'mm']. */
+  casas: string[]
+  /** O número, na unidade `de` ('1,25' ou 1.25). */
+  numero: number | string
+  /** A unidade do número: o último algarismo antes da vírgula fica nesta casa. */
+  de: string
+  /** A unidade de chegada: a vírgula fica depois desta casa, e os zeros que faltam aparecem. */
+  para?: string
+  /** Quantos algarismos cada casa leva (2 para m², 3 para m³). Padrão 1. */
+  porCasa?: number
 }
 
 export interface ContaState {
-  parcelas: number[]
+  /** Números ou textos; com vírgula ('3,5' ou 3.5), a conta se alinha pela vírgula. */
+  parcelas: (number | string)[]
   sinal?: '+' | '−'
   /** Os algarismos já escritos do resultado, da direita para a esquerda ("2", "32", "232"). */
   resultado?: string
@@ -50,10 +66,15 @@ export interface ContaState {
   destaque?: string
   /** Multiplicação armada: as linhas entre os dois traços ('92', '230'). */
   parciais?: string[]
+  /** Decimais: completa com zeros apagados as casas que faltam (3,5 aparece 3,50). */
+  zeros?: boolean
+  /** 'direita': arma como nos inteiros, cada caractere numa coluna, sem alinhar a vírgula (o erro, ou a multiplicação). */
+  alinhar?: 'direita'
 }
 
 export interface DivisaoState {
-  dividendo: number
+  /** Um número, ou um texto com vírgula ('7,00'): a vírgula ocupa uma casa, e o quociente leva a sua ('1,75'). */
+  dividendo: number | string
   divisor: number
   /** Os algarismos do quociente já escritos, da esquerda ('10'). */
   quociente?: string
@@ -75,6 +96,8 @@ export interface QuadroInteract {
   onGap?: (i: number) => void
   /** Wrong placement: flash. */
   wrong?: boolean
+  /** Quadro de unidades: a tap on a column puts the comma after it. */
+  onCasa?: (casa: string) => void
 }
 
 const NOMES: Record<string, string> = { U: 'unidades', D: 'dezenas', C: 'centenas', M: 'milhares', DM: 'dezenas de milhar', CM: 'centenas de milhar' }
@@ -90,6 +113,7 @@ export function Quadro({ s, size, ...it }: { s: QuadroState; size: { w: number; 
 
   if (s.conta) return <Conta c={s.conta} size={size} />
   if (s.divisao) return <Divisao d={s.divisao} size={size} />
+  if (s.medida) return <Medida m={s.medida} size={size} onCasa={it.onCasa} wrong={it.wrong} />
   if (s.quantidadeOculta && tags.length) return <Tags tags={tags} big />
   if (s.transicoes?.length) return <Transicoes t={s.transicoes} />
   if (s.algarismos && s.tamanhoGrupo) return <Separar s={s} seps={it.seps ?? s.separadores ?? []} onGap={it.onGap} size={size} />
@@ -349,18 +373,42 @@ function Separar({ s, seps, onGap, size }: { s: QuadroState; seps: number[]; onG
 function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
   const res = c.resultado ?? ''
   const parciais = c.parciais ?? []
-  const width = Math.max(...c.parcelas.map((n) => String(n).length), ...parciais.map((p) => p.length), res.length, 2)
-  const casas = ORDEM.slice(0, width).reverse()
+  const txt = (n: number | string) => (typeof n === 'number' ? String(n).replace('.', ',') : n)
+  const rows = c.parcelas.map(txt)
+  // Decimals line up at the comma; the result, while it has no comma yet, fills from the right.
+  const split = (t: string): [string, string] => {
+    const k = t.indexOf(',')
+    return k < 0 ? [t, ''] : [t.slice(0, k), t.slice(k + 1)]
+  }
+  const direita = c.alinhar === 'direita'
+  const decW = direita ? 0 : Math.max(0, ...[...rows, ...parciais, res].filter((t) => t.includes(',')).map((t) => split(t)[1].length))
+  const dec = decW > 0
+  const intW = direita ? Math.max(2, ...[...rows, ...parciais, res].map((t) => t.length)) : Math.max(...rows.map((t) => split(t)[0].length), ...parciais.map((t) => split(t)[0].length), dec ? (res.includes(',') ? split(res)[0].length : Math.max(0, res.length - decW - 1)) : res.length, dec ? 1 : 2)
+  const width = intW + (dec ? 1 + decW : 0)
+  const comma = dec ? intW : -1
+  // Right-aligned with commas, the place names would lie: the header stays blank.
+  const casas = direita ? Array.from({ length: width }, (_, i) => `·${i}`) : [...ORDEM.slice(0, intW).reverse(), ...(dec ? [',', ...['d', 'c', 'm', 'dm'].slice(0, decW)] : [])]
   const col = Math.min(64, Math.floor((size.w - 64) / (width + 1)))
+  const colW = (i: number) => (i === comma ? col * 0.45 : col)
+  const rowW = casas.reduce((a, _, i) => a + colW(i), 0)
   const rowH = Math.min(col * 1.1, (size.h - 40) / (c.parcelas.length + parciais.length + 2.6))
   const fs = Math.min(col * 0.78, rowH * 0.8)
   const small = Math.max(13, fs * 0.45)
-  const cells = (n: number) => {
-    const d = String(n).split('')
-    return [...Array(width - d.length).fill(''), ...d]
+  /** One row of cells; with `zeros`, missing decimal places come back as ghost zeros. */
+  const lay = (t: string, ghosts = false): { d: string; ghost?: boolean }[] => {
+    if (!dec) return [...Array(Math.max(0, width - t.length)).fill(''), ...t.split('')].map((d) => ({ d }))
+    const [a, b] = split(t)
+    const hasComma = t.includes(',')
+    const intCells = [...Array(Math.max(0, intW - a.length)).fill(''), ...a.split('')].map((d) => ({ d }))
+    const fill = ghosts && c.zeros
+    const fracCells = Array.from({ length: decW }, (_, i) => (i < b.length ? { d: b[i] } : fill ? { d: '0', ghost: true } : { d: '' }))
+    return [...intCells, { d: hasComma || (fill && a) ? ',' : '', ghost: !hasComma }, ...fracCells]
   }
-  const resCells = [...Array(width - res.length).fill(''), ...res.split('')]
-  const pad = (t: string) => [...Array(width - t.length).fill(''), ...t.split('')]
+  const resLay = dec && !res.includes(',') ? [...Array(Math.max(0, width - res.length)).fill(''), ...res.split('')].map((d) => ({ d })) : lay(res)
+  const cells = (n: number | string) => lay(txt(n), true).map((x) => x.d)
+  const ghostOf = (n: number | string) => lay(txt(n), true).map((x) => Boolean(x.ghost))
+  const resCells = resLay.map((x) => x.d)
+  const pad = (t: string) => lay(t).map((x) => x.d)
   const top = { ...c.reservas, ...c.trocas }
   const lit = (i: number) => c.destaque === casas[i]
   return (
@@ -369,16 +417,16 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
         <div className="flex">
           <span style={{ width: col * 0.8 }} />
           {casas.map((casa, i) => (
-            <span key={casa} className={cn('text-center text-[13px] font-medium', lit(i) ? 'text-[#f6b74e]' : 'text-white/40')} style={{ width: col }}>
-              {casa}
+            <span key={casa} className={cn('text-center text-[13px] font-medium', lit(i) ? 'text-[#f6b74e]' : 'text-white/40')} style={{ width: colW(i) }}>
+              {casa === ',' || casa.startsWith('·') ? '' : casa}
             </span>
           ))}
         </div>
         {/* Vai um / empresta. */}
         <div className="flex" style={{ height: small * 1.5 }}>
           <span style={{ width: col * 0.8 }} />
-          {casas.map((casa) => (
-            <span key={casa} className="grid place-items-center font-semibold tabular-nums text-[#f6b74e]" style={{ width: col, fontSize: small }}>
+          {casas.map((casa, i) => (
+            <span key={casa} className="grid place-items-center font-semibold tabular-nums text-[#f6b74e]" style={{ width: colW(i), fontSize: small }}>
               <AnimatePresence>
                 {top[casa] && (
                   <motion.span key={top[casa]} initial={{ opacity: 0, y: 8, scale: 0.6 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}>
@@ -396,8 +444,9 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
             </span>
             {cells(n).map((d, i) => {
               const crossed = r === 0 && c.trocas?.[casas[i]] !== undefined
+              const ghost = ghostOf(n)[i]
               return (
-                <span key={i} className={cn('relative grid place-items-center rounded-lg font-semibold tabular-nums', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: col, height: rowH, fontSize: fs, color: crossed ? 'rgba(255,255,255,0.45)' : '#fff' }}>
+                <span key={i} className={cn('relative grid place-items-center rounded-lg font-semibold tabular-nums', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: colW(i), height: rowH, fontSize: fs, color: crossed || ghost ? 'rgba(255,255,255,0.4)' : '#fff' }}>
                   {d}
                   {crossed && <motion.span aria-hidden initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.35 }} className="absolute h-[2px] origin-left rotate-[-20deg] bg-[#f6b74e]" style={{ width: fs * 0.8 }} />}
                 </span>
@@ -405,24 +454,24 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
             })}
           </div>
         ))}
-        <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: col * (width + 0.8) }} />
+        <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: rowW + col * 0.8 }} />
         {parciais.map((p, r) => (
           <motion.div key={`pp${r}`} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex items-center" style={{ height: rowH }}>
             <span className="text-center font-medium text-white/70" style={{ width: col * 0.8, fontSize: fs * 0.8 }}>
               {r === parciais.length - 1 && parciais.length > 1 ? '+' : ''}
             </span>
             {pad(p).map((d, i) => (
-              <span key={i} className="grid place-items-center font-semibold tabular-nums text-white" style={{ width: col, height: rowH, fontSize: fs }}>
+              <span key={i} className="grid place-items-center font-semibold tabular-nums text-white" style={{ width: colW(i), height: rowH, fontSize: fs }}>
                 {d}
               </span>
             ))}
           </motion.div>
         ))}
-        {parciais.length > 1 && <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: col * (width + 0.8) }} />}
+        {parciais.length > 1 && <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: rowW + col * 0.8 }} />}
         <div className="flex items-center" style={{ height: rowH }}>
           <span style={{ width: col * 0.8 }} />
           {resCells.map((d, i) => (
-            <span key={i} className={cn('grid place-items-center rounded-lg font-semibold tabular-nums text-[#f6b74e]', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: col, height: rowH, fontSize: fs }}>
+            <span key={i} className={cn('grid place-items-center rounded-lg font-semibold tabular-nums text-[#f6b74e]', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: colW(i), height: rowH, fontSize: fs }}>
               <AnimatePresence>
                 {d && (
                   <motion.span key={d + i} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
@@ -434,6 +483,114 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- quadro de unidades
+
+/** The digits of a measure laid in the unit table, and the value read with the comma after `para`. */
+export function medidaCells(m: MedidaState): { cells: string[][]; comma: number; valor: string; zeros: Set<string> } {
+  const k = Math.max(1, m.porCasa ?? 1)
+  const t = typeof m.numero === 'number' ? String(m.numero).replace('.', ',') : m.numero
+  const [a0, b0 = ''] = t.split(',')
+  const a = a0.replace(/\D/g, '') || '0'
+  const de = Math.max(0, m.casas.indexOf(m.de))
+  const para = m.para && m.casas.includes(m.para) ? m.casas.indexOf(m.para) : de
+  // Every digit has a slot: (column, position inside the column); the integer part ends at the last slot of `de`.
+  const slot = (col: number, pos: number) => col * k + pos
+  const endInt = slot(de, k - 1)
+  const digits = new Map<number, string>()
+  a.split('').forEach((d, i) => digits.set(endInt - a.length + 1 + i, d))
+  b0.split('').forEach((d, i) => digits.set(endInt + 1 + i, d))
+  const commaSlot = slot(para, k - 1)
+  const keys = [...digits.keys()]
+  const lo = Math.min(...keys, commaSlot - k + 1)
+  const hi = Math.max(...keys, commaSlot)
+  const zeros = new Set<string>()
+  const total = m.casas.length * k
+  const flat: string[] = Array(total).fill('')
+  for (let i = Math.max(0, lo); i <= Math.min(total - 1, hi); i++) {
+    if (digits.has(i)) flat[i] = digits.get(i)!
+    else {
+      flat[i] = '0'
+      zeros.add(String(i))
+    }
+  }
+  const intPart = flat.slice(0, commaSlot + 1).join('').replace(/^0+(?=\d)/, '') || '0'
+  const frac = flat.slice(commaSlot + 1).join('').replace(/0+$/, '')
+  const intFmt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  const cells = m.casas.map((_, c) => flat.slice(c * k, c * k + k))
+  return { cells, comma: para, valor: frac ? `${intFmt},${frac}` : intFmt, zeros }
+}
+
+function Medida({ m, size, onCasa, wrong }: { m: MedidaState; size: { w: number; h: number }; onCasa?: (casa: string) => void; wrong?: boolean }) {
+  const k = Math.max(1, m.porCasa ?? 1)
+  const { cells, comma, valor, zeros } = medidaCells(m)
+  const n = m.casas.length
+  const col = Math.min(80, Math.floor((size.w - 24) / n))
+  const fs = Math.min(40, (col / k) * 0.8, size.h / 6)
+  const original = typeof m.numero === 'number' ? String(m.numero).replace('.', ',') : m.numero
+  // Leading zeros before the first significant digit read dimmer.
+  const firstSig = cells.flat().findIndex((d) => d !== '' && d !== '0')
+  const sig = (c: number, j: number) => c * k + j >= Math.min(firstSig < 0 ? Infinity : firstSig, comma * k + k - 1)
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-5">
+      <motion.div className="relative flex" animate={wrong ? { x: [0, -8, 8, -5, 5, 0] } : { x: 0 }} transition={{ duration: 0.4 }}>
+        {m.casas.map((casa, c) => (
+          <button
+            key={casa}
+            type="button"
+            disabled={!onCasa}
+            onClick={() => onCasa?.(casa)}
+            className={cn('flex flex-col items-center border-white/10 disabled:pointer-events-none', c > 0 && 'border-l', onCasa && 'cursor-pointer active:scale-[0.97]')}
+            style={{ width: col }}
+            aria-label={`Vírgula depois de ${casa}`}
+          >
+            <span className={cn('pb-2 text-[15px] font-medium', casa === m.de ? 'text-white' : casa === m.para ? 'text-[#f6b74e]' : 'text-white/45')}>{casa}</span>
+            <span className={cn('flex items-center justify-center rounded-xl', onCasa && 'border border-dashed border-white/25 bg-white/[0.03]')} style={{ width: col - 8, height: fs * 1.5 }}>
+              {cells[c].map((d, j) => (
+                <AnimatePresence key={j} mode="popLayout" initial={false}>
+                  {d && (
+                    <motion.span
+                      key={d + (zeros.has(String(c * k + j)) ? 'z' : '')}
+                      initial={{ opacity: 0, y: -12, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={spring}
+                      className="font-semibold tabular-nums"
+                      style={{ fontSize: fs, width: (col - 12) / k, textAlign: 'center', color: zeros.has(String(c * k + j)) ? amber : sig(c, j) ? '#fff' : 'rgba(255,255,255,0.35)' }}
+                    >
+                      {d}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              ))}
+            </span>
+          </button>
+        ))}
+        {/* The comma, sitting on the line after the column of the unit being read. */}
+        <motion.span
+          className="pointer-events-none absolute font-bold text-[#f6b74e]"
+          initial={false}
+          animate={{ left: (comma + 1) * col - fs * 0.18, opacity: cells.slice(comma + 1).flat().some(Boolean) ? 1 : 0 }}
+          transition={spring}
+          style={{ bottom: fs * 0.05, fontSize: fs * 1.1, lineHeight: 1 }}
+        >
+          ,
+        </motion.span>
+      </motion.div>
+      <p className="text-center text-[22px] font-semibold tabular-nums text-white">
+        {m.para && m.para !== m.de ? (
+          <>
+            {original} {m.de} = <span className="text-[#f6b74e]">{valor} {m.para}</span>
+          </>
+        ) : (
+          <>
+            {valor} {m.de}
+          </>
+        )}
+      </p>
     </div>
   )
 }
@@ -452,7 +609,8 @@ function Divisao({ d, size }: { d: DivisaoState; size: { w: number; h: number } 
   const linhas = d.linhas ?? []
   const div = String(d.divisor)
   const cols = dig.length + 1 // one spare column on the left for the "−"
-  const rightCols = Math.max(div.length, String(Math.floor(d.dividendo / Math.max(1, d.divisor))).length, q.length) + 0.6
+  const valor = typeof d.dividendo === 'number' ? d.dividendo : Number(d.dividendo.replace(/\./g, '').replace(',', '.'))
+  const rightCols = Math.max(div.length, String(Math.floor(valor / Math.max(1, d.divisor))).length, q.length) + 0.6
   const col = Math.min(56, Math.floor((size.w - 64) / (cols + rightCols + 0.6)))
   const rowH = Math.min(col * 1.1, (size.h - 30) / (linhas.length + 1.4))
   const fs = Math.min(col * 0.78, rowH * 0.78)

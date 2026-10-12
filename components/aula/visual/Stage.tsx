@@ -3,6 +3,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Visual } from '@/lib/formation/schema'
 import { useSize } from '../useSize'
+import { Barra, type BarraInteract, type BarraState } from './Barra'
+import { Grade, type GradeInteract, type GradeState } from './Grade'
 import { Blocos, type BlocosState, type Ordem } from './Blocos'
 import { Livre, hasLivre, type LivreInteract, type LivreState } from './Livre'
 import { Quadro, type QuadroInteract, type QuadroState } from './Quadro'
@@ -19,6 +21,8 @@ export interface Interact {
   reta?: RetaInteract
   livre?: LivreInteract
   retangulo?: RetanguloInteract
+  barra?: BarraInteract
+  grade?: GradeInteract
 }
 
 /** The content's state, with the names the generators also use mapped in. */
@@ -38,7 +42,7 @@ export function normalize(v: Visual): Record<string, unknown> {
 export function hasStage(v?: Visual | null): v is Visual {
   if (!v) return false
   if (v.modelo === 'livre') return hasLivre(v.estado as LivreState)
-  return ['blocos', 'reta', 'quadro-posicional', 'retangulo'].includes(v.modelo)
+  return ['blocos', 'reta', 'quadro-posicional', 'retangulo', 'barra', 'grade'].includes(v.modelo)
 }
 
 export function Stage({ visual, interact }: { visual: Visual; interact?: Interact }) {
@@ -61,6 +65,8 @@ export function Stage({ visual, interact }: { visual: Visual; interact?: Interac
               {visual.modelo === 'quadro-posicional' && <Quadro s={s as QuadroState} size={size} {...interact?.quadro} />}
               {visual.modelo === 'reta' && <Reta s={s as RetaState} size={size} {...interact?.reta} />}
               {visual.modelo === 'retangulo' && <Retangulo s={s as RetanguloState} size={size} {...interact?.retangulo} />}
+              {visual.modelo === 'barra' && <Barra s={s as BarraState} size={size} {...interact?.barra} />}
+              {visual.modelo === 'grade' && <Grade s={s as GradeState} size={size} {...interact?.grade} />}
               {visual.modelo === 'livre' && <Livre s={s as LivreState} size={size} {...interact?.livre} />}
             </>
           )}

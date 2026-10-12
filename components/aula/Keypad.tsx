@@ -7,15 +7,17 @@ import { haptic } from '@/lib/observatory/immersive'
 import { cn } from '@/lib/utils'
 
 // Teclado numérico da aula: na tela, para o teclado do celular não cobrir o
-// palco. O ponto é opcional (separa as classes: 12.500).
+// palco. O ponto é opcional (separa as classes: 12.500). Quando a resposta é
+// um decimal, a tecla do ponto vira a vírgula (0,25).
 
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫']
-
-export function Keypad({ value, onChange, onEnter, disabled, max = 14 }: { value: string; onChange: (v: string) => void; onEnter?: () => void; disabled?: boolean; max?: number }) {
+export function Keypad({ value, onChange, onEnter, disabled, max = 14, virgula }: { value: string; onChange: (v: string) => void; onEnter?: () => void; disabled?: boolean; max?: number; virgula?: boolean }) {
+  const sep = virgula ? ',' : '.'
+  const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', sep, '0', '⌫']
   const press = (k: string) => {
     if (disabled) return
     haptic(4)
     if (k === '⌫') onChange(value.slice(0, -1))
+    else if (k === ',' && value.includes(',')) return
     else if (value.replace(/\D/g, '').length < max) onChange(value + k)
   }
 
@@ -23,7 +25,8 @@ export function Keypad({ value, onChange, onEnter, disabled, max = 14 }: { value
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (disabled || e.metaKey || e.ctrlKey) return
-      if (/^[0-9.]$/.test(e.key)) press(e.key)
+      if (/^[0-9]$/.test(e.key)) press(e.key)
+      else if (e.key === '.' || e.key === ',') press(sep)
       else if (e.key === 'Backspace') press('⌫')
       else if (e.key === 'Enter' && value) onEnter?.()
       else return
@@ -43,7 +46,7 @@ export function Keypad({ value, onChange, onEnter, disabled, max = 14 }: { value
           whileTap={{ scale: 0.94 }}
           disabled={disabled}
           onClick={() => press(k)}
-          aria-label={k === '⌫' ? 'Apagar' : k === '.' ? 'Ponto' : k}
+          aria-label={k === '⌫' ? 'Apagar' : k === '.' ? 'Ponto' : k === ',' ? 'Vírgula' : k}
           className={cn(
             'focus-ring grid h-[52px] place-items-center rounded-2xl text-[24px] font-medium tabular-nums text-white transition-colors disabled:opacity-40',
             k === '⌫' || k === '.' ? 'bg-transparent text-white/70 hover:bg-white/[0.05]' : 'bg-white/[0.07] hover:bg-white/[0.11]',
@@ -74,10 +77,4 @@ export function Display({ value, state }: { value: string; state?: 'right' | 'wr
   )
 }
 
-/** Same number? Ignores the dots and spaces that only group the digits. */
-export function sameAnswer(typed: string, answer: string | number): boolean {
-  const n = (v: string) => v.replace(/[.\s]/g, '').replace(/^0+(?=\d)/, '').toLowerCase()
-  return n(typed) === n(String(answer))
-}
-
-export const normalizeAnswer = (v: string) => v.replace(/[.\s]/g, '').replace(/^0+(?=\d)/, '')
+export { isDecimal, normalizeAnswer, sameAnswer } from './resposta'

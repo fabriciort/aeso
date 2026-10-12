@@ -9,6 +9,8 @@ import { Tex } from '@/components/math/Tex'
 const REAL = '\u0000'
 const guarda = (t: string) => t.replace(/R\$/g, `R${REAL}`)
 const solta = (t: string) => t.replaceAll(REAL, '$')
+// Frações no meio do texto ficam do tamanho da letra, não miúdas (3/4 se lê de longe).
+const grande = (tex: string) => tex.replace(/\\frac(?=\{)/g, '\\dfrac')
 
 export function Rich({ text }: { text: string }) {
   const parts = guarda(text).split(/(\$[^$]+\$|\*\*[^*]+\*\*)/g).filter(Boolean).map(solta)
@@ -16,7 +18,7 @@ export function Rich({ text }: { text: string }) {
     <>
       {parts.map((p, i) =>
         p.startsWith('$') ? (
-          <Tex key={i}>{p.slice(1, -1)}</Tex>
+          <Tex key={i} className={p.includes('\\frac') ? 'inline-block py-0.5' : undefined}>{grande(p.slice(1, -1))}</Tex>
         ) : p.startsWith('**') ? (
           <strong key={i} className="font-semibold text-white">
             {p.slice(2, -2)}
