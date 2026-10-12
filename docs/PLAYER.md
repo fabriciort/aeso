@@ -125,6 +125,7 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `etiquetas`, `escritas`, `etiqueta`, `fichas` | cartões de texto; com `quantidadeOculta` aparecem sozinhos, grandes |
 | `ditado` | o número por extenso, acima do quadro |
 | `conta` | a conta armada num caderno quadriculado: `{ parcelas: [147, 85], sinal: '+' }`; `resultado` são os algarismos já escritos, da direita (`'32'`); `reservas` são os vai um em âmbar acima da casa (`{ D: '1' }`); `trocas` riscam o algarismo de cima e escrevem o novo valor (`{ D: '4', U: '12' }`); `destaque` acende uma coluna (`'U'`) |
+| `conta` com `sinal: '×'` | a multiplicação armada: `{ parcelas: [23, 14], sinal: '×', parciais: ['92', '230'], resultado: '322', reservas: { D: '1' } }`. `parciais` são as linhas entre os dois traços (cada uma alinhada à direita; o zero de deslocamento faz parte do texto); `resultado` vem depois do segundo traço. Sem `parciais`, fica como a soma: um traço só |
 
 ### `reta`
 
@@ -144,6 +145,45 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `comparacoes`, `comparacao`, `aproximacao` | frases grandes embaixo (ex.: `12 > 7`) |
 | `unidade` | junto das etiquetas (ex.: km) |
 
+### `retangulo`
+
+O retângulo de multiplicação. Duas formas:
+
+**Em quadradinhos** (fatos até 12 × 12): `linhas` × `colunas` quadradinhos.
+
+| Chave | Efeito |
+|---|---|
+| `linhas`, `colunas` | o tamanho; mudanças animam (uma linha nova desliza para baixo) |
+| `rotulos: true` | escreve quantas linhas (à esquerda) e quantas colunas (em cima); com cortes, o tamanho de cada parte |
+| `cortes` | colunas onde o retângulo se parte, contando da esquerda (`[5]` parte 7 colunas em 5 + 2) |
+| `cortesLinhas` | o mesmo, nas linhas |
+| `areas: true` | escreve o produto dentro de cada parte |
+| `destaque` | acende uma parte: `[linha, coluna]` das partes (`[0, 1]`), ou `'linha'` (a primeira linha, um grupo) |
+| `girar: true` | o retângulo gira 90° (linhas viram colunas) |
+| `total` | o número embaixo |
+| `grupos: true` | cada linha aparece como um grupo separado (pacotes iguais), com um pequeno espaço entre as linhas |
+
+**Por área** (números maiores, sem quadradinhos): `base` e `altura` são listas das partes de cada lado.
+
+| Chave | Efeito |
+|---|---|
+| `base`, `altura` | ex.: `base: [20, 3]`, `altura: [10, 4]` para 23 × 14; as partes ficam proporcionais (com um tamanho mínimo para caber o rótulo) |
+| `areas: true` ou `areas: [[200, 30], [80, 12]]` | escreve o produto em cada parte (true calcula; uma lista escreve o que vier, inclusive `'?'`) |
+| `destaque`, `total` | como acima |
+
+### `quadro-posicional`: divisão na chave
+
+| Chave | Efeito |
+|---|---|
+| `divisao` | `{ dividendo: 612, divisor: 6, quociente?: '10', linhas?: [['−6', 0], ['01', 1]], destaque?: 1 }`. O método da chave: o dividendo à esquerda, o divisor na caixa, o quociente embaixo do divisor (os algarismos já escritos, da esquerda). Cada linha embaixo do dividendo é um texto e o índice da casa do dividendo (da esquerda, a partir de 0) onde o último caractere termina. `destaque` acende uma casa do dividendo |
+
+### `livre`: expressões e calculadoras
+
+| Chave | Efeito |
+|---|---|
+| `expressao` + (`destaque`) | uma expressão resolvida em etapas, uma por linha, de cima para baixo (`['2 + 3 × 4', '2 + 12', '14']`); a última fica maior. `destaque` é um trecho da última linha que ganha uma moldura âmbar (`'3 × 4'`) |
+| `calculadoras` | visores lado a lado: `[{ nome: 'Celular', teclas: '2 + 3 × 4 =', visor: '20' }, …]` |
+
 ### `livre`
 
 Um destes, nesta ordem:
@@ -161,7 +201,7 @@ Um destes, nesta ordem:
 
 Um estado `livre` sem nenhuma dessas chaves não desenha nada. O cartão fica só com o texto, maior.
 
-`barra`, `retangulo`, `grade` e `balanca` ainda não existem no player. Eles chegam com as unidades que os usam.
+`barra`, `grade` e `balanca` ainda não existem no player. Eles chegam com as unidades que os usam.
 
 ## Mexa: as manipulações
 
@@ -178,6 +218,9 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `reta` com `escolhas` | `{ vizinho }` | toca uma das marcas |
 | `reta`, `acao.tipo: 'deslizar'` | `{ numero }` | arrasta um ponto entre `de + unidadeDe` e `de + unidadeAte`; a seta mostra o arredondamento |
 | `livre` com `fichas` | `{ ordem }` | toca as fichas na ordem |
+| `retangulo` com `adicionar: true` | `{ linhas }` | toca o retângulo (ou "+ 1 linha") e uma linha nova de `colunas` quadradinhos entra; começa de `linhas` (pode ser 0) |
+| `retangulo` com `cortar: true` | `{ corte }` | toca entre duas colunas para partir o retângulo ali; o certo é a coluna `corte` |
+| `retangulo` com `girar: true` em `acao.sucesso` | `{ girado: true }` | toca o retângulo e ele gira 90° |
 
 - **Retorno:**
   - Um erro balança o palco e mostra uma frase curta.

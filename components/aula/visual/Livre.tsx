@@ -28,6 +28,11 @@ export interface LivreState {
   atalho?: string
   destino?: string
   superficie?: string
+  /** Uma expressão resolvida em etapas, uma por linha; `destaque` é um trecho da última. */
+  expressao?: string[]
+  destaque?: string
+  /** Visores de calculadora lado a lado. */
+  calculadoras?: { nome: string; teclas: string; visor: string }[]
 }
 
 export interface LivreInteract {
@@ -39,13 +44,17 @@ export interface LivreInteract {
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
-      {s.jornada ? (
+      {s.expressao?.length ? (
+        <Expressao etapas={s.expressao} destaque={s.destaque} />
+      ) : s.calculadoras?.length ? (
+        <Calculadoras c={s.calculadoras} />
+      ) : s.jornada ? (
         <Jornada paradas={s.jornada} aqui={s.aqui ?? 0} feitas={s.feitas ?? 0} h={size.h} />
       ) : s.fichas && s.lugares ? (
         <Ordenar fichas={s.fichas} lugares={s.lugares} order={it.order ?? []} onFicha={it.onFicha} wrong={it.wrong} />
@@ -66,6 +75,53 @@ export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h:
       ) : (
         <Itens itens={s.alvos ?? s.registros ?? s.caminhos ?? s.comparacao ?? (s.superficie ? [s.superficie] : [])} column={Boolean(s.alvos)} />
       )}
+    </div>
+  )
+}
+
+/** Each step of the expression on its own line; the last is the current one. */
+function Expressao({ etapas, destaque }: { etapas: string[]; destaque?: string }) {
+  const last = etapas.length - 1
+  const marked = (t: string) => {
+    const at = destaque ? t.indexOf(destaque) : -1
+    if (at < 0) return t
+    return (
+      <>
+        {t.slice(0, at)}
+        <motion.span layoutId="exp-destaque" className="rounded-lg px-1.5 py-0.5 text-[#f6b74e] ring-2 ring-[#f6b74e]">
+          {destaque}
+        </motion.span>
+        {t.slice(at + destaque!.length)}
+      </>
+    )
+  }
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {etapas.map((t, i) => (
+        <motion.p
+          key={`${i}-${t}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i === last ? 0.15 : 0, duration: 0.45 }}
+          className={cn('whitespace-nowrap font-semibold tabular-nums', i === last ? 'text-[32px] text-white' : 'text-[20px] text-white/45')}
+        >
+          {i === last ? marked(t) : t}
+        </motion.p>
+      ))}
+    </div>
+  )
+}
+
+function Calculadoras({ c }: { c: { nome: string; teclas: string; visor: string }[] }) {
+  return (
+    <div className="flex flex-wrap items-stretch justify-center gap-4">
+      {c.map((k, i) => (
+        <motion.div key={k.nome} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }} className="flex w-[150px] flex-col gap-2 rounded-3xl border border-white/15 bg-white/[0.04] p-3">
+          <span className="text-center text-[13px] font-medium text-white/55">{k.nome}</span>
+          <span className="rounded-xl bg-[#0f1a12] px-3 py-3 text-right font-mono text-[30px] font-semibold tabular-nums text-[#c8f7c5]">{k.visor}</span>
+          <span className="text-center text-[13px] tabular-nums text-white/50">{k.teclas}</span>
+        </motion.div>
+      ))}
     </div>
   )
 }

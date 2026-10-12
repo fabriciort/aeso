@@ -58,6 +58,15 @@ function play(card: Mexa): MexaState {
     case 'ordem':
       for (const f of ok.ordem as string[]) stage().interact!.livre!.onFicha!(f)
       break
+    case 'linhas':
+      for (let n = 0; n < 30 && !st.done; n++) stage().interact!.retangulo!.onAdd!()
+      break
+    case 'cortar':
+      stage().interact!.retangulo!.onCut!(ok.corte as number)
+      break
+    case 'girar':
+      stage().interact!.retangulo!.onTurn!()
+      break
   }
   return st
 }

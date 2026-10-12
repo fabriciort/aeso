@@ -7,7 +7,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -53,6 +53,11 @@ export function kindOf(card: Mexa): Kind {
       return 'mostre'
     case 'livre':
       return arr(e.fichas) && arr(ok.ordem) ? 'ordem' : 'mostre'
+    case 'retangulo':
+      if (e.adicionar === true && num(ok.linhas) !== undefined) return 'linhas'
+      if (e.cortar === true && num(ok.corte) !== undefined) return 'cortar'
+      if (ok.girado === true) return 'girar'
+      return 'mostre'
     default:
       return 'mostre'
   }
@@ -95,6 +100,10 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: num(e.numero) ?? num(e.de) ?? 0 }
     case 'ordem':
       return { ...base, order: [] }
+    case 'linhas':
+      return { ...base, drag: num(e.linhas) ?? 0 }
+    case 'cortar':
+      return { ...base, pick: null }
     default:
       return base
   }
@@ -130,6 +139,10 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, drag: ok.numero as number }
     case 'ordem':
       return { ...done, order: [...(ok.ordem as string[])] }
+    case 'linhas':
+      return { ...done, drag: ok.linhas as number }
+    case 'cortar':
+      return { ...done, pick: ok.corte as number }
     default:
       void e
       return done
@@ -315,6 +328,50 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'linhas': {
+      // Rows go in one at a time; past the answer, the last row can be taken back.
+      const target = ok.linhas as number
+      const rows = st.drag ?? 0
+      const { adicionar: _a, ...rest } = e
+      void _a
+      const add = () => {
+        const n = rows + 1
+        const over = n > target
+        set({ ...st, drag: n, done: n === target, wrong: over ? st.wrong + 1 : st.wrong, note: over ? 'Passou. Toque na última linha para tirar.' : undefined })
+      }
+      const remove = () => {
+        const n = rows - 1
+        set({ ...st, drag: n, done: n === target, note: undefined })
+      }
+      return {
+        visual: visual({ ...rest, linhas: rows }),
+        interact: { retangulo: { onAdd: lock || rows >= target + 2 ? undefined : add, onRemove: lock || rows <= target ? undefined : remove, maxLinhas: target + 1, wrong: Boolean(st.note) } },
+      }
+    }
+    case 'cortar': {
+      const { cortar: _c, ...rest } = e
+      void _c
+      const cut = st.pick
+      return {
+        visual: visual(cut !== null && cut !== undefined ? { ...rest, cortes: [cut], rotulos: true, areas: st.done ? (e.areas ?? true) : e.areas } : rest),
+        interact: {
+          retangulo: {
+            wrong: Boolean(st.note),
+            onCut: lock
+              ? undefined
+              : (i) => {
+                  const right = i === ok.corte
+                  set({ ...st, pick: i, done: right, wrong: right ? st.wrong : st.wrong + 1, note: right ? undefined : 'Tente partir em outro lugar.' })
+                },
+          },
+        },
+      }
+    }
+    case 'girar':
+      return {
+        visual: visual({ ...e, girar: st.done ? !e.girar : e.girar }),
+        interact: { retangulo: { onTurn: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
     default:
       return { visual: card.visual }
   }
@@ -330,5 +387,8 @@ export const GESTO: Record<Kind, string | null> = {
   vizinho: 'Toque numa das duas marcas.',
   deslizar: 'Arraste o ponto pela reta.',
   ordem: 'Toque nas fichas, na ordem.',
+  linhas: 'Toque em "+ 1 linha".',
+  cortar: 'Toque entre duas colunas para partir o retângulo.',
+  girar: 'Toque no retângulo para girar.',
   mostre: null,
 }

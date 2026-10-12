@@ -33,6 +33,8 @@ export interface QuadroState {
   numeroOculto?: boolean
   /** Conta armada: as parcelas, o sinal, o resultado (da direita, pode ser parcial), o vai um e o empresta. */
   conta?: ContaState
+  /** Divisão na chave. */
+  divisao?: DivisaoState
 }
 
 export interface ContaState {
@@ -46,6 +48,19 @@ export interface ContaState {
   trocas?: Record<string, string>
   /** Casa acesa ('U', 'D', 'C'). */
   destaque?: string
+  /** Multiplicação armada: as linhas entre os dois traços ('92', '230'). */
+  parciais?: string[]
+}
+
+export interface DivisaoState {
+  dividendo: number
+  divisor: number
+  /** Os algarismos do quociente já escritos, da esquerda ('10'). */
+  quociente?: string
+  /** Linhas embaixo do dividendo: o texto e a casa (da esquerda, a partir de 0) onde ele termina. */
+  linhas?: [string, number][]
+  /** Casa do dividendo acesa (da esquerda, a partir de 0). */
+  destaque?: number
 }
 
 export interface QuadroInteract {
@@ -74,6 +89,7 @@ export function Quadro({ s, size, ...it }: { s: QuadroState; size: { w: number; 
   const tags = (s.etiquetas ?? s.escritas ?? (s.etiqueta ? [s.etiqueta] : [])).concat((s.fichas ?? []).map((f) => (typeof f === 'number' ? fmt(f) : f)))
 
   if (s.conta) return <Conta c={s.conta} size={size} />
+  if (s.divisao) return <Divisao d={s.divisao} size={size} />
   if (s.quantidadeOculta && tags.length) return <Tags tags={tags} big />
   if (s.transicoes?.length) return <Transicoes t={s.transicoes} />
   if (s.algarismos && s.tamanhoGrupo) return <Separar s={s} seps={it.seps ?? s.separadores ?? []} onGap={it.onGap} size={size} />
@@ -332,10 +348,11 @@ function Separar({ s, seps, onGap, size }: { s: QuadroState; seps: number[]; onG
  */
 function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
   const res = c.resultado ?? ''
-  const width = Math.max(...c.parcelas.map((n) => String(n).length), res.length, 2)
+  const parciais = c.parciais ?? []
+  const width = Math.max(...c.parcelas.map((n) => String(n).length), ...parciais.map((p) => p.length), res.length, 2)
   const casas = ORDEM.slice(0, width).reverse()
   const col = Math.min(64, Math.floor((size.w - 64) / (width + 1)))
-  const rowH = Math.min(col * 1.1, (size.h - 40) / (c.parcelas.length + 2.6))
+  const rowH = Math.min(col * 1.1, (size.h - 40) / (c.parcelas.length + parciais.length + 2.6))
   const fs = Math.min(col * 0.78, rowH * 0.8)
   const small = Math.max(13, fs * 0.45)
   const cells = (n: number) => {
@@ -343,6 +360,7 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
     return [...Array(width - d.length).fill(''), ...d]
   }
   const resCells = [...Array(width - res.length).fill(''), ...res.split('')]
+  const pad = (t: string) => [...Array(width - t.length).fill(''), ...t.split('')]
   const top = { ...c.reservas, ...c.trocas }
   const lit = (i: number) => c.destaque === casas[i]
   return (
@@ -388,6 +406,19 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
           </div>
         ))}
         <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: col * (width + 0.8) }} />
+        {parciais.map((p, r) => (
+          <motion.div key={`pp${r}`} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex items-center" style={{ height: rowH }}>
+            <span className="text-center font-medium text-white/70" style={{ width: col * 0.8, fontSize: fs * 0.8 }}>
+              {r === parciais.length - 1 && parciais.length > 1 ? '+' : ''}
+            </span>
+            {pad(p).map((d, i) => (
+              <span key={i} className="grid place-items-center font-semibold tabular-nums text-white" style={{ width: col, height: rowH, fontSize: fs }}>
+                {d}
+              </span>
+            ))}
+          </motion.div>
+        ))}
+        {parciais.length > 1 && <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: col * (width + 0.8) }} />}
         <div className="flex items-center" style={{ height: rowH }}>
           <span style={{ width: col * 0.8 }} />
           {resCells.map((d, i) => (
@@ -401,6 +432,81 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
               </AnimatePresence>
             </span>
           ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- divisão na chave
+
+/**
+ * O método da chave: o dividendo à esquerda, o divisor na caixa, o quociente
+ * embaixo dele. As linhas embaixo do dividendo (o que se tira e o que sobra)
+ * ficam alinhadas às casas do dividendo; uma linha que começa com "−" ganha
+ * um traço embaixo.
+ */
+function Divisao({ d, size }: { d: DivisaoState; size: { w: number; h: number } }) {
+  const dig = String(d.dividendo).split('')
+  const q = d.quociente ?? ''
+  const linhas = d.linhas ?? []
+  const div = String(d.divisor)
+  const cols = dig.length + 1 // one spare column on the left for the "−"
+  const rightCols = Math.max(div.length, String(Math.floor(d.dividendo / Math.max(1, d.divisor))).length, q.length) + 0.6
+  const col = Math.min(56, Math.floor((size.w - 64) / (cols + rightCols + 0.6)))
+  const rowH = Math.min(col * 1.1, (size.h - 30) / (linhas.length + 1.4))
+  const fs = Math.min(col * 0.78, rowH * 0.78)
+  const cellsOf = (t: string, ate: number) => {
+    const neg = t.startsWith('−') || t.startsWith('-')
+    const body = neg ? t.slice(1) : t
+    const row: string[] = Array(cols).fill('')
+    const end = ate + 1 // shift for the spare column
+    body.split('').forEach((ch, i) => (row[end - body.length + 1 + i] = ch))
+    if (neg) row[end - body.length] = '−'
+    return { row, neg, from: end - body.length + 1, to: end }
+  }
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="caderno flex rounded-2xl px-4 py-4">
+        <div>
+          <div className="flex" style={{ height: rowH }}>
+            {['', ...dig].map((ch, i) => (
+              <span key={i} className={cn('grid place-items-center rounded-lg font-semibold tabular-nums text-white', d.destaque === i - 1 && 'bg-[#f6b74e]/[0.15] text-[#f6b74e]')} style={{ width: col, height: rowH, fontSize: fs }}>
+                {ch}
+              </span>
+            ))}
+          </div>
+          {linhas.map(([t, ate], r) => {
+            const { row, neg, from, to } = cellsOf(t, ate)
+            return (
+              <motion.div key={`${r}-${t}`} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="relative flex" style={{ height: rowH }}>
+                {row.map((ch, i) => (
+                  <span key={i} className={cn('grid place-items-center font-semibold tabular-nums', ch === '−' ? 'text-white/70' : neg ? 'text-white/85' : 'text-[#f6b74e]')} style={{ width: col, height: rowH, fontSize: ch === '−' ? fs * 0.8 : fs }}>
+                    {ch}
+                  </span>
+                ))}
+                {neg && <span className="absolute bottom-0 h-[2px] rounded-full bg-white/60" style={{ left: (from - 1) * col + col * 0.3, width: (to - from + 1) * col + col * 0.7 }} />}
+              </motion.div>
+            )
+          })}
+        </div>
+        <div className="border-l-2 border-white/70 pl-2">
+          <div className="flex items-center border-b-2 border-white/70" style={{ height: rowH, minWidth: col * rightCols }}>
+            {div.split('').map((ch, i) => (
+              <span key={i} className="grid place-items-center font-semibold tabular-nums text-white" style={{ width: col, height: rowH, fontSize: fs }}>
+                {ch}
+              </span>
+            ))}
+          </div>
+          <div className="flex" style={{ height: rowH }}>
+            <AnimatePresence>
+              {q.split('').map((ch, i) => (
+                <motion.span key={`${i}${ch}`} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="grid place-items-center font-semibold tabular-nums text-[#f6b74e]" style={{ width: col, height: rowH, fontSize: fs }}>
+                  {ch}
+                </motion.span>
+              ))}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
