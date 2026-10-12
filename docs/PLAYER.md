@@ -219,6 +219,21 @@ Um destes, nesta ordem:
 
 Um estado `livre` sem nenhuma dessas chaves não desenha nada. O cartão fica só com o texto, maior.
 
+### `livre`: tabela de proporção
+
+A tabela de proporção da U10: uma grandeza em cada linha e os pares lado a lado, em colunas. As setas mostram a conta que leva de uma coluna a outra (em cima e embaixo) ou de uma linha à outra (à direita).
+
+| Chave | Efeito |
+|---|---|
+| `tabela.linhas` | `[{ rotulo: 'farinha (xícaras)', valores: [2, 4, 6] }, { rotulo: 'ovos', valores: [3, 6, '?'] }]`. `'?'` ou `null` é o valor que falta: aparece em âmbar, com borda tracejada |
+| `tabela.setas` | setas curvas entre colunas: `[{ de: 0, para: 1, rotulo: '× 2' }, { de: 0, para: 1, rotulo: '÷ 2', embaixo: true }]`. Sem `embaixo`, a seta fica em cima da primeira linha; com ela, embaixo da última. Na proporção inversa, × em cima e ÷ embaixo |
+| `tabela.fator` | uma seta à direita, da primeira linha para a segunda, com o fator que vale para toda coluna (`'× 12'`: R$ 12 o quilo) |
+| `tabela.destaque` | colunas com moldura âmbar (`[2]`) |
+| `tabela.mostradas` | quantas colunas aparecem; as outras ficam como caixas vazias |
+| `tabela.completar: true` | o Mexa "completar" (veja abaixo) |
+
+Os números da tabela inteira têm o mesmo tamanho, o que cabe no mais comprido. Com muitas colunas no celular (5 ou mais), os rótulos encolhem primeiro.
+
 ### `barra`
 
 A barra de frações: cada barra é um inteiro partido em partes iguais, e as pintadas (em âmbar) são a fração. Barras empilhadas têm o mesmo comprimento por inteiro, então comparam pedaços.
@@ -279,6 +294,7 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `quadro-posicional` com `medida` | `{ para }` | toca a unidade de chegada: a vírgula anda até depois dela e os zeros que faltam aparecem |
 | `grade` com `pintar: true` | `{ pintadas }` | toca os quadradinhos para pintar (um toque pinta até ali, coluna por coluna; um toque num pintado tira dali em diante). Com `porColuna: true`, cada toque pinta a coluna inteira (para décimos; `pintadas` deve ser múltiplo de 10). Com várias grades, `ativa` é o índice do número que recebe os toques |
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
+| `livre` com `tabela.completar: true` | `{ colunas }` | toca a próxima coluna vazia e ela se preenche, com as setas que chegam nela; começa com `tabela.mostradas` (padrão 1) e termina quando aparecem `colunas` colunas |
 
 - **Retorno:**
   - Um erro balança o palco e mostra uma frase curta.

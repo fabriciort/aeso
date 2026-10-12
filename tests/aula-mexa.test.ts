@@ -80,6 +80,9 @@ function play(card: Mexa): MexaState {
       g.onCell!(g.ativa ?? 0, (ok.pintadas as number) - 1)
       break
     }
+    case 'tabela':
+      for (let n = 0; n < 12 && !st.done; n++) stage().interact!.livre!.onColuna!(st.drag!)
+      break
     case 'partir':
       for (let n = 0; n < 10 && !st.done; n++) {
         const b = stage().interact!.barra!
