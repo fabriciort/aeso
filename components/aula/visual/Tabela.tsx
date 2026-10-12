@@ -66,9 +66,11 @@ export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: Tabe
   const pad = 12
   const room = (lw: number, fw: number) => (size.w - pad * 2 - lw - fw) / Math.max(1, n)
   // Many columns on a phone: the labels and the side arrow give up room first.
-  const roomy = room(Math.max(70, size.w * 0.3), s.fator ? 78 : 0) >= 54
+  // The labels take what their longest word line needs (they wrap), up to 30 % of the width.
+  const fitLabel = Math.min(124, size.w * 0.3, Math.max(56, ...linhas.map((l) => Math.min(l.rotulo.length, 14) * 7.2 + 10)))
+  const roomy = room(fitLabel, s.fator ? 78 : 0) >= 54
   const fatorW = s.fator ? (roomy ? 78 : 58) : 0
-  const labelW = roomy ? Math.min(124, Math.max(70, size.w * 0.3)) : 66
+  const labelW = roomy ? fitLabel : Math.min(fitLabel, 66)
   const cellW = Math.max(40, Math.min(92, room(labelW, fatorW)))
   const cellH = Math.max(46, Math.min(64, size.h / 6))
   const arcH = Math.min(46, cellW * 0.55)
@@ -80,7 +82,7 @@ export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: Tabe
   // Dots and commas are narrow: half a digit.
   const largura = (t: string) => t.replace(/[.,]/g, '').length + (t.match(/[.,]/g)?.length ?? 0) / 2
   const longest = Math.max(2, ...linhas.flatMap((l) => l.valores.map((v) => largura(String(texto(v))))))
-  const fs = Math.min(26, cellH * 0.46, (cellW - 16) / (0.6 * longest))
+  const fs = Math.min(26, cellH * 0.46, (cellW - 12) / (0.58 * longest))
   const cx = (c: number) => ox + labelW + (c + 0.5) * cellW
   const yTop = oy
   const yBot = oy + linhas.length * cellH

@@ -93,9 +93,9 @@ function barrasOf(s: BarraState): BarraLinha[] {
 function gradeAtivaOf(card: Mexa): { i: number; g: GradeItem; com: (g: GradeItem) => Record<string, unknown> } {
   const e = card.visual.estado
   const i = num(e.ativa) ?? 0
-  const gs: GradeItem[] = arr<GradeItem>(e.grades)?.length ? (e.grades as GradeItem[]) : [{ pintadas: num(e.pintadas), inteiros: num(e.inteiros), rotulo: e.rotulo as string | undefined }]
-  const { pintar: _p, porColuna: _c, ativa: _a, pintadas: _n, inteiros: _w, marcadas: _k, rotulo: _r, ...rest } = e
-  void [_p, _c, _a, _n, _w, _k, _r]
+  const gs: GradeItem[] = arr<GradeItem>(e.grades)?.length ? (e.grades as GradeItem[]) : [{ pintadas: num(e.pintadas), inteiros: num(e.inteiros), rotulo: e.rotulo as string | undefined, leitura: e.leitura as GradeItem['leitura'] }]
+  const { pintar: _p, porColuna: _c, ativa: _a, pintadas: _n, inteiros: _w, marcadas: _k, rotulo: _r, leitura: _l, ...rest } = e
+  void [_p, _c, _a, _n, _w, _k, _r, _l]
   return { i, g: gs[i] ?? {}, com: (g) => ({ ...rest, grades: gs.map((x, j) => (j === i ? g : x)) }) }
 }
 

@@ -46,7 +46,7 @@ No primeiro cartão, no lugar do botão de voltar, fica **Já sei isso**: leva d
 | `gancho`, `ideia`, `fecho` | palco + texto grande | já está pronto |
 | `mexa` | palco interativo + texto + instrução | o estado de `sucesso` é alcançado, ou o aluno toca "Me mostre" |
 | `aposta` | palco + pergunta + opções | uma escolha |
-| `passo` | palco + caderno da tela + pergunta do passo | o último passo é acertado |
+| `passo` | palco + caderno da tela + pergunta do passo. O `mostra` de uma opção troca o palco quando ela é tocada, a certa também: use-o na certa de cada passo para o palco andar com a conta (o `?` da tabela vira o número achado) | o último passo é acertado |
 | `anote` | uma página quadriculada | já está pronto ("Anotei") |
 | `caderno` | "Resolva no papel" + teclado | o aluno confere ou toca "Ver a resolução" |
 | `sua-vez` | exercícios | domínio |
@@ -265,6 +265,7 @@ A grade dos decimais: cada grade é um inteiro, com 10 colunas de 10 quadradinho
 | `inteiros` | quantas grades o número ocupa (padrão: as que o pintado pede) |
 | `marcadas` | pinta quadradinhos fora da ordem, pelos índices (coluna por coluna, a partir de 0) |
 | `rotulo` | o que aparece embaixo no lugar do número (`'R$ 0,25'`, `'0,50'`). Padrão: o número sem zeros no fim (`50` vira 0,5) |
+| `leitura` | como ler o pintado embaixo, quando não há `rotulo`: conta os quadradinhos (vezes `vezes`) entre `antes` e `depois`, e anda com o Mexa. `{ depois: ' %' }` mostra 25 %; `{ vezes: 10, antes: 'R$ ' }` mostra R$ 640 com 64 pintados. Vale também dentro de `grades` |
 | `semRotulo: true` | esconde o número embaixo |
 | `separar: true` | as colunas cheias (décimos) em âmbar e os quadradinhos soltos (centésimos) em verde |
 | `escala: true` | escreve 0,1 … 1 embaixo das colunas (melhor na tira) |
