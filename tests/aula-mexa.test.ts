@@ -72,6 +72,11 @@ function play(card: Mexa): MexaState {
       b.onPart!(b.ativa ?? 0, (ok.pintadas as number) - 1)
       break
     }
+    case 'grade': {
+      const g = stage().interact!.grade!
+      g.onCell!(g.ativa ?? 0, (ok.pintadas as number) - 1)
+      break
+    }
     case 'partir':
       for (let n = 0; n < 10 && !st.done; n++) {
         const b = stage().interact!.barra!

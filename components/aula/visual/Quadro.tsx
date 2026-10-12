@@ -38,7 +38,8 @@ export interface QuadroState {
 }
 
 export interface ContaState {
-  parcelas: number[]
+  /** Números ou textos; com vírgula ('3,5' ou 3.5), a conta se alinha pela vírgula. */
+  parcelas: (number | string)[]
   sinal?: '+' | '−'
   /** Os algarismos já escritos do resultado, da direita para a esquerda ("2", "32", "232"). */
   resultado?: string
@@ -50,6 +51,8 @@ export interface ContaState {
   destaque?: string
   /** Multiplicação armada: as linhas entre os dois traços ('92', '230'). */
   parciais?: string[]
+  /** Decimais: completa com zeros apagados as casas que faltam (3,5 aparece 3,50). */
+  zeros?: boolean
 }
 
 export interface DivisaoState {
@@ -349,18 +352,40 @@ function Separar({ s, seps, onGap, size }: { s: QuadroState; seps: number[]; onG
 function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
   const res = c.resultado ?? ''
   const parciais = c.parciais ?? []
-  const width = Math.max(...c.parcelas.map((n) => String(n).length), ...parciais.map((p) => p.length), res.length, 2)
-  const casas = ORDEM.slice(0, width).reverse()
+  const txt = (n: number | string) => (typeof n === 'number' ? String(n).replace('.', ',') : n)
+  const rows = c.parcelas.map(txt)
+  // Decimals line up at the comma; the result, while it has no comma yet, fills from the right.
+  const split = (t: string): [string, string] => {
+    const k = t.indexOf(',')
+    return k < 0 ? [t, ''] : [t.slice(0, k), t.slice(k + 1)]
+  }
+  const decW = Math.max(0, ...[...rows, ...parciais, res].filter((t) => t.includes(',')).map((t) => split(t)[1].length))
+  const dec = decW > 0
+  const intW = Math.max(...rows.map((t) => split(t)[0].length), ...parciais.map((t) => split(t)[0].length), dec ? (res.includes(',') ? split(res)[0].length : Math.max(0, res.length - decW - 1)) : res.length, dec ? 1 : 2)
+  const width = intW + (dec ? 1 + decW : 0)
+  const comma = dec ? intW : -1
+  const casas = [...ORDEM.slice(0, intW).reverse(), ...(dec ? [',', ...['d', 'c', 'm', 'dm'].slice(0, decW)] : [])]
   const col = Math.min(64, Math.floor((size.w - 64) / (width + 1)))
+  const colW = (i: number) => (i === comma ? col * 0.45 : col)
+  const rowW = casas.reduce((a, _, i) => a + colW(i), 0)
   const rowH = Math.min(col * 1.1, (size.h - 40) / (c.parcelas.length + parciais.length + 2.6))
   const fs = Math.min(col * 0.78, rowH * 0.8)
   const small = Math.max(13, fs * 0.45)
-  const cells = (n: number) => {
-    const d = String(n).split('')
-    return [...Array(width - d.length).fill(''), ...d]
+  /** One row of cells; with `zeros`, missing decimal places come back as ghost zeros. */
+  const lay = (t: string, ghosts = false): { d: string; ghost?: boolean }[] => {
+    if (!dec) return [...Array(Math.max(0, width - t.length)).fill(''), ...t.split('')].map((d) => ({ d }))
+    const [a, b] = split(t)
+    const hasComma = t.includes(',')
+    const intCells = [...Array(Math.max(0, intW - a.length)).fill(''), ...a.split('')].map((d) => ({ d }))
+    const fill = ghosts && c.zeros
+    const fracCells = Array.from({ length: decW }, (_, i) => (i < b.length ? { d: b[i] } : fill ? { d: '0', ghost: true } : { d: '' }))
+    return [...intCells, { d: hasComma || (fill && a) ? ',' : '', ghost: !hasComma }, ...fracCells]
   }
-  const resCells = [...Array(width - res.length).fill(''), ...res.split('')]
-  const pad = (t: string) => [...Array(width - t.length).fill(''), ...t.split('')]
+  const resLay = dec && !res.includes(',') ? [...Array(Math.max(0, width - res.length)).fill(''), ...res.split('')].map((d) => ({ d })) : lay(res)
+  const cells = (n: number | string) => lay(txt(n), true).map((x) => x.d)
+  const ghostOf = (n: number | string) => lay(txt(n), true).map((x) => Boolean(x.ghost))
+  const resCells = resLay.map((x) => x.d)
+  const pad = (t: string) => lay(t).map((x) => x.d)
   const top = { ...c.reservas, ...c.trocas }
   const lit = (i: number) => c.destaque === casas[i]
   return (
@@ -369,16 +394,16 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
         <div className="flex">
           <span style={{ width: col * 0.8 }} />
           {casas.map((casa, i) => (
-            <span key={casa} className={cn('text-center text-[13px] font-medium', lit(i) ? 'text-[#f6b74e]' : 'text-white/40')} style={{ width: col }}>
-              {casa}
+            <span key={casa} className={cn('text-center text-[13px] font-medium', lit(i) ? 'text-[#f6b74e]' : 'text-white/40')} style={{ width: colW(i) }}>
+              {casa === ',' ? '' : casa}
             </span>
           ))}
         </div>
         {/* Vai um / empresta. */}
         <div className="flex" style={{ height: small * 1.5 }}>
           <span style={{ width: col * 0.8 }} />
-          {casas.map((casa) => (
-            <span key={casa} className="grid place-items-center font-semibold tabular-nums text-[#f6b74e]" style={{ width: col, fontSize: small }}>
+          {casas.map((casa, i) => (
+            <span key={casa} className="grid place-items-center font-semibold tabular-nums text-[#f6b74e]" style={{ width: colW(i), fontSize: small }}>
               <AnimatePresence>
                 {top[casa] && (
                   <motion.span key={top[casa]} initial={{ opacity: 0, y: 8, scale: 0.6 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}>
@@ -396,8 +421,9 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
             </span>
             {cells(n).map((d, i) => {
               const crossed = r === 0 && c.trocas?.[casas[i]] !== undefined
+              const ghost = ghostOf(n)[i]
               return (
-                <span key={i} className={cn('relative grid place-items-center rounded-lg font-semibold tabular-nums', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: col, height: rowH, fontSize: fs, color: crossed ? 'rgba(255,255,255,0.45)' : '#fff' }}>
+                <span key={i} className={cn('relative grid place-items-center rounded-lg font-semibold tabular-nums', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: colW(i), height: rowH, fontSize: fs, color: crossed || ghost ? 'rgba(255,255,255,0.4)' : '#fff' }}>
                   {d}
                   {crossed && <motion.span aria-hidden initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.35 }} className="absolute h-[2px] origin-left rotate-[-20deg] bg-[#f6b74e]" style={{ width: fs * 0.8 }} />}
                 </span>
@@ -405,24 +431,24 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
             })}
           </div>
         ))}
-        <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: col * (width + 0.8) }} />
+        <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: rowW + col * 0.8 }} />
         {parciais.map((p, r) => (
           <motion.div key={`pp${r}`} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex items-center" style={{ height: rowH }}>
             <span className="text-center font-medium text-white/70" style={{ width: col * 0.8, fontSize: fs * 0.8 }}>
               {r === parciais.length - 1 && parciais.length > 1 ? '+' : ''}
             </span>
             {pad(p).map((d, i) => (
-              <span key={i} className="grid place-items-center font-semibold tabular-nums text-white" style={{ width: col, height: rowH, fontSize: fs }}>
+              <span key={i} className="grid place-items-center font-semibold tabular-nums text-white" style={{ width: colW(i), height: rowH, fontSize: fs }}>
                 {d}
               </span>
             ))}
           </motion.div>
         ))}
-        {parciais.length > 1 && <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: col * (width + 0.8) }} />}
+        {parciais.length > 1 && <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: rowW + col * 0.8 }} />}
         <div className="flex items-center" style={{ height: rowH }}>
           <span style={{ width: col * 0.8 }} />
           {resCells.map((d, i) => (
-            <span key={i} className={cn('grid place-items-center rounded-lg font-semibold tabular-nums text-[#f6b74e]', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: col, height: rowH, fontSize: fs }}>
+            <span key={i} className={cn('grid place-items-center rounded-lg font-semibold tabular-nums text-[#f6b74e]', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: colW(i), height: rowH, fontSize: fs }}>
               <AnimatePresence>
                 {d && (
                   <motion.span key={d + i} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>

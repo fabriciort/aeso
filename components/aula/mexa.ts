@@ -1,6 +1,7 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
 import type { BarraLinha, BarraState } from './visual/Barra'
 import type { Ordem } from './visual/Blocos'
+import type { GradeItem } from './visual/Grade'
 import type { Interact } from './visual/Stage'
 
 // O "Mexa": o aluno manipula o modelo até chegar ao estado de sucesso que o
@@ -8,7 +9,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -63,6 +64,8 @@ export function kindOf(card: Mexa): Kind {
       if (e.pintar === true && num(ok.pintadas) !== undefined) return 'pintar'
       if (e.partir === true && num(ok.partes) !== undefined) return 'partir'
       return 'mostre'
+    case 'grade':
+      return e.pintar === true && num(ok.pintadas) !== undefined ? 'grade' : 'mostre'
     default:
       return 'mostre'
   }
@@ -80,6 +83,16 @@ function barrasOf(s: BarraState): BarraLinha[] {
   if (s.barras?.length) return s.barras
   if (s.partes !== undefined || s.cortes) return [{ partes: s.partes ?? 1, pintadas: s.pintadas, inteiros: s.inteiros, cortes: s.cortes, marcadas: s.marcadas, rotulo: s.rotulo }]
   return []
+}
+
+/** The grid number the student paints (grade Mexa), and the visual with it replaced. */
+function gradeAtivaOf(card: Mexa): { i: number; g: GradeItem; com: (g: GradeItem) => Record<string, unknown> } {
+  const e = card.visual.estado
+  const i = num(e.ativa) ?? 0
+  const gs: GradeItem[] = arr<GradeItem>(e.grades)?.length ? (e.grades as GradeItem[]) : [{ pintadas: num(e.pintadas), inteiros: num(e.inteiros), rotulo: e.rotulo as string | undefined }]
+  const { pintar: _p, porColuna: _c, ativa: _a, pintadas: _n, inteiros: _w, marcadas: _k, rotulo: _r, ...rest } = e
+  void [_p, _c, _a, _n, _w, _k, _r]
+  return { i, g: gs[i] ?? {}, com: (g) => ({ ...rest, grades: gs.map((x, j) => (j === i ? g : x)) }) }
 }
 
 /** The bar the student works on (barra Mexa), and the visual with it replaced. */
@@ -129,6 +142,8 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: ativaOf(card).b.pintadas ?? 0 }
     case 'partir':
       return { ...base, pick: ativaOf(card).b.partes }
+    case 'grade':
+      return { ...base, drag: gradeAtivaOf(card).g.pintadas ?? 0 }
     default:
       return base
   }
@@ -172,6 +187,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, drag: ok.pintadas as number }
     case 'partir':
       return { ...done, pick: ok.partes as number }
+    case 'grade':
+      return { ...done, drag: ok.pintadas as number }
     default:
       void e
       return done
@@ -446,6 +463,32 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'grade': {
+      // A tap paints up to that square (or, with porColuna, up to the end of its column);
+      // a tap on a painted one takes it and the ones after it back.
+      const { i, g, com } = gradeAtivaOf(card)
+      const L = Math.max(1, num(e.linhas) ?? 10)
+      const porColuna = e.porColuna === true
+      const target = ok.pintadas as number
+      const count = st.drag ?? 0
+      return {
+        visual: visual(com({ ...g, pintadas: count, marcadas: undefined, rotulo: g.rotulo })),
+        interact: {
+          grade: {
+            ativa: i,
+            wrong: Boolean(st.note),
+            onCell: lock
+              ? undefined
+              : (_, k) => {
+                  const col = Math.floor(k / L)
+                  const n = porColuna ? (k < count ? col * L : (col + 1) * L) : k < count ? k : k + 1
+                  const over = n > target
+                  set({ ...st, drag: n, done: n === target, wrong: over ? st.wrong + 1 : st.wrong, note: over ? 'Passou. Toque numa pintada para tirar.' : undefined })
+                },
+          },
+        },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -466,5 +509,6 @@ export const GESTO: Record<Kind, string | null> = {
   girar: 'Toque no retângulo para girar.',
   pintar: 'Toque nas partes da barra para pintar.',
   partir: 'Toque na barra para cortar as partes mais fino.',
+  grade: 'Toque nos quadradinhos da grade para pintar.',
   mostre: null,
 }
