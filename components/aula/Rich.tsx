@@ -4,9 +4,14 @@ import { Fragment } from 'react'
 import { Tex } from '@/components/math/Tex'
 
 // Texto do conteúdo: **negrito** e $TeX$ inline, como em lib/formation/schema.ts.
+// O "R$" do real não abre nem fecha TeX: ele é guardado antes de procurar os $.
+
+const REAL = '\u0000'
+const guarda = (t: string) => t.replace(/R\$/g, `R${REAL}`)
+const solta = (t: string) => t.replaceAll(REAL, '$')
 
 export function Rich({ text }: { text: string }) {
-  const parts = text.split(/(\$[^$]+\$|\*\*[^*]+\*\*)/g).filter(Boolean)
+  const parts = guarda(text).split(/(\$[^$]+\$|\*\*[^*]+\*\*)/g).filter(Boolean).map(solta)
   return (
     <>
       {parts.map((p, i) =>
@@ -26,5 +31,5 @@ export function Rich({ text }: { text: string }) {
 
 /** Plain text for the voice: no markdown, TeX left as written (the voice module reads symbols). */
 export function plain(text: string): string {
-  return text.replace(/\*\*/g, '').replace(/\$([^$]+)\$/g, '$1')
+  return solta(guarda(text).replace(/\*\*/g, '').replace(/\$([^$]+)\$/g, '$1'))
 }

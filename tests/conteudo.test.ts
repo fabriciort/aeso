@@ -31,6 +31,7 @@ function linguagem(t: string, where: string) {
 function texto(t: string | undefined, where: string) {
   if (t === undefined) return
   linguagem(t, where)
+  t = t.replace(/R\$/g, 'R') // o real não é TeX (components/aula/Rich.tsx)
   const visible = t.replace(/\$[^$]*\$/g, (m) => m.slice(1, -1)).replace(/\*\*/g, '')
   expect(visible.length, `${where}: texto com ${visible.length} caracteres (máximo ${MAX}). Divida em dois cartões. "${t}"`).toBeLessThanOrEqual(MAX)
   for (const m of t.match(/\$[^$]+\$/g) ?? []) texOk(m.slice(1, -1), where)

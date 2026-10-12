@@ -31,6 +31,21 @@ export interface QuadroState {
   quantidadeOculta?: boolean
   blocosVisiveis?: boolean
   numeroOculto?: boolean
+  /** Conta armada: as parcelas, o sinal, o resultado (da direita, pode ser parcial), o vai um e o empresta. */
+  conta?: ContaState
+}
+
+export interface ContaState {
+  parcelas: number[]
+  sinal?: '+' | '−'
+  /** Os algarismos já escritos do resultado, da direita para a esquerda ("2", "32", "232"). */
+  resultado?: string
+  /** Vai um: um algarismo pequeno acima da casa ({ D: '1' }). */
+  reservas?: Record<string, string>
+  /** Empresta: o algarismo de cima riscado e o novo valor acima ({ D: '4', U: '12' }). */
+  trocas?: Record<string, string>
+  /** Casa acesa ('U', 'D', 'C'). */
+  destaque?: string
 }
 
 export interface QuadroInteract {
@@ -58,6 +73,7 @@ const fmt = (n: number) => n.toLocaleString('pt-BR')
 export function Quadro({ s, size, ...it }: { s: QuadroState; size: { w: number; h: number } } & QuadroInteract) {
   const tags = (s.etiquetas ?? s.escritas ?? (s.etiqueta ? [s.etiqueta] : [])).concat((s.fichas ?? []).map((f) => (typeof f === 'number' ? fmt(f) : f)))
 
+  if (s.conta) return <Conta c={s.conta} size={size} />
   if (s.quantidadeOculta && tags.length) return <Tags tags={tags} big />
   if (s.transicoes?.length) return <Transicoes t={s.transicoes} />
   if (s.algarismos && s.tamanhoGrupo) return <Separar s={s} seps={it.seps ?? s.separadores ?? []} onGap={it.onGap} size={size} />
@@ -300,6 +316,92 @@ function Separar({ s, seps, onGap, size }: { s: QuadroState; seps: number[]; onG
             )}
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- conta armada
+
+/**
+ * A conta armada, como no caderno quadriculado: uma coluna por casa, as
+ * parcelas alinhadas à direita, o sinal, o traço e o resultado, que se
+ * escreve da direita para a esquerda. Acima da primeira parcela, em âmbar,
+ * o vai um (reservas) ou o novo valor de uma casa que emprestou (trocas,
+ * com o algarismo de baixo riscado).
+ */
+function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
+  const res = c.resultado ?? ''
+  const width = Math.max(...c.parcelas.map((n) => String(n).length), res.length, 2)
+  const casas = ORDEM.slice(0, width).reverse()
+  const col = Math.min(64, Math.floor((size.w - 64) / (width + 1)))
+  const rowH = Math.min(col * 1.1, (size.h - 40) / (c.parcelas.length + 2.6))
+  const fs = Math.min(col * 0.78, rowH * 0.8)
+  const small = Math.max(13, fs * 0.45)
+  const cells = (n: number) => {
+    const d = String(n).split('')
+    return [...Array(width - d.length).fill(''), ...d]
+  }
+  const resCells = [...Array(width - res.length).fill(''), ...res.split('')]
+  const top = { ...c.reservas, ...c.trocas }
+  const lit = (i: number) => c.destaque === casas[i]
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="caderno rounded-2xl px-4 py-3">
+        <div className="flex">
+          <span style={{ width: col * 0.8 }} />
+          {casas.map((casa, i) => (
+            <span key={casa} className={cn('text-center text-[13px] font-medium', lit(i) ? 'text-[#f6b74e]' : 'text-white/40')} style={{ width: col }}>
+              {casa}
+            </span>
+          ))}
+        </div>
+        {/* Vai um / empresta. */}
+        <div className="flex" style={{ height: small * 1.5 }}>
+          <span style={{ width: col * 0.8 }} />
+          {casas.map((casa) => (
+            <span key={casa} className="grid place-items-center font-semibold tabular-nums text-[#f6b74e]" style={{ width: col, fontSize: small }}>
+              <AnimatePresence>
+                {top[casa] && (
+                  <motion.span key={top[casa]} initial={{ opacity: 0, y: 8, scale: 0.6 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}>
+                    {top[casa]}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </span>
+          ))}
+        </div>
+        {c.parcelas.map((n, r) => (
+          <div key={r} className="flex items-center" style={{ height: rowH }}>
+            <span className="text-center font-medium text-white/70" style={{ width: col * 0.8, fontSize: fs * 0.8 }}>
+              {r === c.parcelas.length - 1 ? (c.sinal ?? '+') : ''}
+            </span>
+            {cells(n).map((d, i) => {
+              const crossed = r === 0 && c.trocas?.[casas[i]] !== undefined
+              return (
+                <span key={i} className={cn('relative grid place-items-center rounded-lg font-semibold tabular-nums', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: col, height: rowH, fontSize: fs, color: crossed ? 'rgba(255,255,255,0.45)' : '#fff' }}>
+                  {d}
+                  {crossed && <motion.span aria-hidden initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.35 }} className="absolute h-[2px] origin-left rotate-[-20deg] bg-[#f6b74e]" style={{ width: fs * 0.8 }} />}
+                </span>
+              )
+            })}
+          </div>
+        ))}
+        <div className="ml-auto h-[2px] rounded-full bg-white/70" style={{ width: col * (width + 0.8) }} />
+        <div className="flex items-center" style={{ height: rowH }}>
+          <span style={{ width: col * 0.8 }} />
+          {resCells.map((d, i) => (
+            <span key={i} className={cn('grid place-items-center rounded-lg font-semibold tabular-nums text-[#f6b74e]', lit(i) && 'bg-[#f6b74e]/[0.1]')} style={{ width: col, height: rowH, fontSize: fs }}>
+              <AnimatePresence>
+                {d && (
+                  <motion.span key={d + i} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
+                    {d}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   )

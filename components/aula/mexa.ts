@@ -149,7 +149,10 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
     case 'blocos': {
       const c = st.counts!
       const next: Record<Ordem, Ordem | null> = { unidades: 'dezenas', dezenas: 'centenas', centenas: 'milhares', milhares: null }
-      const canTap = (o: Ordem) => !lock && next[o] !== null && c[o] >= 10
+      const prev: Record<Ordem, Ordem | null> = { unidades: null, dezenas: 'unidades', centenas: 'dezenas', milhares: 'centenas' }
+      // Desagrupar (o "empresta"): a touch opens one piece into 10 of the order below.
+      const abrir = e.desagrupar === true
+      const canTap = (o: Ordem) => !lock && (abrir ? prev[o] !== null && c[o] >= 1 && c[o] > (num(ok[o]) ?? 0) : next[o] !== null && c[o] >= 10)
       return {
         // The frame of 10 only helps while the loose pieces are the ones being grouped.
         visual: visual({ ...e, ...c, tamanhoGrupo: (num(e.unidades) ?? 0) >= 10 && c.unidades <= 10 ? e.tamanhoGrupo : undefined }),
@@ -158,8 +161,7 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
             canTap,
             onTap: (o) => {
               if (!canTap(o)) return
-              const up = next[o]!
-              const counts = { ...c, [o]: c[o] - 10, [up]: c[up] + 1 }
+              const counts = abrir ? { ...c, [o]: c[o] - 1, [prev[o]!]: c[prev[o]!] + 10 } : { ...c, [o]: c[o] - 10, [next[o]!]: c[next[o]!] + 1 }
               const done = ORDENS.filter((k) => k in ok).every((k) => counts[k] === ok[k])
               set({ ...st, counts, done, note: undefined })
             },

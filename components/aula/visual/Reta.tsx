@@ -17,6 +17,8 @@ export interface RetaState {
   numeros?: number[]
   exemplos?: number[]
   vizinhos?: number[]
+  /** Saltos (contas de cabeça): [de, para, rótulo], ex.: [38, 40, '+2']. */
+  saltos?: [number, number, string?][]
   etiquetas?: number[]
   etiquetaSolta?: number
   fichas?: number[]
@@ -91,11 +93,17 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
     ...(s.exato !== undefined ? [s.exato] : []),
     ...(Array.isArray(s.comparacao) ? s.comparacao : []),
     ...(s.maior !== undefined ? [s.maior] : []),
+    ...(s.saltos ?? []).flatMap(([f, t]) => [f, t]),
   ].filter((v, i, a) => a.indexOf(v) === i)
   const from = s.numeros ?? s.exemplos ?? []
-  const arcs = (it.arcs ?? (s.vizinhos && from.length === s.vizinhos.length ? from.map((f, i) => ({ from: f, to: s.vizinhos![i] })) : [])).filter((a) => a.from !== a.to)
+  const arcs: { from: number; to: number; label?: string }[] = (
+    it.arcs ?? (s.saltos ? s.saltos.map(([f, t, label]) => ({ from: f, to: t, label })) : s.vizinhos && from.length === s.vizinhos.length ? from.map((f, i) => ({ from: f, to: s.vizinhos![i] })) : [])
+  ).filter((a) => a.from !== a.to)
   // With arrows above the line, the numbers of the points go below it.
   const pointLabelY = arcs.length ? y + 32 : y - 18
+  // Labels on the same row never overlap: neighbours closer than their width
+  // are pushed apart a little (38 next to 40, 60 next to 63).
+  const lx = spread([...labels, ...(arcs.length ? points.filter((v) => !labels.has(v)) : [])], x, fmt)
   const interactive = Boolean(it.onPick || it.onDrag)
 
   const valueAt = (e: React.PointerEvent<SVGSVGElement>) => {
@@ -182,7 +190,7 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
           <line key={`o${t}`} x1={x(t)} x2={x(t)} y1={y - 10} y2={y + 10} stroke="#fff" strokeWidth={2} />
         ))}
         {[...labels].map((t) => (
-          <motion.text key={`l${t}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} x={x(t)} y={y + 32} textAnchor="middle" fill="rgba(255,255,255,0.85)" fontSize={15} fontWeight={500} className="tabular-nums">
+          <motion.text key={`l${t}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} x={lx.get(t) ?? x(t)} y={y + 32} textAnchor="middle" fill="rgba(255,255,255,0.85)" fontSize={15} fontWeight={500} className="tabular-nums">
             {fmt(t)}
           </motion.text>
         ))}
@@ -199,19 +207,29 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
           const x1 = x(a.from)
           const x2 = x(a.to)
           const lift = Math.min(46, Math.abs(x2 - x1) * 0.45 + 12)
+          // Saltos go one after the other, like a finger hopping on the line.
+          const delay = s.saltos ? i * 0.45 : 0
+          // A jump and its way back (84 → 55, 55 → 84): the way back goes under the numbers.
+          const under = a.to < a.from && arcs.some((b) => b.from === a.to && b.to === a.from)
           return (
+            <g key={`a${i}-${a.from}-${a.to}`}>
+            {a.label && (
+              <motion.text initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: delay + 0.35 }} x={(x1 + x2) / 2} y={under ? y + 58 + lift * 0.55 : y - 18 - lift * 0.55} textAnchor="middle" fill={amber} fontSize={15} fontWeight={600} className="tabular-nums">
+                {a.label}
+              </motion.text>
+            )}
             <motion.path
-              key={`a${i}-${a.from}-${a.to}`}
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              d={`M ${x1} ${y - 12} Q ${(x1 + x2) / 2} ${y - 12 - lift} ${x2} ${y - 12}`}
+              transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
+              d={under ? `M ${x1} ${y + 40} Q ${(x1 + x2) / 2} ${y + 40 + lift} ${x2} ${y + 40}` : `M ${x1} ${y - 12} Q ${(x1 + x2) / 2} ${y - 12 - lift} ${x2} ${y - 12}`}
               fill="none"
               stroke={amber}
               strokeWidth={1.75}
               strokeLinecap="round"
               markerEnd="url(#reta-arrow)"
             />
+            </g>
           )
         })}
         <defs>
@@ -228,7 +246,7 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
           <g key={`p${v}`}>
             <motion.circle initial={{ r: 0 }} animate={{ r: 7 }} transition={springX} cx={x(v)} cy={y} fill={amber} />
             {!labels.has(v) && (
-              <text x={x(v)} y={pointLabelY} textAnchor="middle" fill={amber} fontSize={16} fontWeight={600} className="tabular-nums">
+              <text x={(arcs.length && lx.get(v)) || x(v)} y={pointLabelY} textAnchor="middle" fill={amber} fontSize={16} fontWeight={600} className="tabular-nums">
                 {fmt(v)}
               </text>
             )}
@@ -268,4 +286,21 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
       )}
     </div>
   )
+}
+
+/** Label centres for one row of numbers, nudged apart so none overlap. */
+function spread(values: number[], x: (v: number) => number, fmt: (v: number) => string): Map<number, number> {
+  const items = [...new Set(values)].map((v) => ({ v, c: x(v), w: fmt(v).length * 9 + 6 })).sort((a, b) => a.c - b.c)
+  for (let pass = 0; pass < 4; pass++) {
+    for (let i = 1; i < items.length; i++) {
+      const a = items[i - 1]
+      const b = items[i]
+      const overlap = (a.w + b.w) / 2 - (b.c - a.c)
+      if (overlap > 0) {
+        a.c -= overlap / 2
+        b.c += overlap / 2
+      }
+    }
+  }
+  return new Map(items.map((it) => [it.v, it.c]))
 }

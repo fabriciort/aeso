@@ -97,6 +97,8 @@ Exemplos do piloto:
 |---|---|
 | Decimal | vírgula: `2,5` (em TeX: `2{,}5`) |
 | Milhar | ponto: `12.500` |
+| Dinheiro | `R$ 37`, com espaço; o `R$` não abre TeX, então pode aparecer junto de `$...$` no mesmo texto |
+| Subtração | no texto e nos enunciados, o sinal `−` (U+2212); em TeX, `-` |
 | Multiplicação | `×` até a U14; a partir dela, `·` e a escrita junta (`3x`), apresentadas explicitamente |
 | Divisão | `÷` até a U7; a partir dela, também a barra `a/b` |
 | Unidades | número, espaço, unidade: `5 m`, `250 mL`, `10 %` |

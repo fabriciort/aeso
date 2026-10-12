@@ -108,6 +108,7 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `rotulos` | legendas: uma lista embaixo de tudo, ou `{ unidades: 'unidade', dezenas: 'dezena' }` para uma legenda embaixo de cada grupo |
 | `tamanhoGrupo` | moldura de 10 lugares para as peças soltas |
 | `abrirDezenas`, `abrirCentenas` | barras e placas abertas em peças |
+| `desagrupar: true` | no Mexa, o toque abre 1 peça em 10 da ordem de baixo (uma barra vira 10 cubos), em vez de juntar |
 
 ### `quadro-posicional`
 
@@ -123,6 +124,7 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `transicoes` | uma cadeia 1.000 → 1.000.000 → … |
 | `etiquetas`, `escritas`, `etiqueta`, `fichas` | cartões de texto; com `quantidadeOculta` aparecem sozinhos, grandes |
 | `ditado` | o número por extenso, acima do quadro |
+| `conta` | a conta armada num caderno quadriculado: `{ parcelas: [147, 85], sinal: '+' }`; `resultado` são os algarismos já escritos, da direita (`'32'`); `reservas` são os vai um em âmbar acima da casa (`{ D: '1' }`); `trocas` riscam o algarismo de cima e escrevem o novo valor (`{ D: '4', U: '12' }`); `destaque` acende uma coluna (`'U'`) |
 
 ### `reta`
 
@@ -133,6 +135,7 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `marcaSemRotulo` | um traço com "?" |
 | `numero`, `numeros`, `exemplos`, `exato`, `maior` | pontos em destaque |
 | `vizinhos` | setas de cada número (`numeros` ou `exemplos`) até o seu vizinho |
+| `saltos` | arcos que aparecem um depois do outro, com rótulo em âmbar: `[[38, 40, '+2'], [40, 63, '+23']]`; para trás, o arco volta (`[63, 60, '−3']`) |
 | `meio` | uma linha tracejada |
 | `aproximado` | um anel no valor aproximado |
 | `escolhas` | círculos tocáveis |
@@ -167,6 +170,7 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | Modelo | `sucesso` | O aluno |
 |---|---|---|
 | `blocos` | `{ dezenas, unidades, … }` | toca um grupo com 10 ou mais peças: 10 viram 1 da ordem seguinte |
+| `blocos` com `desagrupar: true` | `{ dezenas, unidades, … }` | toca uma barra (ou placa): ela vira 10 da ordem de baixo |
 | `quadro-posicional` com `algarismos` | `{ numero }` | toca um algarismo e depois a casa |
 | `quadro-posicional` com `algarismos` e `tamanhoGrupo` | `{ grupos: [[1,2],[5,0,0]] }` | toca entre algarismos para pôr pontos |
 | `quadro-posicional` com `classes` e `cartoes` | `{ grupos: [2,5,40,6] }` | toca um grupo e depois a classe |
