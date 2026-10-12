@@ -9,7 +9,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -24,6 +24,8 @@ export interface MexaState {
   pick?: number | null
   drag?: number
   order?: string[]
+  /** Quadro de unidades: the unit the comma was put after. */
+  casa?: string | null
   /** Increments on each wrong try (shakes the stage). */
   wrong: number
   /** Short feedback under the instruction. */
@@ -44,6 +46,7 @@ export function kindOf(card: Mexa): Kind {
     case 'blocos':
       return ORDENS.some((o) => o in ok) ? 'blocos' : 'mostre'
     case 'quadro-posicional':
+      if (e.medida && typeof ok.para === 'string') return 'medida'
       if (arr(e.cartoes) && arr(e.classes) && arr(ok.grupos)) return 'classes'
       if (arr(e.algarismos) && arr<unknown[]>(ok.grupos)?.every(Array.isArray)) return 'separar'
       if (arr(e.algarismos) && num(ok.numero) !== undefined) return 'digitos'
@@ -144,6 +147,8 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, pick: ativaOf(card).b.partes }
     case 'grade':
       return { ...base, drag: gradeAtivaOf(card).g.pintadas ?? 0 }
+    case 'medida':
+      return { ...base, casa: null }
     default:
       return base
   }
@@ -189,6 +194,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, pick: ok.partes as number }
     case 'grade':
       return { ...done, drag: ok.pintadas as number }
+    case 'medida':
+      return { ...done, casa: ok.para as string }
     default:
       void e
       return done
@@ -489,6 +496,24 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'medida': {
+      // A tap on a unit moves the comma to after it; the zeros that are needed appear.
+      const m = e.medida as Record<string, unknown>
+      return {
+        visual: visual({ ...e, medida: { ...m, para: st.casa ?? undefined } }),
+        interact: {
+          quadro: {
+            wrong: Boolean(st.note),
+            onCasa: lock
+              ? undefined
+              : (casa) => {
+                  const right = casa === ok.para
+                  set({ ...st, casa, done: right, wrong: right ? st.wrong : st.wrong + 1, note: right ? undefined : 'Ainda não. Conte as casas até a unidade pedida.' })
+                },
+          },
+        },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -510,5 +535,6 @@ export const GESTO: Record<Kind, string | null> = {
   pintar: 'Toque nas partes da barra para pintar.',
   partir: 'Toque na barra para cortar as partes mais fino.',
   grade: 'Toque nos quadradinhos da grade para pintar.',
+  medida: 'Toque na unidade em que a vírgula deve ficar.',
   mostre: null,
 }

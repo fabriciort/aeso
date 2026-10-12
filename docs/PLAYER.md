@@ -130,6 +130,16 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `conta` com decimais | parcelas com vírgula (`['3,5', '1,25']` ou `[3.5, 1.25]`) se alinham pela vírgula, com as casas `d`, `c`, `m` depois dela. `zeros: true` completa com zeros apagados as casas que faltam (3,5 aparece 3,50; 5 aparece 5,0). `resultado` sem vírgula preenche da direita (`'75'`); com ela, alinha pela vírgula (`'4,75'`). `reservas`, `trocas` e `destaque` usam `d` e `c` para as casas decimais (`{ U: '4', d: '10' }`) |
 | `conta` com `alinhar: 'direita'` | arma como nos inteiros: cada caractere numa coluna, alinhado pela direita, vírgulas incluídas, sem os nomes das casas. Para mostrar o erro de alinhar decimais pela direita (`['3,5', '1,25']` com `resultado: '1,60'`) e para a multiplicação com decimais (`['6,15', '2,4']`, `sinal: '×'`, `parciais`, `resultado: '14760'`) |
 
+### `quadro-posicional`: quadro de unidades
+
+| Chave | Efeito |
+|---|---|
+| `medida` | `{ casas: ['km', 'hm', 'dam', 'm', 'dm', 'cm', 'mm'], numero: '1,25', de: 'm' }`: o número no quadro, com o último algarismo antes da vírgula na casa `de` e a vírgula (âmbar) depois dela. Embaixo, a leitura (`1,25 m`) |
+| `medida.para` | a unidade de chegada: a vírgula anda até depois dessa casa, os zeros que faltam aparecem em âmbar e a leitura vira `1,5 m = 150 cm`. Zeros à esquerda que não contam ficam apagados |
+| `medida.porCasa` | algarismos por casa: `2` para área (m², cm²: 1 m² = 10.000 cm²), `3` para volume |
+
+No Mexa, com `acao.sucesso: { para: 'cm' }`, o aluno toca a unidade e a vírgula vai para depois dela (o número parte de `de`).
+
 ### `reta`
 
 | Chave | Efeito |
@@ -266,6 +276,7 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `retangulo` com `cortar: true` | `{ corte }` | toca entre duas colunas para partir o retângulo ali; o certo é a coluna `corte` |
 | `retangulo` com `girar: true` em `acao.sucesso` | `{ girado: true }` | toca o retângulo e ele gira 90° |
 | `barra` com `pintar: true` | `{ pintadas }` | toca as partes da barra para pintar (um toque pinta até ali; um toque numa pintada tira dali em diante). Com várias barras, `ativa` é o índice da que recebe os toques (padrão 0) |
+| `quadro-posicional` com `medida` | `{ para }` | toca a unidade de chegada: a vírgula anda até depois dela e os zeros que faltam aparecem |
 | `grade` com `pintar: true` | `{ pintadas }` | toca os quadradinhos para pintar (um toque pinta até ali, coluna por coluna; um toque num pintado tira dali em diante). Com `porColuna: true`, cada toque pinta a coluna inteira (para décimos; `pintadas` deve ser múltiplo de 10). Com várias grades, `ativa` é o índice do número que recebe os toques |
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
 

@@ -72,6 +72,9 @@ function play(card: Mexa): MexaState {
       b.onPart!(b.ativa ?? 0, (ok.pintadas as number) - 1)
       break
     }
+    case 'medida':
+      stage().interact!.quadro!.onCasa!(ok.para as string)
+      break
     case 'grade': {
       const g = stage().interact!.grade!
       g.onCell!(g.ativa ?? 0, (ok.pintadas as number) - 1)

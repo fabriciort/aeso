@@ -35,6 +35,21 @@ export interface QuadroState {
   conta?: ContaState
   /** Divisão na chave. */
   divisao?: DivisaoState
+  /** Quadro de unidades (km … mm): o número numa unidade e a vírgula que anda para outra. */
+  medida?: MedidaState
+}
+
+export interface MedidaState {
+  /** As unidades, da maior para a menor: ['km', 'hm', 'dam', 'm', 'dm', 'cm', 'mm']. */
+  casas: string[]
+  /** O número, na unidade `de` ('1,25' ou 1.25). */
+  numero: number | string
+  /** A unidade do número: o último algarismo antes da vírgula fica nesta casa. */
+  de: string
+  /** A unidade de chegada: a vírgula fica depois desta casa, e os zeros que faltam aparecem. */
+  para?: string
+  /** Quantos algarismos cada casa leva (2 para m², 3 para m³). Padrão 1. */
+  porCasa?: number
 }
 
 export interface ContaState {
@@ -81,6 +96,8 @@ export interface QuadroInteract {
   onGap?: (i: number) => void
   /** Wrong placement: flash. */
   wrong?: boolean
+  /** Quadro de unidades: a tap on a column puts the comma after it. */
+  onCasa?: (casa: string) => void
 }
 
 const NOMES: Record<string, string> = { U: 'unidades', D: 'dezenas', C: 'centenas', M: 'milhares', DM: 'dezenas de milhar', CM: 'centenas de milhar' }
@@ -96,6 +113,7 @@ export function Quadro({ s, size, ...it }: { s: QuadroState; size: { w: number; 
 
   if (s.conta) return <Conta c={s.conta} size={size} />
   if (s.divisao) return <Divisao d={s.divisao} size={size} />
+  if (s.medida) return <Medida m={s.medida} size={size} onCasa={it.onCasa} wrong={it.wrong} />
   if (s.quantidadeOculta && tags.length) return <Tags tags={tags} big />
   if (s.transicoes?.length) return <Transicoes t={s.transicoes} />
   if (s.algarismos && s.tamanhoGrupo) return <Separar s={s} seps={it.seps ?? s.separadores ?? []} onGap={it.onGap} size={size} />
@@ -465,6 +483,114 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- quadro de unidades
+
+/** The digits of a measure laid in the unit table, and the value read with the comma after `para`. */
+export function medidaCells(m: MedidaState): { cells: string[][]; comma: number; valor: string; zeros: Set<string> } {
+  const k = Math.max(1, m.porCasa ?? 1)
+  const t = typeof m.numero === 'number' ? String(m.numero).replace('.', ',') : m.numero
+  const [a0, b0 = ''] = t.split(',')
+  const a = a0.replace(/\D/g, '') || '0'
+  const de = Math.max(0, m.casas.indexOf(m.de))
+  const para = m.para && m.casas.includes(m.para) ? m.casas.indexOf(m.para) : de
+  // Every digit has a slot: (column, position inside the column); the integer part ends at the last slot of `de`.
+  const slot = (col: number, pos: number) => col * k + pos
+  const endInt = slot(de, k - 1)
+  const digits = new Map<number, string>()
+  a.split('').forEach((d, i) => digits.set(endInt - a.length + 1 + i, d))
+  b0.split('').forEach((d, i) => digits.set(endInt + 1 + i, d))
+  const commaSlot = slot(para, k - 1)
+  const keys = [...digits.keys()]
+  const lo = Math.min(...keys, commaSlot - k + 1)
+  const hi = Math.max(...keys, commaSlot)
+  const zeros = new Set<string>()
+  const total = m.casas.length * k
+  const flat: string[] = Array(total).fill('')
+  for (let i = Math.max(0, lo); i <= Math.min(total - 1, hi); i++) {
+    if (digits.has(i)) flat[i] = digits.get(i)!
+    else {
+      flat[i] = '0'
+      zeros.add(String(i))
+    }
+  }
+  const intPart = flat.slice(0, commaSlot + 1).join('').replace(/^0+(?=\d)/, '') || '0'
+  const frac = flat.slice(commaSlot + 1).join('').replace(/0+$/, '')
+  const intFmt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  const cells = m.casas.map((_, c) => flat.slice(c * k, c * k + k))
+  return { cells, comma: para, valor: frac ? `${intFmt},${frac}` : intFmt, zeros }
+}
+
+function Medida({ m, size, onCasa, wrong }: { m: MedidaState; size: { w: number; h: number }; onCasa?: (casa: string) => void; wrong?: boolean }) {
+  const k = Math.max(1, m.porCasa ?? 1)
+  const { cells, comma, valor, zeros } = medidaCells(m)
+  const n = m.casas.length
+  const col = Math.min(80, Math.floor((size.w - 24) / n))
+  const fs = Math.min(40, (col / k) * 0.8, size.h / 6)
+  const original = typeof m.numero === 'number' ? String(m.numero).replace('.', ',') : m.numero
+  // Leading zeros before the first significant digit read dimmer.
+  const firstSig = cells.flat().findIndex((d) => d !== '' && d !== '0')
+  const sig = (c: number, j: number) => c * k + j >= Math.min(firstSig < 0 ? Infinity : firstSig, comma * k + k - 1)
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-5">
+      <motion.div className="relative flex" animate={wrong ? { x: [0, -8, 8, -5, 5, 0] } : { x: 0 }} transition={{ duration: 0.4 }}>
+        {m.casas.map((casa, c) => (
+          <button
+            key={casa}
+            type="button"
+            disabled={!onCasa}
+            onClick={() => onCasa?.(casa)}
+            className={cn('flex flex-col items-center border-white/10 disabled:pointer-events-none', c > 0 && 'border-l', onCasa && 'cursor-pointer active:scale-[0.97]')}
+            style={{ width: col }}
+            aria-label={`Vírgula depois de ${casa}`}
+          >
+            <span className={cn('pb-2 text-[15px] font-medium', casa === m.de ? 'text-white' : casa === m.para ? 'text-[#f6b74e]' : 'text-white/45')}>{casa}</span>
+            <span className={cn('flex items-center justify-center rounded-xl', onCasa && 'border border-dashed border-white/25 bg-white/[0.03]')} style={{ width: col - 8, height: fs * 1.5 }}>
+              {cells[c].map((d, j) => (
+                <AnimatePresence key={j} mode="popLayout" initial={false}>
+                  {d && (
+                    <motion.span
+                      key={d + (zeros.has(String(c * k + j)) ? 'z' : '')}
+                      initial={{ opacity: 0, y: -12, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={spring}
+                      className="font-semibold tabular-nums"
+                      style={{ fontSize: fs, width: (col - 12) / k, textAlign: 'center', color: zeros.has(String(c * k + j)) ? amber : sig(c, j) ? '#fff' : 'rgba(255,255,255,0.35)' }}
+                    >
+                      {d}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              ))}
+            </span>
+          </button>
+        ))}
+        {/* The comma, sitting on the line after the column of the unit being read. */}
+        <motion.span
+          className="pointer-events-none absolute font-bold text-[#f6b74e]"
+          initial={false}
+          animate={{ left: (comma + 1) * col - fs * 0.18, opacity: cells.slice(comma + 1).flat().some(Boolean) ? 1 : 0 }}
+          transition={spring}
+          style={{ bottom: fs * 0.05, fontSize: fs * 1.1, lineHeight: 1 }}
+        >
+          ,
+        </motion.span>
+      </motion.div>
+      <p className="text-center text-[22px] font-semibold tabular-nums text-white">
+        {m.para && m.para !== m.de ? (
+          <>
+            {original} {m.de} = <span className="text-[#f6b74e]">{valor} {m.para}</span>
+          </>
+        ) : (
+          <>
+            {valor} {m.de}
+          </>
+        )}
+      </p>
     </div>
   )
 }
