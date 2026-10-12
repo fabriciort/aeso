@@ -465,6 +465,6 @@ export const GESTO: Record<Kind, string | null> = {
   cortar: 'Toque entre duas colunas para partir o retângulo.',
   girar: 'Toque no retângulo para girar.',
   pintar: 'Toque nas partes da barra para pintar.',
-  partir: 'Toque na barra para cortar cada parte ao meio.',
+  partir: 'Toque na barra para cortar as partes mais fino.',
   mostre: null,
 }

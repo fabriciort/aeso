@@ -81,7 +81,7 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   const k = Math.max(
     6,
     Math.min(
-      40,
+      s.faixas ? 56 : 40,
       (size.w - 32 - labelW - gap * (colParts.length - 1)) / C,
       (size.h - 24 - labelH - totalH - gap * (rowParts.length - 1) - rowGap * (roomRows - 1)) / roomRows,
     ),

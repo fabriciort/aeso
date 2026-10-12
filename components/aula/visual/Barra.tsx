@@ -88,7 +88,7 @@ export function Barra({ s, size, onPart, onSplit, ativa = 0, wrong }: { s: Barra
   const barras = barrasOf(s)
   const escala = s.escala ?? Math.max(1, ...barras.map((b) => b.inteiros ?? 1))
   const labels = s.semFracao ? barras.map(() => undefined) : barras.map(fracaoDe)
-  const labelW = labels.some(Boolean) ? 58 : 0
+  const labelW = labels.some(Boolean) ? Math.max(58, ...labels.map((l) => (l && !/^\d+\/\d+$/.test(l) ? l.length * 8.5 + 20 : 0))) : 0
   const pad = 20
   const W = Math.max(120, Math.min(size.w - pad * 2 - labelW, 360 * Math.max(1, escala / 1.5)))
   const unit = W / escala
@@ -119,6 +119,7 @@ export function Barra({ s, size, onPart, onSplit, ativa = 0, wrong }: { s: Barra
         const inteiros = Math.max(1, b.inteiros ?? 1)
         const label = labels[bi]
         const frac = label?.match(/^(\d+)\/(\d+)$/)
+        const lx = ox + inteiros * unit + labelW / 2 + 4
         return (
           <motion.g key={`b${bi}`} animate={{ opacity: dim ? 0.4 : 1 }} transition={{ duration: 0.3 }} onClick={tapSplit ? () => onSplit!(bi) : undefined} style={{ cursor: tapSplit ? 'pointer' : undefined }}>
             {tapSplit && <rect x={ox - 6} y={y - 6} width={inteiros * unit + 12} height={bh + 12} rx={12} fill="rgba(246,183,78,0.05)" stroke={amber} strokeDasharray="5 5" strokeWidth={1.5} />}
@@ -161,16 +162,16 @@ export function Barra({ s, size, onPart, onSplit, ativa = 0, wrong }: { s: Barra
               <motion.g key={label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
                 {frac ? (
                   <>
-                    <text x={ox + W + labelW / 2 + 4} y={y + bh / 2 - 4} textAnchor="middle" fill="#fff" fontSize={18} fontWeight={700} className="tabular-nums">
+                    <text x={lx} y={y + bh / 2 - 4} textAnchor="middle" fill="#fff" fontSize={18} fontWeight={700} className="tabular-nums">
                       {frac[1]}
                     </text>
-                    <line x1={ox + W + labelW / 2 - 9} x2={ox + W + labelW / 2 + 17} y1={y + bh / 2 + 1} y2={y + bh / 2 + 1} stroke="#fff" strokeWidth={1.8} />
-                    <text x={ox + W + labelW / 2 + 4} y={y + bh / 2 + 20} textAnchor="middle" fill="#fff" fontSize={18} fontWeight={700} className="tabular-nums">
+                    <line x1={lx - 13} x2={lx + 13} y1={y + bh / 2 + 1} y2={y + bh / 2 + 1} stroke="#fff" strokeWidth={1.8} />
+                    <text x={lx} y={y + bh / 2 + 20} textAnchor="middle" fill="#fff" fontSize={18} fontWeight={700} className="tabular-nums">
                       {frac[2]}
                     </text>
                   </>
                 ) : (
-                  <text x={ox + W + labelW / 2 + 4} y={y + bh / 2 + 6} textAnchor="middle" fill="#fff" fontSize={16} fontWeight={600}>
+                  <text x={ox + inteiros * unit + 12} y={y + bh / 2 + 6} textAnchor="start" fill="#fff" fontSize={16} fontWeight={600}>
                     {label}
                   </text>
                 )}
