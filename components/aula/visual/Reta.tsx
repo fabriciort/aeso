@@ -32,6 +32,8 @@ export interface RetaState {
   comparacao?: string | number[]
   aproximacao?: string
   unidade?: string
+  /** Frações: os números aparecem como k/d (o 1, o 2… continuam inteiros). Ex.: 4 mostra 3/4. */
+  fracoes?: number
 }
 
 export interface RetaInteract {
@@ -57,7 +59,11 @@ export interface RetaInteract {
 
 const amber = '#f6b74e'
 const rose = '#fb7185'
-const fmt = (n: number) => n.toLocaleString('pt-BR')
+const fmtNum = (n: number) => n.toLocaleString('pt-BR')
+const fmtFrac = (d: number) => (n: number) => {
+  const k = Math.round(n * d)
+  return k % d === 0 ? fmtNum(k / d) : `${k}/${d}`
+}
 const springX = { type: 'spring', stiffness: 320, damping: 30 } as const
 
 function niceStep(span: number): number {
@@ -67,6 +73,7 @@ function niceStep(span: number): number {
 }
 
 export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: number } } & RetaInteract) {
+  const fmt = s.fracoes ? fmtFrac(s.fracoes) : fmtNum
   const de = s.de ?? 0
   const ate = s.ate ?? 10
   const passo = s.passo ?? niceStep(ate - de)

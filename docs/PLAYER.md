@@ -144,6 +144,7 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `destaqueIntervalos` | os intervalos acendem um a um |
 | `comparacoes`, `comparacao`, `aproximacao` | frases grandes embaixo (ex.: `12 > 7`) |
 | `unidade` | junto das etiquetas (ex.: km) |
+| `fracoes` | os números aparecem como frações com esse denominador: com `fracoes: 4`, 0,75 vira 3/4 (os inteiros continuam 1, 2). Use `passo` igual a 1/denominador (`passo: 0.25`) |
 
 ### `retangulo`
 
@@ -163,6 +164,7 @@ O retângulo de multiplicação. Duas formas:
 | `girar: true` | o retângulo gira 90° (linhas viram colunas) |
 | `total` | o número embaixo |
 | `grupos: true` | cada linha aparece como um grupo separado (pacotes iguais), com um pequeno espaço entre as linhas |
+| `faixas: [l, c]` | fração de fração: as primeiras `l` linhas e as primeiras `c` colunas ficam claras, e o cruzamento das duas, em âmbar (`linhas: 3, colunas: 4, faixas: [2, 3]` é 2/3 de 3/4 = 6/12) |
 
 **Por área** (números maiores, sem quadradinhos): `base` e `altura` são listas das partes de cada lado.
 
@@ -203,7 +205,25 @@ Um destes, nesta ordem:
 
 Um estado `livre` sem nenhuma dessas chaves não desenha nada. O cartão fica só com o texto, maior.
 
-`barra`, `grade` e `balanca` ainda não existem no player. Eles chegam com as unidades que os usam.
+### `barra`
+
+A barra de frações: cada barra é um inteiro partido em partes iguais, e as pintadas (em âmbar) são a fração. Barras empilhadas têm o mesmo comprimento por inteiro, então comparam pedaços.
+
+| Chave | Efeito |
+|---|---|
+| `partes`, `pintadas` | uma barra só: `{ partes: 4, pintadas: 3 }` é 3/4. A fração aparece à direita, escrita em pé |
+| `barras` | várias, uma embaixo da outra: `[{ partes: 2, pintadas: 1 }, { partes: 4, pintadas: 2 }]`. Cada uma aceita as chaves abaixo |
+| `inteiros` | quantos inteiros a barra tem, lado a lado (`{ partes: 4, pintadas: 5, inteiros: 2 }` é 5/4) |
+| `cortes` | partes desiguais, em frações do inteiro: `[0.2, 0.55]` parte em 3 pedaços de tamanhos diferentes (aí não aparece fração) |
+| `marcadas` | pinta partes fora da ordem, pelos índices (`[1, 3]`) |
+| `rotulo` | o que aparece à direita no lugar da fração (`'?'`, `'1 inteiro'`) |
+| `rotulos: true` | escreve 1/d dentro de cada parte |
+| `semFracao: true` | esconde a fração à direita |
+| `escala` | quantos inteiros cabem na largura (padrão: a barra mais longa). Use para alinhar barras de tamanhos diferentes |
+| `destaque` | o índice da barra em destaque; as outras ficam apagadas |
+| `guia` | uma linha tracejada vertical nesta posição, em inteiros (`0.5` para comparar com a metade) |
+
+`grade` e `balanca` ainda não existem no player. Eles chegam com as unidades que os usam.
 
 ## Mexa: as manipulações
 
@@ -223,6 +243,8 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `retangulo` com `adicionar: true` | `{ linhas }` | toca o retângulo (ou "+ 1 linha") e uma linha nova de `colunas` quadradinhos entra; começa de `linhas` (pode ser 0) |
 | `retangulo` com `cortar: true` | `{ corte }` | toca entre duas colunas para partir o retângulo ali; o certo é a coluna `corte` |
 | `retangulo` com `girar: true` em `acao.sucesso` | `{ girado: true }` | toca o retângulo e ele gira 90° |
+| `barra` com `pintar: true` | `{ pintadas }` | toca as partes da barra para pintar (um toque pinta até ali; um toque numa pintada tira dali em diante). Com várias barras, `ativa` é o índice da que recebe os toques (padrão 0) |
+| `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
 
 - **Retorno:**
   - Um erro balança o palco e mostra uma frase curta.
