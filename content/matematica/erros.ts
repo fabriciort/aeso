@@ -1,10 +1,13 @@
 import type { ErroComum } from '@/lib/formation/schema'
+import { ERROS_U03 } from './erros-u03'
+import { ERROS_U04 } from './erros-u04'
+import { ERROS_U05 } from './erros-u05'
 
 // Catálogo de erros comuns da formação. Cada erro tem um id estável, usado
 // por opções de cartões e por exercícios para diagnosticar o que o aluno
 // pensou. Um erro aparece aqui uma vez só, mesmo que volte em várias aulas.
 
-export const ERROS: ErroComum[] = [
+const ERROS_BASE: ErroComum[] = [
   {
     id: 'valor-de-face',
     nome: 'lê o algarismo, não o valor da casa',
@@ -259,6 +262,8 @@ export const ERROS: ErroComum[] = [
     desmonte: 'Na reta: de 84 você voltou 29 e caiu em 55. Para desfazer, saia do 55 e ande 29 para a frente: chega de volta ao 84.',
   },
 ]
+
+export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05]
 
 export function getErro(id: string): ErroComum | undefined {
   return ERROS.find((e) => e.id === id)
