@@ -153,7 +153,7 @@ export const aula: Aula = {
           pergunta: 'Comece por **10 %** de R$ 60.',
           fala: 'Comece por dez por cento de sessenta reais.',
           opcoes: [
-            { texto: 'R$ 6', fala: 'seis reais', certa: true, explica: 'Isso. $60 \\div 10 = 6$.' },
+            { texto: 'R$ 6', fala: 'seis reais', certa: true, explica: 'Isso. $60 \\div 10 = 6$.', mostra: tabela({ linhas: PCT([100, 10, 5, 15], [60, 6, '?', '?']), setas: [{ de: 0, para: 1, rotulo: '÷ 10' }, { de: 0, para: 1, rotulo: '÷ 10', embaixo: true }], destaque: [1] }, 'O primeiro "?" vira 6, com "÷ 10" em cima e embaixo.') },
             { texto: 'R$ 10', fala: 'dez reais', erro: 'porcentagem-como-numero-inteiro', explica: 'R$ 10 seria 10 % de R$ 100. De R$ 60: $60 \\div 10 = 6$.' },
           ],
           linha: { tex: '10\\,\\% \\text{ de } 60 = 6', fala: 'dez por cento de sessenta: seis' },
@@ -162,7 +162,7 @@ export const aula: Aula = {
           pergunta: 'E **5 %**? É a metade de 10 %.',
           fala: 'E cinco por cento? É a metade de dez por cento.',
           opcoes: [
-            { texto: 'R$ 3', fala: 'três reais', certa: true, explica: 'Isso. A metade de R$ 6.' },
+            { texto: 'R$ 3', fala: 'três reais', certa: true, explica: 'Isso. A metade de R$ 6.', mostra: tabela({ linhas: PCT([100, 10, 5, 15], [60, 6, 3, '?']), setas: [{ de: 0, para: 1, rotulo: '÷ 10' }, { de: 0, para: 1, rotulo: '÷ 10', embaixo: true }, { de: 1, para: 2, rotulo: '÷ 2' }, { de: 1, para: 2, rotulo: '÷ 2', embaixo: true }], destaque: [2] }, 'O segundo "?" vira 3, com "÷ 2" em cima e embaixo.') },
             { texto: 'R$ 12', fala: 'doze reais', erro: 'divide-pelo-numero-da-porcentagem', explica: '$60 \\div 5 = 12$ é o dobro de 10 %, não a metade. 5 % é $6 \\div 2 = 3$.' },
             { texto: 'R$ 5', fala: 'cinco reais', erro: 'porcentagem-como-numero-inteiro', explica: '5 % não é R$ 5. É a metade dos 10 %: $6 \\div 2 = 3$.' },
           ],
@@ -172,7 +172,7 @@ export const aula: Aula = {
           pergunta: '15 % são 10 % mais 5 %. Quanto dá a gorjeta?',
           fala: 'Quinze por cento são dez por cento mais cinco por cento. Quanto dá a gorjeta?',
           opcoes: [
-            { texto: 'R$ 9', fala: 'nove reais', certa: true, explica: 'Isso. $6 + 3 = 9$: a gorjeta é R$ 9.' },
+            { texto: 'R$ 9', fala: 'nove reais', certa: true, explica: 'Isso. $6 + 3 = 9$: a gorjeta é R$ 9.', mostra: tabela({ linhas: PCT([100, 10, 5, 15], [60, 6, 3, 9]), setas: [{ de: 0, para: 1, rotulo: '÷ 10' }, { de: 0, para: 1, rotulo: '÷ 10', embaixo: true }, { de: 1, para: 2, rotulo: '÷ 2' }, { de: 1, para: 2, rotulo: '÷ 2', embaixo: true }, { de: 2, para: 3, rotulo: '+ 10 %' }, { de: 2, para: 3, rotulo: '+ 6', embaixo: true }], destaque: [3] }, 'O último "?" vira 9: aos 5 % (R$ 3) se somam os 10 % (R$ 6).') },
             { texto: 'R$ 15', fala: 'quinze reais', erro: 'porcentagem-como-numero-inteiro', explica: 'R$ 15 seria 15 % de R$ 100. De R$ 60: $6 + 3 = 9$.' },
           ],
           linha: { tex: '15\\,\\% \\text{ de } 60 = 6 + 3 = 9', fala: 'quinze por cento de sessenta: seis mais três, nove' },

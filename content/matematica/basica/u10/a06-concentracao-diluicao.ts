@@ -29,12 +29,13 @@ const FRASCO = (mgml: number | string, completo: boolean) => ({
   ],
   setas: [{ de: 0, para: 1, rotulo: '× 4' }, ...(completo ? [{ de: 0, para: 1, rotulo: '÷ 4', embaixo: true }] : [])],
 })
-const PREPARO = (forte: number | string) => ({
+const PREPARO = (forte: number | string, soluto = forte !== '?', agua = false) => ({
   linhas: [
     { rotulo: 'volume (mL)', valores: [forte, 250] },
-    ...(forte === '?' ? [] : [{ rotulo: 'soluto (mg)', valores: [2000, 2000] }]),
+    ...(soluto ? [{ rotulo: 'soluto (mg)', valores: [2000, 2000] }] : []),
     { rotulo: 'mg/mL', valores: [40, 8] },
   ],
+  ...(agua ? { setas: [{ de: 0, para: 1, rotulo: '+ 200 mL' }] } : {}),
 })
 
 export const aula: Aula = {
@@ -182,7 +183,7 @@ export const aula: Aula = {
           pergunta: 'Quantos mg de soluto vão nos 250 mL a 8 mg/mL?',
           fala: 'Quantos miligramas de soluto vão nos duzentos e cinquenta mililitros a oito miligramas por mililitro?',
           opcoes: [
-            { texto: '$8 \\times 250 = 2.000$ mg', fala: 'oito vezes duzentos e cinquenta, dois mil miligramas', certa: true, explica: 'Isso. 250 mL, com 8 mg em cada.' },
+            { texto: '$8 \\times 250 = 2.000$ mg', fala: 'oito vezes duzentos e cinquenta, dois mil miligramas', certa: true, explica: 'Isso. 250 mL, com 8 mg em cada.', mostra: tab(PREPARO('?', true), 'Aparece a linha do soluto: 2.000 mg na fraca, e os mesmos 2.000 mg na forte, que os carrega. O volume da forte ainda é "?".') },
             { texto: '$8 + 250 = 258$ mg', erro: 'soma-no-lugar-de-multiplicar', explica: 'Cada um dos 250 mL leva 8 mg: multiplique.', fala: 'Cada um dos duzentos e cinquenta mililitros leva oito miligramas: multiplique.' },
           ],
           linha: { tex: '8 \\times 250 = 2.000 \\text{ mg}', fala: 'oito vezes duzentos e cinquenta são dois mil miligramas' },
@@ -191,7 +192,7 @@ export const aula: Aula = {
           pergunta: 'Em quantos mL da solução forte cabem esses 2.000 mg?',
           fala: 'Em quantos mililitros da solução forte cabem esses dois mil miligramas?',
           opcoes: [
-            { texto: '50 mL', certa: true, explica: 'Isso. $2.000 \\div 40 = 50$. Confira: $40 \\times 50 = 2.000$.', fala: 'Isso. Dois mil dividido por quarenta é cinquenta. Confira: quarenta vezes cinquenta, dois mil.', mostra: tab(PREPARO(50), 'O 50 entra no lugar do "?" e aparece a linha do soluto, 2.000 e 2.000 mg.') },
+            { texto: '50 mL', certa: true, explica: 'Isso. $2.000 \\div 40 = 50$. Confira: $40 \\times 50 = 2.000$.', fala: 'Isso. Dois mil dividido por quarenta é cinquenta. Confira: quarenta vezes cinquenta, dois mil.', mostra: tab(PREPARO(50), 'O 50 entra no lugar do "?", com a linha do soluto, 2.000 e 2.000 mg.') },
             { texto: '1.250 mL', erro: 'regra-de-tres-direta-na-inversa', explica: '1.250 mL é mais que os 250 mL que você quer. A forte é mais forte: entra menos dela.', fala: 'Mil duzentos e cinquenta é mais que os duzentos e cinquenta que você quer. A forte é mais forte: entra menos dela.' },
           ],
           linha: { tex: '2.000 \\div 40 = 50 \\text{ mL}', fala: 'dois mil dividido por quarenta são cinquenta mililitros' },
@@ -200,7 +201,7 @@ export const aula: Aula = {
           pergunta: 'E quanta água completa os 250 mL?',
           fala: 'E quanta água completa os duzentos e cinquenta mililitros?',
           opcoes: [
-            { texto: '200 mL', certa: true, explica: 'Isso. $50 + 200 = 250$ mL, com os mesmos 2.000 mg.', fala: 'Isso. Cinquenta mais duzentos dão duzentos e cinquenta mililitros, com os mesmos dois mil miligramas.' },
+            { texto: '200 mL', certa: true, explica: 'Isso. $50 + 200 = 250$ mL, com os mesmos 2.000 mg.', fala: 'Isso. Cinquenta mais duzentos dão duzentos e cinquenta mililitros, com os mesmos dois mil miligramas.', mostra: tab(PREPARO(50, true, true), 'Em cima, a seta "+ 200 mL" leva os 50 mL da forte aos 250 mL da fraca: a água que completa.') },
             { texto: '250 mL', erro: 'esquece-volume-do-concentrado', explica: 'Com 250 mL de água, o total iria a 300 mL. Os 50 mL da forte já contam.', fala: 'Com duzentos e cinquenta de água, o total iria a trezentos mililitros. Os cinquenta da forte já contam.' },
           ],
           linha: { tex: '250 - 50 = 200 \\text{ mL de água}', fala: 'duzentos e cinquenta menos cinquenta são duzentos mililitros de água' },

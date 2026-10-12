@@ -29,7 +29,7 @@ export const aula: Aula = {
       tipo: 'mexa',
       texto: 'A grade é a bateria cheia: **100 %**. Cada quadradinho é **1 %**, um de cem. Pinte **25 %**.',
       fala: 'A grade é a bateria cheia: cem por cento. Cada quadradinho é um por cento, um de cem. Pinte vinte e cinco por cento.',
-      visual: grade({ pintadas: 0, pintar: true, semRotulo: true }, 'A grade vazia, sem número embaixo. Um toque pinta até aquele quadradinho, coluna por coluna.'),
+      visual: grade({ pintadas: 0, pintar: true, leitura: { depois: ' %' } }, 'A grade vazia, com 0 % embaixo. Um toque pinta até aquele quadradinho, coluna por coluna, e a porcentagem embaixo anda junto.'),
       acao: {
         tipo: 'tocar',
         instrucao: 'Toque no quadradinho até onde quer pintar.',
@@ -43,7 +43,7 @@ export const aula: Aula = {
       tipo: 'aposta',
       pergunta: 'São **25 de 100** quadradinhos. Que fração da bateria é essa?',
       fala: 'São vinte e cinco de cem quadradinhos. Que fração da bateria é essa?',
-      visual: grade({ pintadas: 25, semRotulo: true }, 'A grade com 25 quadradinhos pintados, sem número.'),
+      visual: grade({ pintadas: 25, leitura: { depois: ' %' } }, 'A grade com 25 quadradinhos pintados e 25 % embaixo.'),
       opcoes: [
         {
           texto: '$\\frac{1}{4}$: um quarto', fala: 'Um quarto.', certa: true,
@@ -67,7 +67,7 @@ export const aula: Aula = {
       tipo: 'aposta',
       pergunta: 'Se a grade inteira vale **1**, que número são esses 25 quadradinhos?',
       fala: 'Se a grade inteira vale um, que número são esses vinte e cinco quadradinhos?',
-      visual: grade({ pintadas: 25, separar: true, semRotulo: true }, 'A grade com 2 colunas âmbar e 5 quadradinhos verdes, sem número.'),
+      visual: grade({ pintadas: 25, separar: true, leitura: { depois: ' %' } }, 'A grade com 2 colunas âmbar e 5 quadradinhos verdes, com 25 % embaixo.'),
       opcoes: [
         {
           texto: '0,25', fala: 'Zero vírgula vinte e cinco.', certa: true,
@@ -98,7 +98,7 @@ export const aula: Aula = {
       tipo: 'mexa',
       texto: 'Uma coluna tem 10 quadradinhos: **10 %**. A loja anuncia **50 % OFF**. Pinte 50 %, coluna por coluna.',
       fala: 'Uma coluna tem dez quadradinhos: dez por cento. A loja anuncia cinquenta por cento de desconto. Pinte cinquenta por cento, coluna por coluna.',
-      visual: grade({ pintadas: 0, pintar: true, porColuna: true, semRotulo: true }, 'A grade vazia. Cada toque pinta uma coluna inteira: 10 % de cada vez.'),
+      visual: grade({ pintadas: 0, pintar: true, porColuna: true, leitura: { depois: ' %' } }, 'A grade vazia, com 0 % embaixo. Cada toque pinta uma coluna inteira: 10 % de cada vez, e a porcentagem embaixo anda junto.'),
       acao: {
         tipo: 'tocar',
         instrucao: 'Toque nas colunas até pintar 50 %.',
@@ -112,7 +112,7 @@ export const aula: Aula = {
       tipo: 'aposta',
       pergunta: 'Com **50 % OFF**, quanto do preço sai?',
       fala: 'Com cinquenta por cento de desconto, quanto do preço sai?',
-      visual: grade({ pintadas: 50, semRotulo: true }, 'A grade com 5 colunas pintadas, sem número.'),
+      visual: grade({ pintadas: 50, leitura: { depois: ' %' } }, 'A grade com 5 colunas pintadas e 50 % embaixo.'),
       opcoes: [
         {
           texto: 'A metade do preço', certa: true,
@@ -155,7 +155,7 @@ export const aula: Aula = {
         {
           pergunta: 'Por cento é de cada 100. Que fração é?',
           opcoes: [
-            { texto: '$\\frac{75}{100}$', fala: 'setenta e cinco centésimos', certa: true, explica: 'Isso. 75 vagas de cada 100.' },
+            { texto: '$\\frac{75}{100}$', fala: 'setenta e cinco centésimos', certa: true, explica: 'Isso. 75 vagas de cada 100.', mostra: grade({ pintadas: 75, separar: true, rotulo: '75 % = 75/100' }, 'Embaixo da grade aparece 75 % = 75/100.') },
             { texto: '$\\frac{75}{10}$', fala: 'setenta e cinco décimos', erro: 'troca-10-e-1-por-cento', explica: '$\\frac{75}{10}$ passa de 7 inteiros. Por cento é de cada 100: $\\frac{75}{100}$.' },
           ],
           linha: { tex: '75\\,\\% = \\frac{75}{100}', fala: 'setenta e cinco por cento são setenta e cinco centésimos' },
@@ -163,7 +163,7 @@ export const aula: Aula = {
         {
           pergunta: 'E como decimal?',
           opcoes: [
-            { texto: '0,75', fala: 'zero vírgula setenta e cinco', certa: true, explica: 'Isso. 7 colunas e 5 quadradinhos: 0,75.' },
+            { texto: '0,75', fala: 'zero vírgula setenta e cinco', certa: true, explica: 'Isso. 7 colunas e 5 quadradinhos: 0,75.', mostra: grade({ pintadas: 75, separar: true, rotulo: '75/100 = 0,75' }, 'Embaixo da grade aparece 75/100 = 0,75.') },
             { texto: '75', fala: 'setenta e cinco', erro: 'porcentagem-como-numero-inteiro', explica: '75 seriam 75 estacionamentos cheios. É um pedaço de um só: 0,75.' },
           ],
           linha: { tex: '\\frac{75}{100} = 0{,}75', fala: 'setenta e cinco centésimos são zero vírgula setenta e cinco' },
@@ -171,7 +171,7 @@ export const aula: Aula = {
         {
           pergunta: 'Simplifique a fração: divida em cima e embaixo por 25.',
           opcoes: [
-            { texto: '$\\frac{3}{4}$', fala: 'três quartos', certa: true, explica: 'Isso. $75 \\div 25 = 3$ e $100 \\div 25 = 4$: 3 de cada 4 vagas.' },
+            { texto: '$\\frac{3}{4}$', fala: 'três quartos', certa: true, explica: 'Isso. $75 \\div 25 = 3$ e $100 \\div 25 = 4$: 3 de cada 4 vagas.', mostra: grade({ pintadas: 75, separar: true, rotulo: '75/100 = 3/4' }, 'Embaixo da grade aparece 75/100 = 3/4.') },
             { texto: '$\\frac{3}{100}$', fala: 'três centésimos', erro: 'muda-so-um-termo', explica: 'Dividiu só em cima. Embaixo também: $100 \\div 25 = 4$. Fica $\\frac{3}{4}$.' },
           ],
           linha: { tex: '\\frac{75}{100} = \\frac{3}{4}', fala: 'setenta e cinco centésimos são três quartos' },

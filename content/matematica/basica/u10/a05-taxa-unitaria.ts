@@ -156,7 +156,7 @@ export const aula: Aula = {
           pergunta: 'Quanto custa 1 kg no pacote de 3 kg?',
           fala: 'Quanto custa um quilo no pacote de três quilos?',
           opcoes: [
-            { texto: 'R$ 17', certa: true, explica: 'Isso. $51 \\div 3 = 17$.', fala: 'Isso. Cinquenta e um dividido por três é dezessete.' },
+            { texto: 'R$ 17', certa: true, explica: 'Isso. $51 \\div 3 = 17$.', fala: 'Isso. Cinquenta e um dividido por três é dezessete.', mostra: tab({ linhas: [...SABAO, { rotulo: 'preço de 1 kg', valores: [16, 17] }], destaque: [1] }, 'Uma terceira linha com o preço de 1 kg: 16 no pacote pequeno e 17 no de 3 kg, que ganha moldura âmbar.') },
             { texto: 'R$ 153', erro: 'operacao-trocada', explica: '$51 \\times 3$ seria o preço de 9 kg. Divida: $51 \\div 3$.', fala: 'Cinquenta e um vezes três seria o preço de nove quilos. Divida: cinquenta e um dividido por três.' },
             { texto: 'R$ 49', erro: 'pensa-aditivamente', explica: 'Tirar 2 kg não tira R$ 2. O preço se divide por 3, como os quilos.', fala: 'Tirar dois quilos não tira dois reais. O preço se divide por três, como os quilos.' },
           ],

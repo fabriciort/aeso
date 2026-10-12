@@ -146,7 +146,7 @@ export const aula: Aula = {
         {
           pergunta: 'Primeiro, a medida de verdade em centímetros, a unidade da planta.',
           opcoes: [
-            { texto: '350 cm', certa: true, explica: 'Isso. Cada metro tem 100 cm.' },
+            { texto: '350 cm', certa: true, explica: 'Isso. Cada metro tem 100 cm.', mostra: reta({ de: 0, ate: 400, passo: 50, marcas: [0, 100, 200, 300, 400], numero: 350, unidade: 'cm' }, 'A mesma trena, agora em centímetros: de 0 a 400 cm, com o ponto âmbar em 350 cm.') },
             { texto: '35 cm', erro: 'fator-de-conversao-errado', explica: '35 cm é um palmo e meio. Cada metro tem 100 cm: 350 cm.' },
           ],
           linha: { tex: '3{,}5 \\text{ m} = 350 \\text{ cm}', fala: 'três vírgula cinco metros são trezentos e cinquenta centímetros' },
@@ -154,7 +154,7 @@ export const aula: Aula = {
         {
           pergunta: 'Da verdade para o papel…',
           opcoes: [
-            { texto: '$350 \\div 100 = 3{,}5$ cm', fala: 'trezentos e cinquenta dividido por cem: três vírgula cinco centímetros', certa: true, explica: 'Isso. O papel é 100 vezes menor: 3,5 cm.' },
+            { texto: '$350 \\div 100 = 3{,}5$ cm', fala: 'trezentos e cinquenta dividido por cem: três vírgula cinco centímetros', certa: true, explica: 'Isso. O papel é 100 vezes menor: 3,5 cm.', mostra: reta({ de: 0, ate: 5, passo: 0.5, marcas: [0, 1, 2, 3, 4, 5], numero: 3.5, unidade: 'cm' }, 'A régua da planta, de 0 a 5 cm, com o ponto âmbar em 3,5 cm: o quarto no papel.') },
             { texto: '$350 \\times 100 = 35.000$ cm', fala: 'trezentos e cinquenta vezes cem: trinta e cinco mil centímetros', erro: 'converte-no-sentido-errado', explica: '35.000 cm são 350 m: a planta seria maior que o prédio. Do real para o papel, divida.' },
           ],
           linha: { tex: '350 \\div 100 = 3{,}5 \\text{ cm}', fala: 'trezentos e cinquenta dividido por cem dá três vírgula cinco centímetros' },

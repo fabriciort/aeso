@@ -16,11 +16,17 @@ const tab = (tabela: Record<string, unknown>, esboco: string): Visual => ({ mode
 const PROVA = barra({ partes: 24, pintadas: 18 }, 'Uma barra partida em 24 partes, uma por questão. As 18 acertadas em âmbar; à direita, 18/24.')
 const SETENTA_E_CINCO = grade({ pintadas: 75, rotulo: '75 %' }, 'A grade de 100 com 75 quadradinhos pintados e "75 %" embaixo.')
 const BLUSA = barra({ partes: 4, pintadas: 1, rotulo: '25 %' }, 'A barra dos R$ 120 partida em 4 pedaços de R$ 30. Um pedaço em âmbar, o desconto, e "25 %" à direita.')
-const LUZ = (pct: string) => tab(
-  { linhas: [{ rotulo: 'reais', valores: [150, 30] }, { rotulo: 'porcentagem', valores: ['100 %', pct] }], ...(pct === '?' ? {} : { setas: [{ de: 0, para: 1, rotulo: '÷ 5' }, { de: 0, para: 1, rotulo: '÷ 5', embaixo: true }] }) },
-  pct === '?'
-    ? 'A tabela da conta de luz: R$ 150, o valor de antes, ao lado de 100 %; o aumento, R$ 30, ao lado de "?".'
-    : 'A mesma tabela com ÷ 5 em cima e embaixo: R$ 30 é um quinto de R$ 150, e 20 % é um quinto de 100 %.',
+const LUZ = (aumento: number | string, pct: string, destaque?: number[]) => tab(
+  {
+    linhas: [{ rotulo: 'reais', valores: [150, aumento] }, { rotulo: 'porcentagem', valores: ['100 %', pct] }],
+    ...(pct === '?' ? {} : { setas: [{ de: 0, para: 1, rotulo: '÷ 5' }, { de: 0, para: 1, rotulo: '÷ 5', embaixo: true }] }),
+    ...(destaque ? { destaque } : {}),
+  },
+  pct !== '?'
+    ? 'A mesma tabela com ÷ 5 em cima e embaixo: R$ 30 é um quinto de R$ 150, e 20 % é um quinto de 100 %.'
+    : aumento === '?'
+      ? 'A tabela da conta de luz: R$ 150, o valor de antes, ao lado de 100 %; o aumento e a porcentagem dele ainda em "?".'
+      : 'A tabela da conta de luz: R$ 150, o valor de antes, ao lado de 100 %; o aumento, R$ 30, ao lado de "?".',
 )
 
 export const aula: Aula = {
@@ -116,14 +122,14 @@ export const aula: Aula = {
       texto: 'Sua amiga acertou **21** de **30**: $21 \\div 30 = 0{,}7$. Pinte 0,7 na segunda grade e compare com a sua nota.',
       fala: 'Sua amiga acertou vinte e um de trinta: vinte e um dividido por trinta, zero vírgula sete. Pinte zero vírgula sete na segunda grade e compare com a sua nota.',
       visual: grade(
-        { grades: [{ pintadas: 75, rotulo: 'você: 75 %' }, { pintadas: 0 }], ativa: 1, pintar: true, porColuna: true },
-        'Duas grades lado a lado. A da esquerda já tem os seus 75 quadradinhos, com "você: 75 %". A da direita está vazia; cada toque pinta uma coluna inteira.',
+        { grades: [{ pintadas: 75, rotulo: 'você: 75 %' }, { pintadas: 0, leitura: { antes: 'amiga: ', depois: ' %' } }], ativa: 1, pintar: true, porColuna: true },
+        'Duas grades lado a lado. A da esquerda já tem os seus 75 quadradinhos, com "você: 75 %". A da direita está vazia, com "amiga: 0 %"; cada toque pinta uma coluna inteira e a porcentagem embaixo anda junto, até "amiga: 70 %".',
       ),
       acao: {
         tipo: 'tocar',
         instrucao: 'Toque nas colunas da segunda grade para pintar 0,7.',
         sucesso: { pintadas: 70 },
-        mostre: 'A segunda grade se pinta até 7 colunas: 0,7, 70 quadradinhos. A primeira tem 75.',
+        mostre: 'A segunda grade se pinta até 7 colunas: 0,7, 70 quadradinhos, "amiga: 70 %". A primeira tem 75.',
       },
       descoberta: 'Ela acertou mais questões, 21 contra 18, mas a prova dela era maior: 70 % contra os seus 75 %. A porcentagem põe os dois resultados na mesma escala, de 100.',
       esboco: 'O caso que pega: o número maior de acertos é a porcentagem menor. Na grade, a da direita fica meia coluna atrás.',
@@ -132,12 +138,12 @@ export const aula: Aula = {
       tipo: 'passo',
       problema: 'A conta de luz foi de **R$ 150** para **R$ 180**. De quantos por cento foi o aumento?',
       fala: 'A conta de luz foi de cento e cinquenta para cento e oitenta reais. De quantos por cento foi o aumento?',
-      visual: LUZ('?'),
+      visual: LUZ('?', '?'),
       passos: [
         {
           pergunta: 'Quantos reais a conta subiu?',
           opcoes: [
-            { texto: 'R$ 30', certa: true, explica: 'Isso. $180 - 150 = 30$. Essa é a parte: o aumento.', fala: 'Isso. Cento e oitenta menos cento e cinquenta, trinta. Essa é a parte: o aumento.' },
+            { texto: 'R$ 30', certa: true, explica: 'Isso. $180 - 150 = 30$. Essa é a parte: o aumento.', fala: 'Isso. Cento e oitenta menos cento e cinquenta, trinta. Essa é a parte: o aumento.', mostra: LUZ(30, '?', [1]) },
             { texto: 'R$ 180', explica: 'R$ 180 é a conta nova. O aumento é o que ela tem a mais: $180 - 150$.', fala: 'Cento e oitenta é a conta nova. O aumento é o que ela tem a mais: cento e oitenta menos cento e cinquenta.' },
           ],
           linha: { tex: '180 - 150 = 30', fala: 'cento e oitenta menos cento e cinquenta são trinta reais de aumento' },
@@ -146,7 +152,7 @@ export const aula: Aula = {
           pergunta: 'R$ 30 a mais que o quê? Por quanto você divide?',
           fala: 'Trinta reais a mais que o quê? Por quanto você divide?',
           opcoes: [
-            { texto: 'Por 150, a conta de antes', certa: true, explica: 'Isso. O aumento se compara com o valor de antes: R$ 150 é o 100 %.', fala: 'Isso. O aumento se compara com o valor de antes: cento e cinquenta reais é o cem por cento.' },
+            { texto: 'Por 150, a conta de antes', certa: true, explica: 'Isso. O aumento se compara com o valor de antes: R$ 150 é o 100 %.', fala: 'Isso. O aumento se compara com o valor de antes: cento e cinquenta reais é o cem por cento.', mostra: LUZ(30, '?', [0]) },
             { texto: 'Por 180, a conta nova', erro: 'porcentagem-sobre-o-valor-errado', explica: 'A conta subiu a partir de R$ 150. É sobre ela que se mede o aumento: R$ 150 é o 100 %.', fala: 'A conta subiu a partir de cento e cinquenta reais. É sobre ela que se mede o aumento: cento e cinquenta é o cem por cento.' },
           ],
           linha: { tex: '30 \\div 150', fala: 'trinta dividido por cento e cinquenta' },
@@ -155,8 +161,8 @@ export const aula: Aula = {
           pergunta: '$30 \\div 150 = 0{,}2$. De quantos por cento foi o aumento?',
           fala: 'Trinta dividido por cento e cinquenta dá zero vírgula dois. De quantos por cento foi o aumento?',
           opcoes: [
-            { texto: '20 %', certa: true, explica: 'Isso. 0,2 são 20 centésimos. Confira: 20 % de 150 é 30.', fala: 'Isso. Zero vírgula dois são vinte centésimos. Confira: vinte por cento de cento e cinquenta é trinta.', mostra: LUZ('20 %') },
-            { texto: '0,2 %', erro: 'esquece-multiplicar-por-100', explica: '0,2 % não chega a um quadradinho da grade. 0,2 são 20 centésimos: multiplique por 100.', fala: 'Zero vírgula dois por cento não chega a um quadradinho da grade. Zero vírgula dois são vinte centésimos: multiplique por cem.', mostra: LUZ('20 %') },
+            { texto: '20 %', certa: true, explica: 'Isso. 0,2 são 20 centésimos. Confira: 20 % de 150 é 30.', fala: 'Isso. Zero vírgula dois são vinte centésimos. Confira: vinte por cento de cento e cinquenta é trinta.', mostra: LUZ(30, '20 %', [1]) },
+            { texto: '0,2 %', erro: 'esquece-multiplicar-por-100', explica: '0,2 % não chega a um quadradinho da grade. 0,2 são 20 centésimos: multiplique por 100.', fala: 'Zero vírgula dois por cento não chega a um quadradinho da grade. Zero vírgula dois são vinte centésimos: multiplique por cem.', mostra: LUZ(30, '20 %') },
           ],
           linha: { tex: '0{,}2 = 20\\,\\%', fala: 'zero vírgula dois são vinte por cento' },
         },

@@ -25,6 +25,10 @@ const QUATRO = (horas: number | string) => ({
 const VIAGEM = (tempo: number | string) => ({
   linhas: [{ rotulo: 'velocidade (km/h)', valores: [60, 90] }, { rotulo: 'tempo (h)', valores: [3, tempo] }],
 })
+/** A viagem com a terceira linha, a distância, que não muda. */
+const VIAGEM_KM = (tempo: number | string) => ({
+  linhas: [...VIAGEM(tempo).linhas, { rotulo: 'distância (km)', valores: [180, 180] }],
+})
 
 export const aula: Aula = {
   id: 'B.U10.A4',
@@ -146,7 +150,7 @@ export const aula: Aula = {
         {
           pergunta: 'O que não muda entre as duas viagens?',
           opcoes: [
-            { texto: 'A distância: $60 \\times 3 = 180$ km', fala: 'A distância: sessenta vezes três, cento e oitenta quilômetros', certa: true, explica: 'Isso. A estrada é a mesma: 180 km, a 60 km por hora durante 3 horas.' },
+            { texto: 'A distância: $60 \\times 3 = 180$ km', fala: 'A distância: sessenta vezes três, cento e oitenta quilômetros', certa: true, explica: 'Isso. A estrada é a mesma: 180 km, a 60 km por hora durante 3 horas.', mostra: tab(VIAGEM_KM('?'), 'Uma terceira linha aparece embaixo, a distância: 180 e 180. É o que não muda.') },
             { texto: 'O tempo: 3 h', explica: 'O tempo muda: indo mais rápido, você chega antes. O que fica é a estrada.' },
           ],
           linha: { tex: '60 \\times 3 = 180 \\text{ km}', fala: 'sessenta vezes três é cento e oitenta quilômetros' },
@@ -155,7 +159,7 @@ export const aula: Aula = {
           pergunta: 'A 90 km/h, quantas horas para os mesmos 180 km?',
           fala: 'A noventa quilômetros por hora, quantas horas para os mesmos cento e oitenta quilômetros?',
           opcoes: [
-            { texto: '2 h', certa: true, explica: 'Isso. $180 \\div 90 = 2$. E $90 \\times 2 = 180$: o produto não mudou.', fala: 'Isso. Cento e oitenta dividido por noventa é dois. E noventa vezes dois é cento e oitenta: o produto não mudou.', mostra: tab({ ...VIAGEM(2), destaque: [1] }, 'O 2 entra no lugar do "?", e a segunda coluna ganha moldura âmbar.') },
+            { texto: '2 h', certa: true, explica: 'Isso. $180 \\div 90 = 2$. E $90 \\times 2 = 180$: o produto não mudou.', fala: 'Isso. Cento e oitenta dividido por noventa é dois. E noventa vezes dois é cento e oitenta: o produto não mudou.', mostra: tab({ ...VIAGEM_KM(2), destaque: [1], setas: [{ de: 0, para: 1, rotulo: '× 1,5' }] }, 'O 2 entra no lugar do "?", e a segunda coluna ganha moldura âmbar. A distância continua 180; em cima, × 1,5 na velocidade.') },
             { texto: '4,5 h', erro: 'regra-de-tres-direta-na-inversa', explica: 'Essa é a regra de três direta. Mais rápido, a viagem encurta: tem de dar menos que 3 h.' },
           ],
           linha: { tex: '180 \\div 90 = 2 \\text{ h}', fala: 'cento e oitenta dividido por noventa são duas horas' },

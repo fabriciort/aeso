@@ -153,7 +153,7 @@ export const aula: Aula = {
         {
           pergunta: 'Comparar por razão é comparar por…',
           opcoes: [
-            { texto: 'divisão: $6 \\div 2$', fala: 'divisão: seis dividido por dois', certa: true, explica: 'Isso. Quantas vezes o 2 cabe no 6.' },
+            { texto: 'divisão: $6 \\div 2$', fala: 'divisão: seis dividido por dois', certa: true, explica: 'Isso. Quantas vezes o 2 cabe no 6.', mostra: tabela({ linhas: [{ rotulo: 'cimento (latas)', valores: [2, 1] }, { rotulo: 'areia (latas)', valores: [6, '?'] }], fator: '× 3' }, 'À direita, a seta "× 3": o 2 cabe 3 vezes no 6, a areia é o triplo do cimento.') },
             { texto: 'subtração: $6 - 2$', fala: 'subtração: seis menos dois', erro: 'pensa-aditivamente', explica: 'A diferença diz quanto falta, não quantas vezes. A razão compara por divisão.' },
           ],
           linha: { tex: '6 \\div 2 = 3', fala: 'seis dividido por dois dá três' },
@@ -161,7 +161,7 @@ export const aula: Aula = {
         {
           pergunta: 'Então, para cada lata de cimento, vão…',
           opcoes: [
-            { texto: '3 latas de areia', certa: true, explica: 'Isso. 2 : 6 é o mesmo que 1 : 3: a areia é o triplo do cimento.' },
+            { texto: '3 latas de areia', certa: true, explica: 'Isso. 2 : 6 é o mesmo que 1 : 3: a areia é o triplo do cimento.', mostra: tabela({ linhas: [{ rotulo: 'cimento (latas)', valores: [2, 1] }, { rotulo: 'areia (latas)', valores: [6, 3] }], setas: [{ de: 0, para: 1, rotulo: '÷ 2' }, { de: 0, para: 1, rotulo: '÷ 2', embaixo: true }], fator: '× 3', destaque: [1] }, 'O "?" vira 3, com "÷ 2" em cima e embaixo e o "× 3" à direita.') },
             { texto: '4 latas de areia', erro: 'pensa-aditivamente', explica: '4 é a diferença $6 - 2$. Com 1 lata de cimento e 4 de areia, a massa fica fraca.' },
           ],
           linha: { tex: '2 : 6 = 1 : 3', fala: 'dois para seis é o mesmo que um para três' },

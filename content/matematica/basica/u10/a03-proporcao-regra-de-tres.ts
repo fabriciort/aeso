@@ -93,7 +93,7 @@ export const aula: Aula = {
           pergunta: 'De 3 para 5 não é vezes um número inteiro. Passe pelo **1 kg**: quanto custa?',
           fala: 'De três para cinco não é vezes um número inteiro. Passe pelo um quilo: quanto custa?',
           opcoes: [
-            { texto: '$18 \\div 3 = 6$ reais', fala: 'dezoito dividido por três: seis reais', certa: true, explica: 'Isso. Os quilos foram ÷ 3; o preço também.' },
+            { texto: '$18 \\div 3 = 6$ reais', fala: 'dezoito dividido por três: seis reais', certa: true, explica: 'Isso. Os quilos foram ÷ 3; o preço também.', mostra: tabela({ linhas: ARROZ([3, 1, 5], [18, 6, '?']), setas: [{ de: 0, para: 1, rotulo: '÷ 3' }, { de: 1, para: 2, rotulo: '× 5' }, { de: 0, para: 1, rotulo: '÷ 3', embaixo: true }], destaque: [1] }, 'O "?" do meio vira 6, com a seta "÷ 3" também embaixo.') },
             { texto: '$18 - 2 = 16$ reais', fala: 'dezoito menos dois: dezesseis reais', erro: 'pensa-aditivamente', explica: 'De 3 para 1 kg sobra um terço do arroz. Então sobra um terço do preço: $18 \\div 3$.' },
           ],
           linha: { tex: '3 \\text{ kg} \\div 3 = 1 \\text{ kg}: \\quad 18 \\div 3 = 6', fala: 'três quilos dividido por três é um quilo: dezoito dividido por três dá seis' },
@@ -102,7 +102,7 @@ export const aula: Aula = {
           pergunta: 'Agora de 1 kg para 5 kg.',
           fala: 'Agora de um quilo para cinco quilos.',
           opcoes: [
-            { texto: '$6 \\times 5 = 30$ reais', fala: 'seis vezes cinco: trinta reais', certa: true, explica: 'Isso. 5 kg custam 5 vezes o preço de 1 kg.' },
+            { texto: '$6 \\times 5 = 30$ reais', fala: 'seis vezes cinco: trinta reais', certa: true, explica: 'Isso. 5 kg custam 5 vezes o preço de 1 kg.', mostra: tabela({ linhas: ARROZ([3, 1, 5], [18, 6, 30]), setas: [{ de: 0, para: 1, rotulo: '÷ 3' }, { de: 1, para: 2, rotulo: '× 5' }, { de: 0, para: 1, rotulo: '÷ 3', embaixo: true }, { de: 1, para: 2, rotulo: '× 5', embaixo: true }], destaque: [2] }, 'O último "?" vira 30, com a seta "× 5" também embaixo.') },
             { texto: '$6 + 4 = 10$ reais', fala: 'seis mais quatro: dez reais', erro: 'pensa-aditivamente', explica: 'Cada quilo custa R$ 6. Cinco quilos são 5 vezes isso, não 4 reais a mais.' },
           ],
           linha: { tex: '1 \\text{ kg} \\times 5 = 5 \\text{ kg}: \\quad 6 \\times 5 = 30', fala: 'um quilo vezes cinco são cinco quilos: seis vezes cinco dá trinta' },

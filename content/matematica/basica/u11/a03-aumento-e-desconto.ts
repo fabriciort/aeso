@@ -17,7 +17,7 @@ const ALUGUEL = (reais: (number | string)[]) => [
   { rotulo: 'aluguel (R$)', valores: reais },
 ]
 const X108 = [{ de: 0, para: 1, rotulo: '× 1,08' }, { de: 0, para: 1, rotulo: '× 1,08', embaixo: true }]
-/** Depois de uma escolha errada no fator: a mesma seta × 1,08 em cima e embaixo. */
+/** Depois de uma escolha no fator: a mesma seta × 1,08 em cima e embaixo. */
 const FATOR = tabela({ linhas: ALUGUEL([1500, '?']), setas: X108 }, 'A tabela do aluguel com as setas "× 1,08" em cima (100 % → 108 %) e embaixo (R$ 1.500 → ?).')
 
 export const aula: Aula = {
@@ -177,7 +177,7 @@ export const aula: Aula = {
           pergunta: 'O aluguel novo é **108 %** do antigo. Qual é o fator?',
           fala: 'O aluguel novo é cento e oito por cento do antigo. Qual é o fator?',
           opcoes: [
-            { texto: '× 1,08', fala: 'vezes um vírgula zero oito', certa: true, explica: 'Isso. 108 % = 1,08: o inteiro e mais 8 centésimos.' },
+            { texto: '× 1,08', fala: 'vezes um vírgula zero oito', certa: true, explica: 'Isso. 108 % = 1,08: o inteiro e mais 8 centésimos.', mostra: FATOR },
             { texto: '× 1,8', fala: 'vezes um vírgula oito', erro: 'esquece-zero-decimal', explica: '1,8 é 180 %: quase dobra o aluguel. 8 % são 0,08, com o zero: × 1,08.', mostra: FATOR },
             { texto: '× 0,08', fala: 'vezes zero vírgula zero oito', erro: 'fator-de-aumento-sem-o-um', explica: '× 0,08 dá só o aumento. O aluguel novo é o antigo e mais ele: × 1,08.', mostra: FATOR },
           ],
@@ -187,14 +187,14 @@ export const aula: Aula = {
           pergunta: 'Quanto é $1.500 \\times 1{,}08$?',
           fala: 'Quanto é mil e quinhentos vezes um vírgula zero oito?',
           opcoes: [
-            { texto: 'R$ 1.620', fala: 'mil seiscentos e vinte reais', certa: true, explica: 'Isso. $1.500 \\times 1 = 1.500$ e $1.500 \\times 0{,}08 = 120$: R$ 1.620.' },
+            { texto: 'R$ 1.620', fala: 'mil seiscentos e vinte reais', certa: true, explica: 'Isso. $1.500 \\times 1 = 1.500$ e $1.500 \\times 0{,}08 = 120$: R$ 1.620.', mostra: tabela({ linhas: ALUGUEL([1500, 1620]), setas: X108, destaque: [1] }, 'O "?" vira 1.620, com as setas "× 1,08" em cima e embaixo.') },
             { texto: 'R$ 120', fala: 'cento e vinte reais', erro: 'fator-de-aumento-sem-o-um', explica: 'R$ 120 é só o aumento, $1.500 \\times 0{,}08$. O aluguel novo é $1.500 + 120$.' },
             { texto: 'R$ 1.508', fala: 'mil quinhentos e oito reais', erro: 'porcentagem-como-numero-inteiro', explica: 'Subiu R$ 8, não 8 %. 8 % de R$ 1.500 são R$ 120: o aluguel vai a R$ 1.620.' },
           ],
           linha: { tex: '1.500 \\times 1{,}08 = 1.620', fala: 'mil e quinhentos vezes um vírgula zero oito dá mil seiscentos e vinte' },
         },
       ],
-      esboco: 'A tabela da unidade 10: de 100 % a 108 % é × 1,08, e o aluguel anda junto. Uma escolha errada no fator mostra as setas × 1,08 em cima e embaixo. A conta se faz em duas partes: × 1 e × 0,08.',
+      esboco: 'A tabela da unidade 10: de 100 % a 108 % é × 1,08, e o aluguel anda junto. O fator acertado (ou uma escolha errada) mostra as setas × 1,08 em cima e embaixo; a conta feita troca o ? por 1.620. A conta se faz em duas partes: × 1 e × 0,08.',
     },
     {
       tipo: 'caderno',

@@ -43,6 +43,11 @@ const JUROS = grade(
   'Duas grades lado a lado: 10 quadradinhos pintados (10 %) e 12 quadradinhos pintados (12 %). A diferença é de 2 quadradinhos.',
 )
 
+const JUROS_DIFERENCA = grade(
+  { grades: [{ pintadas: 10, rotulo: '10 %' }, { pintadas: 12, rotulo: '12 %' }], separar: true },
+  'As mesmas duas grades: a coluna dos 10 % em âmbar e, na segunda, os 2 quadradinhos a mais em verde. São 2 pontos, 2 em cima de 10.',
+)
+
 export const aula: Aula = {
   id: 'B.U11.A5',
   titulo: 'Variações sucessivas',
@@ -89,14 +94,14 @@ export const aula: Aula = {
       texto: 'Cada quadradinho vale R$ 10. O 2º desconto tira 20 % **destes 80**. Pinte na grade da direita o que você paga.',
       fala: 'Cada quadradinho vale dez reais. O segundo desconto tira vinte por cento destes oitenta. Pinte na grade da direita o que você paga.',
       visual: grade(
-        { grades: [{ pintadas: 80, rotulo: 'R$ 800' }, { pintadas: 0 }], ativa: 1, pintar: true },
-        'Duas grades. A da esquerda com os 80 quadradinhos de R$ 800. A da direita vazia; um toque pinta até aquele quadradinho, e o número embaixo acompanha.',
+        { grades: [{ pintadas: 80, rotulo: 'R$ 800' }, { pintadas: 0, leitura: { vezes: 10, antes: 'R$ ' } }], ativa: 1, pintar: true },
+        'Duas grades. A da esquerda com os 80 quadradinhos de R$ 800. A da direita vazia, com "R$ 0"; um toque pinta até aquele quadradinho, e o preço embaixo acompanha (R$ 10 por quadradinho).',
       ),
       acao: {
         tipo: 'tocar',
         instrucao: 'Tire 20 % de 80 e pinte o que sobra na grade da direita.',
         sucesso: { pintadas: 64 },
-        mostre: 'A grade da direita se pinta até 64 quadradinhos: 80 menos 16. Embaixo, 0,64.',
+        mostre: 'A grade da direita se pinta até 64 quadradinhos: 80 menos 16. Embaixo, R$ 640.',
       },
       descoberta: '20 % de 80 são 16 quadradinhos, não 20. Sobram 64: você paga R$ 640, 64 % do preço. O desconto total foi de 36 %, não de 40 %.',
       esboco: 'O momento-chave: o segundo desconto é menor que o primeiro, porque age sobre um preço menor. 10 % de 80 é 8; 20 % é 16.',
@@ -160,7 +165,7 @@ export const aula: Aula = {
           pergunta: 'De 10 % para 12 %: qual é a diferença?',
           fala: 'De dez por cento para doze por cento: qual é a diferença?',
           opcoes: [
-            { texto: '2 pontos percentuais', certa: true, explica: 'Isso. $12 - 10 = 2$. A diferença entre duas porcentagens se diz em **pontos percentuais**.', fala: 'Isso. Doze menos dez, dois. A diferença entre duas porcentagens se diz em pontos percentuais.' },
+            { texto: '2 pontos percentuais', certa: true, explica: 'Isso. $12 - 10 = 2$. A diferença entre duas porcentagens se diz em **pontos percentuais**.', fala: 'Isso. Doze menos dez, dois. A diferença entre duas porcentagens se diz em pontos percentuais.', mostra: JUROS_DIFERENCA },
             { texto: '12 pontos percentuais', explica: '12 % é a taxa nova. A diferença é o que ela tem a mais: $12 - 10$.', fala: 'Doze por cento é a taxa nova. A diferença é o que ela tem a mais: doze menos dez.' },
           ],
           linha: { tex: '12\\,\\% - 10\\,\\% = 2 \\text{ pontos percentuais}', fala: 'doze por cento menos dez por cento são dois pontos percentuais' },
@@ -168,7 +173,7 @@ export const aula: Aula = {
         {
           pergunta: 'E os juros ficaram quantos por cento maiores?',
           opcoes: [
-            { texto: '20 %', certa: true, explica: 'Isso. 2 a mais em cima de 10: $2 \\div 10 = 0{,}2$, 20 %. Os juros ficaram 20 % mais caros.', fala: 'Isso. Dois a mais em cima de dez: dois dividido por dez, zero vírgula dois, vinte por cento. Os juros ficaram vinte por cento mais caros.' },
+            { texto: '20 %', certa: true, explica: 'Isso. 2 a mais em cima de 10: $2 \\div 10 = 0{,}2$, 20 %. Os juros ficaram 20 % mais caros.', fala: 'Isso. Dois a mais em cima de dez: dois dividido por dez, zero vírgula dois, vinte por cento. Os juros ficaram vinte por cento mais caros.', mostra: JUROS_DIFERENCA },
             { texto: '2 %', erro: 'confunde-ponto-percentual', explica: '2 é a diferença em pontos. Comparado com os 10 % de antes, 2 é um quinto: 20 %.', fala: 'Dois é a diferença em pontos. Comparado com os dez por cento de antes, dois é um quinto: vinte por cento.' },
           ],
           linha: { tex: '2 \\div 10 = 0{,}2 = 20\\,\\%', fala: 'dois dividido por dez dá zero vírgula dois, vinte por cento' },

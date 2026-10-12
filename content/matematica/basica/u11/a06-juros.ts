@@ -30,11 +30,18 @@ const DOZE = (fim: string) => tab(
     ? 'A tabela dos juros compostos, saltando meses: 0, 3, 6 e 12. A dívida: 1.000, 1.331, 1.771,56 e "?".'
     : 'O "?" vira 3.138,43: em 12 meses, a dívida mais que triplicou.',
 )
-const TV = (total: number | string) => tab(
-  { linhas: [{ rotulo: 'reais', valores: [1000, 200] }, { rotulo: 'porcentagem', valores: ['100 %', total] }] },
-  total === '?'
-    ? 'A tabela da compra: o preço à vista, R$ 1.000, ao lado de 100 %; os R$ 200 a mais do parcelado, ao lado de "?".'
-    : 'O "?" vira 20 %: o parcelado custa 20 % a mais que o à vista.',
+const DIV5 = [{ de: 0, para: 1, rotulo: '÷ 5' }, { de: 0, para: 1, rotulo: '÷ 5', embaixo: true }]
+const TV = (amais: number | string, total: number | string, destaque?: number[]) => tab(
+  {
+    linhas: [{ rotulo: 'reais', valores: [1000, amais] }, { rotulo: 'porcentagem', valores: ['100 %', total] }],
+    ...(total === '?' ? {} : { setas: DIV5 }),
+    ...(destaque ? { destaque } : {}),
+  },
+  total !== '?'
+    ? 'O "?" vira 20 %, com ÷ 5 em cima e embaixo: R$ 200 é um quinto de R$ 1.000, e 20 % é um quinto de 100 %.'
+    : amais === '?'
+      ? 'A tabela da compra: o preço à vista, R$ 1.000, ao lado de 100 %; o que o parcelado custa a mais e a porcentagem, ainda em "?".'
+      : 'A tabela da compra: o preço à vista, R$ 1.000, ao lado de 100 %; os R$ 200 a mais do parcelado, ao lado de "?".',
 )
 
 export const aula: Aula = {
@@ -154,12 +161,12 @@ export const aula: Aula = {
       tipo: 'passo',
       problema: 'A missão: a TV custa **R$ 1.000** à vista ou **12 × R$ 100** "sem juros". Quanto o parcelado custa a mais?',
       fala: 'A missão: a TV custa mil reais à vista, ou doze vezes cem reais sem juros. Quanto o parcelado custa a mais?',
-      visual: TV('?'),
+      visual: TV('?', '?'),
       passos: [
         {
           pergunta: 'Quanto você paga, no total, no parcelado?',
           opcoes: [
-            { texto: 'R$ 1.200', certa: true, explica: 'Isso. $12 \\times 100 = 1.200$: R$ 200 a mais que à vista.', fala: 'Isso. Doze vezes cem, mil e duzentos: duzentos reais a mais que à vista.' },
+            { texto: 'R$ 1.200', certa: true, explica: 'Isso. $12 \\times 100 = 1.200$: R$ 200 a mais que à vista.', fala: 'Isso. Doze vezes cem, mil e duzentos: duzentos reais a mais que à vista.', mostra: TV(200, '?', [1]) },
             { texto: 'R$ 100', explica: 'R$ 100 é cada parcela. São 12 delas: $12 \\times 100$.', fala: 'Cem reais é cada parcela. São doze delas: doze vezes cem.' },
           ],
           linha: { tex: '12 \\times 100 = 1.200', fala: 'doze vezes cem são mil e duzentos reais' },
@@ -168,7 +175,7 @@ export const aula: Aula = {
           pergunta: 'R$ 200 a mais que o quê? Por quanto você divide?',
           fala: 'Duzentos reais a mais que o quê? Por quanto você divide?',
           opcoes: [
-            { texto: 'Por 1.000, o preço à vista', certa: true, explica: 'Isso. O à vista é o 100 %: o preço da TV hoje.', fala: 'Isso. O à vista é o cem por cento: o preço da TV hoje.' },
+            { texto: 'Por 1.000, o preço à vista', certa: true, explica: 'Isso. O à vista é o 100 %: o preço da TV hoje.', fala: 'Isso. O à vista é o cem por cento: o preço da TV hoje.', mostra: TV(200, '?', [0]) },
             { texto: 'Por 1.200, o total parcelado', erro: 'porcentagem-sobre-o-valor-errado', explica: 'Você quer saber quanto o parcelado custa a mais que o à vista. O todo é o à vista, R$ 1.000.', fala: 'Você quer saber quanto o parcelado custa a mais que o à vista. O todo é o à vista, mil reais.' },
           ],
           linha: { tex: '200 \\div 1.000 = 0{,}2', fala: 'duzentos dividido por mil dá zero vírgula dois' },
@@ -177,8 +184,8 @@ export const aula: Aula = {
           pergunta: 'O parcelado "sem juros" custa quantos por cento a mais?',
           fala: 'O parcelado sem juros custa quantos por cento a mais?',
           opcoes: [
-            { texto: '20 %', certa: true, explica: 'Isso. Você paga 20 % a mais para dividir em 12 meses. Com a conta na mão, a escolha é sua.', fala: 'Isso. Você paga vinte por cento a mais para dividir em doze meses. Com a conta na mão, a escolha é sua.', mostra: TV('20 %') },
-            { texto: '0 %: é sem juros', explica: 'Sem juros no nome, mas o total é R$ 200 maior que o à vista: 20 % a mais.', fala: 'Sem juros no nome, mas o total é duzentos reais maior que o à vista: vinte por cento a mais.', mostra: TV('20 %') },
+            { texto: '20 %', certa: true, explica: 'Isso. Você paga 20 % a mais para dividir em 12 meses. Com a conta na mão, a escolha é sua.', fala: 'Isso. Você paga vinte por cento a mais para dividir em doze meses. Com a conta na mão, a escolha é sua.', mostra: TV(200, '20 %', [1]) },
+            { texto: '0 %: é sem juros', explica: 'Sem juros no nome, mas o total é R$ 200 maior que o à vista: 20 % a mais.', fala: 'Sem juros no nome, mas o total é duzentos reais maior que o à vista: vinte por cento a mais.', mostra: TV(200, '20 %') },
           ],
           linha: { tex: '0{,}2 = 20\\,\\%', fala: 'zero vírgula dois são vinte por cento a mais' },
         },
