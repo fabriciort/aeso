@@ -14,12 +14,14 @@ export interface RetanguloState {
   cortes?: number[]
   cortesLinhas?: number[]
   areas?: boolean | (number | string)[][]
-  destaque?: [number, number] | 'linha'
+  destaque?: [number, number] | 'linha' | 'coluna'
   girar?: boolean
   total?: number
   grupos?: boolean
   base?: number[]
   altura?: number[]
+  /** O resto: quadradinhos soltos numa linha incompleta, embaixo do retângulo. */
+  sobra?: number
 }
 
 export interface RetanguloInteract {
@@ -64,7 +66,11 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   const C = turned ? L0 : C0
   const colParts = parts(C, turned ? s.cortesLinhas : s.cortes)
   const rowParts = parts(L, turned ? s.cortes : s.cortesLinhas)
-  const roomRows = Math.max(L, maxLinhas ?? 0, 1)
+  // Nothing arranged yet (0 rows) but a total: the pieces wait loose, in rows of `colunas`.
+  const pile = L0 === 0 && !onAdd && !s.sobra && (s.total ?? 0) > 0 ? s.total! : 0
+  const sobra = turned ? 0 : Math.max(0, s.sobra ?? 0) + pile
+  const sobraRows = Math.ceil(sobra / C)
+  const roomRows = Math.max(L + sobraRows, maxLinhas ?? 0, 1)
   const gap = 8 // between parts
   const rowGap = s.grupos ? 6 : 0
   const labelW = s.rotulos ? 30 : 0
@@ -119,6 +125,7 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   }
   const lit = (r: number, c: number) => {
     if (s.destaque === 'linha') return r === 0
+    if (s.destaque === 'coluna') return c === 0
     if (Array.isArray(s.destaque)) return partOfRow(r)[0] === s.destaque[0] && partOfCol(c) === s.destaque[1]
     return false
   }
@@ -131,6 +138,7 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   const cells: { key: string; r: number; c: number }[] = []
   for (let r = 0; r < L0; r++) for (let c = 0; c < C0; c++) cells.push({ key: `${r}-${c}`, r: turned ? c : r, c: turned ? r : c })
   const canRemove = Boolean(onRemove) && L > 0
+  const loose = Array.from({ length: sobra }, (_, i) => ({ key: `s${i}`, r: L + Math.floor(i / C), c: i % C }))
 
   return (
     <motion.svg
@@ -158,6 +166,21 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
             fill={lit(r, c) ? amber : 'rgba(255,255,255,0.88)'}
             onClick={canRemove && r === L - 1 ? (ev) => (ev.stopPropagation(), onRemove!()) : undefined}
             style={{ cursor: canRemove && r === L - 1 ? 'pointer' : undefined }}
+          />
+        ))}
+        {loose.map(({ key, r, c }) => (
+          <motion.rect
+            key={key}
+            initial={{ opacity: 0, x: xOf(c), y: yOf(Math.min(r, L)) + (r >= L ? (r - L + 1) * (k + rowGap) + 6 : 0) - k * 0.6 }}
+            animate={{ opacity: 1, x: xOf(c), y: oy + H(L) + (r - L) * (k + rowGap) + 6 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.45, ease }}
+            width={cell}
+            height={cell}
+            rx={Math.min(5, k * 0.18)}
+            fill="rgba(251,191,36,0.18)"
+            stroke={amber}
+            strokeWidth={1.5}
           />
         ))}
       </AnimatePresence>
@@ -249,7 +272,7 @@ function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }
   const minPart = 46
   const scale = Math.min(availW / sb, availH / sa)
   const widths = base.map((b) => Math.max(minPart, b * scale))
-  const heights = altura.map((a) => Math.max(minPart, a * scale))
+  const heights = altura.map((a) => Math.max(altura.length === 1 ? 84 : 60, a * scale))
   const fitW = Math.min(1, availW / widths.reduce((a, b) => a + b, 0))
   const fitH = Math.min(1, availH / heights.reduce((a, b) => a + b, 0))
   const ws = widths.map((w) => w * fitW)
@@ -269,7 +292,7 @@ function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }
         base.map((b, j) => (
           <motion.rect
             key={`p${i}-${j}`}
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 0, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
             animate={{ opacity: 1, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
             transition={{ duration: 0.45, ease }}
             rx={6}

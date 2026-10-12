@@ -332,6 +332,7 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
       // Rows go in one at a time; past the answer, the last row can be taken back.
       const target = ok.linhas as number
       const rows = st.drag ?? 0
+      const cols = num(e.colunas) ?? 0
       const { adicionar: _a, ...rest } = e
       void _a
       const add = () => {
@@ -344,7 +345,8 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         set({ ...st, drag: n, done: n === target, note: undefined })
       }
       return {
-        visual: visual({ ...rest, linhas: rows }),
+        // A total of 0 counts up with the rows; a fixed total keeps the pieces not yet in a row loose.
+        visual: visual({ ...rest, linhas: rows, ...(e.total === 0 ? { total: rows * cols } : num(e.total) ? { sobra: Math.max(0, (e.total as number) - rows * cols) } : {}) }),
         interact: { retangulo: { onAdd: lock || rows >= target + 2 ? undefined : add, onRemove: lock || rows <= target ? undefined : remove, maxLinhas: target + 1, wrong: Boolean(st.note) } },
       }
     }

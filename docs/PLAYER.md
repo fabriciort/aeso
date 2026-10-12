@@ -158,7 +158,8 @@ O retângulo de multiplicação. Duas formas:
 | `cortes` | colunas onde o retângulo se parte, contando da esquerda (`[5]` parte 7 colunas em 5 + 2) |
 | `cortesLinhas` | o mesmo, nas linhas |
 | `areas: true` | escreve o produto dentro de cada parte |
-| `destaque` | acende uma parte: `[linha, coluna]` das partes (`[0, 1]`), ou `'linha'` (a primeira linha, um grupo) |
+| `destaque` | acende uma parte: `[linha, coluna]` das partes (`[0, 1]`), `'linha'` (a primeira linha, um grupo) ou `'coluna'` (a primeira coluna) |
+| `sobra` | o resto: quadradinhos soltos, contornados em âmbar, numa linha incompleta embaixo do retângulo |
 | `girar: true` | o retângulo gira 90° (linhas viram colunas) |
 | `total` | o número embaixo |
 | `grupos: true` | cada linha aparece como um grupo separado (pacotes iguais), com um pequeno espaço entre as linhas |
@@ -181,6 +182,7 @@ O retângulo de multiplicação. Duas formas:
 
 | Chave | Efeito |
 |---|---|
+| `expressao` com `fichas` + `lugares` | a expressão em cima e as fichas para pôr em ordem embaixo (o Mexa `ordem`) |
 | `expressao` + (`destaque`) | uma expressão resolvida em etapas, uma por linha, de cima para baixo (`['2 + 3 × 4', '2 + 12', '14']`); a última fica maior. `destaque` é um trecho da última linha que ganha uma moldura âmbar (`'3 × 4'`) |
 | `calculadoras` | visores lado a lado: `[{ nome: 'Celular', teclas: '2 + 3 × 4 =', visor: '20' }, …]` |
 

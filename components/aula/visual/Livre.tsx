@@ -50,7 +50,12 @@ export function hasLivre(s: LivreState): boolean {
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
-      {s.expressao?.length ? (
+      {s.expressao?.length && s.fichas && s.lugares ? (
+        <>
+          <Expressao etapas={s.expressao} destaque={s.destaque} />
+          <Ordenar fichas={s.fichas} lugares={s.lugares} order={it.order ?? []} onFicha={it.onFicha} wrong={it.wrong} />
+        </>
+      ) : s.expressao?.length ? (
         <Expressao etapas={s.expressao} destaque={s.destaque} />
       ) : s.calculadoras?.length ? (
         <Calculadoras c={s.calculadoras} />
