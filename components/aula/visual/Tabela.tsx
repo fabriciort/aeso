@@ -79,8 +79,8 @@ export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: Tabe
   const ox = Math.max(pad, (size.w - W) / 2)
   const oy = Math.max(8, (size.h - H) / 2) + (temCima ? arcH + 18 : 0)
   // One size for the whole table, the one the longest number fits in.
-  // Dots and commas are narrow: half a digit.
-  const largura = (t: string) => t.replace(/[.,]/g, '').length + (t.match(/[.,]/g)?.length ?? 0) / 2
+  // In digit widths: dots, commas and spaces are narrow, the % sign is wide.
+  const largura = (t: string) => [...t].reduce((w, ch) => w + (ch === '.' || ch === ',' ? 0.5 : ch === ' ' ? 0.4 : ch === '%' ? 1.4 : 1), 0)
   const longest = Math.max(2, ...linhas.flatMap((l) => l.valores.map((v) => largura(String(texto(v))))))
   const fs = Math.min(26, cellH * 0.46, (cellW - 12) / (0.58 * longest))
   const cx = (c: number) => ox + labelW + (c + 0.5) * cellW
@@ -126,7 +126,7 @@ export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: Tabe
                           initial={{ opacity: 0, y: 8, scale: 0.9 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.4, ease, delay: r * 0.12 }}
-                          className="font-semibold tabular-nums"
+                          className="whitespace-nowrap font-semibold tabular-nums"
                           style={{ fontSize: fs, color: q ? amber : '#fff' }}
                         >
                           {texto(v)}
