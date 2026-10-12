@@ -32,6 +32,8 @@ export interface TabelaState {
   setas?: TabelaSeta[]
   /** Uma seta à direita, da primeira linha para a segunda, com este rótulo ("× 3"). */
   fator?: string
+  /** O `fator` só aparece quando todas as colunas já estão à vista (no Mexa, depois da última). */
+  fatorNoFim?: boolean
   /** Colunas em destaque (moldura âmbar). */
   destaque?: number[]
   /** Quantas colunas aparecem; as outras ficam como caixas vazias (Mexa "completar"). */
@@ -164,7 +166,7 @@ export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: Tabe
             )
           })}
         </AnimatePresence>
-        {s.fator && linhas.length >= 2 && (
+        {s.fator && linhas.length >= 2 && (!s.fatorNoFim || vis >= n) && (
           <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, delay: 0.2 }}>
             <path d={`M${ox + labelW + n * cellW + 6} ${oy + cellH / 2} Q${ox + labelW + n * cellW + (roomy ? 34 : 26)} ${oy + cellH} ${ox + labelW + n * cellW + 8} ${oy + cellH * 1.5}`} fill="none" stroke={amber} strokeWidth={2} markerEnd="url(#tab-ponta)" />
             <text x={ox + labelW + n * cellW + (roomy ? 30 : 22)} y={oy + cellH + 5} textAnchor="start" fill={amber} fontSize={15} fontWeight={700} className="tabular-nums" style={{ paintOrder: 'stroke', stroke: '#000', strokeWidth: 5 }}>

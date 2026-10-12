@@ -228,6 +228,7 @@ A tabela de proporção da U10: uma grandeza em cada linha e os pares lado a lad
 | `tabela.linhas` | `[{ rotulo: 'farinha (xícaras)', valores: [2, 4, 6] }, { rotulo: 'ovos', valores: [3, 6, '?'] }]`. `'?'` ou `null` é o valor que falta: aparece em âmbar, com borda tracejada |
 | `tabela.setas` | setas curvas entre colunas: `[{ de: 0, para: 1, rotulo: '× 2' }, { de: 0, para: 1, rotulo: '÷ 2', embaixo: true }]`. Sem `embaixo`, a seta fica em cima da primeira linha; com ela, embaixo da última. Na proporção inversa, × em cima e ÷ embaixo |
 | `tabela.fator` | uma seta à direita, da primeira linha para a segunda, com o fator que vale para toda coluna (`'× 12'`: R$ 12 o quilo) |
+| `tabela.fatorNoFim: true` | o `fator` só aparece quando todas as colunas estão à vista: no Mexa, depois que o aluno completa a tabela |
 | `tabela.destaque` | colunas com moldura âmbar (`[2]`) |
 | `tabela.mostradas` | quantas colunas aparecem; as outras ficam como caixas vazias |
 | `tabela.completar: true` | o Mexa "completar" (veja abaixo) |
