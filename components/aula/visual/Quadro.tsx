@@ -551,7 +551,9 @@ function Medida({ m, size, onCasa, wrong }: { m: MedidaState; size: { w: number;
             <span className={cn('pb-2 text-[15px] font-medium', casa === m.de ? 'text-white' : casa === m.para ? 'text-[#f6b74e]' : 'text-white/45')}>{casa}</span>
             <span className={cn('flex items-center justify-center rounded-xl', onCasa && 'border border-dashed border-white/25 bg-white/[0.03]')} style={{ width: col - 8, height: fs * 1.5 }}>
               {cells[c].map((d, j) => (
-                <AnimatePresence key={j} mode="popLayout" initial={false}>
+                // Each slot keeps its width, so a lone digit sits in its own place (the 1 of 1 m³ on the right).
+                <span key={j} className="grid place-items-center" style={{ width: (col - 12) / k }}>
+                <AnimatePresence mode="popLayout" initial={false}>
                   {d && (
                     <motion.span
                       key={d + (zeros.has(String(c * k + j)) ? 'z' : '')}
@@ -566,6 +568,7 @@ function Medida({ m, size, onCasa, wrong }: { m: MedidaState; size: { w: number;
                     </motion.span>
                   )}
                 </AnimatePresence>
+                </span>
               ))}
             </span>
           </button>
