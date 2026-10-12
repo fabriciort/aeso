@@ -18,11 +18,11 @@ Nosso aluno tem pouco tempo e pouco foco, como quase todo mundo hoje. Por isso, 
 - **O aluno aprende interagindo**, não lendo. Toda ideia tem algo para tocar, arrastar ou prever.
 - **Toda ação tem resposta visual imediata** (em até 100 ms): o desenho muda junto com o dedo, o erro aparece no próprio desenho, o acerto acende.
 - **O feedback ensina:** não é só "certo/errado", é ver *por que*. A balança tomba, o pedaço não encaixa, a reta não passa pelo ponto.
-- **Cada lição é planejada cartão a cartão** antes de ser construída (roteiro em `docs/MATEMATICA.md`).
+- **Cada aula é planejada cartão a cartão**, com um momento-chave claro (`docs/CONTEUDO.md`).
 
 ## Identidade
 
-Detalhes e histórico em `docs/ESTUDO_UX.md`.
+A identidade nasceu de uma revisão das telas (outubro de 2026) que achou os vícios de interface genérica: caixa alta espaçada, bolinhas coloridas, arco-íris pastel, halos pulsando, etiquetas empilhadas e nenhuma ação óbvia. A resposta:
 
 - **Preto, branco e uma luz:** a interface é monocromática e a única cor de destaque é o âmbar "luz de estrela" (`#f6b74e`), que marca só o próximo passo.
 - **Cor só com significado:** concluído é branco sólido; próximo é âmbar; o resto é contorno discreto.
@@ -33,8 +33,8 @@ Detalhes e histórico em `docs/ESTUDO_UX.md`.
 ## Fundamentos
 
 - **Tema:** escuro ("céu noturno"), fundo `#030407`, superfícies de vidro fosco (`.glass`, `.glass-strong`).
-- **Tipografia:** Geist Sans (interface) e Geist Mono (números, coordenadas, identificadores). Títulos com `tracking` negativo (−0,02 a −0,045 em).
-- **Cor:** quase toda a interface é neutra. A cor de destaque é o azul `sky-300/400`. Cada missão do MAST tem uma cor fixa (`lib/missions.ts`). O âmbar (`#f6b74e`) indica "estrela/energia" nos laboratórios.
+- **Tipografia:** Geist Sans em tudo, inclusive nos números da formação. Geist Mono só para coordenadas e identificadores do Céu. Títulos com `tracking` negativo (−0,02 a −0,045 em), em letra normal (nunca caixa alta).
+- **Cor:** quase toda a interface é neutra; o destaque é o âmbar (`#f6b74e`). No Céu, cada missão do MAST tem uma cor fixa (`lib/missions.ts`), e os dados reais aparecem em azul-claro.
 - **Raios:** 22–28 px para cartões e painéis; `rounded-full` para botões e chips.
 - **Rótulos** usam `.eyebrow` (14 px, letra normal, branco a 50 %).
 
@@ -65,7 +65,7 @@ Regras:
 
 A duração mínima é 1,6 s na primeira visita da sessão; nas seguintes, a abertura é encurtada para ≈ 0,4 s.
 
-## Laboratório: uma tela, sem rolagem
+## Laboratórios: uma tela, sem rolagem
 
 O celular é a referência. Cada **Etapa** ocupa exatamente a tela (`100svh`) e nunca rola:
 
@@ -105,13 +105,26 @@ Laboratórios novos têm um único palco que atravessa todas as etapas e se tran
 
 ## Matemática
 
-- O **mapa da formação** é uma árvore de pré-requisitos.
-  - As unidades são quadrados arredondados com o número em mono e o nome embaixo, na cor da parte do módulo.
-  - As ligações são curvas finas. As longas correm em faixas próprias e nunca atravessam outra unidade.
-  - Ao tocar numa unidade, a cadeia de pré-requisitos acende na cor dela, o que ela abre aparece pontilhado e o resto esmaece.
-  - A unidade recomendada agora pulsa devagar. Nada é bloqueado: o mapa recomenda, nunca proíbe.
-- No palco: fundo de grade leve, eixos discretos, a curva principal em branco, o objeto da ideia (tangente, retângulos, vetor) na cor do laboratório, dados reais em azul-claro (`#7dd3fc`).
-- Fórmulas em KaTeX herdam a cor do texto. Frações em opções de escolha usam `\displaystyle`; no Caderno, o estilo de texto, para caber.
+- **A aula:** um story sem rolagem; palco no meio, uma frase grande, um botão só embaixo. Os detalhes de cada cartão e de cada visual estão em `docs/PLAYER.md`.
+- **O palco se transforma:** quando dois cartões seguidos usam o mesmo modelo, as peças se movem até o novo estado em vez de trocar de tela.
+- **O mapa da formação** é uma árvore de pré-requisitos, monocromática sobre o papel quadriculado:
+  - as unidades são quadrados arredondados com o número e o nome embaixo;
+  - concluída é branca sólida; a recomendada agora é âmbar; o resto é contorno discreto;
+  - as ligações são curvas finas; as longas correm em faixas próprias e nunca atravessam outra unidade;
+  - ao tocar numa unidade, a cadeia de pré-requisitos acende, o que ela abre aparece pontilhado e o resto esmaece;
+  - nada é bloqueado: o mapa recomenda, nunca proíbe.
+- **Nos laboratórios de matemática:** fundo de grade leve, eixos discretos, a curva principal em branco, o objeto da ideia (tangente, retângulos, vetor) em destaque, dados reais em azul-claro (`#7dd3fc`).
+- Fórmulas em KaTeX herdam a cor do texto e encolhem até caber, nunca rolam para o lado.
+
+## Pendências de identidade
+
+| Item | Proposta |
+|---|---|
+| Vega (orbe de gradiente com ✨) | Um sinal próprio e simples, sem gradiente nem brilhinho. Decisão de marca: precisa do Fabricio |
+| Boas-vindas do Observatório | Hoje oferece o laboratório do exoplaneta e o Céu. Deveria levar à formação, como começo da jornada |
+| Início com muitas portas | Um "Próximo passo" único no topo, como na Matemática, e o resto abaixo |
+| Capas e cartões dos laboratórios | Cor própria por laboratório, chips de conceito e metadados: avaliar ao revisar a área Laboratórios |
+| `Part.color` em `lib/math/curriculum.ts` | Não aparece mais na interface; apagar se continuar sem uso |
 
 ## Layout do Observatório
 

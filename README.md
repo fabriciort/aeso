@@ -1,41 +1,46 @@
 # AESo
 
-![release](https://img.shields.io/badge/release-v0.5.0-green)
 ![next](https://img.shields.io/badge/next.js-15.5-blue?logo=next.js)
 ![code-license](https://img.shields.io/badge/code%20license-MIT-red)
 ![content-license](https://img.shields.io/badge/content%20license-CC%20BY--SA%204.0-red)
 
-![M31 MMSB Demo](public/assets/m31_mmsb.gif)
+**AESo** é uma plataforma de ensino interativa, em português. O centro dela é a **Formação em Matemática**: um caminho do zero absoluto ao Cálculo, para adultos, em aulas curtas que se aprendem mexendo.
 
-## Visão Geral
+## A Formação em Matemática
 
-**AESo** é uma plataforma para aprender física e astronomia fazendo ciência de verdade. O aluno imagina um fenômeno, testa uma hipótese e mede o resultado em dados reais de telescópios. Tudo em português, direto no navegador.
+- **Para quem:** o adulto que não aprendeu matemática na escola, ou esqueceu, e quem sabe um pouco e quer fechar lacunas.
+- **Como:** cada aula é um story com um conceito só. O aluno junta blocos, corta retângulos, salta na reta, aposta antes de ver a resposta e resolve no caderno de papel. O texto é curto e acompanha o desenho.
+- **Uma jornada:** a primeira aula mostra o caminho inteiro e onde a pessoa está. No fim de cada aula, ela vê o que já fez e qual é a próxima.
+- **Até onde vai:** a Matemática Básica prepara para a prova do ENCCEJA Ensino Fundamental. Depois vêm Álgebra e Funções, Geometria e Trigonometria e Cálculo 1 a 4.
 
-- **Site** (`/`): apresenta o produto.
-- **Observatório** (`/app`): o web app. É um ambiente contínuo, com abertura animada, boas-vindas e áreas que trocam sem recarregar a página:
-  - **Início**: continuar de onde parou, objeto do dia, buscas recentes.
-  - **Céu**: busca por nome, catálogo, coordenadas ou características; céu interativo (Aladin Lite); ficha do objeto; observações e downloads do MAST.
-  - **Laboratórios**: experiências guiadas. O primeiro, *Encontre um exoplaneta*, usa a curva de luz real do TESS para medir o tamanho de WASP-121 b.
-  - **Matemática**: trilhas da matemática básica ao Cálculo 4. Cada laboratório vai do concreto ao gráfico e só então à fórmula, com resolução passo a passo guiada.
-  - **Vega**: guia de IA que sabe em que etapa o aluno está e dá pistas em vez de respostas.
+**Estado:** 29 aulas prontas, da U0 (Comece aqui) à U6 (Múltiplos, divisores e primos). A próxima unidade é Frações. Detalhes em [AGENTS.md](AGENTS.md).
+
+No app, a formação fica em `/app/matematica`.
+
+## O resto do app
+
+O AESo nasceu como um observatório de astronomia, e essa parte continua no app:
+
+- **Céu:** busca de objetos, céu interativo (Aladin Lite) e observações do MAST.
+- **Laboratórios:** experiências guiadas com dados reais, como *Encontre um exoplaneta* (TESS), e oito laboratórios de matemática (equações, função quadrática, derivada, integral e outros) que depois vão fechar unidades da formação.
+- **Vega:** a guia de IA, que dá pistas em vez de respostas.
 
 ## Documentação
 
-| Documento | Conteúdo |
+| Documento | Para quê |
 |---|---|
-| [docs/PRODUTO.md](docs/PRODUTO.md) | Visão, público, princípios de experiência, **nomenclatura**, voz e tom |
-| [docs/DESIGN.md](docs/DESIGN.md) | Tipografia, cor, movimento, abertura, layout |
-| [docs/LABORATORIOS.md](docs/LABORATORIOS.md) | Como criar um novo laboratório |
-| [docs/MATEMATICA.md](docs/MATEMATICA.md) | Plano da Formação em Matemática (estrutura, aulas, exercícios) |
-| [docs/CONTEUDO.md](docs/CONTEUDO.md) | Diretrizes e formato do conteúdo das aulas |
-| [docs/PLAYER.md](docs/PLAYER.md) | O player de aulas: como cada cartão e cada modelo aparecem na tela |
-| [docs/ESTUDO_UX.md](docs/ESTUDO_UX.md) | Estudo de caso de identidade e experiência |
-| [AGENTS.md](AGENTS.md) | Instruções para o agente que escreve o conteúdo |
-| [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Estrutura do código, IA, fontes de dados, modo offline |
+| [AGENTS.md](AGENTS.md) | **Comece aqui.** Estado atual e como criar uma unidade nova |
+| [docs/CONTEUDO.md](docs/CONTEUDO.md) | Como escrever uma aula: pedagogia, tom, ritmo, notação, checklist |
+| [docs/PLAYER.md](docs/PLAYER.md) | O player de aulas: cartões, modelos visuais e chaves de `estado` |
+| [docs/MATEMATICA.md](docs/MATEMATICA.md) | O plano da formação: módulos, unidades, aulas, erros comuns |
+| [docs/DESIGN.md](docs/DESIGN.md) | Princípios de design, identidade e movimento |
+| [docs/PRODUTO.md](docs/PRODUTO.md) | Visão, público, voz e nomenclatura |
+| [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Estrutura do código, IA, fontes de dados |
+| [docs/LABORATORIOS.md](docs/LABORATORIOS.md) | Como criar um laboratório (o formato dos laboratórios, não das aulas) |
 
 ## Stack
 
-Next.js 15 · React 19 · TypeScript · Tailwind CSS · framer-motion · Aladin Lite 3 · Geist · zod · Groq (ou Claude) · vitest
+Next.js 15 · React 19 · TypeScript · Tailwind CSS · framer-motion · KaTeX · Aladin Lite 3 · zod · Groq (ou Claude) · vitest
 
 ## Instalação
 
@@ -43,80 +48,26 @@ Next.js 15 · React 19 · TypeScript · Tailwind CSS · framer-motion · Aladin 
 git clone https://github.com/fabriciort/aeso.git
 cd aeso
 pnpm install
-cp .env.example .env.local   # GROQ_API_KEY para ativar a Vega
+cp .env.example .env.local   # opcional: GROQ_API_KEY ou ANTHROPIC_API_KEY para a Vega
 pnpm dev                     # http://localhost:3000
 ```
 
 ```bash
 pnpm dev:mock    # dados simulados, sem rede
-pnpm test        # testes (física do trânsito, leitor FITS, busca, ADQL)
+pnpm test        # testes (conteúdo da formação, exercícios, currículo, laboratórios)
 pnpm lint && pnpm typecheck
 pnpm build && pnpm start
 ```
 
-## Roadmap
+## Licença
 
-- [x] Céu: busca inteligente, céu interativo, dados do MAST
-- [x] Observatório: abertura, boas-vindas, navegação contínua
-- [x] Laboratório 1: Encontre um exoplaneta (TESS)
-- [x] Vega, guia de IA
-- [x] Laboratórios: cor das estrelas, diagrama H-R (Gaia), expansão do universo, órbitas
-- [x] Ajustes opcionais: tela cheia e voz da Vega
-- [x] Matemática: trilhas da básica ao Cálculo 4, com 8 laboratórios (equações, função quadrática, círculo trigonométrico, derivada, integral, séries de Taylor, gradiente, equações diferenciais)
-- [ ] Matemática: frações, porcentagem, função afim, exponencial, transformações, limites, técnicas de integração, integrais múltiplas, campos vetoriais
-- [ ] Contas e planos pagos
-- [ ] Biblioteca: artigos vivos
-- [ ] Turma: painel do professor
+O projeto usa duas licenças:
 
-## Licença e Atribuições
+- **Código** ([MIT](LICENSE-MIT)): arquivos `.ts`, `.tsx`, `.js`, `.json`, configurações e scripts.
+- **Conteúdo e documentação** ([CC BY-SA 4.0](LICENSE-CC-BY-SA)): documentação (`.md`), textos e descrições, imagens e mídias em `public/`, dados derivados e visualizações.
 
-O projeto utiliza um modelo de **licenciamento dual**:
+### Dados externos
 
-### Código Fonte ([MIT License](LICENSE-MIT))
-O código fonte, que podem incluir componentes, configurações e scripts está sob a licença MIT:
-- Arquivos `.ts`, `.tsx`, `.js`, `.py`, `.ipynb`, `.json`, etc.****
-- Configurações (`.config.js`, etc.)
-- Scripts de build e desenvolvimento
+Os dados e as imagens do MAST/STScI seguem as próprias licenças: [STScI Copyright](https://www.stsci.edu/copyright), [STScI Privacy Policy](https://www.stsci.edu/privacy), [MAST Data Usage](https://archive.stsci.edu/publishing/data-use).
 
-### Conteúdo e Documentação ([CC BY-SA 4.0](LICENSE-CC-BY-SA))
-O conteúdo, documentação e assets está sob Creative Commons BY-SA 4.0:
-- Documentação (`.md`, etc.)
-- Imagens e mídia
-- Textos e descrições
-- Dados derivados e visualizações
-
-### Dados Externos
-Os dados, imagens equaisquer conteúdos do MAST/STScI estão sujeitos às suas próprias licenças:
-- [STScI Copyright](https://www.stsci.edu/copyright)
-- [STScI Privacy Policy](https://www.stsci.edu/privacy)
-- [MAST Data Usage](https://archive.stsci.edu/publishing/data-use)
-
-Este projeto usa o SIMBAD, o Sesame, o hips2fits e o Aladin Lite, operados pelo CDS (Strasbourg, França). Ao publicar resultados, cite o [SIMBAD](https://cds.unistra.fr/help/acknowledgement/) e o [Aladin](https://aladin.cds.unistra.fr/). O Aladin Lite é distribuído pelo CDS sob licença LGPL-3.0 e é usado como dependência npm, sem modificações.
-
-### Estrutura de Licenciamento
-
-```
-aeso/
-├── LICENSE-MIT       
-├── LICENSE-CC-BY-SA  
-├── app/              # MIT License
-│   ├── components/   # MIT License
-│   ├── lib/         # MIT License
-│   └── ...
-├── public/          # CC BY-SA 4.0
-│   └── assets/      # CC BY-SA 4.0 (exceto conteúdo MAST)
-└── README.md        # MIT License
-```
-
-- Flexibilidade para reutilização do código (MIT)
-- Proteção e atribuição adequada do conteúdo (CC BY-SA 4.0)
-- Conformidade com licenças de dados externos
-- Clareza sobre o que pode ser usado e como
-
-## Status
-
-🚧 Contribuições são bem-vindas!
-
----
-
-Desenvolvimento movido a paixão 💚 e curiosidade pelo cosmos
+O projeto usa o SIMBAD, o Sesame, o hips2fits e o Aladin Lite, operados pelo CDS (Strasbourg, França). Ao publicar resultados, cite o [SIMBAD](https://cds.unistra.fr/help/acknowledgement/) e o [Aladin](https://aladin.cds.unistra.fr/). O Aladin Lite é distribuído pelo CDS sob a licença LGPL-3.0 e é usado como dependência npm, sem modificações.

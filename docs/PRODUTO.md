@@ -2,23 +2,23 @@
 
 ## Em uma frase
 
-**AESo é o lugar onde estudantes aprendem física e astronomia fazendo ciência de verdade:** imaginam um cenário, testam uma hipótese e depois medem o fenômeno em dados reais de telescópios.
+**O AESo forma pessoas em matemática a partir do zero:** aulas curtas e interativas em que o aluno aprende mexendo, numa formação que começa em contar de 10 em 10 e pode chegar ao Cálculo.
 
 ## Para quem
 
 | Prioridade | Público | O que procura |
 |---|---|---|
-| 1 | Graduação em física e astronomia | Entender o que estuda, com dado real e sem montar ambiente de programação |
-| 2 | Ensino médio olímpico (OBA, IOAA) e cursinhos | Prática guiada, desafios, portfólio |
-| 3 | Professores | Atividades prontas para aplicar em turma |
-| 4 | Curiosos e entusiastas | Explorar o céu e entender o que estão vendo |
+| 1 | Adultos que não aprenderam matemática na escola, ou esqueceram | Entender de verdade, sem medo, no ritmo deles, pelo celular |
+| 2 | Quem sabe um pouco e tem lacunas | Achar o que falta e pular o que já sabe ("Já sei isso") |
+| 3 | Quem vai fazer o ENCCEJA, o ENEM ou precisa da matemática no trabalho | Um caminho claro até um marco concreto |
+| 4 | Curiosos por ciência | O Céu e os laboratórios de astronomia, que continuam no app |
 
 ## Princípios de experiência
 
-1. **Um só lugar.** O Observatório é um ambiente contínuo: nada recarrega e tudo transita. O aluno nunca "sai" para outra página.
-2. **Primeiro imaginar, depois medir.** Todo conceito começa num cenário que a pessoa controla e termina num dado real.
-3. **Errar é parte.** Previsões erradas são respondidas com explicação, nunca com punição.
-4. **Números com significado.** Todo número vem com unidade e com uma comparação humana ("1,8 vezes Júpiter").
+1. **Uma jornada, não um catálogo.** Desde a primeira tela, a pessoa sabe que começou uma formação, vê onde está no caminho e qual é o próximo passo.
+2. **Aprender mexendo.** Toda ideia começa em algo que o aluno manipula. A regra aparece depois, como resumo do que ele já viu.
+3. **Pouco texto.** O desenho explica; uma frase curta acompanha.
+4. **Errar é parte.** O erro é respondido com o porquê, mostrado no desenho, nunca com punição.
 5. **A IA guia, não resolve.** A Vega faz perguntas e dá pistas, sem entregar a resposta.
 6. **Calma e precisão.** Movimento suave, poucos elementos por vez e nenhum ruído visual.
 
@@ -40,7 +40,12 @@ Use estes termos **exatamente assim** na interface, no código e na comunicaçã
 | **Formação** | O percurso completo de matemática, do zero ao Cálculo (`docs/MATEMATICA.md`) | `lib/math/curriculum.ts` |
 | **Módulo** | Uma grande etapa da formação (ex.: Matemática Básica, Cálculo 1) | `Module` |
 | **Unidade** | Um tema dentro do módulo (ex.: Frações), com pré-requisitos | `Unit` |
-| **Aula** | Um conceito, em formato de story | `Lesson` |
+| **Aula** | Um conceito, em formato de story (`docs/CONTEUDO.md`) | `Lesson` no currículo; `Aula` no conteúdo (`content/matematica/`) |
+| **Cartão** | Um momento da aula: gancho, mexa, aposta, ideia, anote, passo, caderno, sua vez, fecho | `Cartao` (`lib/formation/schema.ts`) |
+| **Player** | A tela que mostra uma aula, cartão por cartão | `components/aula/` |
+| **Modelo-âncora** | Um visual que volta ao longo da formação: blocos, reta, retângulo, barra… | `Visual.modelo`; `components/aula/visual/` |
+| **Gerador** | Produz exercícios sem fim para o "Sua vez", em três níveis | `content/matematica/geradores/` |
+| **Erro comum** | Uma resposta errada típica, com a causa e o desmonte | `content/matematica/erros*.ts` |
 | **Mapa da formação** | A árvore de pré-requisitos de módulos e unidades | `components/math/FormationMap.tsx` |
 | **Caderno** (no Resolva) | A resolução que se escreve sozinha, uma linha por passo certo | palco de cada lab de matemática |
 | **Laboratório** | Uma experiência guiada sobre um fenômeno. Ex.: "Encontre um exoplaneta" | `lib/labs/*.ts` |
@@ -81,8 +86,4 @@ Em Matemática, a etapa `medicao` se chama **Resolva** (o aluno resolve um probl
 
 ## Modelo de negócio (hipótese a validar)
 
-- **Grátis:** Céu completo e o primeiro laboratório.
-- **Estudante:** todos os laboratórios, Vega sem limite apertado, Caderno e Biblioteca.
-- **Turma e Instituição:** painel do professor e licenças por aluno.
-
-A cobrança fica fora do MVP. Primeiro é preciso medir se os alunos terminam o primeiro laboratório e pedem o próximo.
+A cobrança fica fora do MVP. Primeiro é preciso medir se as pessoas terminam as primeiras unidades da formação e voltam para a próxima aula.

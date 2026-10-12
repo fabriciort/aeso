@@ -1,6 +1,6 @@
 # Formação em Matemática: plano
 
-> **Versão 2 · alinhamento antes da implementação.** Este é o documento-mestre da formação. Nada vira código sem estar aqui: primeiro o plano, depois o roteiro de cada aula (seção 8), e só então a construção. Cada sessão de trabalho marca o que ficou pronto.
+> O documento-mestre da formação: o que ensinar e em que ordem. Como escrever cada aula está em `docs/CONTEUDO.md`; o que o player desenha, em `docs/PLAYER.md`; o estado atual e o passo a passo para uma unidade nova, em `AGENTS.md`. A lista de aulas abaixo é o plano; a fonte de verdade dos ids, títulos e pré-requisitos é `lib/math/curriculum.ts`.
 
 ## 0. Em uma página
 
@@ -14,7 +14,7 @@
   - exercícios sem fim, com dicas e diagnóstico do erro;
   - a Vega como tutora.
 - **Primeiro passo:** a **Matemática Básica**, a fundação. Tem que ficar perfeita e coesa, porque todo o resto se apoia nela.
-- **Critério de qualidade:** cada aula leva **o tempo que o conceito precisa** para ser entendido de verdade. Não há limite de cartões, de tempo nem de texto. A única regra é: nenhum cartão sem propósito, e nenhum passo de raciocínio pulado. Valor não é volume, e também não é pressa.
+- **Critério de qualidade:** cada aula leva o aluno a entender **um** conceito de verdade, sem pular passo de raciocínio e sem cartão sem propósito. Valor não é volume: uma aula típica tem de 10 a 16 cartões e de 5 a 8 minutos (o ritmo está em `docs/CONTEUDO.md`). Se passa muito disso, provavelmente são dois conceitos e viram duas aulas.
 
 ## 1. Aonde a formação leva (com honestidade)
 
@@ -81,9 +81,7 @@ Formação → Módulo → Unidade → Aula (story) → Prática
 | **Checkpoint** | Questões misturadas da unidade inteira; libera a próxima unidade |
 | **Revisão do dia** | Questões antigas, espaçadas e misturadas |
 
-**Sem limites artificiais.** O tamanho de cada aula, de cada explicação e de cada lista de exercícios é decidido pelo conceito e pelo aluno, nunca por uma regra fixa. Se uma ideia precisa de vinte cartões para ficar clara, ela terá vinte. Se precisa de três, terá três. O que define o fim de uma aula é o aluno ter entendido, não um número.
-
-**Uma aula, um conceito.** Isso não é limite de tamanho: é foco. Um conceito grande pode ocupar uma aula longa; dois conceitos diferentes ficam em aulas diferentes, para o aluno saber exatamente o que aprendeu em cada uma.
+**Uma aula, um conceito.** É isso que define o tamanho: um conceito, contado com os cartões que ele precisa e nenhum a mais. Dois conceitos diferentes ficam em aulas diferentes, para o aluno saber exatamente o que aprendeu em cada uma. A referência de ritmo (de 10 a 16 cartões, no máximo 2 cartões só de leitura seguidos) está em `docs/CONTEUDO.md`.
 
 ### Como o story funciona
 
@@ -94,8 +92,8 @@ Formação → Módulo → Unidade → Aula (story) → Prática
 - **Voltar:** sempre permitido. Nada se perde.
 - **Palco contínuo:** o desenho não pisca de um cartão para o outro, ele **se transforma**. Esse é o diferencial em relação a um story comum.
 - **Texto mínimo** (princípio número 1 do `docs/DESIGN.md`).
-  - Quem explica é a animação e a manipulação; o texto é uma frase curta, em letra grande, que acompanha.
-  - Não há limite de cartões: uma explicação longa vira **mais cartões, cada um com pouco texto**, nunca um cartão cheio de palavras.
+  - Quem explica é a animação e a manipulação; o texto é uma frase curta (até 140 caracteres), em letra grande, que acompanha.
+  - Uma explicação que não cabe vira outro cartão, nunca um cartão cheio de palavras.
   - A voz da Vega lê, se o aluno quiser.
 - **Sem rolagem**, sem cronômetro, no celular e no computador.
 
@@ -113,7 +111,7 @@ Formação → Módulo → Unidade → Aula (story) → Prática
 | **Sua vez** | Exercícios até o aluno mostrar que sabe, com o suporte diminuindo | Primeiro com dica disponível, por último sem. Quem precisa de mais treino recebe mais |
 | **Fecho** | A pergunta do Gancho respondida e o que vem depois | O aluno vê que agora sabe |
 
-Uma aula típica: Gancho → Mexa → Aposta → Ideia + Anote → Passo a passo → Caderno → Sua vez → Fecho. Os cartões podem se repetir e se combinar quantas vezes o conceito pedir (vários Mexa, várias Apostas, vários Passos a passo). Cartão que não ensina nada sai; cartão que falta, entra.
+Uma aula típica: Gancho → Mexa → Aposta → Ideia + Anote → Passo a passo → Caderno → Sua vez → Fecho. Os cartões podem se repetir e se combinar como o conceito pedir (vários Mexa, várias Apostas). Cartão que não ensina nada sai; cartão que falta, entra. Como o player mostra cada um: `docs/PLAYER.md`.
 
 ### O caderno de papel
 
@@ -472,14 +470,14 @@ U20 Projeto final (U9, U11, U15, U17, U18, U19)
 Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requisitos**:
 - **Módulos no topo:** os sete, em ordem. O aluno escolhe um.
 - **Árvore do módulo:** pré-requisitos sempre acima. Só aparecem as ligações essenciais; uma ligação que já está implícita em outro caminho fica de fora, para a árvore continuar legível no celular. Ligações longas correm em faixas próprias e nunca atravessam outra unidade.
-- **Cores:** cada unidade tem a cor da sua parte (A a F).
+- **Cores:** o mapa é monocromático; o âmbar marca só o próximo passo (`docs/DESIGN.md`, Identidade).
 - **Status de cada unidade:**
-  - **concluída:** preenchida, com um ✓;
-  - **recomendada agora:** brilha, porque o aluno já tem a base;
-  - **recomendada depois:** mais apagada.
+  - **concluída:** branca, sólida, com um ✓;
+  - **recomendada agora:** em âmbar, porque o aluno já tem a base;
+  - **o resto:** contorno discreto.
   - **Nada é bloqueado.** O app recomenda e explica o porquê, mas não proíbe.
 - **Tocar numa unidade:**
-  - acende, na cor dela, toda a cadeia do que ela exige;
+  - acende toda a cadeia do que ela exige;
   - mostra pontilhado o que ela abre;
   - abre o painel (gaveta no celular, painel lateral no desktop) com o objetivo, o que falta antes, o que vem depois e as aulas. Cada aula mostra a aula de outra unidade que ela usa.
 - **Pré-requisitos de outros módulos:** aparecem como uma etiqueta "vem de…" acima da unidade. Tocar num deles leva ao outro módulo.
@@ -497,43 +495,29 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 | Plano cartesiano e ideia de função | U18 |
 | Juros compostos | U11 |
 
-## 7. Do roteiro ao ar: como cada aula é produzida
+## 7. Do plano ao ar: como cada unidade é produzida
 
-**Duas frentes.**
-- **Conteúdo:** o que ensinar, as palavras, as perguntas, os erros comuns, os exercícios e os esboços do visual. É escrito por um agente de código dedicado (Codex), seguindo `docs/CONTEUDO.md` e o contrato `lib/formation/schema.ts`, em `content/matematica/`.
-- **Experiência:** o player, o desenho, o movimento, a interação e a lapidação de UX. É feita aqui, a partir do conteúdo e dos esboços.
+O passo a passo prático (arquivos, comandos, entrega) está em `AGENTS.md`. Em resumo, um mesmo agente escreve o conteúdo e estende o player quando a unidade pede um visual novo. O ponto de encontro é o contrato tipado (`lib/formation/schema.ts`), que os testes validam (`tests/conteudo.test.ts`, `tests/aula-mexa.test.ts`).
 
-O ponto de encontro é o contrato tipado, que os testes validam (`tests/conteudo.test.ts`).
+Cada unidade passa por:
 
-
-Cada aula passa por estas etapas, nesta ordem. Nenhuma é pulada.
-
-1. **Roteiro** (texto, no formato da seção 8), com:
-   - o objetivo;
-   - o gancho;
-   - cartão a cartão: o texto, o que o palco mostra e a ação do aluno;
-   - as falas da Vega;
-   - o cartão Anote;
-   - os erros mapeados e os exercícios com seus geradores.
-2. **Revisão do roteiro:** você aprova; quando possível, também um educador matemático. É aqui que cortamos cartões que não acrescentam.
-3. **Construção:** animações, interações e exercícios, no player de aula.
+1. **Plano das aulas:** o momento-chave de cada aula, o que o aluno mexe, os erros comuns e os exercícios.
+2. **Player:** os visuais e os Mexa que ainda não existem.
+3. **Conteúdo:** aulas, erros comuns, geradores e os testes deles.
 4. **Verificação:**
-   - percorrer no celular (390 × 844) e no desktop;
-   - sem rolagem e sem erros;
-   - toda tarefa com saída;
-   - voz e textos conferidos.
-5. **Teste com uma pessoa real** do público "do zero". Observar onde ela trava e ajustar.
-6. **Publicar** e marcar a aula como pronta neste documento.
+   - testes, tipos, lint e build;
+   - percorrer cada aula no navegador, cartão por cartão, no celular (390 × 844) e no desktop;
+   - sem rolagem, sem texto cortado, toda tarefa com saída.
+5. **PR em rascunho** com capturas, revisado pelo Fabricio.
 
-**Métricas por aula** (depois que houver alunos):
-- taxa de conclusão;
-- acerto no "Sua vez" na primeira tentativa;
-- quais erros mapeados aparecem mais;
-- domínio que se mantém na Revisão de 7 dias.
+Ainda falta, e fica para quando houver alunos:
+- **Teste com pessoas reais** do público "do zero": observar onde travam e ajustar.
+- **Revisão por um educador matemático**, sobretudo em Frações (decisão 7, seção 11).
+- **Métricas por aula:** taxa de conclusão, acerto no "Sua vez" na primeira tentativa, erros mapeados mais frequentes, domínio que se mantém na Revisão de 7 dias.
 
 ## 8. Exemplo de roteiro: U1 · Aula 2 · "O zero que guarda o lugar"
 
-Este exemplo serve para validar o formato **antes** de construir.
+O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (`content/matematica/basica/u01/a02-zero-guarda-lugar.ts`) é a versão final; este roteiro fica como exemplo de como pensar uma aula cartão a cartão.
 
 - **Objetivo:** o aluno entende que o valor de um algarismo depende da posição e que o zero guarda um lugar vazio.
 - **Habilidades:** `B.U1.H2` (valor posicional) e `B.U1.H3` (decompor um número).
@@ -562,28 +546,31 @@ Este exemplo serve para validar o formato **antes** de construir.
 
 **Fala da Vega quando o aluno trava:** "Olhe para os blocos embaixo de cada casa. Quantos cubos cabem numa barra?"
 
-## 9. Infraestrutura a construir (Etapa 0)
+## 9. Infraestrutura
 
-| Peça | Para quê | Reaproveita |
+| Peça | Estado | Onde |
 |---|---|---|
-| **Player de Aula em formato de story** | Cartões, barra no topo, toque para avançar, palco contínuo | `StepFrame`, palco contínuo, voz, dicas |
-| **Motor de exercícios** | Geradores por habilidade, correção, diagnóstico do erro, dicas em 3 níveis | O "Resolva" dos laboratórios |
-| **Teclado de matemática** | Número, vírgula, fração, sinal de menos | — |
-| **Rascunho** | Desenhar com o dedo | — |
-| **Cartão Anote e ficha-resumo** | Caderno guiado | `Tex` |
-| **Domínio + Revisão do dia** | Fixação | `lib/progress.ts` |
-| **Mapa de habilidades** | Pré-requisitos, roteamento, diagnóstico | — |
-| **Kit de modelos-âncora** | Blocos e reta primeiro; depois barra, retângulo, grade, balança | `lib/math/view`, `components/math/canvas`, laboratório da balança |
-| **Mapa da formação** | Progresso visível | `MathView` |
+| **Player de aula em story** (cartões, barra no topo, palco que se transforma, voz, "Já sei isso", retomar de onde parou) | pronto | `components/aula/` |
+| **Motor de exercícios** (geradores, domínio, dicas em 3 níveis) | pronto para `numero` e `escolha` | `components/aula/Exercicios.tsx` |
+| **Teclado de matemática** | números; fração e sinal de menos ainda não | `components/aula/Keypad.tsx` |
+| **Cartão Anote** | pronto | `components/aula/` |
+| **Mapa da formação** com a apresentação na primeira visita | pronto | `components/math/`, `views/MathView.tsx` |
+| **Diagnóstico de entrada** | pronto para o piloto | U0, aula 2 |
+| **Modelos-âncora** | blocos, reta, quadro posicional, retângulo, livre; **barra** chega com Frações; grade e balança, depois | `components/aula/visual/` |
+| **Rascunho com o dedo** | a fazer | |
+| **Domínio + Revisão do dia** | a fazer | `lib/progress.ts` |
+| **Mapa de habilidades** (roteamento pelo erro) | a fazer | |
+| **Checkpoint** por unidade | a fazer (há esboços em `content/matematica/basica/piloto.ts`) | |
+| **Folha de treino em PDF, ficha-resumo, certificado** | a fazer | |
 
 ## 10. Ordem de construção
 
-| Etapa | O quê | Pronto quando |
+| Etapa | O quê | Estado |
 |---|---|---|
-| **0 · Fundação** | Itens da seção 9 (sem PDF) e a reorganização dos módulos no app | Uma aula de teste roda de ponta a ponta |
-| **1 · Piloto** | U0 e U1, com roteiros aprovados | 3 a 5 adultos "do zero" testaram e ajustamos |
-| **2** | U2 a U5 | Inclui o treino de tabuada na Revisão do dia |
-| **3** | U6 e U7 (frações) | Revisão extra por educador |
+| **0 · Fundação** | Player, exercícios, mapa | pronto |
+| **1 · Piloto** | U0 e U1 | pronto (falta o teste com adultos "do zero") |
+| **2** | U2 a U5 | pronto (falta o treino de tabuada na Revisão do dia) |
+| **3** | U6 e U7 (frações) | U6 pronta; **U7 em andamento**; revisão extra por educador |
 | **4** | U8 a U11 | Missões revisadas por profissionais da área |
 | **5** | U12 a U15 | Laboratório da balança integrado |
 | **6** | U16 a U19 | |
@@ -596,8 +583,8 @@ Este exemplo serve para validar o formato **antes** de construir.
 | 1 | Módulos por assunto (seção 2) | **Adotado**, salvo objeção |
 | 2 | Preparar para o ENCCEJA Ensino Fundamental; certificado próprio de conclusão | **Adotado** |
 | 3 | Aula em formato de story com os tipos de cartão da seção 3 | **Adotado** |
-| 4 | Começar pela Fundação e depois pelo piloto U0 + U1 | **Adotado**, salvo objeção |
-| 5 | Folha de treino em PDF | Depois do piloto |
+| 4 | Começar pela Fundação e depois pelo piloto U0 + U1 | **Feito** |
+| 5 | Folha de treino em PDF | Depois, quando houver alunos |
 | 6 | Contextos profissionais como Missões revisadas por especialistas, sem promessa de emprego | **Adotado** |
 | 7 | Quem revisa os roteiros além de você (educador matemático?) | **Pendente** |
 | 8 | Como recrutar os 3 a 5 adultos do teste do piloto | **Pendente** |

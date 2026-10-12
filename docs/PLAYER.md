@@ -1,6 +1,6 @@
 # O player de aulas
 
-Como a experiência lê o conteúdo de `content/matematica/` e o transforma em tela. Este documento é para quem escreve o conteúdo: diz o que o player já entende, para os esboços virarem tela sem tradução.
+Como o player lê o conteúdo de `content/matematica/` e o transforma em tela: o que cada cartão mostra e quais chaves de `estado` cada modelo entende. Quem escreve uma aula usa estas chaves; quem estende o player para uma unidade nova acrescenta aqui as chaves novas, na mesma mudança.
 
 Código: `components/aula/` (player, cartões, exercícios, visuais) e `components/observatory/views/AulaView.tsx` (a rota).
 
@@ -95,7 +95,7 @@ Detalhes por cartão:
 
 ## Modelos e chaves de `estado`
 
-O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem erro, mas também não aparece. Se um esboço precisar de algo que não está aqui, escreva no PR.
+O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem erro, mas também não aparece. Se a aula precisa de algo que não está aqui, estenda o modelo em `components/aula/visual/` e documente a chave nesta seção.
 
 ### `blocos`
 

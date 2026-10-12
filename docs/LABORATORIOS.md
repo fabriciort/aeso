@@ -2,6 +2,8 @@
 
 Um **Laboratório** é uma sequência de **Etapas** (ver `docs/PRODUTO.md`). O primeiro, "Encontre um exoplaneta", serve de referência.
 
+> Este é o formato dos laboratórios (astronomia e os oito de matemática que fecharão unidades dos módulos 2 a 7). **As aulas da Formação em Matemática usam outro formato**, o de cartões: veja `AGENTS.md`, `docs/CONTEUDO.md` e `docs/PLAYER.md`.
+
 ## 1. Defina o laboratório no catálogo
 
 `lib/labs/catalog.ts`

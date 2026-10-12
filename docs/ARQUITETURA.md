@@ -10,28 +10,39 @@ app/
   api/observations             Observações do MAST num cone
   api/products                 Arquivos de uma observação
   api/lightcurve?lab=…         Curva de luz do TESS para um laboratório (FITS → JSON)
+  api/gaia-hr                  Estrelas do Gaia para o laboratório do diagrama H-R
   api/vega                     Vega: chat em streaming, com contexto da tela
+content/matematica/            O conteúdo da formação (docs/CONTEUDO.md)
+  basica/uNN/                  As aulas de cada unidade e o index.ts da unidade
+  geradores/                   Os exercícios ("Sua vez"), por tema
+  erros.ts, erros-uNN.ts       O catálogo de erros comuns
+  index.ts                     Toda aula e todo gerador entram aqui
 components/
+  aula/                        O player de aulas (docs/PLAYER.md): Player, Exercicios, Keypad, mexa.ts
+    visual/                    Os modelos-âncora: Blocos, Reta, Quadro, Retangulo, Livre, Stage
+  math/                        Mapa da formação, painel da unidade, KaTeX (Tex), canvas dos laboratórios
   site/                        Página pública
-  observatory/                 Shell (Abertura, Boas-vindas, Nav, Vega) e áreas (views/)
+  observatory/                 Shell (Abertura, Boas-vindas, Nav, Vega) e áreas (views/, inclusive AulaView e MathView)
   labs/                        Runtime dos laboratórios, capas e etapas por laboratório
-  instruments/                 Componentes interativos reutilizáveis (Plot, TransitSimulator)
+  instruments/                 Componentes interativos reutilizáveis dos laboratórios (Plot, TransitSimulator)
   aeso/                        Céu: barra de busca, SkyViewer (Aladin Lite), ficha, observações
 lib/
+  formation/                   O contrato do conteúdo (schema.ts) e o gerador de números (rng.ts)
+  math/                        O currículo (curriculum.ts: módulos, unidades, aulas, pré-requisitos) e a matemática dos laboratórios
   astro/                       Física e dados, sem dependência de servidor: coordenadas, ADQL,
                                FITS, trânsito, curva de luz, interpretação de buscas
   labs/                        Catálogo e tipos de laboratório
-  observatory/                 Roteador interno e contexto da Vega
+  observatory/                 Roteador interno, contexto da Vega e voz
   server/                      Só no servidor: SIMBAD, MAST, TESS, IA (Groq/Claude), limites de uso
-  progress.ts                  Progresso do aluno (localStorage)
+  progress.ts                  Progresso do aluno (localStorage); o da formação fica em math/formation-progress.ts
   motion.ts                    Tokens de animação
-docs/                          Produto, design, laboratórios, arquitetura
-tests/                         Vitest
+docs/                          Produto, design, formação, conteúdo, player, laboratórios, arquitetura
+tests/                         Vitest: conteúdo, exercícios, Mexa, currículo, laboratórios
 ```
 
 ## Navegação sem recarregar
 
-`/app/*` é uma rota única do Next. Dentro dela, `lib/observatory/router.tsx` mantém a rota em estado e sincroniza a URL com `history.pushState`. Trocar de área é uma troca de componente com animação (`viewTransition`); voltar e avançar do navegador funcionam, e links como `/app/laboratorios/exoplaneta?etapa=meca` abrem direto no lugar certo.
+`/app/*` é uma rota única do Next. Dentro dela, `lib/observatory/router.tsx` mantém a rota em estado e sincroniza a URL com `history.pushState`. Trocar de área é uma troca de componente com animação (`viewTransition`); voltar e avançar do navegador funcionam, e links como `/app/matematica/aula/B.U6.A4` ou `/app/laboratorios/exoplaneta?etapa=meca` abrem direto no lugar certo.
 
 ## IA
 

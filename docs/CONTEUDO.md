@@ -1,6 +1,6 @@
 # Diretrizes de conteúdo da Formação em Matemática
 
-> Para quem escreve o conteúdo das aulas, exercícios e erros comuns. Leia também `docs/MATEMATICA.md` (o plano da formação) e `docs/DESIGN.md` (princípios 1 e 2).
+> Para quem escreve as aulas, os exercícios e os erros comuns. Leia também `AGENTS.md` (estado atual e passo a passo de uma unidade), `docs/PLAYER.md` (o que o player desenha), `docs/MATEMATICA.md` (o plano da formação) e `docs/DESIGN.md` (princípios 1 e 2).
 
 ## A missão
 
@@ -124,16 +124,15 @@ Use cenários adultos que voltam ao longo da formação:
 
 Nomes e situações diversos e respeitosos.
 
-## Seus esboços: queremos a sua visão
+## Esboços: o roteiro visual
 
-Você não constrói as telas, mas **queremos saber como você apresentaria cada conceito**. Todo visual e todo cartão têm um campo `esboco`, e a aula tem um `esboco` geral. Use-os para:
+Todo visual e todo cartão têm um campo `esboco`, e a aula tem um `esboco` geral. Eles não aparecem para o aluno: são o roteiro de quem constrói e revisa a aula. Use-os para:
 
 - descrever o que o aluno vê e o que se move, como num storyboard ("as 3 placas encolhem e viram 3 barras enquanto o 3 desliza uma casa");
-- desenhar em ASCII quando ajudar;
-- propor um visual novo quando nenhum modelo-âncora serve (`modelo: 'livre'` e explique);
-- dizer qual momento da aula é o "momento-chave", o instante em que o aluno entende.
+- dizer qual momento da aula é o **momento-chave**, o instante em que o aluno entende;
+- explicar um visual `livre` ou uma proposta que o player ainda não desenha.
 
-Nós transformamos esses esboços em desenho, movimento e interação, e lapidamos juntos.
+O que o aluno vê de fato é o `estado` de cada visual. Use as chaves de `docs/PLAYER.md`. Se a ideia precisa de algo que o player não desenha, estenda o player na mesma unidade (veja `AGENTS.md`) em vez de deixar o desenho só no esboço.
 
 ## O formato de entrega
 
@@ -142,12 +141,13 @@ O contrato é `lib/formation/schema.ts` (tipos comentados). Os arquivos:
 | O quê | Onde |
 |---|---|
 | Uma aula | `content/matematica/basica/uNN/aNN-nome-curto.ts`, exportando `aula: Aula` |
-| Geradores de exercícios | `content/matematica/geradores/<tema>.ts`, exportando objetos `Gerador` |
-| Erros comuns | `content/matematica/erros.ts` (um catálogo único; reutilize ids) |
+| As aulas da unidade | `content/matematica/basica/uNN/index.ts`, exportando `AULAS_UNN` em ordem |
+| Geradores de exercícios | `content/matematica/geradores/<tema>.ts`, exportando `GERADORES_UN` |
+| Erros comuns novos | `content/matematica/erros-uNN.ts` (`ERROS_UNN`), somados ao catálogo único em `content/matematica/erros.ts`; reutilize ids |
 | Índice | `content/matematica/index.ts` (toda aula e todo gerador entram aqui) |
 | Testes dos geradores | `tests/geradores-uNN.test.ts`, conferindo a resposta por cálculo independente |
 
-**Exemplo completo de formato:** `content/matematica/basica/u01/a02-zero-guarda-lugar.ts` (aula) e `content/matematica/geradores/valor-posicional.ts` (geradores). São rascunhos de formato e podem ser reescritos.
+**Exemplo completo:** a unidade 6 (`content/matematica/basica/u06/`, `geradores/divisibilidade.ts`, `erros-u06.ts`, `tests/geradores-u06.test.ts`).
 
 **Validação automática** (`pnpm test`): `tests/conteudo.test.ts` confere:
 - se cada aula existe no currículo (`lib/math/curriculum.ts`), com o mesmo título;
@@ -157,7 +157,10 @@ O contrato é `lib/formation/schema.ts` (tipos comentados). Os arquivos:
 - se todo erro citado existe no catálogo;
 - se todo TeX compila;
 - se toda tarefa tem "mostre";
-- se cada gerador produz 300 exercícios coerentes e determinísticos.
+- se cada gerador produz 300 exercícios coerentes e determinísticos;
+- se o texto não usa rótulos de exemplo nem códigos internos ("exemplo imaginado", "U1").
+
+`tests/aula-mexa.test.ts` joga cada Mexa até o estado de sucesso: um Mexa que o player não sabe jogar faz o teste falhar.
 
 ### Exercícios: como escrever um bom gerador
 
@@ -184,13 +187,13 @@ O contrato é `lib/formation/schema.ts` (tipos comentados). Os arquivos:
 - [ ] Cada cartão tem uma frase curta; nada que o visual já mostra.
 - [ ] Ritmo: nenhuma "ideia" repete a explicação anterior; no máximo 2 cartões de leitura seguidos.
 - [ ] Li cada frase em voz alta: entende-se de primeira, sem jargão, sem códigos (U1) e sem "exemplo imaginado".
-- [ ] Os esboços dizem como você imagina o visual e o movimento, e qual é o momento-chave.
+- [ ] Os esboços dizem o visual, o movimento e o momento-chave; o `estado` usa chaves que o player desenha.
+- [ ] Percorri a aula no navegador, cartão por cartão, no celular e no desktop.
 - [ ] O campo `vega` explica a ideia central, os erros esperados e como guiar sem entregar.
-- [ ] `pnpm test`, `pnpm typecheck` e `pnpm lint` passam.
+- [ ] `pnpm test`, `pnpm typecheck`, `pnpm lint` e `pnpm build` passam.
 
 ## Ordem de produção
 
-1. **Piloto:** U0 (2 aulas) e U1 (5 aulas), na ordem do currículo.
-2. Depois, uma unidade por vez, na ordem de `docs/MATEMATICA.md`, seção 6.
+Uma unidade por vez, na ordem de `docs/MATEMATICA.md`, seção 6. O estado atual (o que está pronto e qual é a próxima) fica em `AGENTS.md`.
 
-Cada unidade inclui suas aulas, seus geradores, seus erros comuns e um esboço do checkpoint, que são questões misturadas da unidade.
+Cada unidade inclui suas aulas, seus geradores e seus erros comuns. O checkpoint (questões misturadas da unidade) ainda não existe no player; os esboços do piloto estão em `content/matematica/basica/piloto.ts`.
