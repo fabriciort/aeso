@@ -36,7 +36,7 @@ Conteúdo riquíssimo **não é conteúdo longo**. É conteúdo em que cada cart
 5. **Papel na mão.**
    - O cartão "caderno" pede que ele resolva no papel e depois confira.
    - O cartão "anote" diz exatamente o que copiar: definição, exemplo, alerta.
-6. **Uma aula, um conceito.** Sem limite de cartões: use quantos o conceito pedir. Mas um conceito por aula, para o aluno saber o que aprendeu.
+6. **Uma aula, um conceito.** Sem limite rígido de cartões, mas com ritmo (veja "Ritmo"). Um conceito por aula, para o aluno saber o que aprendeu.
 
 ## Pouco texto, muita interação
 
@@ -52,13 +52,44 @@ Princípios 1 e 2 de `docs/DESIGN.md`:
 | "Muito bem! Você acertou! Parabéns pelo seu excelente desempenho!" | "Isso. O zero segura o 3 na casa das centenas." |
 | "Errado. Tente novamente." | "Esse é o algarismo. Olhe os blocos: 7 barras de 10." |
 
+## Ritmo
+
+A aula tem de andar. Cada toque em "Continuar" que não traz nada novo é tempo perdido e cansa.
+
+- **No máximo 2 cartões só de leitura seguidos** (gancho, ideia, anote, fecho). Os testes cobram.
+- **Não repita a explicação.** Se a opção da aposta já explicou ("Isso. Na reta, quem fica à direita é o maior."), não faça em seguida uma "ideia" dizendo o mesmo: siga para o próximo passo.
+- **O "anote" dá o nome e a definição.** Não faça antes uma "ideia" com a mesma frase.
+- **Dois cartões curtos sobre a mesma coisa viram um.** Um toque a menos.
+- **Tamanho de referência:** de 10 a 16 cartões, de 5 a 8 minutos. Passou muito disso? Provavelmente são dois conceitos: proponha duas aulas.
+- **A unidade 0 (orientação) é curta.** O aluno veio aprender matemática.
+
 ## Tom e linguagem
 
-- **Português do Brasil, "você", adulto falando com adulto.** Respeito, sem infantilizar, sem personagens bobos.
+O aluno precisa entender cada frase **de primeira**. Se ele relê, a frase falhou.
+
+**O teste:** leia a frase em voz alta para alguém que não estuda matemática. Se soa como manual, edital, relatório ou tradução, reescreva. Se a pessoa entende de primeira, está bom.
+
+- **Escreva como uma pessoa fala com outra.** Português do Brasil, "você", adulto falando com adulto. Caloroso e direto, sem infantilizar, sem personagens bobos.
+- **Uma ideia por frase.** Frases curtas, na ordem direta: quem, faz o quê. Evite ponto e vírgula. Use dois-pontos só para revelar um resultado ("2 barras e 7 soltas: **27**").
+- **Situações concretas, ditas diretamente.** "Você comprou 27 arruelas." Não rotule o exemplo: todo mundo sabe que um problema de matemática é uma situação inventada. Nunca escreva "exemplo imaginado", "situação hipotética" ou parecido.
+- **Palavras do dia a dia.** Nada de vocabulário interno do projeto: "coleta", "amostra", "registro", "apoio", "retomada", "evidência", "convenção desta formação", "produzir os passos". Nada de códigos: escreva "unidade 1" e "esta aula", nunca "U1" ou "B.U1.A2".
+- **Termo técnico só quando ele é o assunto da aula** (dezena, classe, arredondar). Apresente-o depois que o aluno já viu a ideia.
+- **Fale do que está na tela.** "As 2 barras", "a marca 250", "a casa das dezenas". Não "a representação", "o modelo", "a etiqueta da contagem".
+- **Explicação de opção = o porquê, em uma frase, com o que está na tela.** "Isso." no acerto pode, mas não em todas: varie ou vá direto ao porquê.
 - **Nunca "é fácil", "é simples", "óbvio".** Para quem não sabe, não é.
 - **Elogie a estratégia e o esforço**, não o "talento". Comemore pouco e com precisão ("Isso. 7 dezenas são 70.").
 - **Nome oficial junto com o popular** na primeira vez: "reagrupamento, o famoso vai um". Depois, o oficial.
 - **Uma definição por conceito.** Escreva-a uma vez, no cartão "anote", e repita exatamente igual quando o conceito voltar em outras aulas.
+
+Exemplos do piloto:
+
+| Confuso | Claro |
+|---|---|
+| "Exemplo imaginado: arruelas para uma reforma. Como conferir a quantidade sem recontar uma por uma?" | "Você comprou arruelas para uma reforma. Como saber quantas são sem contar uma por uma?" |
+| "Isso dá uma evidência: você produz os passos, em vez de reconhecer os passos de outra pessoa." | "Se você resolve sem olhar, você sabe. Achar a resposta conhecida não é saber." |
+| "Depois da coleta, escreva 608 como soma das casas." | "Escreva 608 como soma de centenas, dezenas e unidades." |
+| "Esta amostra indica uma retomada na U1; ela não mede toda a Matemática Básica." | "Essas perguntas mostram por onde começar a unidade 1. Elas não medem tudo o que você sabe." |
+| "Pela convenção desta formação, escolhemos o maior: 250." | "No empate, a regra é ficar com o maior: 250." |
 
 ## Notação (igual em toda a formação)
 
@@ -66,6 +97,8 @@ Princípios 1 e 2 de `docs/DESIGN.md`:
 |---|---|
 | Decimal | vírgula: `2,5` (em TeX: `2{,}5`) |
 | Milhar | ponto: `12.500` |
+| Dinheiro | `R$ 37`, com espaço; o `R$` não abre TeX, então pode aparecer junto de `$...$` no mesmo texto |
+| Subtração | no texto e nos enunciados, o sinal `−` (U+2212); em TeX, `-` |
 | Multiplicação | `×` até a U14; a partir dela, `·` e a escrita junta (`3x`), apresentadas explicitamente |
 | Divisão | `÷` até a U7; a partir dela, também a barra `a/b` |
 | Unidades | número, espaço, unidade: `5 m`, `250 mL`, `10 %` |
@@ -76,7 +109,7 @@ Princípios 1 e 2 de `docs/DESIGN.md`:
 
 - **Toda conta está certa.** Toda conta de exemplo é conferida; todo gerador tem teste que confere a resposta por um cálculo independente (veja `tests/geradores-u01.test.ts`).
 - **Dados reais têm fonte.** Medidas oficiais, constantes e regulamentos aparecem com a fonte citada no campo `vega` da aula.
-- **Exemplos inventados são rotulados** "exemplo imaginado".
+- **Exemplos do dia a dia não levam rótulo.** "Você comprou 27 arruelas" já é claramente uma situação de exercício. Só um dado apresentado como fato do mundo (a população de uma cidade, o preço oficial de algo) precisa ser real e ter fonte.
 - **Contextos profissionais** (farmácia, finanças, aviação, indústria) são apresentados como aplicação, nunca como promessa de emprego, e marcados para revisão por alguém da área.
 
 ## Contextos
@@ -149,6 +182,8 @@ O contrato é `lib/formation/schema.ts` (tipos comentados). Os arquivos:
 - [ ] O passo a passo deixa o aluno escolher cada passo, e o caderno conferir.
 - [ ] Os geradores cobrem do nível 1 ao 3, com testes de cálculo independente.
 - [ ] Cada cartão tem uma frase curta; nada que o visual já mostra.
+- [ ] Ritmo: nenhuma "ideia" repete a explicação anterior; no máximo 2 cartões de leitura seguidos.
+- [ ] Li cada frase em voz alta: entende-se de primeira, sem jargão, sem códigos (U1) e sem "exemplo imaginado".
 - [ ] Os esboços dizem como você imagina o visual e o movimento, e qual é o momento-chave.
 - [ ] O campo `vega` explica a ideia central, os erros esperados e como guiar sem entregar.
 - [ ] `pnpm test`, `pnpm typecheck` e `pnpm lint` passam.

@@ -16,14 +16,30 @@ const erroIds = new Set(ERROS.map((e) => e.id))
 function texOk(tex: string, where: string) {
   expect(() => katex.renderToString(tex, { throwOnError: true, strict: false }), `${where}: TeX inválido "${tex}"`).not.toThrow()
 }
+/**
+ * Linguagem (docs/CONTEUDO.md, "Tom e linguagem"): o aluno não vê rótulos
+ * de exemplo nem códigos internos.
+ */
+const PROIBIDO: [RegExp, string][] = [
+  [/imaginad|hipot[ée]tic/i, 'não rotule o exemplo ("exemplo imaginado"): diga a situação direto ("Você comprou 27 arruelas.")'],
+  [/\bB\.U\d|\bU\d{1,2}\b/, 'não use códigos internos (U1, B.U1.A2): escreva "unidade 1", "esta aula"'],
+]
+function linguagem(t: string, where: string) {
+  for (const [re, porque] of PROIBIDO) expect(re.test(t), `${where}: ${porque}. "${t}"`).toBe(false)
+}
+
 function texto(t: string | undefined, where: string) {
   if (t === undefined) return
+  linguagem(t, where)
+  t = t.replace(/R\$/g, 'R') // o real não é TeX (components/aula/Rich.tsx)
   const visible = t.replace(/\$[^$]*\$/g, (m) => m.slice(1, -1)).replace(/\*\*/g, '')
   expect(visible.length, `${where}: texto com ${visible.length} caracteres (máximo ${MAX}). Divida em dois cartões. "${t}"`).toBeLessThanOrEqual(MAX)
   for (const m of t.match(/\$[^$]+\$/g) ?? []) texOk(m.slice(1, -1), where)
 }
 const linha = (l: Linha, where: string) => {
   texOk(l.tex, where)
+  linguagem(l.tex, where)
+  linguagem(l.fala, where)
   expect(l.fala.trim().length, `${where}: linha sem fala`).toBeGreaterThan(0)
 }
 function opcoes(os: Opcao[], where: string) {
@@ -42,6 +58,7 @@ const visual = (v: Visual, where: string) => {
 }
 
 function cartao(c: Cartao, where: string) {
+  if ('fala' in c && c.fala) linguagem(c.fala, `${where} › fala`)
   switch (c.tipo) {
     case 'gancho':
     case 'ideia':
@@ -104,6 +121,15 @@ describe('aulas', () => {
         expect(tipos.some((t) => t === 'mexa' || t === 'aposta'), 'a aula precisa de interação antes da ideia (mexa ou aposta)').toBe(true)
         expect(a.vega.length, 'contexto da Vega vazio').toBeGreaterThan(40)
       })
+      it('tem ritmo: no máximo 2 cartões só de leitura seguidos', () => {
+        // Ritmo (docs/CONTEUDO.md): ler e tocar em "Continuar" três vezes seguidas cansa.
+        const leitura = new Set(['gancho', 'ideia', 'anote', 'fecho'])
+        let seguidos = 0
+        a.cartoes.forEach((c, i) => {
+          seguidos = leitura.has(c.tipo) ? seguidos + 1 : 0
+          expect(seguidos, `${a.id} › cartão ${i + 1}: 3 cartões só de leitura seguidos. Junte, corte ou ponha uma interação no meio.`).toBeLessThanOrEqual(2)
+        })
+      })
       it('cada cartão segue o contrato', () => {
         a.cartoes.forEach((c, i) => cartao(c, `${a.id} › cartão ${i + 1} (${c.tipo})`))
       })
@@ -130,6 +156,7 @@ describe('geradores', () => {
         if (item.formato === 'escolha') {
           expect(item.opcoes?.length, `${where}: escolha sem opções`).toBeGreaterThan(1)
           expect(Number(item.resposta)).toBeLessThan(item.opcoes!.length)
+          item.opcoes!.forEach((o) => texto(o, `${where} › opção`))
         }
       }
     })

@@ -1,10 +1,14 @@
 import type { ErroComum } from '@/lib/formation/schema'
+import { ERROS_U03 } from './erros-u03'
+import { ERROS_U04 } from './erros-u04'
+import { ERROS_U05 } from './erros-u05'
+import { ERROS_U06 } from './erros-u06'
 
 // Catálogo de erros comuns da formação. Cada erro tem um id estável, usado
 // por opções de cartões e por exercícios para diagnosticar o que o aluno
 // pensou. Um erro aparece aqui uma vez só, mesmo que volte em várias aulas.
 
-export const ERROS: ErroComum[] = [
+const ERROS_BASE: ErroComum[] = [
   {
     id: 'valor-de-face',
     nome: 'lê o algarismo, não o valor da casa',
@@ -194,7 +198,73 @@ export const ERROS: ErroComum[] = [
     exemplo: 'Com 104 convites e 100 envelopes, diz que há um envelope por convite porque 104 arredonda para 100.',
     desmonte: 'Marcar os valores exatos na reta: 104 fica à direita de 100. A aproximação ajuda a avaliar o tamanho, mas a garantia exige comparar as quantidades exatas.',
   },
+  // ---------------------------------------------------------------- unidade 2: adição e subtração
+  {
+    id: 'operacao-trocada',
+    nome: 'escolhe a operação pela palavra, não pela situação',
+    causa: 'Procura uma palavra-chave ("mais", "ganhou") e soma, ou vê "sobra" e subtrai, sem imaginar se a quantidade aumenta, diminui ou se a pergunta é a distância entre duas.',
+    exemplo: '"Ana tem 43 figurinhas e Beto tem 28. Quantas Ana tem a mais?" vira 43 + 28 = 71.',
+    desmonte: 'Pôr os dois números na reta: "a mais" é a distância entre eles, de 28 até 43. A resposta tem de ser menor que 43.',
+  },
+  {
+    id: 'perde-o-resto',
+    nome: 'completa a dezena e esquece o que sobrou',
+    causa: 'Usa parte da segunda parcela para chegar ao número redondo, mas depois soma a parcela inteira, ou nada.',
+    exemplo: '38 + 25: pula até 40 e soma 25 de novo, achando 65.',
+    desmonte: 'Mostrar os saltos na reta: dos 25, 2 foram para chegar a 40. Sobram 23, e o segundo salto é de 23.',
+  },
+  {
+    id: 'esquece-reserva',
+    nome: 'esquece o vai um',
+    causa: 'Escreve só o algarismo das unidades da soma de uma casa e não leva a dezena formada para a casa seguinte.',
+    exemplo: '147 + 85 = 222, em vez de 232.',
+    desmonte: 'Nos blocos, 7 + 5 = 12 cubos: 10 deles viram uma barra, que sobe para as dezenas. Sem ela, faltam 10.',
+  },
+  {
+    id: 'escreve-numero-inteiro-na-casa',
+    nome: 'escreve dois algarismos numa casa só',
+    causa: 'Escreve a soma de uma coluna inteira embaixo dela, sem trocar 10 unidades por 1 dezena.',
+    exemplo: '58 + 27: escreve 15 nas unidades e 7 nas dezenas, achando 715.',
+    desmonte: 'Cada casa guarda um algarismo só, de 0 a 9. 715 é setecentos e quinze, muito mais que 58 + 27, que fica perto de 60 + 30 = 90.',
+  },
+  {
+    id: 'subtrai-menor-do-maior',
+    nome: 'subtrai o menor do maior em cada coluna',
+    causa: 'Acha que a subtração de uma coluna sempre tira o algarismo menor do maior, não importa qual está em cima.',
+    exemplo: '52 − 17: faz 7 − 2 = 5 nas unidades e acha 45.',
+    desmonte: 'Os 7 têm de sair das 2 unidades de cima. Não dá sem abrir uma dezena. Conferir: 45 + 17 = 62, não 52.',
+  },
+  {
+    id: 'esquece-que-desagrupou',
+    nome: 'abre uma dezena e não tira ela da casa de cima',
+    causa: 'Ganha 10 unidades emprestadas, mas continua usando o algarismo antigo na casa de onde elas saíram.',
+    exemplo: '52 − 17: faz 12 − 7 = 5, mas depois 5 − 1 = 4, achando 45.',
+    desmonte: 'Nos blocos, a barra aberta virou 10 cubos: sobraram 4 barras, não 5. Riscar o 5 e escrever 4 em cima.',
+  },
+  {
+    id: 'zero-nao-empresta',
+    nome: 'acha que a casa com zero não pode emprestar',
+    causa: 'Vê um zero no meio do número de cima e não sabe de onde tirar a dezena, então pula a casa ou inverte a conta.',
+    exemplo: '304 − 128: diz que não dá, ou faz 8 − 4 nas unidades.',
+    desmonte: 'Abrir 1 centena em 10 dezenas, e uma dessas dezenas em 10 unidades: 304 vira 2 centenas, 9 dezenas e 14 unidades.',
+  },
+  {
+    id: 'estimativa-ordem-errada',
+    nome: 'estima com a casa errada',
+    causa: 'Arredonda e soma, mas perde um zero ou ganha um a mais, e não percebe que o resultado ficou dez vezes maior ou menor.',
+    exemplo: '298 + 413 fica perto de 7.000, ou de 70.',
+    desmonte: 'Os dois números estão entre 200 e 500: a soma tem de ficar entre 400 e 1.000. Só 700 cabe.',
+  },
+  {
+    id: 'inversa-errada',
+    nome: 'confere com a conta errada',
+    causa: 'Para conferir uma subtração, soma o total com a parte tirada, ou repete a mesma conta, em vez de desfazer o que foi feito.',
+    exemplo: 'Para conferir 84 − 29 = 55, faz 84 + 29.',
+    desmonte: 'Na reta: de 84 você voltou 29 e caiu em 55. Para desfazer, saia do 55 e ande 29 para a frente: chega de volta ao 84.',
+  },
 ]
+
+export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06]
 
 export function getErro(id: string): ErroComum | undefined {
   return ERROS.find((e) => e.id === id)

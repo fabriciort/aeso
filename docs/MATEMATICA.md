@@ -210,7 +210,7 @@ Os nomes e as situações são diversos e respeitosos: adulto falando com adulto
 ### Parte A: Números e operações
 
 #### U0. Comece aqui (2 aulas)
-1. **Como esta formação funciona:** o caderno quadriculado, o rascunho, a voz, a Vega, o ritmo; errar é parte do caminho.
+1. **Boas-vindas à formação:** o caminho do zero ao Cálculo, a primeira manipulação, errar como pista, o caderno quadriculado, a Vega e o "Já sei isso"; estudar é tentar, conferir e tentar de novo.
 2. **Diagnóstico de entrada.**
 
 #### U1. O sistema de numeração (5 aulas) · *piloto*

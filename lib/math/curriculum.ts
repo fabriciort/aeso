@@ -70,10 +70,10 @@ const B = 'basica' as const
 const BASICA_UNITS: Unit[] = [
   {
     id: 'B.U0', module: B, n: 0, part: 'inicio', title: 'Comece aqui', short: 'Comece aqui',
-    outcome: 'Sabe como estudar aqui: caderno, rascunho, ritmo, Vega, e onde começar.',
+    outcome: 'Conhece o caminho da formação, sabe como estudar aqui e descobre por onde começar.',
     requires: [],
     lessons: L('B.U0', [
-      ['Como esta formação funciona', 'Caderno quadriculado, rascunho, voz, Vega e o seu ritmo; errar faz parte.'],
+      ['Boas-vindas à formação', 'O caminho do zero ao Cálculo; aprender mexendo; errar é pista; tentar, conferir, tentar de novo.'],
       ['Diagnóstico de entrada', 'Descobrir onde você começa no mapa.'],
     ]),
   },

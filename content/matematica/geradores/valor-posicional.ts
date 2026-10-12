@@ -28,15 +28,15 @@ function valor(r: Rng, sozinho: boolean): Item {
   if (pos > 1) erros[String(resposta / 10)] = 'casa-errada'
   return {
     enunciado: sozinho
-      ? 'Exemplo imaginado: há ' + milhar(n) + ' peças numa contagem. Quanto vale o ' + d + ' nesse número?'
+      ? 'Uma contagem de estoque deu ' + milhar(n) + ' peças. Quanto vale o ' + d + ' nesse número?'
       : 'Em ' + milhar(n) + ', quanto vale o ' + d + '?',
     formato: 'numero',
     resposta,
     erros,
     dicas: [
       'O valor de um algarismo depende da casa em que ele está.',
-      'Conte as casas da direita: o ' + d + ' está nas ' + CASAS[pos] + '.',
-      d + ' ' + CASAS[pos] + ' representam ' + milhar(resposta) + ' unidades.',
+      'Conte as casas a partir da direita: o ' + d + ' está nas ' + CASAS[pos] + '.',
+      d + ' ' + CASAS[pos] + ' valem ' + milhar(resposta) + '.',
     ],
     ...(sozinho ? {} : {
       visual: {
@@ -72,7 +72,7 @@ export const palavrasParaNumero: Gerador = {
       resposta: n,
       erros: { [String(c * 100) + u]: 'concatena-casas', [String(c) + u]: 'esquece-zero' },
       dicas: [
-        'O zero guarda uma casa vazia.',
+        'O zero segura uma casa vazia.',
         'São ' + c + ' centenas, nenhuma dezena e ' + u + ' unidades.',
         c + ' centenas, 0 dezenas e ' + u + ' unidades: ' + n + '.',
       ],
@@ -98,7 +98,7 @@ export const leituraComZero: Gerador = {
     const correta = 'Mil e ' + UNIDADES[u]
     const troca = 'Mil e ' + DEZENAS[u]
     const onzeADezenove = ['onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove']
-    const semZeros = onzeADezenove[u - 1]
+    const semZeros = onzeADezenove[u - 1].replace(/^./, (l) => l.toUpperCase())
     const opcoes = r.pick([
       [correta, troca, semZeros],
       [troca, semZeros, correta],
@@ -112,8 +112,8 @@ export const leituraComZero: Gerador = {
       resposta,
       erros: { [String(opcoes.indexOf(troca))]: 'casa-errada', [String(opcoes.indexOf(semZeros))]: 'esquece-zero' },
       dicas: [
-        'Leia o valor do algarismo, não apenas a sequência de peças.',
-        'Há um milhar e ' + u + ' unidades; centenas e dezenas estão vazias.',
+        'Veja em que casa está cada algarismo.',
+        'Há 1 milhar e ' + u + ' unidades. As centenas e as dezenas estão vazias.',
         milhar(n) + ' se lê ' + correta.toLowerCase() + '.',
       ],
       visual: {

@@ -18,7 +18,10 @@ function play(card: Mexa): MexaState {
     case 'blocos':
       for (let n = 0; n < 50 && !st.done; n++) {
         const b = stage().interact!.blocos!
-        const o = (['unidades', 'dezenas', 'centenas'] as const).find((k) => b.canTap!(k) && (st.counts![k] - 10 >= ((ok[k] as number) ?? 0)))
+        const abrir = card.visual.estado.desagrupar === true
+        const o = abrir
+          ? (['milhares', 'centenas', 'dezenas'] as const).find((k) => b.canTap!(k))
+          : (['unidades', 'dezenas', 'centenas'] as const).find((k) => b.canTap!(k) && (st.counts![k] - 10 >= ((ok[k] as number) ?? 0)))
         if (!o) break
         b.onTap(o)
       }
@@ -54,6 +57,15 @@ function play(card: Mexa): MexaState {
       break
     case 'ordem':
       for (const f of ok.ordem as string[]) stage().interact!.livre!.onFicha!(f)
+      break
+    case 'linhas':
+      for (let n = 0; n < 30 && !st.done; n++) stage().interact!.retangulo!.onAdd!()
+      break
+    case 'cortar':
+      stage().interact!.retangulo!.onCut!(ok.corte as number)
+      break
+    case 'girar':
+      stage().interact!.retangulo!.onTurn!()
       break
   }
   return st

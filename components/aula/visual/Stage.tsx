@@ -7,6 +7,7 @@ import { Blocos, type BlocosState, type Ordem } from './Blocos'
 import { Livre, hasLivre, type LivreInteract, type LivreState } from './Livre'
 import { Quadro, type QuadroInteract, type QuadroState } from './Quadro'
 import { Reta, type RetaInteract, type RetaState } from './Reta'
+import { Retangulo, type RetanguloInteract, type RetanguloState } from './Retangulo'
 
 // O palco da aula. Fica montado de um cartão para o outro: quando o modelo é
 // o mesmo, só o estado muda e as peças se movem até o novo lugar; quando o
@@ -17,6 +18,7 @@ export interface Interact {
   quadro?: QuadroInteract
   reta?: RetaInteract
   livre?: LivreInteract
+  retangulo?: RetanguloInteract
 }
 
 /** The content's state, with the names the generators also use mapped in. */
@@ -36,7 +38,7 @@ export function normalize(v: Visual): Record<string, unknown> {
 export function hasStage(v?: Visual | null): v is Visual {
   if (!v) return false
   if (v.modelo === 'livre') return hasLivre(v.estado as LivreState)
-  return ['blocos', 'reta', 'quadro-posicional'].includes(v.modelo)
+  return ['blocos', 'reta', 'quadro-posicional', 'retangulo'].includes(v.modelo)
 }
 
 export function Stage({ visual, interact }: { visual: Visual; interact?: Interact }) {
@@ -58,6 +60,7 @@ export function Stage({ visual, interact }: { visual: Visual; interact?: Interac
               {visual.modelo === 'blocos' && <Blocos s={s as BlocosState} size={size} onTap={interact?.blocos?.onTap} canTap={interact?.blocos?.canTap} />}
               {visual.modelo === 'quadro-posicional' && <Quadro s={s as QuadroState} size={size} {...interact?.quadro} />}
               {visual.modelo === 'reta' && <Reta s={s as RetaState} size={size} {...interact?.reta} />}
+              {visual.modelo === 'retangulo' && <Retangulo s={s as RetanguloState} size={size} {...interact?.retangulo} />}
               {visual.modelo === 'livre' && <Livre s={s as LivreState} size={size} {...interact?.livre} />}
             </>
           )}

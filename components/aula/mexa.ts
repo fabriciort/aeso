@@ -7,7 +7,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -53,6 +53,11 @@ export function kindOf(card: Mexa): Kind {
       return 'mostre'
     case 'livre':
       return arr(e.fichas) && arr(ok.ordem) ? 'ordem' : 'mostre'
+    case 'retangulo':
+      if (e.adicionar === true && num(ok.linhas) !== undefined) return 'linhas'
+      if (e.cortar === true && num(ok.corte) !== undefined) return 'cortar'
+      if (ok.girado === true) return 'girar'
+      return 'mostre'
     default:
       return 'mostre'
   }
@@ -95,6 +100,10 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: num(e.numero) ?? num(e.de) ?? 0 }
     case 'ordem':
       return { ...base, order: [] }
+    case 'linhas':
+      return { ...base, drag: num(e.linhas) ?? 0 }
+    case 'cortar':
+      return { ...base, pick: null }
     default:
       return base
   }
@@ -130,6 +139,10 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, drag: ok.numero as number }
     case 'ordem':
       return { ...done, order: [...(ok.ordem as string[])] }
+    case 'linhas':
+      return { ...done, drag: ok.linhas as number }
+    case 'cortar':
+      return { ...done, pick: ok.corte as number }
     default:
       void e
       return done
@@ -149,7 +162,10 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
     case 'blocos': {
       const c = st.counts!
       const next: Record<Ordem, Ordem | null> = { unidades: 'dezenas', dezenas: 'centenas', centenas: 'milhares', milhares: null }
-      const canTap = (o: Ordem) => !lock && next[o] !== null && c[o] >= 10
+      const prev: Record<Ordem, Ordem | null> = { unidades: null, dezenas: 'unidades', centenas: 'dezenas', milhares: 'centenas' }
+      // Desagrupar (o "empresta"): a touch opens one piece into 10 of the order below.
+      const abrir = e.desagrupar === true
+      const canTap = (o: Ordem) => !lock && (abrir ? prev[o] !== null && c[o] >= 1 && c[o] > (num(ok[o]) ?? 0) : next[o] !== null && c[o] >= 10)
       return {
         // The frame of 10 only helps while the loose pieces are the ones being grouped.
         visual: visual({ ...e, ...c, tamanhoGrupo: (num(e.unidades) ?? 0) >= 10 && c.unidades <= 10 ? e.tamanhoGrupo : undefined }),
@@ -158,8 +174,7 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
             canTap,
             onTap: (o) => {
               if (!canTap(o)) return
-              const up = next[o]!
-              const counts = { ...c, [o]: c[o] - 10, [up]: c[up] + 1 }
+              const counts = abrir ? { ...c, [o]: c[o] - 1, [prev[o]!]: c[prev[o]!] + 10 } : { ...c, [o]: c[o] - 10, [next[o]!]: c[next[o]!] + 1 }
               const done = ORDENS.filter((k) => k in ok).every((k) => counts[k] === ok[k])
               set({ ...st, counts, done, note: undefined })
             },
@@ -313,6 +328,52 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'linhas': {
+      // Rows go in one at a time; past the answer, the last row can be taken back.
+      const target = ok.linhas as number
+      const rows = st.drag ?? 0
+      const cols = num(e.colunas) ?? 0
+      const { adicionar: _a, ...rest } = e
+      void _a
+      const add = () => {
+        const n = rows + 1
+        const over = n > target
+        set({ ...st, drag: n, done: n === target, wrong: over ? st.wrong + 1 : st.wrong, note: over ? 'Passou. Toque na última linha para tirar.' : undefined })
+      }
+      const remove = () => {
+        const n = rows - 1
+        set({ ...st, drag: n, done: n === target, note: undefined })
+      }
+      return {
+        // A total of 0 counts up with the rows; a fixed total keeps the pieces not yet in a row loose.
+        visual: visual({ ...rest, linhas: rows, ...(e.total === 0 ? { total: rows * cols } : num(e.total) ? { sobra: Math.max(0, (e.total as number) - rows * cols) } : {}) }),
+        interact: { retangulo: { onAdd: lock || rows >= target + 2 ? undefined : add, onRemove: lock || rows <= target ? undefined : remove, maxLinhas: target + 1, wrong: Boolean(st.note) } },
+      }
+    }
+    case 'cortar': {
+      const { cortar: _c, ...rest } = e
+      void _c
+      const cut = st.pick
+      return {
+        visual: visual(cut !== null && cut !== undefined ? { ...rest, cortes: [cut], rotulos: true, areas: st.done ? (e.areas ?? true) : e.areas } : rest),
+        interact: {
+          retangulo: {
+            wrong: Boolean(st.note),
+            onCut: lock
+              ? undefined
+              : (i) => {
+                  const right = i === ok.corte
+                  set({ ...st, pick: i, done: right, wrong: right ? st.wrong : st.wrong + 1, note: right ? undefined : 'Tente partir em outro lugar.' })
+                },
+          },
+        },
+      }
+    }
+    case 'girar':
+      return {
+        visual: visual({ ...e, girar: st.done ? !e.girar : e.girar }),
+        interact: { retangulo: { onTurn: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
     default:
       return { visual: card.visual }
   }
@@ -328,5 +389,8 @@ export const GESTO: Record<Kind, string | null> = {
   vizinho: 'Toque numa das duas marcas.',
   deslizar: 'Arraste o ponto pela reta.',
   ordem: 'Toque nas fichas, na ordem.',
+  linhas: 'Toque em "+ 1 linha".',
+  cortar: 'Toque entre duas colunas para partir o retângulo.',
+  girar: 'Toque no retângulo para girar.',
   mostre: null,
 }

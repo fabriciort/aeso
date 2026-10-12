@@ -4,17 +4,18 @@ import { rng } from '@/lib/formation/rng'
 import type { Item, Rng } from '@/lib/formation/schema'
 
 const geradores = [numerosGrandesN1, numerosGrandesN2, numerosGrandesN3]
-const grupo = '(milhar|milhares|milhão|milhões|bilhão|bilhões)'
+const grupo = '(bilhões|bilhão|milhões|milhão|mil)\\b'
 
 // Calcula por montagem das classes escritas no enunciado, sem a soma do gerador.
+// O enunciado fala como se lê: "3 mil e 45", "2 bilhões, 5 milhões e 9 reais".
 function lerClasses(item: Item): number {
   const classes = ['000', '000', '000', '000']
-  const posicao: Record<string, number> = { bilhão: 0, bilhões: 0, milhão: 1, milhões: 1, milhar: 2, milhares: 2 }
-  for (const match of item.enunciado.matchAll(new RegExp(`(\\d+) ${grupo}`, 'g'))) {
-    classes[posicao[match[2]]] = match[1].padStart(3, '0')
+  const posicao: Record<string, number> = { bilhão: 0, bilhões: 0, milhão: 1, milhões: 1, mil: 2 }
+  for (const match of item.enunciado.matchAll(new RegExp(`(?:(\\d+) )?${grupo}`, 'g'))) {
+    classes[posicao[match[2]]] = (match[1] ?? '1').padStart(3, '0')
   }
-  const unidades = item.enunciado.match(/(\d+) (?:unidades|registros)/)!
-  classes[3] = unidades[1].padStart(3, '0')
+  const unidades = item.enunciado.match(/ e (\d+)(?: reais)?\./)
+  classes[3] = (unidades?.[1] ?? '0').padStart(3, '0')
   return Number(classes.join(''))
 }
 
@@ -33,7 +34,7 @@ describe('números grandes: classes de três e separadores declarados', () => {
       for (let seed = 1; seed <= 300; seed++) {
         const item = gerador.gerar(rng(seed))
         if (item.formato === 'escolha') {
-          const registro = item.enunciado.match(/registra o inteiro ([\d,]+)\./)![1]
+          const registro = item.enunciado.match(/aparece o número ([\d,]+)\./)![1]
           const esperado = Number(registro.replace(/,/g, ''))
           const selecionada = item.opcoes![Number(item.resposta)]
           expect(selecionada).toMatch(/^\d{1,3}(?:\.\d{3})+$/)
@@ -61,7 +62,7 @@ describe('números grandes: classes de três e separadores declarados', () => {
         expect(item.dicas).toHaveLength(3)
         if (gerador.nivel === 3) {
           expect(item.visual).toBeUndefined()
-          expect(item.enunciado).toContain('Exemplo imaginado')
+          expect(item.enunciado).not.toMatch(/imaginad/i)
         } else {
           expect(item.visual?.estado.numero).toBeNull()
           expect(item.visual?.estado.preenchimento).toEqual([])

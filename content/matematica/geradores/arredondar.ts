@@ -44,10 +44,10 @@ function itemNumerico(numero: number, escala: Escala, enunciado: string, comVisu
     resposta,
     erros: errosNumericos(numero, escala, resposta),
     dicas: [
-      'Escolha o múltiplo mais próximo. No empate, escolha o maior.',
-      `Compare ${formatar(numero)} com o meio, ${formatar(meio)}, entre ${formatar(inferior)} e ${formatar(superior)}.`,
+      'Ache as duas marcas vizinhas e veja qual está mais perto. No meio, fica a maior.',
+      `${formatar(numero)} fica entre ${formatar(inferior)} e ${formatar(superior)}. O meio é ${formatar(meio)}.`,
       numero === meio
-        ? `${formatar(numero)} está no meio; no empate, escolhemos o maior: ${formatar(resposta)}.`
+        ? `${formatar(numero)} está bem no meio. No meio, fica a maior: ${formatar(resposta)}.`
         : `${formatar(numero)} fica mais perto de ${formatar(resposta)}: ${formatar(numero)} ≈ ${formatar(resposta)}.`,
     ],
     ...(comVisual ? { visual: retaDeEntrada(numero, escala) } : {}),
@@ -112,42 +112,42 @@ export const arredondarN3: Gerador = {
       const escala = r.pick<Escala>([10, 100, 1000])
       const numero = r.int(1, 99) * escala + r.int(1, escala - 1)
       const contexto = r.pick([
-        `uma trilha tem ${formatar(numero)} m`,
-        `um catálogo tem ${formatar(numero)} livros`,
-        `um depósito guarda ${formatar(numero)} caixas`,
+        `Uma trilha tem ${formatar(numero)} m`,
+        `Um catálogo tem ${formatar(numero)} livros`,
+        `Um depósito guarda ${formatar(numero)} caixas`,
       ])
-      return itemNumerico(numero, escala, `Exemplo imaginado: ${contexto}. Arredonde ${ALVOS[escala]}.`, false)
+      return itemNumerico(numero, escala, `${contexto}. Arredonde ${ALVOS[escala]}.`, false)
     }
     if (situacao === 'notacao') {
       const numero = r.int(1, 9) * 1000 + r.pick([249, 251, 449, 451, 649, 651, 749])
       const resposta = aproximar(numero, 100)
       const outraCasa = aproximar(numero, 1000)
       return itemEscolha(r,
-        `Exemplo imaginado: o catálogo tem ${formatar(numero)} livros. Arredonde à centena e escolha a escrita adequada.`,
+        `Um catálogo tem ${formatar(numero)} livros. Arredonde à centena. Qual escrita está certa?`,
         [
           { texto: `${formatar(numero)} ≈ ${formatar(resposta)}` },
           { texto: `${formatar(numero)} = ${formatar(resposta)}`, erro: 'estimativa-exata' },
           { texto: `${formatar(numero)} ≈ ${formatar(outraCasa)}`, erro: 'olha-casa-errada' },
         ],
         [
-          '≈ indica uma aproximação; = indica quantidades iguais.',
-          `Compare ${formatar(numero)} com as centenas vizinhas. A precisão pedida é a centena.`,
-          `${formatar(numero)} ≈ ${formatar(resposta)}. São números diferentes, então não usamos =.`,
+          '≈ quer dizer “mais ou menos”. = é só para números iguais.',
+          `Ache as centenas vizinhas de ${formatar(numero)} e veja qual está mais perto.`,
+          `${formatar(numero)} ≈ ${formatar(resposta)}. Os números não são iguais, então não vale =.`,
         ])
     }
     const numero = r.int(11, 49) * 100 + r.int(1, 49)
     const aproximacao = aproximar(numero, 100)
     return itemEscolha(r,
-      `Exemplo imaginado: uma mesa custa R$ ${formatar(numero)}; arredondada, R$ ${formatar(aproximacao)}. R$ ${formatar(aproximacao)} bastam?`,
+      `Uma mesa custa R$ ${formatar(numero)}, “uns R$ ${formatar(aproximacao)}”. Com R$ ${formatar(aproximacao)}, dá para comprar?`,
       [
-        { texto: 'Não; a aproximação está abaixo do preço exato.' },
-        { texto: 'Sim; o preço exato é igual ao valor arredondado.', erro: 'estimativa-exata' },
-        { texto: 'Sim; arredondar sempre garante que o dinheiro basta.', erro: 'aproximacao-garante-limite' },
+        { texto: 'Não. O preço exato é maior que isso.' },
+        { texto: 'Sim. O preço é igual ao arredondado.', erro: 'estimativa-exata' },
+        { texto: 'Sim. Arredondar sempre garante.', erro: 'aproximacao-garante-limite' },
       ],
       [
-        'Uma aproximação avalia o tamanho; uma decisão com limite precisa do valor exato.',
+        'Arredondar dá uma ideia do preço. Para pagar, vale o preço exato.',
         `Compare o preço exato, R$ ${formatar(numero)}, com R$ ${formatar(aproximacao)}.`,
-        `R$ ${formatar(numero)} é maior que R$ ${formatar(aproximacao)}. Esse valor arredondado não basta.`,
+        `R$ ${formatar(numero)} é mais que R$ ${formatar(aproximacao)}. Não dá.`,
       ])
   },
 }

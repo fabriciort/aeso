@@ -86,6 +86,9 @@ export default function MathView() {
     .flatMap((u) => u.lessons)
     .find((l) => available.has(l.id) && !progress.lessons[l.id])
   const next = nextLesson ? getLesson(nextLesson.id)!.unit : units.find((u) => unitStatus(u.id, done) === 'recomendada')
+  const nextWhere = nextLesson ? getLesson(nextLesson.id) : undefined
+  // Nothing studied yet: the formation introduces itself.
+  const fresh = !Object.keys(progress.lessons).length && !Object.keys(progress.cards ?? {}).length
   const goNext = () => {
     if (nextLesson) return openLesson(nextLesson.id)
     if (!next) return
@@ -99,7 +102,29 @@ export default function MathView() {
         Matemática
       </motion.h1>
 
-      {next && (
+      {fresh && nextLesson ? (
+        // First visit: the formation introduces itself, and the first step is one tap away.
+        <motion.section variants={rise} aria-label="Formação em Matemática" className="mt-6 overflow-hidden rounded-[28px] bg-white/[0.05] p-6">
+          <p className="text-[14px] text-white/50">Formação em Matemática</p>
+          <p className="mt-2 text-balance text-[30px] font-semibold leading-[1.08] tracking-[-0.035em] text-white">Do zero ao Cálculo, uma aula de cada vez.</p>
+          <p className="mt-3 text-balance text-[16px] leading-relaxed text-white/60">Aulas curtas no celular. Você mexe, aposta, erra, entende e segue. Ninguém precisa saber nada para começar.</p>
+          <ol className="mt-5 flex flex-wrap gap-x-2 gap-y-1.5 text-[14px] text-white/45" aria-label="O caminho">
+            {['Contar', 'Operar', 'Frações', 'Porcentagem', 'Equações', 'Funções', 'Cálculo'].map((p, i) => (
+              <li key={p} className="flex items-center gap-2">
+                {i > 0 && <span aria-hidden className="h-px w-3 bg-white/20" />}
+                <span className={i === 0 ? 'font-medium text-[#f6b74e]' : undefined}>{p}</span>
+              </li>
+            ))}
+          </ol>
+          <button
+            onClick={goNext}
+            className="focus-ring mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-full text-[17px] font-medium text-[#0b0904] transition active:scale-[0.98]"
+            style={{ background: NEXT }}
+          >
+            Começar a formação <ArrowRight className="h-5 w-5" />
+          </button>
+        </motion.section>
+      ) : next && (
         <motion.button
           variants={rise}
           onClick={goNext}
@@ -109,7 +134,9 @@ export default function MathView() {
             {next.n}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[14px] text-white/50">Próximo passo</span>
+            <span className="block text-[14px] text-white/50">
+              Próximo passo{nextWhere && ` · unidade ${nextWhere.unit.n}, aula ${nextWhere.unit.lessons.findIndex((l) => l.id === nextWhere.lesson.id) + 1}`}
+            </span>
             <span className="block truncate text-[20px] font-semibold tracking-[-0.02em] text-white">{nextLesson?.title ?? next.title}</span>
           </span>
           <ArrowRight className="h-5 w-5 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-white" />

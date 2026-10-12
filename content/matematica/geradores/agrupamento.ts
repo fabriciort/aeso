@@ -18,16 +18,21 @@ function contar(grupos: number, tamanho: number, soltas: number, nivel: 1 | 2 | 
   }
   return {
     enunciado: nivel === 3
-      ? `Exemplo imaginado: ${grupos} caixas com ${escrito(tamanho)} peças cada e ${soltas} peças soltas. Quantas peças ao todo?`
-      : `São ${grupos} grupos de ${escrito(tamanho)} e ${soltas} unidades soltas. Quantas unidades ao todo?`,
+      ? `Chegaram ${grupos} caixas com ${escrito(tamanho)} peças cada, ${soltas === 0 ? 'nenhuma peça solta' : `e mais ${soltas} ${soltas === 1 ? 'peça solta' : 'peças soltas'}`}. Quantas peças são ao todo?`
+      : `${grupos === 1 ? 'É 1 grupo' : `São ${grupos} grupos`} de ${escrito(tamanho)} e ${soltas === 0 ? 'nenhuma unidade solta' : soltas === 1 ? '1 unidade solta' : `${soltas} unidades soltas`}. Quantas unidades ao todo?`,
     formato: 'numero',
     resposta: total,
     erros,
     dicas: [
-      'Um grupo vale todas as unidades que ele reúne; trocar a embalagem não muda a quantidade.',
-      `Conte os ${grupos} grupos de ${escrito(tamanho)} primeiro; deixe as ${soltas} unidades soltas para o fim.`,
-      `${grupos} grupos de ${escrito(tamanho)} são ${escrito(grupos * tamanho)} unidades; com ${soltas} soltas, são ${escrito(total)}.`,
+      'Cada grupo vale todas as peças que tem dentro.',
+      soltas === 0
+        ? `Conte ${grupos === 1 ? 'o grupo' : `os ${grupos} grupos`} de ${escrito(tamanho)}. Não há soltas para somar.`
+        : `Conte primeiro ${grupos === 1 ? 'o grupo' : `os ${grupos} grupos`} de ${escrito(tamanho)}. Depois some ${soltas === 1 ? 'a solta' : `as ${soltas} soltas`}.`,
+      soltas === 0
+        ? `${grupos} ${grupos === 1 ? 'grupo' : 'grupos'} de ${escrito(tamanho)} ${grupos === 1 ? 'dá' : 'dão'} ${escrito(total)}.`
+        : `${grupos} ${grupos === 1 ? 'grupo' : 'grupos'} de ${escrito(tamanho)} ${grupos === 1 ? 'dá' : 'dão'} ${escrito(grupos * tamanho)}. Com mais ${soltas} ${soltas === 1 ? 'solta' : 'soltas'}, são ${escrito(total)}.`,
     ],
+
     ...(nivel < 3 ? {
       visual: {
         modelo: 'blocos' as const,
