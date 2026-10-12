@@ -128,6 +128,7 @@ O player desenha só o que reconhece. Uma chave desconhecida é ignorada sem err
 | `conta` | a conta armada num caderno quadriculado: `{ parcelas: [147, 85], sinal: '+' }`; `resultado` são os algarismos já escritos, da direita (`'32'`); `reservas` são os vai um em âmbar acima da casa (`{ D: '1' }`); `trocas` riscam o algarismo de cima e escrevem o novo valor (`{ D: '4', U: '12' }`); `destaque` acende uma coluna (`'U'`) |
 | `conta` com `sinal: '×'` | a multiplicação armada: `{ parcelas: [23, 14], sinal: '×', parciais: ['92', '230'], resultado: '322', reservas: { D: '1' } }`. `parciais` são as linhas entre os dois traços (cada uma alinhada à direita; o zero de deslocamento faz parte do texto); `resultado` vem depois do segundo traço. Sem `parciais`, fica como a soma: um traço só |
 | `conta` com decimais | parcelas com vírgula (`['3,5', '1,25']` ou `[3.5, 1.25]`) se alinham pela vírgula, com as casas `d`, `c`, `m` depois dela. `zeros: true` completa com zeros apagados as casas que faltam (3,5 aparece 3,50; 5 aparece 5,0). `resultado` sem vírgula preenche da direita (`'75'`); com ela, alinha pela vírgula (`'4,75'`). `reservas`, `trocas` e `destaque` usam `d` e `c` para as casas decimais (`{ U: '4', d: '10' }`) |
+| `conta` com `alinhar: 'direita'` | arma como nos inteiros: cada caractere numa coluna, alinhado pela direita, vírgulas incluídas, sem os nomes das casas. Para mostrar o erro de alinhar decimais pela direita (`['3,5', '1,25']` com `resultado: '1,60'`) e para a multiplicação com decimais (`['6,15', '2,4']`, `sinal: '×'`, `parciais`, `resultado: '14760'`) |
 
 ### `reta`
 
@@ -181,6 +182,7 @@ O retângulo de multiplicação. Duas formas:
 | Chave | Efeito |
 |---|---|
 | `divisao` | `{ dividendo: 612, divisor: 6, quociente?: '10', linhas?: [['−6', 0], ['01', 1]], destaque?: 1 }`. O método da chave: o dividendo à esquerda, o divisor na caixa, o quociente embaixo do divisor (os algarismos já escritos, da esquerda). Cada linha embaixo do dividendo é um texto e o índice da casa do dividendo (da esquerda, a partir de 0) onde o último caractere termina. `destaque` acende uma casa do dividendo |
+| `divisao` com vírgula | `dividendo` em texto (`'10,000'`): a vírgula ocupa uma casa, e o quociente leva a sua (`quociente: '3,333'`). Conte a vírgula ao dar a casa de cada linha; um espaço na linha deixa a casa da vírgula vazia (`['1 0', 3]` põe o 1 embaixo do 0 das unidades e o 0 embaixo do primeiro décimo) |
 
 ### `livre`: expressões e calculadoras
 

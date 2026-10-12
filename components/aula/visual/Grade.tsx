@@ -82,8 +82,11 @@ export function Grade({ s, size, onCell, ativa = 0, wrong }: { s: GradeState; si
   const byW = (size.w - pad * 2 - gaps) / (nW * C)
   const byH = (size.h - pad * 2 - labelH - escalaH) / L
   const cell = Math.max(4, Math.min(byW, byH, L === 1 ? 34 : 28))
+  // A strip of tenths keeps a readable height even when its squares are narrow.
+  const ch = L === 1 ? Math.max(cell, Math.min(34, size.h * 0.12)) : cell
+  const showEscala = s.escala && cell >= 14
   const gw = cell * C
-  const gh = cell * L
+  const gh = ch * L
   const totalW = nW * gw + gaps
   const ox0 = (size.w - totalW) / 2
   const oy = Math.max(pad, (size.h - gh - labelH - escalaH) / 2)
@@ -145,9 +148,9 @@ export function Grade({ s, size, onCell, ativa = 0, wrong }: { s: GradeState; si
                     <motion.rect
                       key={k}
                       x={gx + c * cell}
-                      y={oy + r * cell}
+                      y={oy + r * ch}
                       width={cell}
-                      height={cell}
+                      height={ch}
                       initial={false}
                       animate={{ fill }}
                       transition={{ duration: 0.3, ease, delay: s.faixas ? 0 : Math.min(0.4, (k % cels) * 0.004) }}
@@ -165,9 +168,9 @@ export function Grade({ s, size, onCell, ativa = 0, wrong }: { s: GradeState; si
                   ))}
                 <rect x={gx} y={oy} width={gw} height={gh} rx={3} fill="none" stroke="#fff" strokeWidth={2.2} pointerEvents="none" />
                 {tap && <rect x={gx - 5} y={oy - 5} width={gw + 10} height={gh + 10} rx={8} fill="none" stroke={amber} strokeDasharray="5 5" strokeWidth={1.5} pointerEvents="none" />}
-                {s.escala &&
+                {showEscala &&
                   Array.from({ length: C }, (_, c) =>
-                    cell * 1 >= 22 || c % 2 === 1 ? (
+                    cell >= 22 || c % 2 === 1 ? (
                       <text key={`e${c}`} x={gx + (c + 1) * cell} y={oy + gh + 15} textAnchor="middle" fill="rgba(255,255,255,0.6)" fontSize={11} className="tabular-nums">
                         {c === C - 1 ? '1' : `0,${c + 1}`}
                       </text>

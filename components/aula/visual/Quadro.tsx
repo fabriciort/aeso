@@ -53,10 +53,13 @@ export interface ContaState {
   parciais?: string[]
   /** Decimais: completa com zeros apagados as casas que faltam (3,5 aparece 3,50). */
   zeros?: boolean
+  /** 'direita': arma como nos inteiros, cada caractere numa coluna, sem alinhar a vírgula (o erro, ou a multiplicação). */
+  alinhar?: 'direita'
 }
 
 export interface DivisaoState {
-  dividendo: number
+  /** Um número, ou um texto com vírgula ('7,00'): a vírgula ocupa uma casa, e o quociente leva a sua ('1,75'). */
+  dividendo: number | string
   divisor: number
   /** Os algarismos do quociente já escritos, da esquerda ('10'). */
   quociente?: string
@@ -359,12 +362,14 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
     const k = t.indexOf(',')
     return k < 0 ? [t, ''] : [t.slice(0, k), t.slice(k + 1)]
   }
-  const decW = Math.max(0, ...[...rows, ...parciais, res].filter((t) => t.includes(',')).map((t) => split(t)[1].length))
+  const direita = c.alinhar === 'direita'
+  const decW = direita ? 0 : Math.max(0, ...[...rows, ...parciais, res].filter((t) => t.includes(',')).map((t) => split(t)[1].length))
   const dec = decW > 0
-  const intW = Math.max(...rows.map((t) => split(t)[0].length), ...parciais.map((t) => split(t)[0].length), dec ? (res.includes(',') ? split(res)[0].length : Math.max(0, res.length - decW - 1)) : res.length, dec ? 1 : 2)
+  const intW = direita ? Math.max(2, ...[...rows, ...parciais, res].map((t) => t.length)) : Math.max(...rows.map((t) => split(t)[0].length), ...parciais.map((t) => split(t)[0].length), dec ? (res.includes(',') ? split(res)[0].length : Math.max(0, res.length - decW - 1)) : res.length, dec ? 1 : 2)
   const width = intW + (dec ? 1 + decW : 0)
   const comma = dec ? intW : -1
-  const casas = [...ORDEM.slice(0, intW).reverse(), ...(dec ? [',', ...['d', 'c', 'm', 'dm'].slice(0, decW)] : [])]
+  // Right-aligned with commas, the place names would lie: the header stays blank.
+  const casas = direita ? Array.from({ length: width }, (_, i) => `·${i}`) : [...ORDEM.slice(0, intW).reverse(), ...(dec ? [',', ...['d', 'c', 'm', 'dm'].slice(0, decW)] : [])]
   const col = Math.min(64, Math.floor((size.w - 64) / (width + 1)))
   const colW = (i: number) => (i === comma ? col * 0.45 : col)
   const rowW = casas.reduce((a, _, i) => a + colW(i), 0)
@@ -395,7 +400,7 @@ function Conta({ c, size }: { c: ContaState; size: { w: number; h: number } }) {
           <span style={{ width: col * 0.8 }} />
           {casas.map((casa, i) => (
             <span key={casa} className={cn('text-center text-[13px] font-medium', lit(i) ? 'text-[#f6b74e]' : 'text-white/40')} style={{ width: colW(i) }}>
-              {casa === ',' ? '' : casa}
+              {casa === ',' || casa.startsWith('·') ? '' : casa}
             </span>
           ))}
         </div>
@@ -478,7 +483,8 @@ function Divisao({ d, size }: { d: DivisaoState; size: { w: number; h: number } 
   const linhas = d.linhas ?? []
   const div = String(d.divisor)
   const cols = dig.length + 1 // one spare column on the left for the "−"
-  const rightCols = Math.max(div.length, String(Math.floor(d.dividendo / Math.max(1, d.divisor))).length, q.length) + 0.6
+  const valor = typeof d.dividendo === 'number' ? d.dividendo : Number(d.dividendo.replace(/\./g, '').replace(',', '.'))
+  const rightCols = Math.max(div.length, String(Math.floor(valor / Math.max(1, d.divisor))).length, q.length) + 0.6
   const col = Math.min(56, Math.floor((size.w - 64) / (cols + rightCols + 0.6)))
   const rowH = Math.min(col * 1.1, (size.h - 30) / (linhas.length + 1.4))
   const fs = Math.min(col * 0.78, rowH * 0.78)
