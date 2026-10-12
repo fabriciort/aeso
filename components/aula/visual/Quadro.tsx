@@ -505,7 +505,8 @@ export function medidaCells(m: MedidaState): { cells: string[][]; comma: number;
   b0.split('').forEach((d, i) => digits.set(endInt + 1 + i, d))
   const commaSlot = slot(para, k - 1)
   const keys = [...digits.keys()]
-  const lo = Math.min(...keys, commaSlot - k + 1)
+  // Zeros fill only what the reading needs: from the comma's place to the digits, never ahead of the number.
+  const lo = Math.min(...keys, commaSlot)
   const hi = Math.max(...keys, commaSlot)
   const zeros = new Set<string>()
   const total = m.casas.length * k
@@ -528,8 +529,8 @@ function Medida({ m, size, onCasa, wrong }: { m: MedidaState; size: { w: number;
   const k = Math.max(1, m.porCasa ?? 1)
   const { cells, comma, valor, zeros } = medidaCells(m)
   const n = m.casas.length
-  const col = Math.min(80, Math.floor((size.w - 24) / n))
-  const fs = Math.min(40, (col / k) * 0.8, size.h / 6)
+  const col = Math.min(k > 1 ? 120 : 80, Math.floor((size.w - 24) / n))
+  const fs = Math.min(40, (col / k) * 0.85, size.h / 6)
   const original = typeof m.numero === 'number' ? String(m.numero).replace('.', ',') : m.numero
   // Leading zeros before the first significant digit read dimmer.
   const firstSig = cells.flat().findIndex((d) => d !== '' && d !== '0')
