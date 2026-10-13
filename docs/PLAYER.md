@@ -265,6 +265,10 @@ Os azulejos da U14: o quadradinho vale **1**, a barra vale **x** (o lado comprid
 | `azulejos.mostraExpressao: true` | com as peças juntas, a expressão simplificada embaixo (`x² + 3x + 3`; x e −x se cancelam na conta) |
 | `azulejos.rotulo` | a frase embaixo, no lugar da expressão |
 | `azulejos.agrupar: true` | o Mexa "agrupar" (veja abaixo) |
+| `azulejos.montes: 2` | as peças soltas em montes iguais, na ordem da lista, com um vão entre eles: `2(x + 3)` são 2 montes de `x + 3` |
+| `azulejos.cancela: true` | com as peças juntas, cada par de opostos (um `x` e um `−x`, um `1` e um `−1`) aparece apagado e riscado: vale zero |
+
+Com um tipo só, a expressão embaixo não repete a contagem do grupo.
 
 ### `barra`
 
