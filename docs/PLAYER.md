@@ -467,6 +467,144 @@ Limites:
 - `areas` e `nomes` só aparecem nas faces à vista. No sólido fechado, para falar da base, use `destaque` e o texto do cartão, ou abra.
 - Os números do cilindro usam π = 3,14 (como na unidade 16): a área da base de raio 2 é 12,56, a lateral de raio 2 e altura 5 é 62,8.
 
+### `plano`
+
+O plano cartesiano da U18: dois eixos com números, a grade, os quatro quadrantes, pontos com nome e coordenadas, o ponto que anda (primeiro no x, depois no y), retas por uma regra simples ou por dois pontos, e a **máquina de função** com a tabela de entrada e saída. As coordenadas são do mundo: x para a direita, **y para cima**.
+
+São dois modelos na U18: `plano` (dois eixos de números, onde cada ponto é um par) e `grafico` (barras, linhas e setores, com categorias no eixo de baixo). A máquina fica no `plano` porque os pares que saem dela viram pontos no plano. Os dois usam o mesmo motor de cena da `figura` (`components/aula/visual/cena.tsx`): de um cartão para o outro, o que tem o mesmo nome se move até o novo lugar, e o que é novo aparece aos poucos. Mantenha os mesmos pontos e os mesmos eixos de um cartão para o outro e mude só o necessário.
+
+Um ponto é o nome de um ponto de `pontos` (`'A'`) ou as coordenadas (`[2, 3]`).
+
+| Chave | Efeito |
+|---|---|
+| `x`, `y` | os eixos: `[-5, 5]` ou `{ de: 0, ate: 10, passo: 1, rotulo: 'horas', numeros: 2 }`. `passo` é a distância entre duas linhas da grade (padrão: uma escala redonda); `numeros` diz de quantos em quantos passos aparece um número (padrão: o que cabe; `false` esconde); `rotulo` é o nome do eixo, na ponta da seta (padrão `x` e `y`). Sem `de` e `ate`, o eixo vai do 0 (ou do menor negativo) até um passo depois do maior ponto; sem nada, de −5 a 5 |
+| escala dos eixos | com o mesmo `passo` nos dois eixos, os quadradinhos são quadrados (o plano não estica). Com passos diferentes (`x` de 1 em 1, `y` de 20 em 20), cada eixo ocupa o espaço que tem |
+| `grade: false` | sem a grade |
+| `quadrantes` | `true` escreve 1º, 2º, 3º e 4º nos cantos; uma lista acende esses quadrantes (`[2]`) |
+| `pontos` | com nome: `{ A: [3, 2], B: [-4, 1] }` (ponto âmbar e o nome ao lado, para fora dos eixos); sem nome: `[[1, 20], [2, 40]]` |
+| `coordenadas` | o par junto do nome: `true` (todos) ou `['A']`. Fica `A (3, 2)`; com decimal, `(2,5; 3)`; negativos com o sinal de menos de verdade, `(−4, 1)` |
+| `nomes` | `false` esconde os nomes; um mapa troca o texto (`{ A: 'casa' }`) |
+| `cores` | a cor de um ponto: `{ B: 'azul' }` (`'ambar'`, `'azul'`, `'verde'`, `'erro'`, `'branco'`) |
+| `posRotulos` | onde vai um nome, quando o automático não fica bom: `{ A: 'abaixo' }` (`'acima'`, `'abaixo'`, `'esquerda'`, `'direita'`) |
+| `caminho` | o ponto anda: sai da origem, vai pelo eixo x (traço âmbar) e depois sobe ou desce (traço azul) até o lugar; os números do eixo acendem e o par aparece no fim. Um nome (`'A'`) ou uma lista (`['A', 'B']`, um depois do outro). Para o aluno ver andar, o ponto já pode estar no cartão anterior |
+| `guias` | tracejados do ponto até os dois eixos, com os números acesos (âmbar no x, azul no y): `true` ou `['A']` |
+| `retas` | retas pela regra y = a·x + b: `[{ a: 2 }]` é y = 2x; `{ a: 0.8, b: 15 }`. Ou por dois pontos: `{ por: ['A', 'B'] }`. Cada uma aceita `de` e `ate` (só o trecho com x entre eles: `{ a: 20, de: 0 }` para grandezas que não são negativas), `destaque` (padrão azul), `tracejado` e `rotulo` (`true` escreve a regra, `'y = 2x'`; um texto escreve o texto). A reta nova cresce da esquerda |
+| `segmentos` | `[['A', 'B']]` ou `{ de: 'A', ate: [0, 0], destaque: 'ambar', tracejado: true }` |
+| `ligar: true` | liga os pontos com nome e depois os pares da tabela ou da máquina, na ordem, com uma linha azul |
+| `maquina` | a máquina de função (veja abaixo) |
+| `tabela` | a tabela de pares, deitada (uma grandeza em cada linha): `{ rotulos: ['horas', 'R$'], pares: [[1, 20], [2, 40], [3, '?']] }`. `'?'` ou `null` deixa a casa com "?". Os pares com dois números viram pontos no plano (`noPlano: false` não) |
+| `eixos: false` | esconde o plano |
+| `rotulo` | a frase embaixo |
+
+**A máquina de função.** Uma caixa com a regra no meio: o número entra pela esquerda, a regra trabalha, a saída sai pela direita. Embaixo, a tabela de entrada e saída; no plano, cada par vira um ponto.
+
+| Chave de `maquina` | Efeito |
+|---|---|
+| `regra` | a regra em passos, feitos da esquerda para a direita: `'× 0,80 + 15'`, `'÷ 2'`, `'× 3 − 1'`, `'²'`. Vírgula decimal e ponto de milhar (`'+ 1.000'`). O player faz a conta |
+| `a`, `b` | ou a regra como y = a·x + b; a caixa mostra `× 2 + 1` |
+| `saidas` | as saídas, quando a regra não é uma conta de passos (`'2x + 1'`, uma tarifa por faixa). Valem mais que a regra |
+| `entradas` | os números que entram, na ordem: `[0, 100, 200, 300]` |
+| `feitas` | quantos já passaram (padrão 0). O último aparece na máquina: ele voa da tabela até a entrada, a saída sai da caixa, entra na tabela e voa até o plano. De um cartão para o outro, aumente `feitas` de 1 em 1 |
+| `rotulos` | os nomes da entrada e da saída, embaixo da máquina e na tabela: `['kWh', 'R$']` (padrão `entra` e `sai`) |
+| `tabela: false` | sem a tabela |
+
+Com `maquina` ou `tabela` e sem `x`, `y`, `pontos`, `retas` ou `segmentos`, o palco mostra só a máquina e a tabela, maiores. Dê `x` e `y` para os pares aparecerem no plano. Com a máquina, o plano já cabe todas as saídas desde o começo: ele não muda de escala enquanto os pontos chegam.
+
+Exemplos:
+
+```ts
+// Os quatro quadrantes, com os pares
+{ modelo: 'plano', estado: { x: [-5, 5], y: [-5, 5], quadrantes: true, pontos: { A: [3, 2], B: [-4, 1], C: [-2, -3], D: [4, -4] }, coordenadas: true } }
+// O ponto que anda: primeiro 3 para a direita, depois 2 para cima
+{ modelo: 'plano', estado: { x: [-5, 5], y: [-5, 5], pontos: { A: [3, 2] }, caminho: 'A' } }
+// Proporcional é uma reta que passa pela origem
+{ modelo: 'plano', estado: { x: { de: 0, ate: 10, rotulo: 'horas' }, y: { de: 0, ate: 200, passo: 20, rotulo: 'R$' }, pontos: [[1, 20], [2, 40], [3, 60]], retas: [{ a: 20, de: 0, rotulo: true }] } }
+// A conta de luz: três números já passaram pela máquina
+{ modelo: 'plano', estado: { maquina: { regra: '× 0,80 + 15', entradas: [0, 100, 200, 300], feitas: 3, rotulos: ['kWh', 'R$'] }, x: { de: 0, ate: 300, passo: 50, rotulo: 'kWh' }, y: { de: 0, ate: 300, passo: 50, rotulo: 'R$' }, ligar: true } }
+```
+
+Os Mexa, prontos para copiar:
+
+```ts
+// marcar: o aluno toca no cruzamento da grade; o ponto anda da origem até lá
+{ tipo: 'mexa', texto: 'O mapa diz: 3 para a direita, 2 para cima. Marque o ponto A.', visual: { modelo: 'plano', estado: { x: [-5, 5], y: [-5, 5], pontos: { A: [3, 2] } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque no ponto (3, 2).', sucesso: { ponto: [3, 2] }, mostre: 'O ponto anda 3 no x e depois 2 no y.' }, descoberta: 'O primeiro número anda para o lado; o segundo, para cima.' }
+// marcar vários (um em cada quadrante)
+{ tipo: 'mexa', texto: 'Agora com negativos.', visual: { modelo: 'plano', estado: { x: [-5, 5], y: [-5, 5], quadrantes: true } },
+  acao: { tipo: 'tocar', instrucao: 'Marque (−2, 3), (−4, −1) e (2, −3).', sucesso: { pontos: [[-2, 3], [-4, -1], [2, -3]] }, mostre: 'Os três pontos andam até o lugar.' }, descoberta: 'x negativo vai para a esquerda; y negativo, para baixo.' }
+// ler: tocar num ponto mostra as coordenadas dele
+{ tipo: 'mexa', texto: 'Onde fica cada ponto?', visual: { modelo: 'plano', estado: { x: [-5, 5], y: [-5, 5], pontos: { A: [2, 3], B: [-3, 1], C: [0, -2] } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em cada ponto.', sucesso: { lidos: 3 }, mostre: 'Cada ponto mostra o seu par.' }, descoberta: 'Cada ponto é um par: o x e o y.' }
+// alimentar: cada toque põe o próximo número na máquina
+{ tipo: 'mexa', texto: 'Na conta de luz, cada kWh custa R$ 0,80, mais R$ 15 fixos.', visual: { modelo: 'plano', estado: { maquina: { regra: '× 0,80 + 15', entradas: [0, 100, 200, 300], rotulos: ['kWh', 'R$'] }, x: { de: 0, ate: 300, passo: 50, rotulo: 'kWh' }, y: { de: 0, ate: 300, passo: 50, rotulo: 'R$' } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na máquina para pôr cada consumo.', sucesso: { saidas: 4 }, mostre: 'Os quatro consumos passam pela máquina.' }, descoberta: 'Cada número que entra dá um só número que sai.' }
+```
+
+Limites:
+
+- O palco tem uns 360 × 400 px no celular. Com a máquina, a tabela e o plano juntos, o plano fica com uns 230 px de altura: use poucos números nos eixos (de 50 em 50, não de 10 em 10). No computador (palco com 600 px ou mais), a máquina e a tabela vão para a esquerda e o plano para a direita.
+- A tabela cabe umas 6 colunas no celular; os números encolhem até 11 px.
+- No Mexa "marcar", o toque vai para o cruzamento mais perto da grade: o alvo tem de estar num cruzamento (um múltiplo do `passo` de cada eixo).
+- Os nomes dos pontos vão para fora dos eixos por uma regra simples; num ponto apertado (perto de outro ou de um canto), use `posRotulos`.
+- A regra da máquina é uma sequência de passos, sem parênteses e sem a letra: `'× 2 + 1'` funciona, `'2x + 1'` não (use `a` e `b`, ou `saidas`).
+
+### `grafico`
+
+Os gráficos de dados da U18: **barras**, **linhas** (uma série no tempo) e **setores** (a pizza, com as porcentagens). O eixo pode começar longe do 0 (o eixo cortado) e as marcas podem ter valores desiguais (a escala torta), para a aula dos gráficos que enganam. De um cartão para o outro, as barras crescem ou encolhem até o novo valor: `eixoInicio: 90` e, no cartão seguinte, sem ele, mostra o eixo descendo até o 0 e as barras ficando quase iguais.
+
+| Chave | Efeito |
+|---|---|
+| `tipo` | `'barras'` (padrão), `'linhas'` ou `'setores'` |
+| `dados` | os dados, na ordem: `[['jan', 92], ['fev', 95]]` ou `[{ rotulo: 'jan', valor: 92, cor: 'verde' }]` |
+| `series` | linhas: mais linhas sobre os mesmos rótulos, `[{ nome: 'Recife', valores: [27, 28, 29] }]` (a primeira linha, dos `dados`, é azul; as outras, verde, rosa, lilás) |
+| `legenda` | linhas: o nome de cada linha, na ordem (a dos `dados` primeiro), em cima à direita: `['São Paulo', 'Recife']` |
+| `eixoInicio` | o eixo começa aqui (o eixo cortado): `90`. Padrão 0 |
+| `eixoFim`, `passo` | até onde vai o eixo e a distância entre as marcas (padrão: uma escala redonda acima do maior valor) |
+| `escala` | a escala torta: estas marcas ficam à mesma distância na tela, com valores desiguais (`[0, 10, 20, 50, 100]`); as barras seguem as marcas |
+| `quebra: true` | o zigue-zague no pé do eixo, o jeito honesto de avisar que o eixo foi cortado |
+| `honesto` | dois gráficos lado a lado: o do estado (cortado ou torto) e a versão honesta (eixo no 0, escala regular), com os títulos "como veio" e "eixo no 0" (ou "escala regular"). Um par troca os títulos: `['o anúncio', 'de verdade']` |
+| `valores` | os valores escritos (padrão: sim nas barras e nos setores, não nas linhas; os pontos acesos sempre mostram o valor) |
+| `antes`, `depois` | junto de cada valor: `antes: 'R$ '`, `depois: ' %'`. Nos setores, com eles a legenda mostra o valor no lugar da porcentagem |
+| `destaque` | barras, pontos ou fatias acesos em âmbar (`2` ou `[0, 2]`); a fatia acesa sai um pouco da pizza |
+| `titulo` | em cima |
+| `rotuloY`, `rotuloX` | o nome do eixo vertical (em cima, à esquerda) e do horizontal (embaixo) |
+| `rotulo` | a frase embaixo |
+
+Nos setores, as porcentagens são inteiras e somam 100 (a maior sobra fica com quem tem a maior parte decimal). A porcentagem aparece dentro da fatia a partir de 7 %; todas aparecem na legenda. As cores das fatias, na ordem: âmbar, azul, verde, rosa, lilás, cinza (`cor` no dado troca).
+
+Exemplos:
+
+```ts
+// O eixo cortado: 92, 95 e 98 parecem muito diferentes
+{ modelo: 'grafico', estado: { titulo: 'Vendas (mil R$)', dados: [['jan', 92], ['fev', 95], ['mar', 98]], eixoInicio: 90 } }
+// O mesmo, com a versão honesta ao lado
+{ modelo: 'grafico', estado: { dados: [['jan', 92], ['fev', 95], ['mar', 98]], eixoInicio: 90, honesto: true } }
+// Uma semana de temperaturas
+{ modelo: 'grafico', estado: { tipo: 'linhas', dados: [['seg', 18], ['ter', 22], ['qua', 25]], rotuloY: '°C', destaque: 2 } }
+// Para onde vai o salário
+{ modelo: 'grafico', estado: { tipo: 'setores', dados: [['aluguel', 900], ['comida', 600], ['transporte', 300], ['outros', 200]], destaque: 0 } }
+```
+
+Os Mexa, prontos para copiar:
+
+```ts
+// apontar: tocar na barra (num ponto da linha, numa fatia) que responde à pergunta
+{ tipo: 'mexa', texto: 'Em que mês a loja vendeu mais?', visual: { modelo: 'grafico', estado: { dados: [['jan', 92], ['fev', 95], ['mar', 98]], eixoInicio: 90 } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na barra do mês que vendeu mais.', sucesso: { barra: 2 }, mostre: 'Março: 98 mil.' }, descoberta: 'A barra mais alta é o maior valor.' }
+{ tipo: 'mexa', texto: 'Qual gasto é quase um terço do salário?', visual: { modelo: 'grafico', estado: { tipo: 'setores', dados: [['aluguel', 50], ['comida', 30], ['outros', 20]] } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na fatia.', sucesso: { setor: 1 }, mostre: 'A comida: 30 %.' }, descoberta: 'A fatia mostra a parte do todo.' }
+// ajustar: arrastar a barra até o valor (ela é conferida quando o dedo sai)
+{ tipo: 'mexa', texto: 'Em fevereiro, a conta foi R$ 60. Desenhe a barra.', visual: { modelo: 'grafico', estado: { dados: [['jan', 40], ['fev', 0]], ativa: 1, antes: 'R$ ' } },
+  acao: { tipo: 'arrastar', instrucao: 'Arraste a barra de fevereiro até R$ 60.', sucesso: { valor: 60 }, mostre: 'A barra sobe até o 60.' }, descoberta: 'A altura da barra é o valor, lido no eixo.' }
+```
+
+Limites:
+
+- Barras e linhas cabem umas 7 categorias no celular, com rótulos curtos (`jan`, `seg`); os rótulos encolhem até 11 px e não quebram linha. Com `honesto`, cada gráfico tem metade da largura: use até 4 barras.
+- Valores negativos não aparecem (a barra fica no pé do eixo). Valores abaixo de `eixoInicio` também ficam no pé: é o que o eixo cortado faz.
+- Nos setores, a legenda vai ao lado da pizza quando cabe; senão, embaixo. Até 6 fatias ficam boas.
+- No Mexa "ajustar", o eixo fica parado enquanto a barra anda: vai até uma marca redonda acima do maior valor e do alvo (ou até `eixoFim`). O arraste anda de passo das marcas (ou de meio, um quarto, um quinto ou um décimo dele, o que alcança o alvo); `ajustePasso` troca. Só barras.
+
 ## Mexa: as manipulações
 
 O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
@@ -503,6 +641,11 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `solido` com `abrir: true` | `{ aberto: true }` | toca o sólido: as faces giram até o plano e ele fica aberto na planificação (caixa, cubo, prisma, cilindro) |
 | `solido` com `empilhar: true` | `{ camadas: 3 }` (a altura) | toca o sólido: cai mais uma camada de cubinhos (no cilindro, um disco) e a contagem cresce embaixo ("2 camadas de 12 = 24"). Começa de `camadas` (padrão 0; com `baseCheia`, 1) e para em `camadas` do sucesso |
 | `solido` com `pintar: true` | `{ area: 52 }` (a área total, com π = 3,14 no cilindro) | toca as faces, uma a uma, em qualquer ordem: cada uma fica âmbar, mostra a sua área, e a soma cresce embaixo. No sólido fechado, quando as faces à vista estão pintadas, ele se abre sozinho para mostrar as de trás. Termina quando todas as faces estão pintadas e a soma é `area` (`= 52 cm²`) |
+| `plano` | `{ ponto: [3, 2] }` ou `{ pontos: [[-2, 3], [2, -3]] }` | toca a grade: o toque vai para o cruzamento mais perto, e um ponto certo anda da origem até lá (primeiro no x, depois no y) e mostra o par; um ponto de `pontos` nas coordenadas do alvo fica escondido até ser marcado e aparece com o nome (`A (3, 2)`). Errado, o ponto aparece em rosa com o par. Trocar x e y: "Você trocou x e y. O primeiro número anda para o lado; o segundo, para cima ou para baixo."; o sinal trocado: "Confira os sinais: x negativo vai para a esquerda; y negativo, para baixo."; outro lugar: "Ainda não. Ande primeiro no x, para o lado; depois no y, para cima ou para baixo." Com `pontos`, termina quando todos estão marcados, em qualquer ordem |
+| `plano` com `pontos` com nome | `{ lido: 'B' }` ou `{ lidos: 3 }` | toca um ponto: ele mostra o par e os tracejados até os eixos. Com `lido`, outro ponto é erro ("Esse é o A (2, 3). Procure o ponto pedido."); com `lidos`, termina com tantos pontos lidos |
+| `plano` com `maquina` | `{ saidas: 4 }` | toca a máquina (ou a tabela): o próximo número de `entradas` voa até a máquina, a saída sai, entra na tabela e, com o plano, vira um ponto. Começa de `maquina.feitas` (padrão 0) e termina com `saidas` números passados |
+| `grafico` | `{ barra: 2 }`, `{ ponto: 2 }` (linhas) ou `{ setor: 1 }` | toca a barra, o ponto da linha ou a fatia: o certo acende em âmbar; o errado fica rosa ("Ainda não. Compare o topo de cada barra com os números do eixo.", "… Siga a linha e leia cada ponto no eixo.", "… Compare o tamanho das fatias.") |
+| `grafico` (barras) | `{ valor: 60 }` | arrasta a barra `ativa` (padrão 0) para cima ou para baixo; o valor anda com o dedo e é conferido quando o dedo sai. Errado: "Ainda não. Leve o topo da barra até o valor, olhando os números do eixo." |
 
 - **Retorno:**
   - Um erro balança o palco e mostra uma frase curta.

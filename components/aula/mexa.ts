@@ -5,6 +5,8 @@ import type { BarraLinha, BarraState } from './visual/Barra'
 import { grausMedir, leituraTransferidor, perimetroDe, poligonosDe, transferidorDe, type FiguraState } from './visual/figura-geo'
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'
+import { ajustarValor, dadosDe, eixoDoAjuste, tipoDe as tipoGrafico, type GraficoState } from './visual/grafico-geo'
+import { coordTexto, mesmoPonto, pontosDe, trocado, type PlanoState, type Vec } from './visual/plano-geo'
 import { areaDe, camadasDe, dimsDe, facesVisiveis, partesDe, type SolidoState } from './visual/solido-geo'
 import type { Interact } from './visual/Stage'
 
@@ -13,7 +15,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -95,10 +97,40 @@ export function kindOf(card: Mexa): Kind {
       if (e.empilhar === true && num(ok.camadas) !== undefined) return 'empilhar'
       if (e.pintar === true && num(ok.area) !== undefined) return 'faces'
       return 'mostre'
+    case 'plano':
+      if (alvosMarcar(card).length) return 'marcar'
+      if (typeof ok.lido === 'string' || num(ok.lidos) !== undefined) return 'ler'
+      if (e.maquina && num(ok.saidas) !== undefined) return 'alimentar'
+      return 'mostre'
+    case 'grafico':
+      if (itemApontar(card) !== undefined) return 'apontar'
+      if (num(ok.valor) !== undefined && tipoGrafico(e as GraficoState) === 'barras') return 'ajustar'
+      return 'mostre'
     default:
       return 'mostre'
   }
 }
+
+const ehVec = (v: unknown): v is Vec => Array.isArray(v) && v.length === 2 && v.every((t) => typeof t === 'number' && Number.isFinite(t))
+
+/** Mexa "marcar": the points the student marks ({ ponto: [3, 2] } or { pontos: [[3, 2], [−1, 4]] }). */
+function alvosMarcar(card: Mexa): Vec[] {
+  const ok = card.acao.sucesso
+  if (ehVec(ok.ponto)) return [ok.ponto]
+  return (arr<unknown>(ok.pontos) ?? []).filter(ehVec)
+}
+
+/** Mexa "apontar": the bar, slice or point to touch. */
+function itemApontar(card: Mexa): number | undefined {
+  const ok = card.acao.sucesso
+  const tipo = tipoGrafico(card.visual.estado as GraficoState)
+  return tipo === 'setores' ? num(ok.setor) : tipo === 'linhas' ? num(ok.ponto) : num(ok.barra)
+}
+
+/** Mexa "ler": the named points, in order. */
+const nomesDoPlano = (card: Mexa) => pontosDe(card.visual.estado as PlanoState).flatMap((p) => (p.nome ? [p.nome] : []))
+const chave = (v: Vec) => `${v[0]},${v[1]}`
+const deChave = (k: string): Vec => k.split(',').map(Number) as Vec
 
 /** The figure's first polygon (contorno) and how many sides it has. */
 function ladosDaFigura(card: Mexa): number {
@@ -235,6 +267,17 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, order: [] }
     case 'empilhar':
       return { ...base, drag: camadasDe(e as SolidoState, dimsDe(e as SolidoState)) }
+    case 'marcar':
+    case 'ler':
+      return { ...base, order: [], casa: null }
+    case 'alimentar':
+      return { ...base, drag: num((e.maquina as { feitas?: number }).feitas) ?? 0 }
+    case 'apontar':
+      return { ...base, pick: null }
+    case 'ajustar': {
+      const d = dadosDe(e as GraficoState)
+      return { ...base, drag: d[num(e.ativa) ?? 0]?.valor ?? 0 }
+    }
     default:
       return base
   }
@@ -300,6 +343,16 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, drag: ok.camadas as number }
     case 'faces':
       return { ...done, order: partesDe(dimsDe(e as SolidoState).tipo) }
+    case 'marcar':
+      return { ...done, order: alvosMarcar(card).map(chave), casa: null }
+    case 'ler':
+      return { ...done, order: typeof ok.lido === 'string' ? [ok.lido] : nomesDoPlano(card).slice(0, num(ok.lidos) ?? 0) }
+    case 'alimentar':
+      return { ...done, drag: ok.saidas as number }
+    case 'apontar':
+      return { ...done, pick: null }
+    case 'ajustar':
+      return { ...done, drag: ok.valor as number }
     case 'saldo': {
       // Just enough zero pairs to have the chips to take.
       const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
@@ -315,6 +368,14 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
 const NOTE_WRONG = 'Ainda não. Tente de novo.'
 const NOTE_ESCALA = (escala: string) => `Esse número é da escala ${escala === 'fora' ? 'de fora' : 'de dentro'}. Use a que começa no 0, sobre o lado do ângulo.`
 const NOTE_LADO = 'Siga o outro lado do ângulo até a escala.'
+const NOTE_TROCOU = 'Você trocou x e y. O primeiro número anda para o lado; o segundo, para cima ou para baixo.'
+const NOTE_SINAL = 'Confira os sinais: x negativo vai para a esquerda; y negativo, para baixo.'
+const NOTE_MARCAR = 'Ainda não. Ande primeiro no x, para o lado; depois no y, para cima ou para baixo.'
+const NOTE_APONTAR: Record<string, string> = {
+  barras: 'Ainda não. Compare o topo de cada barra com os números do eixo.',
+  linhas: 'Ainda não. Siga a linha e leia cada ponto no eixo.',
+  setores: 'Ainda não. Compare o tamanho das fatias.',
+}
 const NOTE_INCLINOU = 'A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado.'
 
 /** What the stage shows and how a touch changes the state. */
@@ -849,6 +910,121 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'marcar': {
+      // A tap on the grid marks the crossing; a target walks to its place (x first, then y).
+      // The swapped point (y, x) and the point with a wrong sign have their own feedback.
+      const alvos = alvosMarcar(card)
+      const feitos = (st.order ?? []).map(deChave)
+      const faltam = alvos.filter((a) => !feitos.some((f) => mesmoPonto(f, a)))
+      // A named point at a target's place stays hidden until it is marked.
+      const ps = e.pontos
+      const pontos = ps && !Array.isArray(ps) && typeof ps === 'object' ? Object.fromEntries(Object.entries(ps as Record<string, Vec>).filter(([, v]) => !ehVec(v) || !faltam.some((a) => mesmoPonto(a, v)))) : ps
+      return {
+        visual: visual({ ...e, pontos }),
+        interact: {
+          plano: {
+            marcados: feitos,
+            errado: st.casa ? deChave(st.casa) : null,
+            tremer: st.wrong,
+            onMarcar: lock
+              ? undefined
+              : (v) => {
+                  if (feitos.some((f) => mesmoPonto(f, v))) return
+                  if (faltam.some((a) => mesmoPonto(a, v))) {
+                    const o2 = [...(st.order ?? []), chave(v)]
+                    return set({ ...st, order: o2, casa: null, done: o2.length >= alvos.length, note: undefined })
+                  }
+                  const troca = faltam.some((a) => mesmoPonto(trocado(a), v))
+                  const sinal = !troca && faltam.some((a) => Math.abs(Math.abs(a[0]) - Math.abs(v[0])) < 1e-9 && Math.abs(Math.abs(a[1]) - Math.abs(v[1])) < 1e-9)
+                  set({ ...st, casa: chave(v), wrong: st.wrong + 1, note: troca ? NOTE_TROCOU : sinal ? NOTE_SINAL : NOTE_MARCAR })
+                },
+          },
+        },
+      }
+    }
+    case 'ler': {
+      // A tap on a named point shows its coordinates, with the dashes to the axes.
+      const lidos = st.order ?? []
+      const alvo = typeof ok.lido === 'string' ? ok.lido : undefined
+      const meta = num(ok.lidos) ?? 1
+      return {
+        visual: card.visual,
+        interact: {
+          plano: {
+            lidos,
+            tremer: st.wrong,
+            onPonto: lock
+              ? undefined
+              : (nome) => {
+                  if (lidos.includes(nome)) return
+                  const o2 = [...lidos, nome]
+                  if (alvo && nome !== alvo) {
+                    const v = pontosDe(e as PlanoState).find((p) => p.nome === nome)?.v
+                    return set({ ...st, order: o2, wrong: st.wrong + 1, note: `Esse é o ${nome}${v ? ` ${coordTexto(v)}` : ''}. Procure o ponto pedido.` })
+                  }
+                  set({ ...st, order: o2, done: alvo ? true : o2.length >= meta, note: undefined })
+                },
+          },
+        },
+      }
+    }
+    case 'alimentar': {
+      // Each tap puts the next number in the machine; done when `saidas` numbers came out.
+      const m = e.maquina as { feitas?: number; entradas?: number[] }
+      const meta = ok.saidas as number
+      const k = st.drag ?? 0
+      return {
+        visual: visual({ ...e, maquina: { ...m, feitas: k } }),
+        interact: { plano: { onAlimentar: lock || k >= meta || k >= (m.entradas?.length ?? 0) ? undefined : () => set({ ...st, drag: k + 1, done: k + 1 >= meta, note: undefined }) } },
+      }
+    }
+    case 'apontar': {
+      // A tap on a bar (a slice, a point of the line): the right one lights up.
+      const alvo = itemApontar(card)!
+      const tipo = tipoGrafico(e as GraficoState)
+      return {
+        visual: visual(st.done ? { ...e, destaque: alvo } : e),
+        interact: {
+          grafico: {
+            errado: st.done ? null : (st.pick ?? null),
+            tremer: st.wrong,
+            onItem: lock
+              ? undefined
+              : (i) => {
+                  if (i === alvo) return set({ ...st, pick: null, done: true, note: undefined })
+                  set({ ...st, pick: i, wrong: st.wrong + 1, note: NOTE_APONTAR[tipo] })
+                },
+          },
+        },
+      }
+    }
+    case 'ajustar': {
+      // The student drags the bar `ativa` to the value; it is checked when the finger lifts.
+      // The axis stays still while the bar moves.
+      const alvo = ok.valor as number
+      const gs = { ...e, eixoFim: eixoDoAjuste(e as GraficoState, alvo) } as GraficoState
+      const i = num(e.ativa) ?? 0
+      const v = st.drag ?? 0
+      const dados = (arr<unknown>(e.dados) ?? []).map((d, j) => (j !== i ? d : Array.isArray(d) ? [d[0], v] : { ...(d as object), valor: v }))
+      return {
+        visual: visual({ ...gs, dados, destaque: st.done ? i : e.destaque }),
+        interact: {
+          grafico: {
+            tremer: st.wrong,
+            onAjuste: lock ? undefined : (x) => {
+              const n = ajustarValor(gs, x, alvo)
+              if (n !== st.drag) set({ ...st, drag: n, note: undefined })
+            },
+            onSolta: lock
+              ? undefined
+              : () => {
+                  if (Math.abs(v - (ok.valor as number)) < 1e-9) set({ ...st, done: true, note: undefined })
+                  else set({ ...st, wrong: st.wrong + 1, note: 'Ainda não. Leve o topo da barra até o valor, olhando os números do eixo.' })
+                },
+          },
+        },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -885,5 +1061,10 @@ export const GESTO: Record<Kind, string | null> = {
   abrir: 'Toque no sólido para abri-lo.',
   empilhar: 'Toque no sólido para pôr mais uma camada.',
   faces: 'Toque em cada face para pintá-la.',
+  marcar: 'Ande no x, depois no y, e toque no cruzamento da grade.',
+  ler: 'Toque num ponto para ver as coordenadas dele.',
+  alimentar: 'Toque na máquina para pôr o próximo número.',
+  apontar: 'Toque na barra, no ponto ou na fatia que responde à pergunta.',
+  ajustar: 'Arraste a barra para cima ou para baixo até o valor.',
   mostre: null,
 }
