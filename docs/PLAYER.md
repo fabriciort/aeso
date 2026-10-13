@@ -393,6 +393,80 @@ Limites:
 - `recortado` sem `recorte` só sabe partir paralelogramos com dois lados deitados (horizontais).
 - Os números do transferidor são de 10 em 10. No Mexa "medir", qualquer ângulo inteiro vale (o toque perto do lado lê o ângulo do lado), mas os de 10 em 10 são os que o aluno lê direto na escala.
 
+### `solido`
+
+Os sólidos da U17, em perspectiva: a **caixa** (paralelepípedo), o **cubo**, o **prisma** de base triangular e o **cilindro**, que se abrem na planificação; a **pirâmide** e o **cone**, só para nomear (não abrem nem se enchem de cubinhos). O sólido se ajusta sozinho ao palco: só as proporções importam.
+
+**Abrir é dobrar ao contrário:** a face da frente fica parada e cada face gira em torno da sua aresta até o plano dela, enquanto o olhar vira de frente para a planificação. A caixa vira a cruz de 6 retângulos; o prisma, 3 retângulos e 2 triângulos; o cilindro desenrola a face lateral num retângulo de largura 2πr, com os dois círculos presos em cima e embaixo. Mantenha o mesmo sólido de um cartão para o outro: as medidas que mudam crescem, `aberto` abre, `camadas` enche. Trocar o `solido` faz um sumir e o outro aparecer.
+
+Os nomes das faces (para `destaque`, `nomes`, `areas`, `pintadas`):
+
+| Sólido | Faces |
+|---|---|
+| `caixa`, `cubo` | `frente`, `direita`, `topo`, `esquerda`, `tras`, `base` |
+| `prisma` | `frente`, `direita`, `topo`, `esquerda`, `base` (o topo e a base são os triângulos) |
+| `cilindro` | `topo`, `lateral`, `base` |
+| `piramide` | `frente`, `direita`, `tras`, `esquerda`, `base` |
+| `cone` | `lateral`, `base` |
+
+No sólido fechado aparecem só `frente`, `direita` e `topo` (no cilindro, `topo` e `lateral`); as outras estão atrás.
+
+| Chave | Efeito |
+|---|---|
+| `solido` | `'caixa'` (padrão), `'cubo'`, `'prisma'`, `'cilindro'`, `'piramide'`, `'cone'` |
+| `comprimento`, `largura`, `altura` | caixa e pirâmide: a aresta da frente, a do fundo e a altura (padrão 4, 3, 2). Prisma: a base é um triângulo com o lado da frente `comprimento` e a altura `largura` (do lado da frente até o canto de trás); `altura` é a altura do prisma (padrão 6, 4, 5) |
+| `aresta` | cubo: a aresta (padrão 3) |
+| `raio`, `altura` | cilindro e cone (padrão 2 e 4) |
+| `apice` | prisma: onde fica o canto de trás do triângulo, de 0 (em cima do canto da esquerda: triângulo retângulo) a 1. Padrão 0,5 (isósceles). Para lados inteiros: `comprimento: 6, largura: 4` (lados 5 e 5) ou `apice: 0` com `comprimento: 4, largura: 3` (lados 3 e 5) |
+| `unidade` | junto das medidas (`'cm'`: `4 cm`), das áreas (`12 cm²`) e do volume (`24 cm³`) |
+| `medidas` | as medidas nas arestas: aparecem sempre (padrão `true`); `false` esconde todas; um mapa troca o texto ou esconde uma: `{ altura: '?', largura: null }`. Os nomes: `comprimento`, `largura`, `altura`, `raio` e `volta` (o retângulo do cilindro aberto, padrão 2 × 3,14 × r, em azul, com uma cota de ponta a ponta) |
+| `destaque` | faces acesas: `'base'`, `['base', 'topo']`, `'bases'` (base e topo), `'laterais'` (as outras) ou um mapa com a cor: `{ base: 'azul', lateral: 'verde' }` (`'ambar'`, `'azul'`, `'verde'`, `'erro'`) |
+| `nomes` | uma palavra dentro da face: `{ base: 'base', topo: 'base', lateral: 'face lateral' }`. Só aparece se a face estiver à vista |
+| `areas` | `true` escreve a área de cada face à vista (`12 cm²`; no cilindro com π = 3,14); um mapa escreve o que vier: `{ base: '?', lateral: '2πrh' }`. Um texto que não cabe na face (um disco pequeno) vai para o lado dela |
+| `aberto` | `true`: a planificação. Um número de 0 a 1 deixa meio aberto (`0.5`, para um gancho). Na pirâmide e no cone, não faz nada |
+| `ocultas: true` | as arestas de trás, tracejadas (o cubo "de arame") |
+| `camadas` | a caixa vira cubinhos de 1 unidade: `camadas: 2` mostra 2 camadas cheias, a caixa inteira tracejada em volta, e embaixo "2 camadas de 12 = 24" (com `unidade`, `= 24 cm³`). As camadas novas caem uma a uma. No cilindro, as camadas são discos de altura 1 ("3 camadas de 12,56 = 37,68"); no prisma, fatias triangulares |
+| `baseCheia: true` | só a camada do fundo, e embaixo "4 × 3 = 12 cubinhos" (cilindro: "3,14 × 2 × 2 = 12,56"; prisma: "6 × 4 ÷ 2 = 12") |
+| `contagem: false` | esconde a contagem embaixo das camadas |
+| `pintadas` | faces pintadas de âmbar: `['frente', 'topo']` |
+| `soma: true` | a soma das áreas das faces pintadas embaixo, na ordem da lista: `8 + 12` e, com todas, `8 + 6 + 12 + 6 + 8 + 12 = 52 cm²`. As faces pintadas mostram a sua área |
+| `rotulo` | a frase embaixo (no lugar da contagem) |
+| `abrir`, `empilhar`, `pintar` | os Mexa (veja abaixo) |
+
+Exemplos:
+
+```ts
+// A caixa de sapato: 30, 20 e 12 cm, com a base acesa
+{ modelo: 'solido', estado: { comprimento: 30, largura: 20, altura: 12, unidade: 'cm', destaque: 'base', nomes: { base: 'base' } } }
+// O cilindro aberto, com a área de cada parte
+{ modelo: 'solido', estado: { solido: 'cilindro', raio: 2, altura: 5, unidade: 'cm', aberto: true, areas: true } }
+// O volume: a base contada, depois as camadas
+{ modelo: 'solido', estado: { comprimento: 4, largura: 3, altura: 2, baseCheia: true } }
+{ modelo: 'solido', estado: { comprimento: 4, largura: 3, altura: 2, camadas: 2, unidade: 'cm' } }
+```
+
+Os Mexa, prontos para copiar:
+
+```ts
+// abrir: um toque abre a caixa
+{ tipo: 'mexa', texto: 'Uma caixa é feita de quê? Abra e veja.', visual: { modelo: 'solido', estado: { comprimento: 4, largura: 3, altura: 2, unidade: 'cm', abrir: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na caixa para abri-la.', sucesso: { aberto: true }, mostre: 'A caixa se abre na planificação: 6 retângulos.' }, descoberta: 'A caixa aberta são 6 retângulos, iguais dois a dois.' }
+// empilhar: cada toque põe mais uma camada de cubinhos
+{ tipo: 'mexa', texto: 'Quantos cubinhos de 1 cm cabem na caixa?', visual: { modelo: 'solido', estado: { comprimento: 4, largura: 3, altura: 3, unidade: 'cm', baseCheia: true, empilhar: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na caixa para pôr mais uma camada.', sucesso: { camadas: 3 }, mostre: 'As camadas caem até encher a caixa.' }, descoberta: 'Cada camada tem 4 × 3 = 12; três camadas, 36.' }
+// pintar: cada toque pinta uma face e soma a área dela
+{ tipo: 'mexa', texto: 'Quanto papel embrulha a caixa?', visual: { modelo: 'solido', estado: { comprimento: 4, largura: 3, altura: 2, unidade: 'cm', pintar: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em cada face para pintar.', sucesso: { area: 52 }, mostre: 'Todas as faces pintadas: 52 cm².' }, descoberta: 'A área da superfície é a soma das áreas das 6 faces.' }
+```
+
+Limites:
+
+- O palco tem uns 360 × 380 px no celular. A planificação é mais larga que o sólido: o sólido fechado enche o palco e diminui enquanto abre. Caixas muito achatadas (12 × 8 × 1,5) ficam com faces finas na planificação; os textos de área não cabem nelas.
+- As camadas pedem medidas inteiras na caixa (os cubinhos são de 1 unidade). A `altura` arredonda para cima: uma caixa de altura 2,5 tem 3 camadas, a última passando da tampa.
+- Na pirâmide e no cone, `aberto`, `camadas` e os Mexa não funcionam (só "Me mostre"). A altura deles aparece tracejada, por dentro.
+- `areas` e `nomes` só aparecem nas faces à vista. No sólido fechado, para falar da base, use `destaque` e o texto do cartão, ou abra.
+- Os números do cilindro usam π = 3,14 (como na unidade 16): a área da base de raio 2 é 12,56, a lateral de raio 2 e altura 5 é 62,8.
+
 ## Mexa: as manipulações
 
 O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
@@ -426,6 +500,9 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `figura` com `recortar: true` | `{ recortado: true }` | toca a figura: o triângulo tracejado sai e desliza para o outro lado; o paralelogramo vira retângulo. Use `grade: true` para o aluno contar que a área não mudou |
 | `figura` com `desenrolar: true` (e `circulo`) | `{ desenrolado: true }` | toca o palco: o círculo rola sobre a reta, uma volta, e o contorno fica deitado; depois aparecem os 3 diâmetros e o pedacinho que sobra |
 | `figura` com `encaixar: true` (e `quadradosNosLados`) | `{ encaixado: true }` | toca o palco: os quadradinhos dos dois quadrados menores voam, um a um, para o quadrado grande e o enchem (9 + 16 = 25) |
+| `solido` com `abrir: true` | `{ aberto: true }` | toca o sólido: as faces giram até o plano e ele fica aberto na planificação (caixa, cubo, prisma, cilindro) |
+| `solido` com `empilhar: true` | `{ camadas: 3 }` (a altura) | toca o sólido: cai mais uma camada de cubinhos (no cilindro, um disco) e a contagem cresce embaixo ("2 camadas de 12 = 24"). Começa de `camadas` (padrão 0; com `baseCheia`, 1) e para em `camadas` do sucesso |
+| `solido` com `pintar: true` | `{ area: 52 }` (a área total, com π = 3,14 no cilindro) | toca as faces, uma a uma, em qualquer ordem: cada uma fica âmbar, mostra a sua área, e a soma cresce embaixo. No sólido fechado, quando as faces à vista estão pintadas, ele se abre sozinho para mostrar as de trás. Termina quando todas as faces estão pintadas e a soma é `area` (`= 52 cm²`) |
 
 - **Retorno:**
   - Um erro balança o palco e mostra uma frase curta.

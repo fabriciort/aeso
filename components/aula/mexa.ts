@@ -5,6 +5,7 @@ import type { BarraLinha, BarraState } from './visual/Barra'
 import { grausMedir, leituraTransferidor, perimetroDe, poligonosDe, transferidorDe, type FiguraState } from './visual/figura-geo'
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'
+import { areaDe, camadasDe, dimsDe, facesVisiveis, partesDe, type SolidoState } from './visual/solido-geo'
 import type { Interact } from './visual/Stage'
 
 // O "Mexa": o aluno manipula o modelo até chegar ao estado de sucesso que o
@@ -12,7 +13,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -88,6 +89,11 @@ export function kindOf(card: Mexa): Kind {
       if (e.recortar === true && ok.recortado === true) return 'recortar'
       if (e.desenrolar === true && ok.desenrolado === true) return 'desenrolar'
       if (e.encaixar === true && ok.encaixado === true) return 'encaixar'
+      return 'mostre'
+    case 'solido':
+      if (e.abrir === true && ok.aberto === true) return 'abrir'
+      if (e.empilhar === true && num(ok.camadas) !== undefined) return 'empilhar'
+      if (e.pintar === true && num(ok.area) !== undefined) return 'faces'
       return 'mostre'
     default:
       return 'mostre'
@@ -225,7 +231,10 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: undefined, casa: null }
     case 'juntar':
     case 'contorno':
+    case 'faces':
       return { ...base, order: [] }
+    case 'empilhar':
+      return { ...base, drag: camadasDe(e as SolidoState, dimsDe(e as SolidoState)) }
     default:
       return base
   }
@@ -287,6 +296,10 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, order: ['0', '1', '2'] }
     case 'contorno':
       return { ...done, order: Array.from({ length: ladosDaFigura(card) }, (_, i) => String(i)) }
+    case 'empilhar':
+      return { ...done, drag: ok.camadas as number }
+    case 'faces':
+      return { ...done, order: partesDe(dimsDe(e as SolidoState).tipo) }
     case 'saldo': {
       // Just enough zero pairs to have the chips to take.
       const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
@@ -797,6 +810,45 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         interact: { figura: { onToque: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
       }
     }
+    case 'abrir':
+      // One tap: the faces turn about their hinges until the solid lies open.
+      return {
+        visual: visual({ ...e, aberto: st.done }),
+        interact: { solido: { onToque: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
+    case 'empilhar': {
+      // Each tap drops one more layer of little cubes, up to the height.
+      const meta = ok.camadas as number
+      const k = st.drag ?? 0
+      return {
+        visual: visual({ ...e, camadas: k, baseCheia: e.baseCheia === true && k <= 1 }),
+        interact: { solido: { onToque: lock || k >= meta ? undefined : () => set({ ...st, drag: k + 1, done: k + 1 === meta, note: undefined }) } },
+      }
+    }
+    case 'faces': {
+      // Each tap paints a face and adds its area. On the closed solid, once the faces in view are
+      // painted, it opens by itself to show the ones behind. Done when every face is painted (and the sum is the answer).
+      const fs = e as SolidoState
+      const d = dimsDe(fs)
+      const partes = partesDe(d.tipo)
+      const order = st.order ?? []
+      const abriu = fs.aberto === true || facesVisiveis(fs).every((p) => order.includes(p))
+      return {
+        visual: visual({ ...e, pintadas: order, soma: true, aberto: abriu ? true : e.aberto }),
+        interact: {
+          solido: {
+            onFace: lock
+              ? undefined
+              : (parte) => {
+                  if (order.includes(parte) || !partes.includes(parte)) return
+                  const o2 = [...order, parte]
+                  const total = Math.round(o2.reduce((s, p) => s + areaDe(d, p), 0) * 100) / 100
+                  set({ ...st, order: o2, done: o2.length === partes.length && Math.abs(total - (ok.area as number)) < 0.01, note: undefined })
+                },
+          },
+        },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -830,5 +882,8 @@ export const GESTO: Record<Kind, string | null> = {
   recortar: 'Toque na figura para recortar o triângulo tracejado.',
   desenrolar: 'Toque no círculo para ele rolar.',
   encaixar: 'Toque na figura para levar os quadradinhos ao quadrado grande.',
+  abrir: 'Toque no sólido para abri-lo.',
+  empilhar: 'Toque no sólido para pôr mais uma camada.',
+  faces: 'Toque em cada face para pintá-la.',
   mostre: null,
 }

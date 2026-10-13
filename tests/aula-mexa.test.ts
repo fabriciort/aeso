@@ -4,6 +4,7 @@ import type { Mexa } from '@/lib/formation/schema'
 import { initMexa, kindOf, mexaStage, solveMexa, type MexaState } from '@/components/aula/mexa'
 import { tipoDe } from '@/components/aula/visual/azulejos-pecas'
 import { equacaoDe, inclinacaoDe, pecasDe, valorInferido } from '@/components/aula/visual/balanca-pratos'
+import { areaDe, areaTotal, cameraDe, contagemTexto, dimsDe, dobrar, facesDe, facesVisiveis, partesDe, planificacao, somaTexto as somaFaces, TIRAS, type SolidoState } from '@/components/aula/visual/solido-geo'
 import { anguloInterno, cantosNaReta, encaixeDe, escalaCerta, grausMedir, leituraTransferidor, perimetroDe, pitagorasDe, poligonosDe, quadradoNoLado, recortePadrao, somaTexto, ladosValores, transferidorDe, valorDeMedida, type FiguraState, type Vec } from '@/components/aula/visual/figura-geo'
 
 // Cada "Mexa" do conteúdo tem de ser jogável no player: o aluno consegue
@@ -125,6 +126,18 @@ function play(card: Mexa): MexaState {
     case 'encaixar':
       stage().interact!.figura!.onToque!()
       break
+    case 'abrir':
+      stage().interact!.solido!.onToque!()
+      break
+    case 'empilhar':
+      for (let n = 0; n < 30 && !st.done; n++) stage().interact!.solido!.onToque!()
+      break
+    case 'faces': {
+      // Only the faces in view can be touched until the solid opens.
+      const fs = card.visual.estado as SolidoState
+      for (const p of [...facesVisiveis(fs), ...partesDe(dimsDe(fs).tipo)]) stage().interact!.solido!.onFace!(p)
+      break
+    }
     case 'partir':
       for (let n = 0; n < 10 && !st.done; n++) {
         const b = stage().interact!.barra!
@@ -288,5 +301,118 @@ describe('Mexa da figura', () => {
     expect(st.order).toEqual(['2', '0'])
     expect(st.done).toBe(false)
     expect(mexaStage(card, st, () => {}).visual.estado).toMatchObject({ acesos: [2, 0], soma: true })
+  })
+})
+
+const solido = (estado: Record<string, unknown>, sucesso: Record<string, unknown>): Mexa => ({ tipo: 'mexa', texto: '', visual: { modelo: 'solido', estado }, acao: { instrucao: '', sucesso } }) as unknown as Mexa
+
+describe('Mexa do sólido', () => {
+  const pintar = solido({ comprimento: 4, largura: 3, altura: 2, unidade: 'cm', pintar: true }, { area: 52 })
+  const cartoes: [string, Mexa][] = [
+    ['abrir a caixa', solido({ comprimento: 4, largura: 3, altura: 2, abrir: true }, { aberto: true })],
+    ['abrir o cilindro', solido({ solido: 'cilindro', raio: 2, altura: 5, abrir: true }, { aberto: true })],
+    ['abrir o prisma', solido({ solido: 'prisma', comprimento: 6, largura: 4, altura: 5, abrir: true }, { aberto: true })],
+    ['empilhar', solido({ comprimento: 4, largura: 3, altura: 2, empilhar: true }, { camadas: 2 })],
+    ['empilhar da base', solido({ comprimento: 4, largura: 3, altura: 3, baseCheia: true, empilhar: true }, { camadas: 3 })],
+    ['empilhar discos', solido({ solido: 'cilindro', raio: 2, altura: 4, empilhar: true }, { camadas: 4 })],
+    ['pintar a caixa fechada', pintar],
+    ['pintar o cubo aberto', solido({ solido: 'cubo', aresta: 3, aberto: true, pintar: true }, { area: 54 })],
+    ['pintar o cilindro', solido({ solido: 'cilindro', raio: 1, altura: 2, pintar: true }, { area: 18.84 })],
+    ['pintar o prisma', solido({ solido: 'prisma', comprimento: 6, largura: 4, altura: 10, aberto: true, pintar: true }, { area: 184 })],
+  ]
+
+  test.each(cartoes)('%s é jogável', (_, card) => {
+    expect(kindOf(card)).not.toBe('mostre')
+    const st = play(card)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    expect(solveMexa(card, initMexa(card)).done).toBe(true)
+  })
+
+  test('as contas do sólido', () => {
+    const caixa = dimsDe({ comprimento: 4, largura: 3, altura: 2 })
+    expect(partesDe('caixa').map((p) => areaDe(caixa, p))).toEqual([8, 6, 12, 6, 8, 12])
+    expect(areaTotal(caixa)).toBe(52)
+    expect(areaTotal(dimsDe({ solido: 'cubo', aresta: 3 }))).toBe(54)
+    // Cylinder: 2 × 3,14 × 1² + 2 × 3,14 × 1 × 2.
+    expect(areaTotal(dimsDe({ solido: 'cilindro', raio: 1, altura: 2 }))).toBe(18.84)
+    // Prism with the 6-4 triangle: sides 5 and 5.
+    const pr = dimsDe({ solido: 'prisma', comprimento: 6, largura: 4, altura: 10 })
+    expect(partesDe('prisma').map((p) => areaDe(pr, p))).toEqual([60, 50, 12, 50, 12])
+    expect(somaFaces(caixa, ['frente', 'topo'])).toBe('8 + 12')
+    expect(somaFaces(caixa, partesDe('caixa'), 'cm')).toBe('8 + 6 + 12 + 6 + 8 + 12 = 52 cm²')
+    expect(contagemTexto({ baseCheia: true }, caixa, 1)).toBe('4 × 3 = 12 cubinhos')
+    expect(contagemTexto({}, caixa, 2)).toBe('2 camadas de 12 = 24')
+    expect(contagemTexto({ unidade: 'cm' }, caixa, 1)).toBe('1 camada de 12 = 12 cm³')
+    expect(contagemTexto({ solido: 'cilindro' }, dimsDe({ solido: 'cilindro', raio: 2 }), 3)).toBe('3 camadas de 12,56 = 37,68')
+    expect(facesVisiveis({})).toEqual(['frente', 'direita', 'topo'])
+    expect(facesVisiveis({ solido: 'cilindro' })).toEqual(['topo', 'lateral'])
+    expect(facesVisiveis({ solido: 'prisma' })).toEqual(['frente', 'direita', 'topo'])
+    expect(cameraDe('caixa', 1)).toEqual({ th: 0, ph: 0 })
+  })
+
+  test('a planificação dobra no sólido', () => {
+    const perto = (a: number[], b: number[]) => a.forEach((v, i) => expect(v).toBeCloseTo(b[i], 6))
+    // The box: closed, every corner is a corner of the 4 × 3 × 2 box; open, it is the net, flat.
+    const caixa = dimsDe({ comprimento: 4, largura: 3, altura: 2 })
+    const fechada = facesDe(caixa, 1).faces
+    for (const f of fechada) for (const p of f.pts) perto([[0, 4], [0, 3], [0, 2]].map(([a, b], i) => (Math.abs(p[i] - a) < 1e-6 ? a : b)), p)
+    const tras = fechada.find((f) => f.id === 'tras')!
+    tras.pts.forEach((p) => expect(p[1]).toBeCloseTo(3))
+    perto(tras.n, [0, 1, 0])
+    perto(fechada.find((f) => f.id === 'topo')!.n, [0, 0, 1])
+    const aberta = dobrar(planificacao(caixa), 0).faces
+    for (const f of aberta) f.pts.forEach((p) => expect(p[1]).toBeCloseTo(0))
+    // The prism: the top triangle closes at the height, with its back corner at (3, 4).
+    const pr = facesDe(dimsDe({ solido: 'prisma', comprimento: 6, largura: 4, altura: 5 }), 1).faces
+    const topo = pr.find((f) => f.id === 'topo')!
+    perto(topo.pts[2], [3, 4, 5])
+    for (const id of ['direita', 'esquerda']) {
+      const f = pr.find((x) => x.id === id)!
+      expect(f.pts.some((p) => Math.abs(p[0] - 3) < 1e-6 && Math.abs(p[1] - 4) < 1e-6)).toBe(true)
+    }
+    // The cylinder: the strips close around the axis, and the top disk lies on them.
+    const r = 2
+    const ci = facesDe(dimsDe({ solido: 'cilindro', raio: r, altura: 3 }), 1).faces
+    const lat = ci.filter((f) => f.parte === 'lateral')
+    expect(lat.length).toBe(TIRAS)
+    for (const f of lat) for (const p of f.pts) expect(Math.hypot(p[0], p[1] - r)).toBeCloseTo(r, 1)
+    for (const p of ci.find((f) => f.id === 'topo')!.pts) {
+      expect(p[2]).toBeCloseTo(3)
+      expect(Math.hypot(p[0], p[1] - r)).toBeCloseTo(r)
+    }
+    // Open, the side is a rectangle of width 2πr.
+    const xs = facesDe(dimsDe({ solido: 'cilindro', raio: r, altura: 3 }), 0).faces.filter((f) => f.parte === 'lateral').flatMap((f) => f.pts.map((p) => p[0]))
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(2 * Math.PI * r)
+  })
+
+  test('pintar soma as áreas na ordem dos toques; a caixa fechada se abre quando as faces à vista estão pintadas', () => {
+    let st = initMexa(pintar)
+    const stage = () => mexaStage(pintar, st, (s) => (st = s))
+    const tap = (p: string) => stage().interact!.solido!.onFace!(p)
+    tap('topo')
+    tap('topo')
+    tap('frente')
+    expect(st.order).toEqual(['topo', 'frente'])
+    expect(stage().visual.estado).toMatchObject({ pintadas: ['topo', 'frente'], soma: true })
+    expect(stage().visual.estado.aberto).toBeUndefined()
+    tap('direita')
+    expect(stage().visual.estado.aberto).toBe(true)
+    for (const p of ['base', 'tras', 'esquerda']) tap(p)
+    expect(st.done).toBe(true)
+    expect(somaFaces(dimsDe(pintar.visual.estado as SolidoState), st.order!, 'cm')).toBe('12 + 8 + 6 + 12 + 8 + 6 = 52 cm²')
+  })
+
+  test('empilhar para na altura pedida', () => {
+    const card = cartoes.find(([t]) => t === 'empilhar')![1]
+    let st = initMexa(card)
+    const stage = () => mexaStage(card, st, (s) => (st = s))
+    expect(stage().visual.estado.camadas).toBe(0)
+    stage().interact!.solido!.onToque!()
+    expect(st.done).toBe(false)
+    expect(stage().visual.estado.camadas).toBe(1)
+    stage().interact!.solido!.onToque!()
+    expect(st.done).toBe(true)
+    expect(stage().interact!.solido!.onToque).toBeUndefined()
   })
 })
