@@ -307,7 +307,27 @@ A grade dos decimais: cada grade é um inteiro, com 10 colunas de 10 quadradinho
 | `faixas: [l, c]` | multiplicação: as primeiras `l` linhas e `c` colunas ficam claras, e o cruzamento em âmbar (`[3, 4]` é 0,3 × 0,4 = 0,12) |
 | `destaque` | o índice do número em destaque; os outros ficam apagados |
 
-`balanca` ainda não existe no player. Ele chega com a unidade que o usa.
+### `balanca`
+
+A balança de dois pratos da U15: uma equação é uma balança em equilíbrio. Cada **caixa** âmbar é um x (todas pesam o mesmo); cada **peso** cinza vale 1; um peso rotulado ("10") vale o número escrito nele. O prato mais pesado desce; com os dois iguais, o braço fica reto e a agulha acende.
+
+| Chave | Efeito |
+|---|---|
+| `esquerda`, `direita` | o que há em cada prato: `{ x: 2, n: 3 }` são 2 caixas e 3 pesos de 1. `pesos: [10, 5]` acrescenta pesos rotulados (`{ n: 2, pesos: [10] }` pesa 12). Mudanças animam: peças novas caem no prato, as que saem sobem e somem |
+| n grande | até 20 pesos de 1 por prato aparecem um a um, em fileiras (as peças encolhem para caber). Passando de 20, viram pesos de 10 e os que sobram (37 = 10, 10, 10 e sete de 1) |
+| `letra` | outra letra nas caixas (padrão `x`) |
+| `valor` | o valor escondido de x: a balança inclina pelo peso real dos pratos. Sem `valor` e sem `inclina`, fica em equilíbrio |
+| `inclina` | força a inclinação: `'esquerda'` (o prato da esquerda desce), `'direita'` ou `'equilibrio'`. Vale mais que `valor` |
+| `riscadas` | peças que saíram, apagadas e riscadas, depois das outras do prato: `{ esquerda: { n: 3 }, direita: { n: 3 } }`. Não pesam nem entram na equação |
+| `abrir: true` | as caixas mostram `valor` dentro (a solução revelada) |
+| `dividir: k` | cada prato partido em `k` grupos iguais, um em cima do outro, com moldura tracejada: as caixas e os pesos se repartem igualmente. O grupo `grupo` (padrão 0, o de baixo) fica aceso em azul; os outros, apagados |
+| `mostraEquacao: true` | a equação embaixo, lida dos pratos (`2x + 3 = 11`, `3x + 2 = x + 10`). Inclinada, o `=` vira `≠` em vermelho; com `inequacao: true`, vira `>` ou `<` em azul (o lado que desce é o maior) |
+| `rotulo` | a frase embaixo, no lugar da equação (`'x = 4'`) |
+| `tirar: true` | o Mexa "tirar" (veja abaixo) |
+
+No Mexa "tirar", um peso rotulado (ou um peso de 10 automático) sai inteiro, nunca se parte: use pesos de 1 (até 20 por prato) quando o aluno precisa tirar um número que não é múltiplo do peso. Com `dividir: k`, dê pratos que se repartem certo (caixas e pesos múltiplos de `k`); senão, os grupos saem desiguais.
+
+Os pratos só têm peças positivas: não há pesos negativos nem balões. Para equações com subtração (x − 3 = 5), use a barra ou a reta, ou mostre a equação com `rotulo`.
 
 ## Mexa: as manipulações
 
@@ -333,6 +353,8 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
 | `livre` com `azulejos.agrupar: true` | `{ agrupado: true }` | toca uma peça e todas as do mesmo tipo vão juntas para um grupo, com a contagem; termina quando todos os tipos estão juntos (com `mostraExpressao`, a expressão aparece no fim) |
 | `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
+| `balanca` com `tirar: true` | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio. Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |
+| `balanca` com `dividir: k` | `{ dividido: true }` | os pratos aparecem partidos em `k` grupos, todos acesos; o aluno toca num grupo e fica só um grupo de cada lado (com `mostraEquacao`, `2x = 8` vira `x = 4`) |
 | `livre` com `tabela.completar: true` | `{ colunas }` | toca a próxima coluna vazia e ela se preenche, com as setas que chegam nela; começa com `tabela.mostradas` (padrão 1) e termina quando aparecem `colunas` colunas |
 
 - **Retorno:**

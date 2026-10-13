@@ -1,5 +1,6 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
+import { contaPecas, inclinacaoDe, ladoTexto, pecasDe, pratoDe, valorInferido, type Lado, type PecaBalanca, type Prato } from './visual/balanca-pratos'
 import type { BarraLinha, BarraState } from './visual/Barra'
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'
@@ -10,7 +11,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -73,6 +74,12 @@ export function kindOf(card: Mexa): Kind {
       return 'mostre'
     case 'grade':
       return e.pintar === true && num(ok.pintadas) !== undefined ? 'grade' : 'mostre'
+    case 'balanca': {
+      const prato = (v: unknown) => v !== null && typeof v === 'object' && !Array.isArray(v)
+      if (e.tirar === true && prato(ok.esquerda) && prato(ok.direita)) return 'tirar'
+      if ((num(e.dividir) ?? 0) > 1 && ok.dividido === true) return 'dividir'
+      return 'mostre'
+    }
     default:
       return 'mostre'
   }
@@ -116,6 +123,37 @@ function ativaOf(card: Mexa): { i: number; b: BarraLinha; com: (b: BarraLinha) =
 function tiposAzulejos(card: Mexa): string[] {
   const pecas = arr<string>((card.visual.estado.azulejos as { pecas?: string[] } | undefined)?.pecas) ?? []
   return [...new Set(pecas.map(tipoDe))]
+}
+
+/** The balance of a "tirar" Mexa: its pieces, what must be left on each plate, and the hidden value (given or the one that balances). */
+function balancaOf(card: Mexa) {
+  const e = card.visual.estado
+  const ok = card.acao.sucesso
+  const esquerda = e.esquerda as Prato | undefined
+  const direita = e.direita as Prato | undefined
+  const pecas: Record<Lado, PecaBalanca[]> = { esquerda: pecasDe(esquerda, 'esquerda'), direita: pecasDe(direita, 'direita') }
+  const alvo: Record<Lado, { x: number; n: number }> = { esquerda: pratoDe(ok.esquerda as Prato), direita: pratoDe(ok.direita as Prato) }
+  const valor = num(e.valor) ?? valorInferido(esquerda, direita)
+  const resta = (fora: string[], lado: Lado) => contaPecas(pecas[lado].filter((p) => !fora.includes(p.id)))
+  return { pecas, alvo, valor, resta }
+}
+
+/** The pieces "Me mostre" takes out: boxes from the end, then the biggest weights that still leave the target. */
+function tirarSolucao(card: Mexa): string[] {
+  const { pecas, alvo } = balancaOf(card)
+  const fora: string[] = []
+  for (const lado of ['esquerda', 'direita'] as Lado[]) {
+    const xs = pecas[lado].filter((p) => p.tipo === 'x')
+    fora.push(...xs.slice(alvo[lado].x).map((p) => p.id))
+    let n = contaPecas(pecas[lado]).n
+    for (const p of pecas[lado].filter((q) => q.tipo !== 'x').sort((a, b) => b.valor - a.valor)) {
+      if (n - p.valor >= alvo[lado].n) {
+        fora.push(p.id)
+        n -= p.valor
+      }
+    }
+  }
+  return fora
 }
 
 function targetOf(card: Mexa, label: number): number {
@@ -165,6 +203,10 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: 0, pick: 0 }
     case 'azulejos':
       return { ...base, order: [] }
+    case 'tirar':
+      return { ...base, order: [] }
+    case 'dividir':
+      return { ...base, pick: null }
     default:
       return base
   }
@@ -216,6 +258,10 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, drag: ok.colunas as number }
     case 'azulejos':
       return { ...done, order: tiposAzulejos(card) }
+    case 'tirar':
+      return { ...done, order: tirarSolucao(card) }
+    case 'dividir':
+      return { ...done, pick: 0 }
     case 'saldo': {
       // Just enough zero pairs to have the chips to take.
       const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
@@ -229,6 +275,7 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
 }
 
 const NOTE_WRONG = 'Ainda não. Tente de novo.'
+const NOTE_INCLINOU = 'A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado.'
 
 /** What the stage shows and how a touch changes the state. */
 export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void): { visual: Visual; interact?: Interact; tray?: { items: string[]; sel: number | null; onPick: (i: number) => void } } {
@@ -608,6 +655,47 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'tirar': {
+      // A tap takes a piece out. Taking from one side only tilts the balance (by the hidden value);
+      // taking a piece that has to stay is a mistake. Done when what is left is the target, level.
+      const { pecas, alvo, valor, resta } = balancaOf(card)
+      const fora = st.order ?? []
+      const letra = typeof e.letra === 'string' ? e.letra : 'x'
+      return {
+        visual: visual({ ...e, valor }),
+        interact: {
+          balanca: {
+            fora,
+            tremer: st.wrong,
+            onPeca: lock
+              ? undefined
+              : (id) => {
+                  const lado = id.split(':')[0] as Lado
+                  const p = pecas[lado]?.find((q) => q.id === id)
+                  if (!p || fora.includes(id)) return
+                  const agora = resta(fora, lado)
+                  const fica = p.tipo === 'x' ? agora.x <= alvo[lado].x : agora.n - p.valor < alvo[lado].n
+                  if (fica) {
+                    set({ ...st, wrong: st.wrong + 1, note: `${p.tipo === 'x' ? 'Essa caixa fica' : 'Esse peso fica'}: neste prato tem de sobrar ${ladoTexto(alvo[lado], letra)}.` })
+                    return
+                  }
+                  const f2 = [...fora, id]
+                  const E = resta(f2, 'esquerda')
+                  const D = resta(f2, 'direita')
+                  const inc = inclinacaoDe(E, D, valor)
+                  const done = inc === 'equilibrio' && eq(E, alvo.esquerda) && eq(D, alvo.direita)
+                  set({ ...st, order: f2, done, note: inc === 'equilibrio' ? undefined : NOTE_INCLINOU })
+                },
+          },
+        },
+      }
+    }
+    case 'dividir':
+      // One tap on a group (either side) keeps that group on each plate.
+      return {
+        visual: card.visual,
+        interact: { balanca: { escolhido: st.pick ?? null, onGrupo: lock ? undefined : (g) => set({ ...st, pick: g, done: true, note: undefined }) } },
+      }
     default:
       return { visual: card.visual }
   }
@@ -633,5 +721,7 @@ export const GESTO: Record<Kind, string | null> = {
   tabela: 'Toque na coluna vazia para completar a tabela.',
   azulejos: 'Toque numa peça para juntar as do mesmo tipo.',
   saldo: 'Toque nas fichas para tirar. Se faltar ficha, ponha um par + e −.',
+  tirar: 'Toque numa peça para tirá-la. Tire o mesmo dos dois pratos.',
+  dividir: 'Toque num dos grupos com a borda tracejada.',
   mostre: null,
 }
