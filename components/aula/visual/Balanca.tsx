@@ -209,7 +209,8 @@ export function Balanca({ s, size, fora, onPeca, escolhido, onGrupo, tremer = 0 
     const apagada = it.riscada || (aceso !== null && !mexaDividir && p.grupo !== aceso)
     return (
       <motion.button
-        key={p.id}
+        // A new split remounts the pieces (they drop into their groups): moving them in place left some stuck halfway.
+        key={`${p.id}/${k}`}
         type="button"
         disabled={!tocavel}
         onClick={tocavel ? () => onPeca!(p.id) : undefined}
