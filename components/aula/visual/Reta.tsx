@@ -203,7 +203,7 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
           </>
         )}
         {(s.distancias ?? []).map(([v, rot], i) => {
-          const yb = y + 46 + i * 22
+          const yb = y + 44 + i * 34
           return (
             <motion.g key={`d${v}-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 + i * 0.4 }}>
               <path d={`M ${x(0)} ${yb - 6} L ${x(0)} ${yb} L ${x(v)} ${yb} L ${x(v)} ${yb - 6}`} fill="none" stroke={v < 0 ? sky : amber} strokeWidth={1.75} strokeLinejoin="round" />
