@@ -209,17 +209,20 @@ export function Balanca({ s, size, fora, onPeca, escolhido, onGrupo, tremer = 0 
     const apagada = it.riscada || (aceso !== null && !mexaDividir && p.grupo !== aceso)
     return (
       <motion.button
-        // A new split remounts the pieces (they drop into their groups): moving them in place left some stuck halfway.
-        key={`${p.id}/${k}`}
+        key={p.id}
         type="button"
         disabled={!tocavel}
         onClick={tocavel ? () => onPeca!(p.id) : undefined}
-        initial={{ opacity: 0, x: left, y: top - 24, scale: 0.6 }}
-        animate={{ opacity: apagada ? 0.3 : 1, x: left, y: top, scale: 1 }}
-        exit={{ opacity: 0, y: top - 48, scale: 0.5, transition: { duration: 0.35 } }}
+        // The place moves by CSS (left/top): framer springs on x/y were left stuck halfway when the layout changed under them.
+        initial={{ opacity: 0, y: -24, scale: 0.6 }}
+        animate={{ opacity: apagada ? 0.3 : 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -48, scale: 0.5, transition: { duration: 0.35 } }}
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-        className={cn('absolute left-0 top-0 grid place-items-center overflow-hidden border font-semibold leading-none', tocavel ? 'cursor-pointer' : 'cursor-default', mexaDividir && 'pointer-events-none')}
+        className={cn('absolute grid place-items-center overflow-hidden border font-semibold leading-none', tocavel ? 'cursor-pointer' : 'cursor-default', mexaDividir && 'pointer-events-none')}
         style={{
+          left,
+          top,
+          transition: 'left 0.45s cubic-bezier(0.22, 1, 0.36, 1), top 0.45s cubic-bezier(0.22, 1, 0.36, 1)',
           width: it.w,
           height: it.h,
           borderRadius: ehX ? 5 : p.tipo === 'p' ? `${Math.round(it.h * 0.45)}px ${Math.round(it.h * 0.45)}px 4px 4px` : 4,
@@ -287,11 +290,11 @@ export function Balanca({ s, size, fora, onPeca, escolhido, onGrupo, tremer = 0 
                     disabled={!tocavel}
                     onClick={tocavel ? () => onGrupo!(m.g) : undefined}
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: !mexaDividir && !acesa ? 0.4 : 1, x: P / 2 + m.x, y: pendurado - m.y - m.h }}
+                    animate={{ opacity: !mexaDividir && !acesa ? 0.4 : 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-                    className={cn('absolute left-0 top-0 rounded-[8px] border-[1.5px]', tocavel ? 'z-10 cursor-pointer border-dashed' : 'cursor-default', acesa ? 'border-solid' : 'border-dashed')}
-                    style={{ width: m.w, height: m.h, borderColor: acesa ? sky : 'rgba(255,255,255,0.5)', background: acesa ? 'rgba(125,211,252,0.08)' : 'transparent' }}
+                    className={cn('absolute rounded-[8px] border-[1.5px]', tocavel ? 'z-10 cursor-pointer border-dashed' : 'cursor-default', acesa ? 'border-solid' : 'border-dashed')}
+                    style={{ left: P / 2 + m.x, top: pendurado - m.y - m.h, transition: 'left 0.45s cubic-bezier(0.22, 1, 0.36, 1), top 0.45s cubic-bezier(0.22, 1, 0.36, 1)', width: m.w, height: m.h, borderColor: acesa ? sky : 'rgba(255,255,255,0.5)', background: acesa ? 'rgba(125,211,252,0.08)' : 'transparent' }}
                     aria-label={`grupo ${m.g + 1}`}
                   />
                 )
