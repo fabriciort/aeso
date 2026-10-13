@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { AULAS } from '@/content/matematica'
 import type { Mexa } from '@/lib/formation/schema'
 import { initMexa, kindOf, mexaStage, solveMexa, type MexaState } from '@/components/aula/mexa'
-import { tipoDe } from '@/components/aula/visual/Azulejos'
+import { tipoDe } from '@/components/aula/visual/azulejos-pecas'
 
 // Cada "Mexa" do conteúdo tem de ser jogável no player: o aluno consegue
 // chegar ao estado de sucesso só com toques, e "Me mostre" resolve.

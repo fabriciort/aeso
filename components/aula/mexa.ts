@@ -1,5 +1,5 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
-import { tipoDe } from './visual/Azulejos'
+import { tipoDe } from './visual/azulejos-pecas'
 import type { BarraLinha, BarraState } from './visual/Barra'
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'

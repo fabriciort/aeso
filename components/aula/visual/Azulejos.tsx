@@ -3,6 +3,9 @@
 import { useId } from 'react'
 import { LayoutGroup, motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { expressaoDe, termo, tipoDe, type Peca } from './azulejos-pecas'
+
+export type { Peca }
 
 // Azulejos algébricos (U14): o quadradinho vale 1, a barra vale x (o lado
 // comprido é o x, que não sabemos quanto mede) e o quadrado grande vale x².
@@ -12,7 +15,6 @@ import { cn } from '@/lib/utils'
 // No Mexa "agrupar", as peças começam misturadas; um toque numa peça junta
 // todas as do mesmo tipo, com a contagem embaixo.
 
-export type Peca = 'x²' | 'x' | '1' | '−x²' | '−x' | '−1'
 
 export interface AzulejosState {
   /** As peças, na ordem em que aparecem (misturadas). Aceita "-" no lugar de "−". */
@@ -44,36 +46,8 @@ const COR: Record<string, string> = {
 }
 const rose = '#fb7185'
 
-export const tipoDe = (p: string): Peca => {
-  const t = p
-    .trim()
-    .replace(/^-/, '−')
-    .replace(/\^2|2$/, '²')
-  const base = t.replace('−', '')
-  const k = base === '1' ? '1' : base.endsWith('²') ? 'x²' : 'x'
-  return (t.startsWith('−') ? `−${k}` : k) as Peca
-}
 
-/** "3x", "x", "−2x²", "4": the count of a kind, written as a term. */
-export function termo(tipo: Peca, n: number, letra = 'x'): string {
-  const neg = tipo.startsWith('−')
-  const k = tipo.replace('−', '')
-  const corpo = k === '1' ? String(n) : `${n === 1 ? '' : n}${k === 'x²' ? `${letra}²` : letra}`
-  return neg ? `−${corpo}` : corpo
-}
 
-/** The simplified expression of the pieces: 2x² + 3x − 1 (each kind once, in the usual order). */
-export function expressaoDe(pecas: string[], letra = 'x'): string {
-  const conta = (t: Peca) => pecas.filter((p) => tipoDe(p) === t).length
-  const termos = (['x²', 'x', '1'] as const)
-    .map((k) => {
-      const n = conta(k) - conta(`−${k}` as Peca)
-      return n === 0 ? '' : termo(n < 0 ? (`−${k}` as Peca) : k, Math.abs(n), letra)
-    })
-    .filter(Boolean)
-  if (!termos.length) return '0'
-  return termos.reduce((s, t, i) => (i === 0 ? t : t.startsWith('−') ? `${s} − ${t.slice(1)}` : `${s} + ${t}`), '')
-}
 
 export function Azulejos({ s, size, agrupados, onPeca, wrong }: { s: AzulejosState; size: { w: number; h: number } } & AzulejosInteract) {
   // Each stage moves its own pieces: the layout ids never meet another stage's.
