@@ -68,11 +68,11 @@ export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h:
     <div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
       {s.expressao?.length && s.fichas && s.lugares ? (
         <>
-          <Expressao etapas={s.expressao} destaque={s.destaque} />
+          <Expressao etapas={s.expressao} destaque={s.destaque} w={size.w} />
           <Ordenar fichas={s.fichas} lugares={s.lugares} order={it.order ?? []} onFicha={it.onFicha} wrong={it.wrong} />
         </>
       ) : s.expressao?.length ? (
-        <Expressao etapas={s.expressao} destaque={s.destaque} />
+        <Expressao etapas={s.expressao} destaque={s.destaque} w={size.w} />
       ) : s.calculadoras?.length ? (
         <Calculadoras c={s.calculadoras} />
       ) : s.jornada ? (
@@ -101,8 +101,10 @@ export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h:
 }
 
 /** Each step of the expression on its own line; the last is the current one. */
-function Expressao({ etapas, destaque }: { etapas: string[]; destaque?: string }) {
+function Expressao({ etapas, destaque, w }: { etapas: string[]; destaque?: string; w: number }) {
   const last = etapas.length - 1
+  // A long line shrinks to fit the width (about 0.56 em per character), never below 18 px.
+  const caber = (t: string, max: number) => Math.max(18, Math.min(max, (w - 24) / (0.56 * Math.max(1, t.length))))
   const marked = (t: string) => {
     const at = destaque ? t.indexOf(destaque) : -1
     if (at < 0) return t
@@ -124,7 +126,8 @@ function Expressao({ etapas, destaque }: { etapas: string[]; destaque?: string }
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i === last ? 0.15 : 0, duration: 0.45 }}
-          className={cn('whitespace-nowrap font-semibold tabular-nums', i === last ? 'text-[32px] text-white' : 'text-[20px] text-white/45')}
+          className={cn('whitespace-nowrap font-semibold tabular-nums', i === last ? 'text-white' : 'text-white/45')}
+          style={{ fontSize: i === last ? caber(t, 32) : Math.min(20, caber(t, 20)) }}
         >
           {i === last ? marked(t) : t}
         </motion.p>

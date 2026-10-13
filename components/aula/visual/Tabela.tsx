@@ -78,11 +78,10 @@ export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: Tabe
   const H = linhas.length * cellH + (temCima ? arcH + 18 : 0) + (temBaixo ? arcH + 18 : 0)
   const ox = Math.max(pad, (size.w - W) / 2)
   const oy = Math.max(8, (size.h - H) / 2) + (temCima ? arcH + 18 : 0)
-  // One size for the whole table, the one the longest number fits in.
-  // In digit widths: dots, commas and spaces are narrow, the % sign is wide.
-  const largura = (t: string) => [...t].reduce((w, ch) => w + (ch === '.' || ch === ',' ? 0.5 : ch === ' ' ? 0.4 : ch === '%' ? 1.4 : 1), 0)
-  const longest = Math.max(2, ...linhas.flatMap((l) => l.valores.map((v) => largura(String(texto(v))))))
-  const fs = Math.min(26, cellH * 0.46, (cellW - 12) / (0.58 * longest))
+  // One size per row, the one its longest number fits in (a row of 1.000.000 does not shrink the row of 10⁶).
+  // In digit widths: dots, commas and spaces are narrow, the % sign is wide, superscripts are small.
+  const largura = (t: string) => [...t].reduce((w, ch) => w + (ch === '.' || ch === ',' ? 0.5 : ch === ' ' ? 0.4 : ch === '%' ? 1.4 : /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]/.test(ch) ? 0.6 : 1), 0)
+  const fsLinha = linhas.map((l) => Math.min(26, cellH * 0.46, (cellW - 12) / (0.58 * Math.max(2, ...l.valores.map((v) => largura(String(texto(v))))))))
   const cx = (c: number) => ox + labelW + (c + 0.5) * cellW
   const yTop = oy
   const yBot = oy + linhas.length * cellH
@@ -127,7 +126,7 @@ export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: Tabe
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ duration: 0.4, ease, delay: r * 0.12 }}
                           className="whitespace-nowrap font-semibold tabular-nums"
-                          style={{ fontSize: fs, color: q ? amber : '#fff' }}
+                          style={{ fontSize: fsLinha[r], color: q ? amber : '#fff' }}
                         >
                           {texto(v)}
                         </motion.span>

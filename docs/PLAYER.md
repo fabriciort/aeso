@@ -67,7 +67,7 @@ Detalhes por cartão:
   - Uma `resposta` em texto abre um campo de texto. Vale se o que o aluno escreveu contém a resposta, sem contar maiúsculas e acentos ("tentar sozinho" vale para `tentar`).
   - A `resolucao` se escreve linha a linha.
 - **Voz:** com a voz ligada, o player lê `fala` (ou o texto sem markdown) ao entrar no cartão, e lê `explica` depois de uma aposta.
-- **Fórmulas** (`$...$` e `Linha.tex`) nunca rolam para o lado: encolhem até caber.
+- **Fórmulas** (`$...$` e `Linha.tex`) nunca rolam para o lado: encolhem até caber. A pontuação logo depois de uma fórmula (`$2^3$?`) fica na mesma linha que ela.
 
 ## Exercícios (`sua-vez`)
 
@@ -202,7 +202,7 @@ O retângulo de multiplicação. Duas formas:
 | Chave | Efeito |
 |---|---|
 | `expressao` com `fichas` + `lugares` | a expressão em cima e as fichas para pôr em ordem embaixo (o Mexa `ordem`) |
-| `expressao` + (`destaque`) | uma expressão resolvida em etapas, uma por linha, de cima para baixo (`['2 + 3 × 4', '2 + 12', '14']`); a última fica maior. `destaque` é um trecho da última linha que ganha uma moldura âmbar (`'3 × 4'`) |
+| `expressao` + (`destaque`) | uma expressão resolvida em etapas, uma por linha, de cima para baixo (`['2 + 3 × 4', '2 + 12', '14']`); a última fica maior. Uma linha comprida encolhe até caber na largura (no mínimo 18 px). `destaque` é um trecho da última linha que ganha uma moldura âmbar (`'3 × 4'`) |
 | `calculadoras` | visores lado a lado: `[{ nome: 'Celular', teclas: '2 + 3 × 4 =', visor: '20' }, …]` |
 
 ### `livre`
@@ -236,7 +236,7 @@ A tabela de proporção da U10: uma grandeza em cada linha e os pares lado a lad
 | `tabela.mostradas` | quantas colunas aparecem; as outras ficam como caixas vazias |
 | `tabela.completar: true` | o Mexa "completar" (veja abaixo) |
 
-Os números da tabela inteira têm o mesmo tamanho, o que cabe no mais comprido. Com muitas colunas no celular (5 ou mais), os rótulos encolhem primeiro.
+Os números de cada linha têm o mesmo tamanho, o que cabe no mais comprido da linha (uma linha de 1.000.000 não encolhe a linha de 10⁶). Com muitas colunas no celular (5 ou mais), os rótulos encolhem primeiro.
 
 ### `livre`: fichas de saldo
 

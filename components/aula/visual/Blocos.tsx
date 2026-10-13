@@ -39,7 +39,9 @@ export function Blocos({ s, size, onTap, canTap }: { s: BlocosState; size: { w: 
   const rowsU = Math.ceil(u / 10)
   const wide = m * 13.5 + (c ? 10 + (c - 1) * 2.8 : 0) + Math.min(d, 12) * 1.3 + Math.min(Math.max(u, s.tamanhoGrupo ?? 0), 10) * 1.05
   const tall = Math.max(d || c ? 10.5 : 0, m ? 13.5 : 0, rowsU * 1.05, 3) + (s.total !== undefined || s.rotulos ? 3 : 0) + (s.total !== undefined && s.rotulos ? 2 : 0)
-  const k = Math.round(Math.max(6, Math.min(m || c ? 24 : 34, (size.w - 24 - 20 * (groups - 1)) / Math.max(wide, 8), (size.h - 24) / tall)))
+  // Labels under the groups ("10 × 10 × 10") are wider than a thin piece: they take room too.
+  const legendas = s.rotulos && !Array.isArray(s.rotulos) ? 26 * groups : 0
+  const k = Math.round(Math.max(6, Math.min(m || c ? 24 : 34, (size.w - 24 - legendas - 20 * (groups - 1)) / Math.max(wide, 8), (size.h - 24) / tall)))
   const total = s.total ?? m * 1000 + c * 100 + d * 10 + u
   const showTotal = s.totalVisivel !== false && s.total !== undefined
   const hl = (ordem: string) => s.destaque === ordem
