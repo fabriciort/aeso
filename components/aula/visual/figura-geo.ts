@@ -121,9 +121,10 @@ export const PI_TEXTO = '3,14'
 /** 3.14 → "3,14"; −2 → "−2"; at most 2 decimals. */
 export function fmtNum(v: number, casas = 2): string {
   const r = Math.round(v * 10 ** casas) / 10 ** casas
-  return String(Object.is(r, -0) ? 0 : r)
-    .replace('.', ',')
-    .replace('-', '−')
+  const [int, dec] = String(Math.abs(r)).split('.')
+  // Thousands with a dot, decimals with a comma: 1.300 and 12,56.
+  const milhar = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return `${r < 0 ? '−' : ''}${milhar}${dec ? `,${dec}` : ''}`
 }
 
 export function resolve(r: Ref | undefined, pontos: Record<string, Vec> | undefined): Vec | undefined {

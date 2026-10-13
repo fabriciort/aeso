@@ -7,11 +7,14 @@ import { Balanca, type BalancaInteract, type BalancaState } from './Balanca'
 import { Barra, type BarraInteract, type BarraState } from './Barra'
 import { Figura, type FiguraInteract, type FiguraState } from './Figura'
 import { Grade, type GradeInteract, type GradeState } from './Grade'
+import { Grafico, type GraficoInteract, type GraficoState } from './Grafico'
 import { Blocos, type BlocosState, type Ordem } from './Blocos'
 import { Livre, hasLivre, type LivreInteract, type LivreState } from './Livre'
+import { Plano, type PlanoInteract, type PlanoState } from './Plano'
 import { Quadro, type QuadroInteract, type QuadroState } from './Quadro'
 import { Reta, type RetaInteract, type RetaState } from './Reta'
 import { Retangulo, type RetanguloInteract, type RetanguloState } from './Retangulo'
+import { Solido, type SolidoInteract, type SolidoState } from './Solido'
 
 // O palco da aula. Fica montado de um cartão para o outro: quando o modelo é
 // o mesmo, só o estado muda e as peças se movem até o novo lugar; quando o
@@ -27,6 +30,9 @@ export interface Interact {
   grade?: GradeInteract
   balanca?: BalancaInteract
   figura?: FiguraInteract
+  solido?: SolidoInteract
+  plano?: PlanoInteract
+  grafico?: GraficoInteract
 }
 
 /** The content's state, with the names the generators also use mapped in. */
@@ -46,7 +52,7 @@ export function normalize(v: Visual): Record<string, unknown> {
 export function hasStage(v?: Visual | null): v is Visual {
   if (!v) return false
   if (v.modelo === 'livre') return hasLivre(v.estado as LivreState)
-  return ['blocos', 'reta', 'quadro-posicional', 'retangulo', 'barra', 'grade', 'balanca', 'figura'].includes(v.modelo)
+  return ['blocos', 'reta', 'quadro-posicional', 'retangulo', 'barra', 'grade', 'balanca', 'figura', 'solido', 'plano', 'grafico'].includes(v.modelo)
 }
 
 export function Stage({ visual, interact }: { visual: Visual; interact?: Interact }) {
@@ -73,6 +79,9 @@ export function Stage({ visual, interact }: { visual: Visual; interact?: Interac
               {visual.modelo === 'grade' && <Grade s={s as GradeState} size={size} {...interact?.grade} />}
               {visual.modelo === 'balanca' && <Balanca s={s as BalancaState} size={size} {...interact?.balanca} />}
               {visual.modelo === 'figura' && <Figura s={s as FiguraState} size={size} {...interact?.figura} />}
+              {visual.modelo === 'solido' && <Solido s={s as SolidoState} size={size} {...interact?.solido} />}
+              {visual.modelo === 'plano' && <Plano s={s as PlanoState} size={size} {...interact?.plano} />}
+              {visual.modelo === 'grafico' && <Grafico s={s as GraficoState} size={size} {...interact?.grafico} />}
               {visual.modelo === 'livre' && <Livre s={s as LivreState} size={size} {...interact?.livre} />}
             </>
           )}
