@@ -4,6 +4,7 @@ import type { Mexa } from '@/lib/formation/schema'
 import { initMexa, kindOf, mexaStage, solveMexa, type MexaState } from '@/components/aula/mexa'
 import { tipoDe } from '@/components/aula/visual/azulejos-pecas'
 import { equacaoDe, inclinacaoDe, pecasDe, valorInferido } from '@/components/aula/visual/balanca-pratos'
+import { anguloInterno, cantosNaReta, encaixeDe, escalaCerta, grausMedir, leituraTransferidor, perimetroDe, pitagorasDe, poligonosDe, quadradoNoLado, recortePadrao, somaTexto, ladosValores, transferidorDe, valorDeMedida, type FiguraState, type Vec } from '@/components/aula/visual/figura-geo'
 
 // Cada "Mexa" do conteúdo tem de ser jogável no player: o aluno consegue
 // chegar ao estado de sucesso só com toques, e "Me mostre" resolve.
@@ -106,6 +107,24 @@ function play(card: Mexa): MexaState {
     case 'dividir':
       stage().interact!.balanca!.onGrupo!(0)
       break
+    case 'medir': {
+      const fs = card.visual.estado as FiguraState
+      stage().interact!.figura!.onEscala!(grausMedir(fs)!, escalaCerta(transferidorDe(fs)?.invertido))
+      break
+    }
+    case 'juntar':
+      for (const i of [0, 1, 2]) if (!st.done) stage().interact!.figura!.onCanto!(i)
+      break
+    case 'contorno': {
+      const n = poligonosDe(card.visual.estado as FiguraState)[0].verts.length
+      for (let i = 0; i < n; i++) stage().interact!.figura!.onLado!(i)
+      break
+    }
+    case 'recortar':
+    case 'desenrolar':
+    case 'encaixar':
+      stage().interact!.figura!.onToque!()
+      break
     case 'partir':
       for (let n = 0; n < 10 && !st.done; n++) {
         const b = stage().interact!.barra!
@@ -183,5 +202,91 @@ describe('Mexa da balança', () => {
     expect(st.wrong).toBe(1)
     expect(st.note).toMatch(/caixa fica/)
     expect(st.order).toEqual(['esquerda:x:0', 'direita:x:0'])
+  })
+})
+
+const figura = (estado: Record<string, unknown>, sucesso: Record<string, unknown>): Mexa => ({ tipo: 'mexa', texto: '', visual: { modelo: 'figura', estado }, acao: { instrucao: '', sucesso } }) as unknown as Mexa
+
+describe('Mexa da figura', () => {
+  const medir = figura({ angulo: { graus: 60 }, transferidor: true }, { graus: 60 })
+  const cartoes: [string, Mexa][] = [
+    ['medir', medir],
+    ['medir com pontos', figura({ pontos: { V: [0, 0], A: [4, 0], C: [-1, 1] }, angulo: { vertice: 'V', de: 'A', ate: 'C' }, transferidor: true }, { graus: 135 })],
+    ['medir invertido', figura({ angulo: { graus: 50, inicio: 180 }, transferidor: { invertido: true } }, { graus: 50 })],
+    ['juntar', figura({ poligono: { vertices: [[0, 0], [6, 0], [2, 4]], angulos: true }, juntar: true }, { cantos: 3 })],
+    ['juntar (juntados)', figura({ poligono: [[0, 0], [5, 0], [1, 3]], juntar: true }, { juntados: true })],
+    ['contorno', figura({ poligono: { vertices: [[0, 0], [5, 0], [5, 4], [0, 4]], lados: ['5 cm', '4 cm', '5 cm', '4 cm'] }, unidade: 'cm', contorno: true }, { perimetro: 18 })],
+    ['recortar', figura({ grade: true, poligono: [[0, 0], [6, 0], [8, 3], [2, 3]], recortar: true }, { recortado: true })],
+    ['desenrolar', figura({ circulo: { raio: 1, diametroVisivel: true }, desenrolar: true }, { desenrolado: true })],
+    ['encaixar', figura({ poligono: [[0, 0], [4, 0], [0, 3]], quadradosNosLados: true, encaixar: true }, { encaixado: true })],
+  ]
+
+  test.each(cartoes)('%s é jogável', (_, card) => {
+    expect(kindOf(card)).not.toBe('mostre')
+    const st = play(card)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    expect(solveMexa(card, initMexa(card)).done).toBe(true)
+  })
+
+  test('as contas da figura', () => {
+    expect(anguloInterno([[0, 0], [4, 0], [0, 3]], 0)).toBeCloseTo(90)
+    const tri: Vec[] = [[0, 0], [6, 0], [2, 4]]
+    expect([0, 1, 2].reduce((s, i) => s + anguloInterno(tri, i), 0)).toBeCloseTo(180)
+    // Clockwise vertices give the same interior angles.
+    expect(anguloInterno([[0, 0], [2, 4], [6, 0]], 0)).toBeCloseTo(anguloInterno(tri, 0))
+    expect(grausMedir({ pontos: { V: [0, 0], A: [3, 0], C: [-1, 1] }, angulo: { vertice: 'V', de: 'A', ate: 'C' } })).toBe(135)
+    expect(leituraTransferidor(60, 'dentro')).toBe(60)
+    expect(leituraTransferidor(60, 'fora')).toBe(120)
+    expect(leituraTransferidor(60, 'fora', true)).toBe(60)
+    expect(valorDeMedida('2,5 m')).toBe(2.5)
+    expect(valorDeMedida('1.200 m')).toBe(1200)
+    const ret = poligonosDe({ poligono: { vertices: [[0, 0], [5, 0], [5, 4], [0, 4]] } })[0]
+    expect(perimetroDe(ret)).toBe(18)
+    expect(somaTexto(ladosValores(ret), [0, 1], 'cm')).toBe('5 + 4')
+    expect(somaTexto(ladosValores(ret), [0, 1, 2, 3], 'cm')).toBe('5 + 4 + 5 + 4 = 18 cm')
+    // The parallelogram 6 × 3 becomes a rectangle with the same 18 squares.
+    const r = recortePadrao([[0, 0], [6, 0], [8, 3], [2, 3]])!
+    expect(r.mover).toEqual([6, 0])
+    expect(r.pedaco).toEqual([[0, 0], [2, 0], [2, 3]])
+    expect(recortePadrao([[2, 0], [8, 0], [6, 3], [0, 3]])!.mover).toEqual([-6, 0])
+    expect(recortePadrao([[0, 0], [6, 0], [6, 3], [0, 3]])).toBeUndefined()
+    // 3-4-5: 9 + 16 squares fill the 25.
+    const pg = pitagorasDe([[0, 0], [4, 0], [0, 3]])!
+    expect(pg.reto).toBe(0)
+    expect(pg.lados[pg.hipotenusa]).toBeCloseTo(5)
+    const enc = encaixeDe([[0, 0], [4, 0], [0, 3]])!
+    expect(enc.origem.map((c) => c.length)).toEqual([9, 16])
+    expect(enc.alvo.map((c) => c.length)).toEqual([9, 16])
+    expect(encaixeDe([[0, 0], [2, 0], [0, 3]])).toBeUndefined()
+    expect(quadradoNoLado([0, 0], [4, 0], [1, 1])).toEqual([[0, 0], [4, 0], [4, -4], [0, -4]])
+    const na = cantosNaReta([60, 70, 50], [2, 0, 1])
+    expect(na.get(2)).toEqual({ de: 130, ate: 180 })
+    expect(na.get(1)).toEqual({ de: 0, ate: 70 })
+  })
+
+  test('ler a escala de fora é o erro comum', () => {
+    let st = initMexa(medir)
+    const tap = (d: number, e: 'dentro' | 'fora') => mexaStage(medir, st, (s) => (st = s)).interact!.figura!.onEscala!(d, e)
+    tap(60, 'fora')
+    expect(st.done).toBe(false)
+    expect(st.wrong).toBe(1)
+    expect(st.note).toMatch(/escala de fora/)
+    tap(90, 'dentro')
+    expect(st.note).toMatch(/outro lado/)
+    tap(60, 'dentro')
+    expect(st.done).toBe(true)
+  })
+
+  test('o contorno soma na ordem dos toques e só termina com todos os lados', () => {
+    const card = cartoes.find(([t]) => t === 'contorno')![1]
+    let st = initMexa(card)
+    const tap = (i: number) => mexaStage(card, st, (s) => (st = s)).interact!.figura!.onLado!(i)
+    tap(2)
+    tap(2)
+    tap(0)
+    expect(st.order).toEqual(['2', '0'])
+    expect(st.done).toBe(false)
+    expect(mexaStage(card, st, () => {}).visual.estado).toMatchObject({ acesos: [2, 0], soma: true })
   })
 })

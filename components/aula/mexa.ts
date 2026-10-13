@@ -2,6 +2,7 @@ import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
 import { contaPecas, inclinacaoDe, ladoTexto, pecasDe, pratoDe, valorInferido, type Lado, type PecaBalanca, type Prato } from './visual/balanca-pratos'
 import type { BarraLinha, BarraState } from './visual/Barra'
+import { grausMedir, leituraTransferidor, perimetroDe, poligonosDe, transferidorDe, type FiguraState } from './visual/figura-geo'
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'
 import type { Interact } from './visual/Stage'
@@ -11,7 +12,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -80,9 +81,22 @@ export function kindOf(card: Mexa): Kind {
       if ((num(e.dividir) ?? 0) > 1 && ok.dividido === true) return 'dividir'
       return 'mostre'
     }
+    case 'figura':
+      if (e.transferidor && num(ok.graus) !== undefined) return 'medir'
+      if (e.juntar === true && (num(ok.cantos) !== undefined || ok.juntados === true)) return 'juntar'
+      if (e.contorno === true && num(ok.perimetro) !== undefined) return 'contorno'
+      if (e.recortar === true && ok.recortado === true) return 'recortar'
+      if (e.desenrolar === true && ok.desenrolado === true) return 'desenrolar'
+      if (e.encaixar === true && ok.encaixado === true) return 'encaixar'
+      return 'mostre'
     default:
       return 'mostre'
   }
+}
+
+/** The figure's first polygon (contorno) and how many sides it has. */
+function ladosDaFigura(card: Mexa): number {
+  return poligonosDe(card.visual.estado as FiguraState)[0]?.verts.length ?? 0
 }
 
 /** Labels to place on the line and where each one goes. */
@@ -207,6 +221,11 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, order: [] }
     case 'dividir':
       return { ...base, pick: null }
+    case 'medir':
+      return { ...base, drag: undefined, casa: null }
+    case 'juntar':
+    case 'contorno':
+      return { ...base, order: [] }
     default:
       return base
   }
@@ -262,6 +281,12 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, order: tirarSolucao(card) }
     case 'dividir':
       return { ...done, pick: 0 }
+    case 'medir':
+      return { ...done, drag: undefined, casa: null }
+    case 'juntar':
+      return { ...done, order: ['0', '1', '2'] }
+    case 'contorno':
+      return { ...done, order: Array.from({ length: ladosDaFigura(card) }, (_, i) => String(i)) }
     case 'saldo': {
       // Just enough zero pairs to have the chips to take.
       const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
@@ -275,6 +300,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
 }
 
 const NOTE_WRONG = 'Ainda não. Tente de novo.'
+const NOTE_ESCALA = (escala: string) => `Esse número é da escala ${escala === 'fora' ? 'de fora' : 'de dentro'}. Use a que começa no 0, sobre o lado do ângulo.`
+const NOTE_LADO = 'Siga o outro lado do ângulo até a escala.'
 const NOTE_INCLINOU = 'A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado.'
 
 /** What the stage shows and how a touch changes the state. */
@@ -696,6 +723,80 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         visual: card.visual,
         interact: { balanca: { escolhido: st.pick ?? null, onGrupo: lock ? undefined : (g) => set({ ...st, pick: g, done: true, note: undefined }) } },
       }
+    case 'medir': {
+      // A tap on the scale reads a number: right where the side crosses it, on the scale that starts at 0 on the other side.
+      const fs = e as FiguraState
+      const g = grausMedir(fs)
+      const inv = transferidorDe(fs)?.invertido ?? false
+      const lido = !st.done && st.drag !== undefined && st.casa ? { direcao: st.drag, escala: st.casa as 'dentro' | 'fora' } : null
+      return {
+        visual: visual({ ...e, medido: st.done }),
+        interact: {
+          figura: {
+            lido,
+            tremer: st.wrong,
+            onEscala: lock
+              ? undefined
+              : (direcao, escala) => {
+                  const valor = leituraTransferidor(direcao, escala, inv)
+                  if (direcao === g && valor === ok.graus) return set({ ...st, drag: undefined, casa: null, done: true, note: undefined })
+                  set({ ...st, drag: direcao, casa: escala, wrong: st.wrong + 1, note: direcao === g ? NOTE_ESCALA(escala) : NOTE_LADO })
+                },
+          },
+        },
+      }
+    }
+    case 'juntar': {
+      // Each tap cuts one corner and puts it on the line, next to the ones already there.
+      const order = st.order ?? []
+      const meta = num(ok.cantos) ?? 3
+      return {
+        visual: visual({ ...e, juntados: order.map(Number) }),
+        interact: {
+          figura: {
+            onCanto: lock
+              ? undefined
+              : (i) => {
+                  if (order.includes(String(i))) return
+                  const o2 = [...order, String(i)]
+                  set({ ...st, order: o2, done: o2.length >= meta, note: undefined })
+                },
+          },
+        },
+      }
+    }
+    case 'contorno': {
+      // Each tap lights a side and adds its measure; done when every side is lit (and the sum is the answer).
+      const order = st.order ?? []
+      const p = poligonosDe(e as FiguraState)[0]
+      const n = p?.verts.length ?? 0
+      return {
+        visual: visual({ ...e, acesos: order.map(Number), soma: true }),
+        interact: {
+          figura: {
+            onLado: lock
+              ? undefined
+              : (i) => {
+                  if (order.includes(String(i)) || !p) return
+                  const o2 = [...order, String(i)]
+                  const todos = o2.length === n
+                  const certo = todos && Math.abs((perimetroDe(p) ?? NaN) - (ok.perimetro as number)) < 1e-6
+                  set({ ...st, order: o2, done: certo, note: undefined })
+                },
+          },
+        },
+      }
+    }
+    case 'recortar':
+    case 'desenrolar':
+    case 'encaixar': {
+      // One tap does it: the piece moves, the circle rolls, the little squares fill the big one.
+      const chave = st.kind === 'recortar' ? 'recortado' : st.kind === 'desenrolar' ? 'desenrolado' : 'encaixado'
+      return {
+        visual: visual({ ...e, [chave]: st.done }),
+        interact: { figura: { onToque: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -723,5 +824,11 @@ export const GESTO: Record<Kind, string | null> = {
   saldo: 'Toque nas fichas para tirar. Se faltar ficha, ponha um par + e −.',
   tirar: 'Toque numa peça para tirá-la. Tire o mesmo dos dois pratos.',
   dividir: 'Toque num dos grupos com a borda tracejada.',
+  medir: 'Toque no número da escala por onde passa o lado do ângulo.',
+  juntar: 'Toque em cada canto colorido do triângulo.',
+  contorno: 'Toque em cada lado da figura.',
+  recortar: 'Toque na figura para recortar o triângulo tracejado.',
+  desenrolar: 'Toque no círculo para ele rolar.',
+  encaixar: 'Toque na figura para levar os quadradinhos ao quadrado grande.',
   mostre: null,
 }

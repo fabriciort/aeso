@@ -38,7 +38,7 @@ export interface Linha {
  * um deles quando servir; "livre" só quando nenhum serve, e explique no
  * esboço o que você imagina.
  */
-export type Modelo = 'blocos' | 'reta' | 'barra' | 'retangulo' | 'grade' | 'balanca' | 'quadro-posicional' | 'livre'
+export type Modelo = 'blocos' | 'reta' | 'barra' | 'retangulo' | 'grade' | 'balanca' | 'figura' | 'quadro-posicional' | 'livre'
 
 export interface Visual {
   modelo: Modelo

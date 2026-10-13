@@ -329,6 +329,70 @@ No Mexa "tirar", um peso rotulado (ou um peso de 10 automático) sai inteiro, nu
 
 Os pratos só têm peças positivas: não há pesos negativos nem balões. Para equações com subtração (x − 3 = 5), use a barra ou a reta, ou mostre a equação com `rotulo`.
 
+### `figura`
+
+A geometria plana da U16: pontos, retas, ângulos, polígonos, o transferidor, o círculo e os quadrados de Pitágoras, num palco desenhado. As coordenadas são do **mundo**: x para a direita, **y para cima**, em unidades (1 unidade = 1 quadradinho da `grade`). A figura se ajusta sozinha ao palco: não importa o tamanho dos números, só as proporções.
+
+De um cartão para o outro, o que tem o mesmo nome se move até o novo lugar (o ponto C que anda, o lado que cresce, o canto que vai para a reta), e o que é novo aparece aos poucos. Para o aluno ver a figura se transformar, mantenha os mesmos pontos e mude só o necessário.
+
+Um ponto é o nome de um ponto de `pontos` (`'A'`) ou as coordenadas (`[2, 3]`). Os nomes só aparecem para os pontos de `pontos`.
+
+| Chave | Efeito |
+|---|---|
+| `pontos` | pontos com nome: `{ A: [0, 0], B: [4, 0], C: [0, 3] }`. Cada um ganha um ponto branco e o nome, do lado de fora da figura |
+| `rotulos` | `false` esconde os nomes; um mapa troca o texto (`{ O: 'centro', H: '' }`) |
+| `posRotulos` | onde vai um nome, quando o automático não fica bom: `{ A: 'abaixo' }` (`'acima'`, `'abaixo'`, `'esquerda'`, `'direita'`) |
+| `segmentos` | `[['A', 'B']]`, com a medida no meio: `[['A', 'B', '5 cm']]`, ou `{ de: 'A', ate: 'B', medida: '3 cm', destaque: true, tracejado: true }` (a altura tracejada) |
+| `retas` | como `segmentos`, mas a linha passa dos pontos e segue com uma seta em cada ponta |
+| `semirretas` | começa no primeiro ponto, passa pelo segundo e segue com uma seta |
+| `destaque` (num traço, polígono, ângulo ou círculo) | `true` ou `'ambar'` (âmbar), `'azul'`, `'verde'`, `'erro'` (rosa) |
+| `poligono` | a figura fechada: `['A', 'B', 'C']` ou `{ vertices: ['A', 'B', 'C'], … }`, com as chaves abaixo |
+| `poligono.preenchido` | pinta o interior (`true` âmbar claro; `'azul'`, `'verde'`) |
+| `poligono.lados` | a medida de cada lado, por fora (o lado i vai do canto i ao canto i + 1): `true` calcula (com uma casa: 4,2); uma lista escreve o que vier: `[5, 4, 5, 4]` (com `unidade`) ou `['5 cm', '?', null, 'x']` (null pula) |
+| `poligono.angulos` | o arco de cada canto, com o valor por dentro: `true` calcula os graus (inteiros); uma lista escreve o que vier (`[60, '?', null]`). Com `true`, um canto de 90° ganha o quadradinho |
+| `poligono.angulosRetos` | os cantos com o quadradinho do ângulo reto: índices ou nomes (`['A']`) |
+| `poligono.nome` | uma palavra no meio da figura (`'quadrado'`, `'5 lados'`) |
+| `poligonos` | vários polígonos, cada um como `poligono` (para comparar formas lado a lado; posicione cada um nas coordenadas) |
+| `unidade` | a unidade das medidas em número e da soma (`'cm'`: `5` vira `5 cm`) |
+| `angulo` | um ângulo com pontos: `{ vertice: 'B', de: 'A', ate: 'C' }` (os dois lados e o arco; mede o ângulo menor) ou isolado: `{ graus: 60 }` (um lado para a direita, o outro girado 60°). Também uma lista |
+| `angulo.valor` | `true` escreve os graus (`60°`); um texto escreve o texto (`'?'`). Sem ele, o valor não aparece |
+| `angulo.inicio`, `angulo.em`, `angulo.comprimento` | no ângulo isolado: para onde aponta o primeiro lado (graus, 0 = direita), onde fica o vértice (`[3, 0]`) e o comprimento dos lados (padrão 1) |
+| `angulo.nome` | uma palavra embaixo do ângulo: `[{ graus: 40, em: [0, 0], nome: 'agudo' }, { graus: 90, em: [1.6, 0], nome: 'reto' }, { graus: 130, em: [3.8, 0], nome: 'obtuso' }]` |
+| `angulo.arco: false`, `angulo.lados: false` | sem o arco; sem os lados (quando eles já são segmentos da figura) |
+| `transferidor: true` | o transferidor sobre o vértice do (primeiro) ângulo, com a base no lado `de`: marcas de 5 em 5, números de 10 em 10 em duas escalas. A de dentro (azul) começa no 0 sobre o lado `de`; a de fora (branca), no outro canto. Um lado mais curto que o transferidor continua tracejado até a escala |
+| `transferidor: { raio, invertido }` | o raio, em unidades do mundo (padrão: 0,9 do lado mais comprido); `invertido: true` troca as escalas (a de fora passa a começar no lado `de`) |
+| `medido: true` | com o transferidor: o número certo ganha um anel âmbar e o ângulo mostra o valor |
+| `circulo` | `{ centro: 'O', raio: 2 }`. `raioVisivel` (âmbar) e `diametroVisivel` (azul) desenham o raio e o diâmetro; `raioTexto` e `diametroTexto` os nomeiam (`'raio'`, `'4 cm'`); `preenchido`, `destaque` |
+| `desenrolado: true` | o círculo já rolou sobre a reta: a volta virou um segmento âmbar, com 3 diâmetros marcados embaixo (1, 2, 3) e o pedacinho que sobra (0,14). O círculo fica na ponta |
+| `quadradosNosLados: true` | num triângulo (`poligono` de 3 cantos): um quadrado sobre cada lado, por fora, com a área no meio. No triângulo retângulo, o do cateto menor é âmbar, o do outro azul, o da hipotenusa cinza. As medidas dos lados (`lados`) vão para dentro do triângulo |
+| `quadradosNosLados: { quadriculado: true, areas }` | os quadrados divididos em quadradinhos (lados inteiros: 3-4-5 dá 9, 16 e 25); `areas` troca os números (`['a²', 'b²', 'c²']`, na ordem dos lados) ou, com `false`, os esconde |
+| `encaixado: true` | com `quadradosNosLados`: os 9 + 16 quadradinhos já estão dentro do quadrado grande (os 9 num canto, os 16 no resto); os pequenos ficam vazios, tracejados |
+| `juntados` | num triângulo: os três cantos recortados e juntos sobre uma reta embaixo, formando meia volta, com "180°". `true` junta os três; uma lista junta esses, nesta ordem, da esquerda para a direita (`[2, 0]`). Cada canto tem uma cor (âmbar, azul, verde); com `angulos`, o valor vai junto |
+| `recortado: true` | num paralelogramo com a base deitada: o triângulo de um lado foi recortado na altura e levado para o outro lado; a figura virou um retângulo com a mesma área |
+| `recorte` | o recorte de outra figura (um trapézio, um L): `{ pedaco: [...], resto: [...], mover: [dx, dy] }`, o pedaço que sai, o que fica e para onde o pedaço anda. Só desliza, não gira |
+| `acesos`, `soma: true` | lados acesos do primeiro polígono (`[0, 1]` ou `true`), e a soma deles embaixo: `5 + 4` e, com todos, `5 + 4 + 5 + 4 = 18 cm` |
+| `grade: true` | o quadriculado de fundo, em unidades, no palco todo (para contar áreas e para o pedreiro) |
+| `rotulo` | a frase embaixo |
+
+Exemplos:
+
+```ts
+// O esquadro do pedreiro: 3, 4 e 5 metros
+{ modelo: 'figura', estado: { grade: true, pontos: { A: [0, 0], B: [4, 0], C: [0, 3] }, poligono: { vertices: ['A', 'B', 'C'], lados: [4, 5, 3] }, unidade: 'm' } }
+// Pitágoras, com os quadradinhos
+{ modelo: 'figura', estado: { poligono: [[0, 0], [4, 0], [0, 3]], quadradosNosLados: { quadriculado: true } } }
+// Um ângulo de 60° medido no transferidor
+{ modelo: 'figura', estado: { angulo: { graus: 60 }, transferidor: true, medido: true } }
+```
+
+Limites:
+
+- O palco tem uns 360 × 380 px no celular. Figuras de até uns 12 × 12 unidades ficam boas; os quadradinhos da grade somem abaixo de 9 px (a grade passa a ir de 2 em 2).
+- Os nomes dos pontos e as medidas vão para fora da figura por uma regra simples; num ponto apertado, use `posRotulos`.
+- `quadradosNosLados`, `juntados` e `juntar` valem para o primeiro polígono, e ele tem de ser um triângulo. `encaixar` e `encaixado` pedem um triângulo retângulo de lados inteiros (3-4-5, 6-8-10).
+- `recortado` sem `recorte` só sabe partir paralelogramos com dois lados deitados (horizontais).
+- Os números do transferidor são de 10 em 10. No Mexa "medir", qualquer ângulo inteiro vale (o toque perto do lado lê o ângulo do lado), mas os de 10 em 10 são os que o aluno lê direto na escala.
+
 ## Mexa: as manipulações
 
 O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
@@ -356,6 +420,12 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `balanca` com `tirar: true` | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio. Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |
 | `balanca` com `dividir: k` | `{ dividido: true }` | os pratos aparecem partidos em `k` grupos, todos acesos; o aluno toca num grupo e fica só um grupo de cada lado (com `mostraEquacao`, `2x = 8` vira `x = 4`) |
 | `livre` com `tabela.completar: true` | `{ colunas }` | toca a próxima coluna vazia e ela se preenche, com as setas que chegam nela; começa com `tabela.mostradas` (padrão 1) e termina quando aparecem `colunas` colunas |
+| `figura` com `transferidor` | `{ graus: 60 }` (o ângulo desenhado) | toca o número da escala onde o lado do ângulo passa. Na escala certa (a que começa no 0 sobre o outro lado), o número ganha o anel âmbar e o ângulo mostra o valor. Na outra escala (120 em vez de 60): "Esse número é da escala de fora. Use a que começa no 0, sobre o lado do ângulo."; longe do lado: "Siga o outro lado do ângulo até a escala." |
+| `figura` com `juntar: true` | `{ cantos: 3 }` ou `{ juntados: true }` | toca cada canto colorido do triângulo: ele é recortado e vai para a reta embaixo, ao lado dos que já estão lá; com os três, a meia volta fica completa e aparece "180°" |
+| `figura` com `contorno: true` | `{ perimetro: 18 }` (a soma dos lados) | toca os lados, um a um, em qualquer ordem: cada lado acende em âmbar e a soma cresce embaixo (`5 + 4 + 5`); termina quando todos acendem (`= 18 cm`). Os números vêm de `poligono.lados` (`'5 cm'` vale 5) |
+| `figura` com `recortar: true` | `{ recortado: true }` | toca a figura: o triângulo tracejado sai e desliza para o outro lado; o paralelogramo vira retângulo. Use `grade: true` para o aluno contar que a área não mudou |
+| `figura` com `desenrolar: true` (e `circulo`) | `{ desenrolado: true }` | toca o palco: o círculo rola sobre a reta, uma volta, e o contorno fica deitado; depois aparecem os 3 diâmetros e o pedacinho que sobra |
+| `figura` com `encaixar: true` (e `quadradosNosLados`) | `{ encaixado: true }` | toca o palco: os quadradinhos dos dois quadrados menores voam, um a um, para o quadrado grande e o enchem (9 + 16 = 25) |
 
 - **Retorno:**
   - Um erro balança o palco e mostra uma frase curta.
