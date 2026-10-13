@@ -28,10 +28,13 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | U9 Medidas | 6 | pronta; trouxe o quadro de unidades (`medida`) |
 | U10 Razão e proporção | 6 | pronta; trouxe a tabela de proporção (`livre.tabela`) |
 | U11 Porcentagem | 6 | pronta; a grade lê em % e em R$ (`leitura`) |
-| **U12 Números negativos** | 5 | **em andamento**; trouxe a tecla do menos, a reta com sinais e as fichas de saldo (`livre.saldo`) |
-| U13 em diante | | planejadas em `docs/MATEMATICA.md`, seção 6 |
+| U12 Números negativos | 5 | pronta; trouxe a tecla do menos, a reta com sinais e as fichas de saldo (`livre.saldo`) |
+| U13 Potências e raízes | 6 | pronta |
+| U14 Linguagem algébrica | 5 | pronta; trouxe os azulejos algébricos (`livre.azulejos`) e o retângulo com letras |
+| **U15 Equações do 1º grau** | 6 | **em andamento**; trouxe a balança (`balanca`) |
+| U16 em diante | | planejadas em `docs/MATEMATICA.md`, seção 6 |
 
-São 63 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
+São 79 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
