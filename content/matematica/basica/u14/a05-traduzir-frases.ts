@@ -90,7 +90,7 @@ export const aula: Aula = {
       tipo: 'ideia',
       texto: 'A conta que vem antes fica nos parênteses: ${2(x - 3)}$. Na frase da Bia, o dobro vem antes: ${2x - 3}$.',
       fala: 'A conta que vem antes fica nos parênteses: dois, abre parênteses, x menos três. Na frase da Bia, o dobro vem antes: dois x menos três.',
-      visual: expr(['da diferença: 2(x − 3)', 'de x, menos 3: 2x − 3'], 'As duas leituras, cada uma com a sua expressão: o dobro da diferença, 2(x − 3), em cima; a da Bia, 2x − 3, embaixo, maior.'),
+      visual: expr(['o dobro da diferença: 2(x − 3)', 'o dobro de x, menos 3: 2x − 3'], 'As duas leituras, cada uma com a sua expressão: o dobro da diferença, 2(x − 3), em cima; a da Bia, 2x − 3, embaixo, maior.'),
       esboco: 'As duas leituras lado a lado, cada uma com a sua frase. Vírgula e "da diferença" mudam a conta.',
     },
     {

@@ -93,7 +93,7 @@ export const aula: Aula = {
       tipo: 'mexa',
       texto: 'Confira com os azulejos: ${2(x + 3)}$ são **dois montes** de ${x + 3}$. Junte as peças iguais.',
       fala: 'Confira com os azulejos: dois, abre parênteses, x mais três, são dois montes de x mais três. Junte as peças iguais.',
-      visual: azulejos({ pecas: ['x', '1', '1', '1', 'x', '1', '1', '1'], agrupar: true, mostraExpressao: true }, 'Dois montes de x + 3, um depois do outro: barra, três quadradinhos, barra, três quadradinhos. Um toque numa peça junta todas do mesmo tipo.'),
+      visual: azulejos({ pecas: ['x', '1', '1', '1', 'x', '1', '1', '1'], montes: 2, agrupar: true, mostraExpressao: true }, 'Dois montes de x + 3, um depois do outro: barra, três quadradinhos, barra, três quadradinhos. Um toque numa peça junta todas do mesmo tipo.'),
       acao: {
         tipo: 'tocar',
         instrucao: 'Toque numa barra e depois num quadradinho.',
@@ -143,7 +143,7 @@ export const aula: Aula = {
       tipo: 'aposta',
       pergunta: 'E com um menos dentro? Nos azulejos, ${3(x - 2)}$ são três montes de ${x - 2}$. Quanto dá?',
       fala: 'E com um menos dentro? Nos azulejos, três, abre parênteses, x menos dois, são três montes de x menos dois. Quanto dá?',
-      visual: azulejos({ pecas: TRES_MONTES }, 'Três montes de x − 2: barra e dois quadradinhos vermelhos, três vezes, ainda soltos.'),
+      visual: azulejos({ pecas: TRES_MONTES, montes: 3 }, 'Três montes de x − 2: barra e dois quadradinhos vermelhos, três vezes, ainda soltos.'),
       opcoes: [
         {
           texto: '$3x - 2$', erro: 'distributiva-parcial',
