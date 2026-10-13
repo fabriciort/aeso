@@ -334,7 +334,9 @@ function montar(s: FiguraState, W: number, Hs: number, lido: FiguraInteract['lid
   const bw = maxX - minX
   const bh = maxY - minY
   // The protractor's numbers are inside it: it can go closer to the edges.
-  const padX = tr && angs[0] ? 10 : rolar ? 24 : 40
+  // Side measures ("30 cm") sit outside the figure: the margin makes room for the widest one.
+  const medidas = [...polys.flatMap((p) => ladosTextos(p, s.unidade)), ...[...segs, ...retas, ...semis].map((t) => t.medida)].filter((t): t is string => Boolean(t))
+  const padX = tr && angs[0] ? 10 : rolar ? 24 : Math.max(40, 18 + Math.max(0, ...medidas.map((t) => largura(t, 14))))
   const padT = 30
   let padB = 30 + (rolar ? 40 : 0)
   const escala = () => {
