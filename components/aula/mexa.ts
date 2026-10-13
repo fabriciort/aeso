@@ -9,7 +9,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -57,6 +57,7 @@ export function kindOf(card: Mexa): Kind {
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
+      if ((e.saldo as { tirar?: string } | undefined)?.tirar && num(ok.tiradas) !== undefined) return 'saldo'
       if ((e.tabela as { completar?: boolean } | undefined)?.completar === true && num(ok.colunas) !== undefined) return 'tabela'
       return arr(e.fichas) && arr(ok.ordem) ? 'ordem' : 'mostre'
     case 'retangulo':
@@ -152,6 +153,8 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, casa: null }
     case 'tabela':
       return { ...base, drag: num((e.tabela as { mostradas?: number }).mostradas) ?? 1 }
+    case 'saldo':
+      return { ...base, drag: 0, pick: 0 }
     default:
       return base
   }
@@ -201,6 +204,12 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, casa: ok.para as string }
     case 'tabela':
       return { ...done, drag: ok.colunas as number }
+    case 'saldo': {
+      // Just enough zero pairs to have the chips to take.
+      const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
+      const tem = sd.tirar === '+' ? (sd.positivas ?? 0) : (sd.negativas ?? 0)
+      return { ...done, drag: ok.tiradas as number, pick: Math.max(st.pick ?? 0, (ok.tiradas as number) - tem) }
+    }
     default:
       void e
       return done
@@ -540,6 +549,33 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'saldo': {
+      // A tap on a chip of the sign takes it out. With none of that sign left, a zero pair
+      // (one + and one −) brings one in without changing the balance.
+      const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
+      const target = ok.tiradas as number
+      const tiradas = st.drag ?? 0
+      const pares = st.pick ?? 0
+      const tem = (sd.tirar === '+' ? (sd.positivas ?? 0) : (sd.negativas ?? 0)) + pares - tiradas
+      return {
+        visual: card.visual,
+        interact: {
+          livre: {
+            removidas: tiradas,
+            paresPostos: pares,
+            wrong: Boolean(st.note),
+            onTirar: lock || tem <= 0
+              ? undefined
+              : () => {
+                  const n = tiradas + 1
+                  const restam = target - n
+                  set({ ...st, drag: n, done: n === target, note: restam > 0 && tem - 1 === 0 ? 'Acabaram as fichas. Ponha um par: ele vale zero.' : undefined })
+                },
+            onPar: lock || pares >= target + 2 ? undefined : () => set({ ...st, pick: pares + 1, note: undefined }),
+          },
+        },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -563,5 +599,6 @@ export const GESTO: Record<Kind, string | null> = {
   grade: 'Toque nos quadradinhos da grade para pintar.',
   medida: 'Toque na unidade em que a vírgula deve ficar.',
   tabela: 'Toque na coluna vazia para completar a tabela.',
+  saldo: 'Toque nas fichas para tirar. Se faltar ficha, ponha um par + e −.',
   mostre: null,
 }

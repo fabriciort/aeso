@@ -63,7 +63,7 @@ Detalhes por cartão:
   - Uma opção errada mostra `explica` e o seu `mostra`. O aluno tenta de novo.
   - A certa escreve a `linha` no caderno da tela, embaixo do palco.
 - **Caderno:**
-  - Uma `resposta` numérica abre o teclado numérico da tela (com vírgula, se for um decimal).
+  - Uma `resposta` numérica abre o teclado numérico da tela (com vírgula, se for um decimal, e com a tecla do menos, se for negativa ou se o cartão tiver `sinal: true`).
   - Uma `resposta` em texto abre um campo de texto. Vale se o que o aluno escreveu contém a resposta, sem contar maiúsculas e acentos ("tentar sozinho" vale para `tentar`).
   - A `resolucao` se escreve linha a linha.
 - **Voz:** com a voz ligada, o player lê `fala` (ou o texto sem markdown) ao entrar no cartão, e lê `explica` depois de uma aposta.
@@ -85,6 +85,7 @@ Detalhes por cartão:
 - **Formatos:**
   - `numero` usa o teclado da tela. Pontos e espaços são ignorados na comparação (`12.500` = `12500`).
   - Decimais: quando a `resposta` é um decimal (`'0,25'`, ou o número `0.25`), a tecla do ponto vira a vírgula. Zeros no fim não contam (`0,50` = `0,5`). Escreva a resposta com vírgula, como o aluno digita.
+  - Negativos: quando a `resposta` é negativa (`-3`, `'−2,5'`), aparece a tecla **−**, que põe ou tira o sinal na frente do número. Para o teclado não entregar o sinal, dê `sinal: true` ao item: a tecla aparece também quando a resposta é positiva. Na U12 em diante, use `sinal: true` em todo item cuja resposta poderia ser negativa. O hífen e o sinal de menos valem o mesmo, e −0 vale 0.
   - `escolha` usa as opções. A resposta é o índice.
   - `fracao`, `reta` e `expressao` ainda não existem no player.
 - **Visual:** o `visual` do item aparece no palco, sem interação.
@@ -157,6 +158,8 @@ No Mexa, com `acao.sucesso: { para: 'cm' }`, o aluno toca a unidade e a vírgula
 | `destaqueIntervalos` | os intervalos acendem um a um |
 | `comparacoes`, `comparacao`, `aproximacao` | frases grandes embaixo (ex.: `12 > 7`) |
 | `unidade` | junto das etiquetas (ex.: km) |
+| `sinais: true` | negativos (U12): a reta fica azul à esquerda do zero e âmbar à direita, o zero ganha um traço mais forte e os pontos negativos ficam azuis. Os números negativos sempre aparecem com o sinal de menos de verdade (−3) |
+| `distancias` | colchetes embaixo da reta, do zero até cada número, com um rótulo: `[[-4, '4 passos'], [4, '4 passos']]` (o módulo e os opostos). Cabem dois |
 | `fracoes` | os números aparecem como frações com esse denominador: com `fracoes: 4`, 0,75 vira 3/4 (os inteiros continuam 1, 2). Use `passo` igual a 1/denominador (`passo: 0.25`) |
 
 ### `retangulo`
@@ -235,6 +238,19 @@ A tabela de proporção da U10: uma grandeza em cada linha e os pares lado a lad
 
 Os números da tabela inteira têm o mesmo tamanho, o que cabe no mais comprido. Com muitas colunas no celular (5 ou mais), os rótulos encolhem primeiro.
 
+### `livre`: fichas de saldo
+
+As fichas da U12: cada **+** (âmbar) é 1 real que você tem, cada **−** (azul) é 1 real que você deve. As + ficam em cima e as − embaixo, alinhadas: uma coluna com as duas é um par que vale zero.
+
+| Chave | Efeito |
+|---|---|
+| `saldo.positivas`, `saldo.negativas` | quantas fichas de cada sinal (`{ positivas: 3, negativas: 5 }`). Cabem umas 12 por linha no celular |
+| `saldo.pares: true` | uma moldura tracejada em cada coluna com + e −, e "0" embaixo |
+| `saldo.riscadas` | fichas que saíram, apagadas e riscadas, no fim da linha: `{ negativas: 2 }` |
+| `saldo.mostraSaldo: true` | embaixo, "saldo: −2" (o que sobra) |
+| `saldo.rotulo` | a frase embaixo, no lugar do saldo |
+| `saldo.tirar` | `'−'` ou `'+'`: o Mexa "tirar" (veja abaixo) |
+
 ### `barra`
 
 A barra de frações: cada barra é um inteiro partido em partes iguais, e as pintadas (em âmbar) são a fração. Barras empilhadas têm o mesmo comprimento por inteiro, então comparam pedaços.
@@ -296,6 +312,7 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `quadro-posicional` com `medida` | `{ para }` | toca a unidade de chegada: a vírgula anda até depois dela e os zeros que faltam aparecem |
 | `grade` com `pintar: true` | `{ pintadas }` | toca os quadradinhos para pintar (um toque pinta até ali, coluna por coluna; um toque num pintado tira dali em diante). Com `porColuna: true`, cada toque pinta a coluna inteira (para décimos; `pintadas` deve ser múltiplo de 10). Com várias grades, `ativa` é o índice do número que recebe os toques |
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
+| `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
 | `livre` com `tabela.completar: true` | `{ colunas }` | toca a próxima coluna vazia e ela se preenche, com as setas que chegam nela; começa com `tabela.mostradas` (padrão 1) e termina quando aparecem `colunas` colunas |
 
 - **Retorno:**

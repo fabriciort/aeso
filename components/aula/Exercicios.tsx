@@ -11,7 +11,7 @@ import { speak } from '@/lib/observatory/voice'
 import { getPreferences } from '@/lib/preferences'
 import { som } from '@/lib/sound'
 import { cn } from '@/lib/utils'
-import { Display, Keypad, isDecimal, sameAnswer } from './Keypad'
+import { Display, Keypad, isDecimal, isNegative, sameAnswer, written } from './Keypad'
 import { Rich, plain } from './Rich'
 import { Stage, hasStage } from './visual/Stage'
 
@@ -225,8 +225,8 @@ export function Exercicios({ geradores, roteiro, onPrimary, onReady }: { gerador
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <Display value={status === 'reveal' ? String(item.resposta) : input} state={status === 'right' ? 'right' : status === 'reveal' ? 'right' : status === 'wrong' && !input ? 'wrong' : null} />
-              {(status === 'answer' || status === 'wrong') && <Keypad value={input} onChange={setInput} onEnter={check} virgula={isDecimal(item.resposta)} />}
+              <Display value={status === 'reveal' ? written(item.resposta) : input} state={status === 'right' ? 'right' : status === 'reveal' ? 'right' : status === 'wrong' && !input ? 'wrong' : null} />
+              {(status === 'answer' || status === 'wrong') && <Keypad value={input} onChange={setInput} onEnter={check} virgula={isDecimal(item.resposta)} sinal={item.sinal || isNegative(item.resposta)} />}
             </div>
           )}
 

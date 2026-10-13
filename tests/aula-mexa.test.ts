@@ -83,6 +83,13 @@ function play(card: Mexa): MexaState {
     case 'tabela':
       for (let n = 0; n < 12 && !st.done; n++) stage().interact!.livre!.onColuna!(st.drag!)
       break
+    case 'saldo':
+      for (let n = 0; n < 40 && !st.done; n++) {
+        const l = stage().interact!.livre!
+        if (l.onTirar) l.onTirar()
+        else l.onPar!()
+      }
+      break
     case 'partir':
       for (let n = 0; n < 10 && !st.done; n++) {
         const b = stage().interact!.barra!

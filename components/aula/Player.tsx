@@ -16,7 +16,7 @@ import { VegaOrb } from '@/components/observatory/Nav'
 import { LabSettings } from '@/components/observatory/Settings'
 import { Exercicios, type Primary } from './Exercicios'
 import { LinhaTex } from './Fit'
-import { Display, Keypad, isDecimal, sameAnswer } from './Keypad'
+import { Display, Keypad, isDecimal, isNegative, sameAnswer } from './Keypad'
 import { GESTO, initMexa, mexaStage, solveMexa, type MexaState } from './mexa'
 import { Rich, plain } from './Rich'
 import { Stage, hasStage, type Interact } from './visual/Stage'
@@ -670,7 +670,7 @@ function AnoteBody({ card }: { card: AnoteCard }) {
 }
 
 function CadernoBody({ card, onPrimary, onReady }: { card: CadernoCard; onPrimary: Primary; onReady: () => void }) {
-  const numeric = typeof card.resposta === 'number' || /^[\d.,\s]+$/.test(String(card.resposta))
+  const numeric = typeof card.resposta === 'number' || /^[−-]?[\d.,\s]+$/.test(String(card.resposta))
   const [value, setValue] = useState('')
   const [checked, setChecked] = useState<null | 'right' | 'wrong' | 'skip'>(null)
   const check = (skip = false) => {
@@ -699,7 +699,7 @@ function CadernoBody({ card, onPrimary, onReady }: { card: CadernoCard; onPrimar
           {numeric ? (
             <>
               <Display value={value} />
-              <Keypad value={value} onChange={setValue} onEnter={() => check()} virgula={isDecimal(card.resposta)} />
+              <Keypad value={value} onChange={setValue} onEnter={() => check()} virgula={isDecimal(card.resposta)} sinal={card.sinal || isNegative(card.resposta)} />
             </>
           ) : (
             <input
@@ -738,7 +738,7 @@ const norm = (s: string) =>
     .toLowerCase()
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
-const fmtAnswer = (v: string | number) => (typeof v === 'number' ? v.toLocaleString('pt-BR') : v)
+const fmtAnswer = (v: string | number) => (typeof v === 'number' ? v.toLocaleString('pt-BR') : v).replace(/^-/, '−')
 
 /** Cards to place (digits, class groups): tap one, then tap where it goes. */
 function Tray({ items, sel, onPick }: { items: string[]; sel: number | null; onPick: (i: number) => void }) {
