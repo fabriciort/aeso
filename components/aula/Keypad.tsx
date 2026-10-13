@@ -8,15 +8,19 @@ import { cn } from '@/lib/utils'
 
 // Teclado numérico da aula: na tela, para o teclado do celular não cobrir o
 // palco. O ponto é opcional (separa as classes: 12.500). Quando a resposta é
-// um decimal, a tecla do ponto vira a vírgula (0,25).
+// um decimal, a tecla do ponto vira a vírgula (0,25). Com `sinal`, aparece a
+// tecla do menos, que põe ou tira o − na frente do número.
 
-export function Keypad({ value, onChange, onEnter, disabled, max = 14, virgula }: { value: string; onChange: (v: string) => void; onEnter?: () => void; disabled?: boolean; max?: number; virgula?: boolean }) {
+export function Keypad({ value, onChange, onEnter, disabled, max = 14, virgula, sinal }: { value: string; onChange: (v: string) => void; onEnter?: () => void; disabled?: boolean; max?: number; virgula?: boolean; sinal?: boolean }) {
   const sep = virgula ? ',' : '.'
-  const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', sep, '0', '⌫']
+  // The minus takes the place of the grouping dot; with a comma too, it gets a row of its own.
+  const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', sinal && !virgula ? '−' : sep, '0', '⌫', ...(sinal && virgula ? ['−'] : [])]
   const press = (k: string) => {
     if (disabled) return
     haptic(4)
-    if (k === '⌫') onChange(value.slice(0, -1))
+    if (k === '−') {
+      if (sinal) onChange(value.startsWith('−') ? value.slice(1) : `−${value}`)
+    } else if (k === '⌫') onChange(value.slice(0, -1))
     else if (k === ',' && value.includes(',')) return
     else if (value.replace(/\D/g, '').length < max) onChange(value + k)
   }
@@ -27,6 +31,7 @@ export function Keypad({ value, onChange, onEnter, disabled, max = 14, virgula }
       if (disabled || e.metaKey || e.ctrlKey) return
       if (/^[0-9]$/.test(e.key)) press(e.key)
       else if (e.key === '.' || e.key === ',') press(sep)
+      else if (e.key === '-' && sinal) press('−')
       else if (e.key === 'Backspace') press('⌫')
       else if (e.key === 'Enter' && value) onEnter?.()
       else return
@@ -46,8 +51,9 @@ export function Keypad({ value, onChange, onEnter, disabled, max = 14, virgula }
           whileTap={{ scale: 0.94 }}
           disabled={disabled}
           onClick={() => press(k)}
-          aria-label={k === '⌫' ? 'Apagar' : k === '.' ? 'Ponto' : k === ',' ? 'Vírgula' : k}
+          aria-label={k === '⌫' ? 'Apagar' : k === '.' ? 'Ponto' : k === ',' ? 'Vírgula' : k === '−' ? 'Menos' : k}
           className={cn(
+            sinal && virgula && k === '−' ? 'col-span-3 !h-[44px]' : '',
             'focus-ring grid h-[52px] place-items-center rounded-2xl text-[24px] font-medium tabular-nums text-white transition-colors disabled:opacity-40',
             k === '⌫' || k === '.' ? 'bg-transparent text-white/70 hover:bg-white/[0.05]' : 'bg-white/[0.07] hover:bg-white/[0.11]',
           )}
@@ -77,4 +83,4 @@ export function Display({ value, state }: { value: string; state?: 'right' | 'wr
   )
 }
 
-export { isDecimal, normalizeAnswer, sameAnswer } from './resposta'
+export { isDecimal, isNegative, normalizeAnswer, sameAnswer, written } from './resposta'

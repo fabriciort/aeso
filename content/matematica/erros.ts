@@ -13,6 +13,14 @@ import { ERROS_U10A } from './erros-u10a'
 import { ERROS_U10B } from './erros-u10b'
 import { ERROS_U11A } from './erros-u11a'
 import { ERROS_U11B } from './erros-u11b'
+import { ERROS_U12A } from './erros-u12a'
+import { ERROS_U12B } from './erros-u12b'
+import { ERROS_U13A } from './erros-u13a'
+import { ERROS_U13B } from './erros-u13b'
+import { ERROS_U14A } from './erros-u14a'
+import { ERROS_U14B } from './erros-u14b'
+import { ERROS_U15A } from './erros-u15a'
+import { ERROS_U15B } from './erros-u15b'
 
 // Catálogo de erros comuns da formação. Cada erro tem um id estável, usado
 // por opções de cartões e por exercícios para diagnosticar o que o aluno
@@ -274,7 +282,7 @@ const ERROS_BASE: ErroComum[] = [
   },
 ]
 
-export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B, ...ERROS_U08A, ...ERROS_U08B, ...ERROS_U09A, ...ERROS_U09B, ...ERROS_U10A, ...ERROS_U10B, ...ERROS_U11A, ...ERROS_U11B]
+export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B, ...ERROS_U08A, ...ERROS_U08B, ...ERROS_U09A, ...ERROS_U09B, ...ERROS_U10A, ...ERROS_U10B, ...ERROS_U11A, ...ERROS_U11B, ...ERROS_U12A, ...ERROS_U12B, ...ERROS_U13A, ...ERROS_U13B, ...ERROS_U14A, ...ERROS_U14B, ...ERROS_U15A, ...ERROS_U15B]
 
 export function getErro(id: string): ErroComum | undefined {
   return ERROS.find((e) => e.id === id)

@@ -16,17 +16,30 @@ export function Rich({ text }: { text: string }) {
   const parts = guarda(text).split(/(\$[^$]+\$|\*\*[^*]+\*\*)/g).filter(Boolean).map(solta)
   return (
     <>
-      {parts.map((p, i) =>
-        p.startsWith('$') ? (
-          <Tex key={i} className={p.includes('\\frac') ? 'inline-block py-0.5' : undefined}>{grande(p.slice(1, -1))}</Tex>
-        ) : p.startsWith('**') ? (
+      {parts.map((p, i) => {
+        if (p.startsWith('$')) {
+          const f = <Tex className={p.includes('\\frac') ? 'inline-block py-0.5' : undefined}>{grande(p.slice(1, -1))}</Tex>
+          // The punctuation right after a formula stays on its line ("vale $2^3$?" never leaves the "?" alone below).
+          const pont = parts[i + 1]?.match(/^[?!.,:;)]+/)?.[0]
+          return pont ? (
+            <span key={i} className="whitespace-nowrap">
+              {f}
+              {pont}
+            </span>
+          ) : (
+            <Fragment key={i}>{f}</Fragment>
+          )
+        }
+        const prev = parts[i - 1]
+        const t = prev?.startsWith('$') ? p.replace(/^[?!.,:;)]+/, '') : p
+        return p.startsWith('**') ? (
           <strong key={i} className="font-semibold text-inherit">
             {p.slice(2, -2)}
           </strong>
         ) : (
-          <Fragment key={i}>{p}</Fragment>
-        ),
-      )}
+          <Fragment key={i}>{t}</Fragment>
+        )
+      })}
     </>
   )
 }

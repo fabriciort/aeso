@@ -63,11 +63,11 @@ Detalhes por cartão:
   - Uma opção errada mostra `explica` e o seu `mostra`. O aluno tenta de novo.
   - A certa escreve a `linha` no caderno da tela, embaixo do palco.
 - **Caderno:**
-  - Uma `resposta` numérica abre o teclado numérico da tela (com vírgula, se for um decimal).
+  - Uma `resposta` numérica abre o teclado numérico da tela (com vírgula, se for um decimal, e com a tecla do menos, se for negativa ou se o cartão tiver `sinal: true`).
   - Uma `resposta` em texto abre um campo de texto. Vale se o que o aluno escreveu contém a resposta, sem contar maiúsculas e acentos ("tentar sozinho" vale para `tentar`).
   - A `resolucao` se escreve linha a linha.
 - **Voz:** com a voz ligada, o player lê `fala` (ou o texto sem markdown) ao entrar no cartão, e lê `explica` depois de uma aposta.
-- **Fórmulas** (`$...$` e `Linha.tex`) nunca rolam para o lado: encolhem até caber.
+- **Fórmulas** (`$...$` e `Linha.tex`) nunca rolam para o lado: encolhem até caber. A pontuação logo depois de uma fórmula (`$2^3$?`) fica na mesma linha que ela.
 
 ## Exercícios (`sua-vez`)
 
@@ -85,6 +85,7 @@ Detalhes por cartão:
 - **Formatos:**
   - `numero` usa o teclado da tela. Pontos e espaços são ignorados na comparação (`12.500` = `12500`).
   - Decimais: quando a `resposta` é um decimal (`'0,25'`, ou o número `0.25`), a tecla do ponto vira a vírgula. Zeros no fim não contam (`0,50` = `0,5`). Escreva a resposta com vírgula, como o aluno digita.
+  - Negativos: quando a `resposta` é negativa (`-3`, `'−2,5'`), aparece a tecla **−**, que põe ou tira o sinal na frente do número. Para o teclado não entregar o sinal, dê `sinal: true` ao item: a tecla aparece também quando a resposta é positiva. Na U12 em diante, use `sinal: true` em todo item cuja resposta poderia ser negativa. O hífen e o sinal de menos valem o mesmo, e −0 vale 0.
   - `escolha` usa as opções. A resposta é o índice.
   - `fracao`, `reta` e `expressao` ainda não existem no player.
 - **Visual:** o `visual` do item aparece no palco, sem interação.
@@ -157,6 +158,8 @@ No Mexa, com `acao.sucesso: { para: 'cm' }`, o aluno toca a unidade e a vírgula
 | `destaqueIntervalos` | os intervalos acendem um a um |
 | `comparacoes`, `comparacao`, `aproximacao` | frases grandes embaixo (ex.: `12 > 7`) |
 | `unidade` | junto das etiquetas (ex.: km) |
+| `sinais: true` | negativos (U12): a reta fica azul à esquerda do zero e âmbar à direita, o zero ganha um traço mais forte e os pontos negativos ficam azuis. Os números negativos sempre aparecem com o sinal de menos de verdade (−3) |
+| `distancias` | colchetes embaixo da reta, do zero até cada número, com um rótulo: `[[-4, '4 passos'], [4, '4 passos']]` (o módulo e os opostos). Cabem dois |
 | `fracoes` | os números aparecem como frações com esse denominador: com `fracoes: 4`, 0,75 vira 3/4 (os inteiros continuam 1, 2). Use `passo` igual a 1/denominador (`passo: 0.25`) |
 
 ### `retangulo`
@@ -183,7 +186,9 @@ O retângulo de multiplicação. Duas formas:
 
 | Chave | Efeito |
 |---|---|
-| `base`, `altura` | ex.: `base: [20, 3]`, `altura: [10, 4]` para 23 × 14; as partes ficam proporcionais (com um tamanho mínimo para caber o rótulo) |
+| `base`, `altura` | ex.: `base: [20, 3]`, `altura: [10, 4]` para 23 × 14; as partes ficam proporcionais (com um tamanho mínimo para caber o rótulo). Uma parte pode ser uma letra (U14): `base: ['x', 3]`, `altura: [2]` é 2(x + 3), e `areas: true` escreve 2x e 6; x × x vira x² |
+| `tamanhoLetra` | quanto uma letra ocupa, na escala dos números (padrão: 1,6 vez a maior parte numérica, no mínimo 4) |
+| `total` | o número (ou o texto, como `'2x + 6'`) embaixo |
 | `areas: true` ou `areas: [[200, 30], [80, 12]]` | escreve o produto em cada parte (true calcula; uma lista escreve o que vier, inclusive `'?'`) |
 | `destaque`, `total` | como acima |
 
@@ -199,7 +204,7 @@ O retângulo de multiplicação. Duas formas:
 | Chave | Efeito |
 |---|---|
 | `expressao` com `fichas` + `lugares` | a expressão em cima e as fichas para pôr em ordem embaixo (o Mexa `ordem`) |
-| `expressao` + (`destaque`) | uma expressão resolvida em etapas, uma por linha, de cima para baixo (`['2 + 3 × 4', '2 + 12', '14']`); a última fica maior. `destaque` é um trecho da última linha que ganha uma moldura âmbar (`'3 × 4'`) |
+| `expressao` + (`destaque`) | uma expressão resolvida em etapas, uma por linha, de cima para baixo (`['2 + 3 × 4', '2 + 12', '14']`); a última fica maior. Uma linha comprida encolhe até caber na largura (no mínimo 18 px). `destaque` é um trecho da última linha que ganha uma moldura âmbar (`'3 × 4'`) |
 | `calculadoras` | visores lado a lado: `[{ nome: 'Celular', teclas: '2 + 3 × 4 =', visor: '20' }, …]` |
 
 ### `livre`
@@ -233,7 +238,37 @@ A tabela de proporção da U10: uma grandeza em cada linha e os pares lado a lad
 | `tabela.mostradas` | quantas colunas aparecem; as outras ficam como caixas vazias |
 | `tabela.completar: true` | o Mexa "completar" (veja abaixo) |
 
-Os números da tabela inteira têm o mesmo tamanho, o que cabe no mais comprido. Com muitas colunas no celular (5 ou mais), os rótulos encolhem primeiro.
+Os números de cada linha têm o mesmo tamanho, o que cabe no mais comprido da linha (uma linha de 1.000.000 não encolhe a linha de 10⁶). Com muitas colunas no celular (5 ou mais), os rótulos encolhem primeiro.
+
+### `livre`: fichas de saldo
+
+As fichas da U12: cada **+** (âmbar) é 1 real que você tem, cada **−** (azul) é 1 real que você deve. As + ficam em cima e as − embaixo, alinhadas: uma coluna com as duas é um par que vale zero.
+
+| Chave | Efeito |
+|---|---|
+| `saldo.positivas`, `saldo.negativas` | quantas fichas de cada sinal (`{ positivas: 3, negativas: 5 }`). Cabem umas 12 por linha no celular |
+| `saldo.pares: true` | uma moldura tracejada em cada coluna com + e −, e "0" embaixo |
+| `saldo.riscadas` | fichas que saíram, apagadas e riscadas, no fim da linha: `{ negativas: 2 }` |
+| `saldo.mostraSaldo: true` | embaixo, "saldo: −2" (o que sobra) |
+| `saldo.rotulo` | a frase embaixo, no lugar do saldo |
+| `saldo.tirar` | `'−'` ou `'+'`: o Mexa "tirar" (veja abaixo) |
+
+### `livre`: azulejos algébricos
+
+Os azulejos da U14: o quadradinho vale **1**, a barra vale **x** (o lado comprido é o x) e o quadrado grande vale **x²**. As peças negativas são vermelhas, com o sinal de menos.
+
+| Chave | Efeito |
+|---|---|
+| `azulejos.pecas` | as peças, na ordem em que aparecem: `['x', '1', 'x', 'x²', '1']`. Negativas: `'−x'`, `'−1'`, `'−x²'` (o hífen também vale) |
+| `azulejos.letra` | outra letra no lugar do x (`'a'`) |
+| `azulejos.agrupado: true` | as peças aparecem juntas por tipo, com a contagem embaixo de cada grupo (`3x`, `2`, `−x`) |
+| `azulejos.mostraExpressao: true` | com as peças juntas, a expressão simplificada embaixo (`x² + 3x + 3`; x e −x se cancelam na conta) |
+| `azulejos.rotulo` | a frase embaixo, no lugar da expressão |
+| `azulejos.agrupar: true` | o Mexa "agrupar" (veja abaixo) |
+| `azulejos.montes: 2` | as peças soltas em montes iguais, na ordem da lista, com um vão entre eles: `2(x + 3)` são 2 montes de `x + 3` |
+| `azulejos.cancela: true` | com as peças juntas, cada par de opostos (um `x` e um `−x`, um `1` e um `−1`) aparece apagado e riscado: vale zero |
+
+Com um tipo só, a expressão embaixo não repete a contagem do grupo.
 
 ### `barra`
 
@@ -272,7 +307,27 @@ A grade dos decimais: cada grade é um inteiro, com 10 colunas de 10 quadradinho
 | `faixas: [l, c]` | multiplicação: as primeiras `l` linhas e `c` colunas ficam claras, e o cruzamento em âmbar (`[3, 4]` é 0,3 × 0,4 = 0,12) |
 | `destaque` | o índice do número em destaque; os outros ficam apagados |
 
-`balanca` ainda não existe no player. Ele chega com a unidade que o usa.
+### `balanca`
+
+A balança de dois pratos da U15: uma equação é uma balança em equilíbrio. Cada **caixa** âmbar é um x (todas pesam o mesmo); cada **peso** cinza vale 1; um peso rotulado ("10") vale o número escrito nele. O prato mais pesado desce; com os dois iguais, o braço fica reto e a agulha acende.
+
+| Chave | Efeito |
+|---|---|
+| `esquerda`, `direita` | o que há em cada prato: `{ x: 2, n: 3 }` são 2 caixas e 3 pesos de 1. `pesos: [10, 5]` acrescenta pesos rotulados (`{ n: 2, pesos: [10] }` pesa 12). Mudanças animam: peças novas caem no prato, as que saem sobem e somem |
+| n grande | até 20 pesos de 1 por prato aparecem um a um, em fileiras (as peças encolhem para caber). Passando de 20, viram pesos de 10 e os que sobram (37 = 10, 10, 10 e sete de 1) |
+| `letra` | outra letra nas caixas (padrão `x`) |
+| `valor` | o valor escondido de x: a balança inclina pelo peso real dos pratos. Sem `valor` e sem `inclina`, fica em equilíbrio |
+| `inclina` | força a inclinação: `'esquerda'` (o prato da esquerda desce), `'direita'` ou `'equilibrio'`. Vale mais que `valor` |
+| `riscadas` | peças que saíram, apagadas e riscadas, depois das outras do prato: `{ esquerda: { n: 3 }, direita: { n: 3 } }`. Não pesam nem entram na equação |
+| `abrir: true` | as caixas mostram `valor` dentro (a solução revelada) |
+| `dividir: k` | cada prato partido em `k` grupos iguais, um em cima do outro, com moldura tracejada: as caixas e os pesos se repartem igualmente. O grupo `grupo` (padrão 0, o de baixo) fica aceso em azul; os outros, apagados |
+| `mostraEquacao: true` | a equação embaixo, lida dos pratos (`2x + 3 = 11`, `3x + 2 = x + 10`). Inclinada, o `=` vira `≠` em vermelho; com `inequacao: true`, vira `>` ou `<` em azul (o lado que desce é o maior) |
+| `rotulo` | a frase embaixo, no lugar da equação (`'x = 4'`) |
+| `tirar: true` | o Mexa "tirar" (veja abaixo) |
+
+No Mexa "tirar", um peso rotulado (ou um peso de 10 automático) sai inteiro, nunca se parte: use pesos de 1 (até 20 por prato) quando o aluno precisa tirar um número que não é múltiplo do peso. Com `dividir: k`, dê pratos que se repartem certo (caixas e pesos múltiplos de `k`); senão, os grupos saem desiguais.
+
+Os pratos só têm peças positivas: não há pesos negativos nem balões. Para equações com subtração (x − 3 = 5), use a barra ou a reta, ou mostre a equação com `rotulo`.
 
 ## Mexa: as manipulações
 
@@ -296,6 +351,10 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `quadro-posicional` com `medida` | `{ para }` | toca a unidade de chegada: a vírgula anda até depois dela e os zeros que faltam aparecem |
 | `grade` com `pintar: true` | `{ pintadas }` | toca os quadradinhos para pintar (um toque pinta até ali, coluna por coluna; um toque num pintado tira dali em diante). Com `porColuna: true`, cada toque pinta a coluna inteira (para décimos; `pintadas` deve ser múltiplo de 10). Com várias grades, `ativa` é o índice do número que recebe os toques |
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
+| `livre` com `azulejos.agrupar: true` | `{ agrupado: true }` | toca uma peça e todas as do mesmo tipo vão juntas para um grupo, com a contagem; termina quando todos os tipos estão juntos (com `mostraExpressao`, a expressão aparece no fim) |
+| `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
+| `balanca` com `tirar: true` | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio. Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |
+| `balanca` com `dividir: k` | `{ dividido: true }` | os pratos aparecem partidos em `k` grupos, todos acesos; o aluno toca num grupo e fica só um grupo de cada lado (com `mostraEquacao`, `2x = 8` vira `x = 4`) |
 | `livre` com `tabela.completar: true` | `{ colunas }` | toca a próxima coluna vazia e ela se preenche, com as setas que chegam nela; começa com `tabela.mostradas` (padrão 1) e termina quando aparecem `colunas` colunas |
 
 - **Retorno:**

@@ -67,12 +67,12 @@ describe('respostas e suporte dos geradores do piloto', () => {
           }
           for (const opcao of opcoes) expect(opcao.length, gerador.id).toBeLessThanOrEqual(140)
         } else {
-          // Um natural, ou um decimal escrito com vírgula, como o aluno digita ('0,25').
-          if (typeof item.resposta === 'string') expect(item.resposta, gerador.id).toMatch(/^\d+(,\d+)?$/)
-          else {
-            expect(Number.isSafeInteger(item.resposta), gerador.id).toBe(true)
-            expect(Number(item.resposta), gerador.id).toBeGreaterThanOrEqual(0)
-          }
+          // Um inteiro, ou um decimal escrito com vírgula, como o aluno digita ('0,25').
+          // Negativos (U12 em diante) levam o sinal de menos e `sinal: true`, para o teclado ter a tecla.
+          if (typeof item.resposta === 'string') expect(item.resposta, gerador.id).toMatch(/^[−-]?\d+(,\d+)?$/)
+          else expect(Number.isSafeInteger(item.resposta), gerador.id).toBe(true)
+          const negativa = typeof item.resposta === 'number' ? item.resposta < 0 : /^[−-]/.test(item.resposta)
+          if (negativa) expect(item.sinal, gerador.id).toBe(true)
         }
       }
     }

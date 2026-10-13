@@ -156,6 +156,8 @@ export interface Caderno extends Base {
   fala?: Fala
   /** A resposta final que o aluno digita. */
   resposta: string | number
+  /** O teclado mostra a tecla do menos (ela já aparece quando a resposta é negativa). */
+  sinal?: boolean
   /** A resolução, linha a linha, para o aluno comparar com o que fez. */
   resolucao: Linha[]
 }
@@ -235,6 +237,8 @@ export interface Item {
   opcoes?: string[]
   /** A resposta certa (para "escolha", o índice). */
   resposta: Resposta
+  /** O teclado mostra a tecla do menos (ela já aparece quando a resposta é negativa), para o sinal não entregar a resposta. */
+  sinal?: boolean
   /**
    * Respostas erradas previsíveis e o erro comum que cada uma revela.
    * Chave: a resposta errada (como o aluno digitaria); valor: id do erro.

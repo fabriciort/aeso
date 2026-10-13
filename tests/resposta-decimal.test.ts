@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { isDecimal, sameAnswer } from '@/components/aula/resposta'
+import { isDecimal, isNegative, sameAnswer, written } from '@/components/aula/resposta'
 
 describe('respostas decimais', () => {
   test('a vírgula e os zeros no fim', () => {
@@ -22,5 +22,30 @@ describe('respostas decimais', () => {
     expect(isDecimal('3,75')).toBe(true)
     expect(isDecimal(12)).toBe(false)
     expect(isDecimal('12.500')).toBe(false)
+  })
+})
+
+describe('respostas negativas', () => {
+  test('o menos do teclado, o hífen e o número', () => {
+    expect(sameAnswer('−3', -3)).toBe(true)
+    expect(sameAnswer('-3', -3)).toBe(true)
+    expect(sameAnswer('−3', '−3')).toBe(true)
+    expect(sameAnswer('−2,50', -2.5)).toBe(true)
+    expect(sameAnswer('3', -3)).toBe(false)
+    expect(sameAnswer('−3', 3)).toBe(false)
+    expect(sameAnswer('−0', 0)).toBe(true)
+  })
+  test('quando o teclado mostra o menos', () => {
+    expect(isNegative(-3)).toBe(true)
+    expect(isNegative('−2,5')).toBe(true)
+    expect(isNegative(0)).toBe(false)
+    expect(isNegative('3')).toBe(false)
+    expect(isDecimal(-2.5)).toBe(true)
+    expect(isDecimal('−2,5')).toBe(true)
+  })
+  test('a resposta escrita com o sinal de menos', () => {
+    expect(written(-3)).toBe('−3')
+    expect(written(-0.5)).toBe('−0,5')
+    expect(written('-4')).toBe('−4')
   })
 })

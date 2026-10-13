@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Visual } from '@/lib/formation/schema'
 import { useSize } from '../useSize'
+import { Balanca, type BalancaInteract, type BalancaState } from './Balanca'
 import { Barra, type BarraInteract, type BarraState } from './Barra'
 import { Grade, type GradeInteract, type GradeState } from './Grade'
 import { Blocos, type BlocosState, type Ordem } from './Blocos'
@@ -23,6 +24,7 @@ export interface Interact {
   retangulo?: RetanguloInteract
   barra?: BarraInteract
   grade?: GradeInteract
+  balanca?: BalancaInteract
 }
 
 /** The content's state, with the names the generators also use mapped in. */
@@ -42,7 +44,7 @@ export function normalize(v: Visual): Record<string, unknown> {
 export function hasStage(v?: Visual | null): v is Visual {
   if (!v) return false
   if (v.modelo === 'livre') return hasLivre(v.estado as LivreState)
-  return ['blocos', 'reta', 'quadro-posicional', 'retangulo', 'barra', 'grade'].includes(v.modelo)
+  return ['blocos', 'reta', 'quadro-posicional', 'retangulo', 'barra', 'grade', 'balanca'].includes(v.modelo)
 }
 
 export function Stage({ visual, interact }: { visual: Visual; interact?: Interact }) {
@@ -67,6 +69,7 @@ export function Stage({ visual, interact }: { visual: Visual; interact?: Interac
               {visual.modelo === 'retangulo' && <Retangulo s={s as RetanguloState} size={size} {...interact?.retangulo} />}
               {visual.modelo === 'barra' && <Barra s={s as BarraState} size={size} {...interact?.barra} />}
               {visual.modelo === 'grade' && <Grade s={s as GradeState} size={size} {...interact?.grade} />}
+              {visual.modelo === 'balanca' && <Balanca s={s as BalancaState} size={size} {...interact?.balanca} />}
               {visual.modelo === 'livre' && <Livre s={s as LivreState} size={size} {...interact?.livre} />}
             </>
           )}

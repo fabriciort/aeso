@@ -34,6 +34,10 @@ export interface RetaState {
   unidade?: string
   /** Frações: os números aparecem como k/d (o 1, o 2… continuam inteiros). Ex.: 4 mostra 3/4. */
   fracoes?: number
+  /** Negativos: o lado esquerdo do zero em azul, o direito em âmbar, e o zero mais forte. */
+  sinais?: boolean
+  /** Distância até o zero: um colchete embaixo, do zero até cada número, com o rótulo ("3 passos"). */
+  distancias?: [number, string?][]
 }
 
 export interface RetaInteract {
@@ -59,10 +63,12 @@ export interface RetaInteract {
 
 const amber = '#f6b74e'
 const rose = '#fb7185'
-const fmtNum = (n: number) => n.toLocaleString('pt-BR')
+const sky = '#7dd3fc'
+// The minus is the true sign (−3), not a hyphen.
+const fmtNum = (n: number) => (Object.is(n, -0) ? 0 : n).toLocaleString('pt-BR').replace(/^-/, '−')
 const fmtFrac = (d: number) => (n: number) => {
   const k = Math.round(n * d)
-  return k % d === 0 ? fmtNum(k / d) : `${k}/${d}`
+  return k % d === 0 ? fmtNum(k / d) : `${fmtNum(k)}/${d}`
 }
 const springX = { type: 'spring', stiffness: 320, damping: 30 } as const
 
@@ -189,6 +195,26 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
           ))}
         <line x1={pad - 12} x2={W - pad + 22} y1={y} y2={y} stroke="rgba(255,255,255,0.75)" strokeWidth={2} strokeLinecap="round" />
         <path d={`M ${W - pad + 18} ${y - 5} L ${W - pad + 25} ${y} L ${W - pad + 18} ${y + 5}`} fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        {s.sinais && de < 0 && ate > 0 && (
+          <>
+            <line x1={pad - 12} x2={x(0)} y1={y} y2={y} stroke={sky} strokeWidth={3} strokeLinecap="round" />
+            <line x1={x(0)} x2={W - pad + 18} y1={y} y2={y} stroke={amber} strokeWidth={3} strokeLinecap="round" />
+            <line x1={x(0)} x2={x(0)} y1={y - 15} y2={y + 15} stroke="#fff" strokeWidth={2.5} />
+          </>
+        )}
+        {(s.distancias ?? []).map(([v, rot], i) => {
+          const yb = y + 44 + i * 34
+          return (
+            <motion.g key={`d${v}-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 + i * 0.4 }}>
+              <path d={`M ${x(0)} ${yb - 6} L ${x(0)} ${yb} L ${x(v)} ${yb} L ${x(v)} ${yb - 6}`} fill="none" stroke={v < 0 ? sky : amber} strokeWidth={1.75} strokeLinejoin="round" />
+              {rot && (
+                <text x={(x(0) + x(v)) / 2} y={yb + 16} textAnchor="middle" fill={v < 0 ? sky : amber} fontSize={14} fontWeight={600}>
+                  {rot}
+                </text>
+              )}
+            </motion.g>
+          )
+        })}
         {ticks.map((t) => {
           const big = labels.has(t)
           return <line key={t} x1={x(t)} x2={x(t)} y1={y - (big ? 10 : dense ? 4 : 7)} y2={y + (big ? 10 : dense ? 4 : 7)} stroke={big ? '#fff' : 'rgba(255,255,255,0.4)'} strokeWidth={big ? 2 : 1} />
@@ -251,9 +277,9 @@ export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: n
         })}
         {points.map((v) => (
           <g key={`p${v}`}>
-            <motion.circle initial={{ r: 0 }} animate={{ r: 7 }} transition={springX} cx={x(v)} cy={y} fill={amber} />
+            <motion.circle initial={{ r: 0 }} animate={{ r: 7 }} transition={springX} cx={x(v)} cy={y} fill={s.sinais && v < 0 ? sky : amber} />
             {!labels.has(v) && (
-              <text x={(arcs.length && lx.get(v)) || x(v)} y={pointLabelY} textAnchor="middle" fill={amber} fontSize={16} fontWeight={600} className="tabular-nums">
+              <text x={(arcs.length && lx.get(v)) || x(v)} y={pointLabelY} textAnchor="middle" fill={s.sinais && v < 0 ? sky : amber} fontSize={16} fontWeight={600} className="tabular-nums">
                 {fmt(v)}
               </text>
             )}

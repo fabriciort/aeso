@@ -3,6 +3,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Check, Eraser, Grid3x3, NotebookPen, Pencil, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Azulejos, type AzulejosState } from './Azulejos'
+import { Saldo, type SaldoState } from './Saldo'
 import { Tabela, type TabelaState } from './Tabela'
 
 // Modelo livre: quando nenhum modelo-âncora serve (U0: como estudar). Mostra
@@ -36,6 +38,10 @@ export interface LivreState {
   calculadoras?: { nome: string; teclas: string; visor: string }[]
   /** A tabela de proporção (U10). */
   tabela?: TabelaState
+  /** Fichas de saldo + e − (U12). */
+  saldo?: SaldoState
+  /** Azulejos algébricos: x², x e 1 (U14). */
+  azulejos?: AzulejosState
 }
 
 export interface LivreInteract {
@@ -45,25 +51,35 @@ export interface LivreInteract {
   /** Tabela, Mexa "completar": um toque numa coluna vazia, e quantas já aparecem. */
   onColuna?: (c: number) => void
   mostradas?: number
+  /** Saldo, Mexa "tirar": fichas já tiradas, pares zero já postos. */
+  removidas?: number
+  paresPostos?: number
+  onTirar?: () => void
+  onPar?: () => void
+  /** Azulejos, Mexa "agrupar": tipos já juntados e o toque numa peça. */
+  agrupados?: string[]
+  onPeca?: (tipo: string) => void
 }
 
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(s.azulejos?.pecas?.length || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
+  if (s.azulejos?.pecas?.length) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} wrong={it.wrong} />
+  if (s.saldo) return <Saldo s={s.saldo} size={size} removidas={it.removidas} paresPostos={it.paresPostos} onTirar={it.onTirar} onPar={it.onPar} wrong={it.wrong} />
   if (s.tabela?.linhas?.length) return <Tabela s={s.tabela} size={size} onColuna={it.onColuna} mostradas={it.mostradas} wrong={it.wrong} />
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
       {s.expressao?.length && s.fichas && s.lugares ? (
         <>
-          <Expressao etapas={s.expressao} destaque={s.destaque} />
+          <Expressao etapas={s.expressao} destaque={s.destaque} w={size.w} />
           <Ordenar fichas={s.fichas} lugares={s.lugares} order={it.order ?? []} onFicha={it.onFicha} wrong={it.wrong} />
         </>
       ) : s.expressao?.length ? (
-        <Expressao etapas={s.expressao} destaque={s.destaque} />
+        <Expressao etapas={s.expressao} destaque={s.destaque} w={size.w} />
       ) : s.calculadoras?.length ? (
         <Calculadoras c={s.calculadoras} />
       ) : s.jornada ? (
@@ -92,8 +108,10 @@ export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h:
 }
 
 /** Each step of the expression on its own line; the last is the current one. */
-function Expressao({ etapas, destaque }: { etapas: string[]; destaque?: string }) {
+function Expressao({ etapas, destaque, w }: { etapas: string[]; destaque?: string; w: number }) {
   const last = etapas.length - 1
+  // A long line shrinks to fit the width (about 0.56 em per character), never below 18 px.
+  const caber = (t: string, max: number) => Math.max(18, Math.min(max, (w - 24) / (0.56 * Math.max(1, t.length))))
   const marked = (t: string) => {
     const at = destaque ? t.indexOf(destaque) : -1
     if (at < 0) return t
@@ -115,7 +133,8 @@ function Expressao({ etapas, destaque }: { etapas: string[]; destaque?: string }
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i === last ? 0.15 : 0, duration: 0.45 }}
-          className={cn('whitespace-nowrap font-semibold tabular-nums', i === last ? 'text-[32px] text-white' : 'text-[20px] text-white/45')}
+          className={cn('whitespace-nowrap font-semibold tabular-nums', i === last ? 'text-white' : 'text-white/45')}
+          style={{ fontSize: i === last ? caber(t, 32) : Math.min(20, caber(t, 20)) }}
         >
           {i === last ? marked(t) : t}
         </motion.p>
