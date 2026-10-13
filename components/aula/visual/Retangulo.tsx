@@ -16,10 +16,13 @@ export interface RetanguloState {
   areas?: boolean | (number | string)[][]
   destaque?: [number, number] | 'linha' | 'coluna'
   girar?: boolean
-  total?: number
+  total?: number | string
   grupos?: boolean
-  base?: number[]
-  altura?: number[]
+  /** Por área: as partes de cada lado. Uma parte pode ser uma letra ('x'), desenhada com `tamanhoLetra`. */
+  base?: (number | string)[]
+  altura?: (number | string)[]
+  /** Com letras nos lados: quanto uma letra ocupa, na escala dos números (padrão: um pouco mais que a maior parte numérica). */
+  tamanhoLetra?: number
   /** O resto: quadradinhos soltos numa linha incompleta, embaixo do retângulo. */
   sobra?: number
   /** Fração de fração: as primeiras [linhas, colunas] ficam claras; o cruzamento das duas, em âmbar. */
@@ -69,7 +72,8 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   const colParts = parts(C, turned ? s.cortesLinhas : s.cortes)
   const rowParts = parts(L, turned ? s.cortes : s.cortesLinhas)
   // Nothing arranged yet (0 rows) but a total: the pieces wait loose, in rows of `colunas`.
-  const pile = L0 === 0 && !onAdd && !s.sobra && (s.total ?? 0) > 0 ? s.total! : 0
+  const totalN = typeof s.total === 'number' ? s.total : 0
+  const pile = L0 === 0 && !onAdd && !s.sobra && totalN > 0 ? totalN : 0
   const sobra = turned ? 0 : Math.max(0, s.sobra ?? 0) + pile
   const sobraRows = Math.ceil(sobra / C)
   const roomRows = Math.max(L + sobraRows, maxLinhas ?? 0, 1)
@@ -268,8 +272,12 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
 function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }) {
   const base = s.base!
   const altura = s.altura!
-  const sb = base.reduce((a, b) => a + b, 0)
-  const sa = altura.reduce((a, b) => a + b, 0)
+  // A letter is a length we do not know: it is drawn a little longer than the numbers next to it.
+  const nums = [...base, ...altura].filter((v): v is number => typeof v === 'number')
+  const letra = s.tamanhoLetra ?? Math.max(4, ...nums.map((n) => n * 1.6))
+  const med = (v: number | string) => (typeof v === 'number' ? v : letra)
+  const sb = base.reduce<number>((a, b) => a + med(b), 0)
+  const sa = altura.reduce<number>((a, b) => a + med(b), 0)
   const labelW = 40
   const labelH = 28
   const totalH = s.total !== undefined ? 40 : 0
@@ -278,8 +286,8 @@ function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }
   // Proportional, but no part thinner than its label.
   const minPart = 46
   const scale = Math.min(availW / sb, availH / sa)
-  const widths = base.map((b) => Math.max(minPart, b * scale))
-  const heights = altura.map((a) => Math.max(altura.length === 1 ? 84 : 60, a * scale))
+  const widths = base.map((b) => Math.max(minPart, med(b) * scale))
+  const heights = altura.map((a) => Math.max(altura.length === 1 ? 84 : 60, med(a) * scale))
   const fitW = Math.min(1, availW / widths.reduce((a, b) => a + b, 0))
   const fitH = Math.min(1, availH / heights.reduce((a, b) => a + b, 0))
   const ws = widths.map((w) => w * fitW)
@@ -291,10 +299,10 @@ function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }
   const xs = ws.map((_, i) => ox + ws.slice(0, i).reduce((a, b) => a + b, 0))
   const ys = hs.map((_, i) => oy + hs.slice(0, i).reduce((a, b) => a + b, 0))
   const lit = (i: number, j: number) => Array.isArray(s.destaque) && s.destaque[0] === i && s.destaque[1] === j
-  const areaText = (i: number, j: number) => (Array.isArray(s.areas) ? s.areas[i]?.[j] : s.areas ? altura[i] * base[j] : undefined)
+  const areaText = (i: number, j: number) => (Array.isArray(s.areas) ? s.areas[i]?.[j] : s.areas ? produto(altura[i], base[j]) : undefined)
 
   return (
-    <svg width={size.w} height={size.h} role="img" aria-label={`Retângulo de ${sa} por ${sb}, partido`}>
+    <svg width={size.w} height={size.h} role="img" aria-label={`Retângulo de ${altura.join(' + ')} por ${base.join(' + ')}, partido`}>
       {altura.map((a, i) =>
         base.map((b, j) => (
           <motion.rect
@@ -311,12 +319,12 @@ function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }
       )}
       {base.map((b, j) => (
         <motion.text key={`b${j}-${b}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} x={xs[j] + ws[j] / 2} y={oy - 10} textAnchor="middle" fill="rgba(255,255,255,0.85)" fontSize={16} fontWeight={600} className="tabular-nums">
-          {b.toLocaleString('pt-BR')}
+          {escreve(b)}
         </motion.text>
       ))}
       {altura.map((a, i) => (
         <motion.text key={`h${i}-${a}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} x={ox - 12} y={ys[i] + hs[i] / 2 + 5} textAnchor="end" fill="rgba(255,255,255,0.85)" fontSize={16} fontWeight={600} className="tabular-nums">
-          {a.toLocaleString('pt-BR')}
+          {escreve(a)}
         </motion.text>
       ))}
       {altura.map((_, i) =>
@@ -333,9 +341,26 @@ function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }
       )}
       {s.total !== undefined && (
         <motion.text initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} x={size.w / 2} y={oy + H + 32} textAnchor="middle" fill="#fff" fontSize={22} fontWeight={600} className="tabular-nums">
-          {s.total.toLocaleString('pt-BR')}
+          {escreve(s.total)}
         </motion.text>
       )}
     </svg>
   )
+}
+
+const escreve = (v: number | string) => (typeof v === 'number' ? v.toLocaleString('pt-BR') : v)
+
+/** The area of one part: 3 × 4 = 12, 3 × x = 3x, x × x = x², 2x × 3 = 6x. */
+export function produto(a: number | string, b: number | string): number | string {
+  if (typeof a === 'number' && typeof b === 'number') return a * b
+  const partes = (v: number | string): [number, string] => {
+    if (typeof v === 'number') return [v, '']
+    const m = v.match(/^(\d*)([a-zA-Z]+)$/)
+    return m ? [m[1] ? Number(m[1]) : 1, m[2]] : [1, v]
+  }
+  const [ka, la] = partes(a)
+  const [kb, lb] = partes(b)
+  const k = ka * kb
+  const letras = la && lb && la === lb ? `${la}²` : [la, lb].filter(Boolean).sort().join('')
+  return `${k === 1 ? '' : k.toLocaleString('pt-BR')}${letras}`
 }

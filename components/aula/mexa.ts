@@ -1,4 +1,5 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
+import { tipoDe } from './visual/Azulejos'
 import type { BarraLinha, BarraState } from './visual/Barra'
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'
@@ -9,7 +10,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -57,6 +58,7 @@ export function kindOf(card: Mexa): Kind {
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
+      if ((e.azulejos as { agrupar?: boolean } | undefined)?.agrupar === true && ok.agrupado === true) return 'azulejos'
       if ((e.saldo as { tirar?: string } | undefined)?.tirar && num(ok.tiradas) !== undefined) return 'saldo'
       if ((e.tabela as { completar?: boolean } | undefined)?.completar === true && num(ok.colunas) !== undefined) return 'tabela'
       return arr(e.fichas) && arr(ok.ordem) ? 'ordem' : 'mostre'
@@ -110,6 +112,12 @@ function ativaOf(card: Mexa): { i: number; b: BarraLinha; com: (b: BarraLinha) =
   return { i, b: bs[i] ?? { partes: 1 }, com: (b) => ({ ...rest, barras: bs.map((x, j) => (j === i ? b : x)) }) }
 }
 
+/** The kinds of algebra tiles in the Mexa (x², x, 1 and their negatives). */
+function tiposAzulejos(card: Mexa): string[] {
+  const pecas = arr<string>((card.visual.estado.azulejos as { pecas?: string[] } | undefined)?.pecas) ?? []
+  return [...new Set(pecas.map(tipoDe))]
+}
+
 function targetOf(card: Mexa, label: number): number {
   const ok = card.acao.sucesso
   return num(ok.posicao) ?? label
@@ -155,6 +163,8 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: num((e.tabela as { mostradas?: number }).mostradas) ?? 1 }
     case 'saldo':
       return { ...base, drag: 0, pick: 0 }
+    case 'azulejos':
+      return { ...base, order: [] }
     default:
       return base
   }
@@ -204,6 +214,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, casa: ok.para as string }
     case 'tabela':
       return { ...done, drag: ok.colunas as number }
+    case 'azulejos':
+      return { ...done, order: tiposAzulejos(card) }
     case 'saldo': {
       // Just enough zero pairs to have the chips to take.
       const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
@@ -549,6 +561,26 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'azulejos': {
+      // A tap on a piece brings all the pieces of its kind together; done when every kind is together.
+      const tipos = tiposAzulejos(card)
+      const order = st.order ?? []
+      return {
+        visual: card.visual,
+        interact: {
+          livre: {
+            agrupados: order,
+            onPeca: lock
+              ? undefined
+              : (t) => {
+                  if (order.includes(t)) return
+                  const o2 = [...order, t]
+                  set({ ...st, order: o2, done: tipos.every((k) => o2.includes(k)), note: undefined })
+                },
+          },
+        },
+      }
+    }
     case 'saldo': {
       // A tap on a chip of the sign takes it out. With none of that sign left, a zero pair
       // (one + and one −) brings one in without changing the balance.
@@ -599,6 +631,7 @@ export const GESTO: Record<Kind, string | null> = {
   grade: 'Toque nos quadradinhos da grade para pintar.',
   medida: 'Toque na unidade em que a vírgula deve ficar.',
   tabela: 'Toque na coluna vazia para completar a tabela.',
+  azulejos: 'Toque numa peça para juntar as do mesmo tipo.',
   saldo: 'Toque nas fichas para tirar. Se faltar ficha, ponha um par + e −.',
   mostre: null,
 }

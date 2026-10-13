@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Check, Eraser, Grid3x3, NotebookPen, Pencil, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Azulejos, type AzulejosState } from './Azulejos'
 import { Saldo, type SaldoState } from './Saldo'
 import { Tabela, type TabelaState } from './Tabela'
 
@@ -39,6 +40,8 @@ export interface LivreState {
   tabela?: TabelaState
   /** Fichas de saldo + e − (U12). */
   saldo?: SaldoState
+  /** Azulejos algébricos: x², x e 1 (U14). */
+  azulejos?: AzulejosState
 }
 
 export interface LivreInteract {
@@ -53,15 +56,19 @@ export interface LivreInteract {
   paresPostos?: number
   onTirar?: () => void
   onPar?: () => void
+  /** Azulejos, Mexa "agrupar": tipos já juntados e o toque numa peça. */
+  agrupados?: string[]
+  onPeca?: (tipo: string) => void
 }
 
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(s.azulejos?.pecas?.length || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
+  if (s.azulejos?.pecas?.length) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} wrong={it.wrong} />
   if (s.saldo) return <Saldo s={s.saldo} size={size} removidas={it.removidas} paresPostos={it.paresPostos} onTirar={it.onTirar} onPar={it.onPar} wrong={it.wrong} />
   if (s.tabela?.linhas?.length) return <Tabela s={s.tabela} size={size} onColuna={it.onColuna} mostradas={it.mostradas} wrong={it.wrong} />
   return (

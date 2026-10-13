@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { AULAS } from '@/content/matematica'
 import type { Mexa } from '@/lib/formation/schema'
 import { initMexa, kindOf, mexaStage, solveMexa, type MexaState } from '@/components/aula/mexa'
+import { tipoDe } from '@/components/aula/visual/Azulejos'
 
 // Cada "Mexa" do conteúdo tem de ser jogável no player: o aluno consegue
 // chegar ao estado de sucesso só com toques, e "Me mostre" resolve.
@@ -82,6 +83,13 @@ function play(card: Mexa): MexaState {
     }
     case 'tabela':
       for (let n = 0; n < 12 && !st.done; n++) stage().interact!.livre!.onColuna!(st.drag!)
+      break
+    case 'azulejos':
+      for (let n = 0; n < 8 && !st.done; n++) {
+        const l = stage().interact!.livre!
+        const tipos: string[] = [...new Set((card.visual.estado.azulejos as { pecas: string[] }).pecas.map(tipoDe))]
+        l.onPeca!(tipos.find((t) => !(l.agrupados ?? []).includes(t))!)
+      }
       break
     case 'saldo':
       for (let n = 0; n < 40 && !st.done; n++) {

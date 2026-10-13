@@ -186,7 +186,9 @@ O retângulo de multiplicação. Duas formas:
 
 | Chave | Efeito |
 |---|---|
-| `base`, `altura` | ex.: `base: [20, 3]`, `altura: [10, 4]` para 23 × 14; as partes ficam proporcionais (com um tamanho mínimo para caber o rótulo) |
+| `base`, `altura` | ex.: `base: [20, 3]`, `altura: [10, 4]` para 23 × 14; as partes ficam proporcionais (com um tamanho mínimo para caber o rótulo). Uma parte pode ser uma letra (U14): `base: ['x', 3]`, `altura: [2]` é 2(x + 3), e `areas: true` escreve 2x e 6; x × x vira x² |
+| `tamanhoLetra` | quanto uma letra ocupa, na escala dos números (padrão: 1,6 vez a maior parte numérica, no mínimo 4) |
+| `total` | o número (ou o texto, como `'2x + 6'`) embaixo |
 | `areas: true` ou `areas: [[200, 30], [80, 12]]` | escreve o produto em cada parte (true calcula; uma lista escreve o que vier, inclusive `'?'`) |
 | `destaque`, `total` | como acima |
 
@@ -251,6 +253,19 @@ As fichas da U12: cada **+** (âmbar) é 1 real que você tem, cada **−** (azu
 | `saldo.rotulo` | a frase embaixo, no lugar do saldo |
 | `saldo.tirar` | `'−'` ou `'+'`: o Mexa "tirar" (veja abaixo) |
 
+### `livre`: azulejos algébricos
+
+Os azulejos da U14: o quadradinho vale **1**, a barra vale **x** (o lado comprido é o x) e o quadrado grande vale **x²**. As peças negativas são vermelhas, com o sinal de menos.
+
+| Chave | Efeito |
+|---|---|
+| `azulejos.pecas` | as peças, na ordem em que aparecem: `['x', '1', 'x', 'x²', '1']`. Negativas: `'−x'`, `'−1'`, `'−x²'` (o hífen também vale) |
+| `azulejos.letra` | outra letra no lugar do x (`'a'`) |
+| `azulejos.agrupado: true` | as peças aparecem juntas por tipo, com a contagem embaixo de cada grupo (`3x`, `2`, `−x`) |
+| `azulejos.mostraExpressao: true` | com as peças juntas, a expressão simplificada embaixo (`x² + 3x + 3`; x e −x se cancelam na conta) |
+| `azulejos.rotulo` | a frase embaixo, no lugar da expressão |
+| `azulejos.agrupar: true` | o Mexa "agrupar" (veja abaixo) |
+
 ### `barra`
 
 A barra de frações: cada barra é um inteiro partido em partes iguais, e as pintadas (em âmbar) são a fração. Barras empilhadas têm o mesmo comprimento por inteiro, então comparam pedaços.
@@ -312,6 +327,7 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `quadro-posicional` com `medida` | `{ para }` | toca a unidade de chegada: a vírgula anda até depois dela e os zeros que faltam aparecem |
 | `grade` com `pintar: true` | `{ pintadas }` | toca os quadradinhos para pintar (um toque pinta até ali, coluna por coluna; um toque num pintado tira dali em diante). Com `porColuna: true`, cada toque pinta a coluna inteira (para décimos; `pintadas` deve ser múltiplo de 10). Com várias grades, `ativa` é o índice do número que recebe os toques |
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
+| `livre` com `azulejos.agrupar: true` | `{ agrupado: true }` | toca uma peça e todas as do mesmo tipo vão juntas para um grupo, com a contagem; termina quando todos os tipos estão juntos (com `mostraExpressao`, a expressão aparece no fim) |
 | `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
 | `livre` com `tabela.completar: true` | `{ colunas }` | toca a próxima coluna vazia e ela se preenche, com as setas que chegam nela; começa com `tabela.mostradas` (padrão 1) e termina quando aparecem `colunas` colunas |
 
