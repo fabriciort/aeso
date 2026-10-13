@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Check, Eraser, Grid3x3, NotebookPen, Pencil, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Tabela, type TabelaState } from './Tabela'
 
 // Modelo livre: quando nenhum modelo-âncora serve (U0: como estudar). Mostra
 // o que o estado tem de visível: um ciclo de etapas, materiais, uma página
@@ -33,21 +34,27 @@ export interface LivreState {
   destaque?: string
   /** Visores de calculadora lado a lado. */
   calculadoras?: { nome: string; teclas: string; visor: string }[]
+  /** A tabela de proporção (U10). */
+  tabela?: TabelaState
 }
 
 export interface LivreInteract {
   order?: string[]
   onFicha?: (f: string) => void
   wrong?: boolean
+  /** Tabela, Mexa "completar": um toque numa coluna vazia, e quantas já aparecem. */
+  onColuna?: (c: number) => void
+  mostradas?: number
 }
 
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
+  if (s.tabela?.linhas?.length) return <Tabela s={s.tabela} size={size} onColuna={it.onColuna} mostradas={it.mostradas} wrong={it.wrong} />
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
       {s.expressao?.length && s.fichas && s.lugares ? (

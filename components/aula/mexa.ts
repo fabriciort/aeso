@@ -9,7 +9,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -57,6 +57,7 @@ export function kindOf(card: Mexa): Kind {
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
+      if ((e.tabela as { completar?: boolean } | undefined)?.completar === true && num(ok.colunas) !== undefined) return 'tabela'
       return arr(e.fichas) && arr(ok.ordem) ? 'ordem' : 'mostre'
     case 'retangulo':
       if (e.adicionar === true && num(ok.linhas) !== undefined) return 'linhas'
@@ -92,9 +93,9 @@ function barrasOf(s: BarraState): BarraLinha[] {
 function gradeAtivaOf(card: Mexa): { i: number; g: GradeItem; com: (g: GradeItem) => Record<string, unknown> } {
   const e = card.visual.estado
   const i = num(e.ativa) ?? 0
-  const gs: GradeItem[] = arr<GradeItem>(e.grades)?.length ? (e.grades as GradeItem[]) : [{ pintadas: num(e.pintadas), inteiros: num(e.inteiros), rotulo: e.rotulo as string | undefined }]
-  const { pintar: _p, porColuna: _c, ativa: _a, pintadas: _n, inteiros: _w, marcadas: _k, rotulo: _r, ...rest } = e
-  void [_p, _c, _a, _n, _w, _k, _r]
+  const gs: GradeItem[] = arr<GradeItem>(e.grades)?.length ? (e.grades as GradeItem[]) : [{ pintadas: num(e.pintadas), inteiros: num(e.inteiros), rotulo: e.rotulo as string | undefined, leitura: e.leitura as GradeItem['leitura'] }]
+  const { pintar: _p, porColuna: _c, ativa: _a, pintadas: _n, inteiros: _w, marcadas: _k, rotulo: _r, leitura: _l, ...rest } = e
+  void [_p, _c, _a, _n, _w, _k, _r, _l]
   return { i, g: gs[i] ?? {}, com: (g) => ({ ...rest, grades: gs.map((x, j) => (j === i ? g : x)) }) }
 }
 
@@ -149,6 +150,8 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: gradeAtivaOf(card).g.pintadas ?? 0 }
     case 'medida':
       return { ...base, casa: null }
+    case 'tabela':
+      return { ...base, drag: num((e.tabela as { mostradas?: number }).mostradas) ?? 1 }
     default:
       return base
   }
@@ -196,6 +199,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, drag: ok.pintadas as number }
     case 'medida':
       return { ...done, casa: ok.para as string }
+    case 'tabela':
+      return { ...done, drag: ok.colunas as number }
     default:
       void e
       return done
@@ -514,6 +519,27 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'tabela': {
+      // A tap on the next empty column fills it (and its arrows); one column at a time, up to the answer.
+      const target = ok.colunas as number
+      const vis = st.drag ?? 1
+      return {
+        visual: card.visual,
+        interact: {
+          livre: {
+            mostradas: vis,
+            wrong: Boolean(st.note),
+            onColuna: lock || vis >= target
+              ? undefined
+              : (c) => {
+                  if (c !== vis) return
+                  const n = vis + 1
+                  set({ ...st, drag: n, done: n === target, note: undefined })
+                },
+          },
+        },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -536,5 +562,6 @@ export const GESTO: Record<Kind, string | null> = {
   partir: 'Toque na barra para cortar as partes mais fino.',
   grade: 'Toque nos quadradinhos da grade para pintar.',
   medida: 'Toque na unidade em que a vírgula deve ficar.',
+  tabela: 'Toque na coluna vazia para completar a tabela.',
   mostre: null,
 }

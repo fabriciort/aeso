@@ -17,6 +17,12 @@ export interface GradeItem {
   marcadas?: number[]
   /** O que aparece embaixo. Padrão: o número, como 0,25. */
   rotulo?: string
+  /**
+   * Como ler o pintado embaixo, quando não há `rotulo`: conta os quadradinhos
+   * (vezes `vezes`, padrão 1) entre `antes` e `depois`. `{ depois: ' %' }`
+   * mostra 25 %; `{ vezes: 10, antes: 'R$ ' }` mostra R$ 250. Anda com o Mexa.
+   */
+  leitura?: { vezes?: number; antes?: string; depois?: string }
 }
 
 export interface GradeState extends GradeItem {
@@ -49,7 +55,7 @@ const ease = [0.22, 1, 0.36, 1] as const
 
 export function gradesOf(s: GradeState): GradeItem[] {
   if (s.grades?.length) return s.grades
-  return [{ pintadas: s.pintadas, inteiros: s.inteiros, marcadas: s.marcadas, rotulo: s.rotulo }]
+  return [{ pintadas: s.pintadas, inteiros: s.inteiros, marcadas: s.marcadas, rotulo: s.rotulo, leitura: s.leitura }]
 }
 
 /** How many wholes an item takes. */
@@ -64,6 +70,17 @@ export function decimal(n: number, cels: number): string {
   const v = n / cels
   const t = casas > 0 ? v.toFixed(casas).replace(/\.?0+$/, '') : String(v)
   return t.replace('.', ',')
+}
+
+/** The label under an item: its `rotulo`, its `leitura`, or the decimal. */
+export function rotuloDe(g: GradeItem, cels: number): string {
+  if (g.rotulo !== undefined) return g.rotulo
+  const n = g.marcadas ? g.marcadas.length : (g.pintadas ?? 0)
+  if (g.leitura) {
+    const v = Math.round(n * (g.leitura.vezes ?? 1) * 100) / 100
+    return `${g.leitura.antes ?? ''}${v.toLocaleString('pt-BR')}${g.leitura.depois ?? ''}`
+  }
+  return decimal(n, cels)
 }
 
 export function Grade({ s, size, onCell, ativa = 0, wrong }: { s: GradeState; size: { w: number; h: number } } & GradeInteract) {
@@ -127,13 +144,13 @@ export function Grade({ s, size, onCell, ativa = 0, wrong }: { s: GradeState; si
       animate={wrong ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
       transition={{ duration: 0.35 }}
       role="img"
-      aria-label={`Grade de decimais: ${items.map((g) => g.rotulo ?? decimal(g.pintadas ?? g.marcadas?.length ?? 0, cels)).join(', ')}`}
+      aria-label={`Grade de decimais: ${items.map((g) => rotuloDe(g, cels)).join(', ')}`}
     >
       {items.map((g, i) => {
         const dim = s.destaque !== undefined && s.destaque !== i
         const tap = onCell && i === ativa
         const xs = placed[i]
-        const label = g.rotulo ?? decimal(g.marcadas ? g.marcadas.length : (g.pintadas ?? 0), cels)
+        const label = rotuloDe(g, cels)
         const cx = (xs[0] + xs[xs.length - 1] + gw) / 2
         return (
           <motion.g key={`g${i}`} animate={{ opacity: dim ? 0.4 : 1 }} transition={{ duration: 0.3 }}>

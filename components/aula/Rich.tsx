@@ -20,7 +20,7 @@ export function Rich({ text }: { text: string }) {
         p.startsWith('$') ? (
           <Tex key={i} className={p.includes('\\frac') ? 'inline-block py-0.5' : undefined}>{grande(p.slice(1, -1))}</Tex>
         ) : p.startsWith('**') ? (
-          <strong key={i} className="font-semibold text-white">
+          <strong key={i} className="font-semibold text-inherit">
             {p.slice(2, -2)}
           </strong>
         ) : (

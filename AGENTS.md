@@ -23,10 +23,12 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | U4 Divisão | 5 | pronta |
 | U5 Expressões numéricas | 3 | pronta |
 | U6 Múltiplos, divisores e primos | 4 | pronta |
-| **U7 Frações** | 10 | **a próxima**; pede o modelo `barra` no player |
-| U8 em diante | | planejadas em `docs/MATEMATICA.md`, seção 6 |
+| U7 Frações | 10 | pronta; trouxe o modelo `barra` |
+| U8 Decimais | 6 | pronta; trouxe a `grade` 10 × 10, a vírgula no teclado e a conta com decimais |
+| **U9 Medidas** | 6 | **em andamento**; trouxe o quadro de unidades (`medida`) |
+| U10 em diante | | planejadas em `docs/MATEMATICA.md`, seção 6 |
 
-São 29 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
+São 45 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
@@ -35,11 +37,11 @@ São 29 aulas no ar. A fonte de verdade do que existe é `content/matematica/ind
 3. `docs/MATEMATICA.md`: o plano da formação (unidades, aulas, modelos-âncora, erros comuns por unidade).
 4. `lib/formation/schema.ts`: o contrato tipado de aula, cartão, gerador e erro comum.
 5. `lib/math/curriculum.ts`: ids, títulos e pré-requisitos de todas as aulas.
-6. Uma unidade pronta como modelo. A U6 é a mais recente e mostra a organização atual:
-   - `content/matematica/basica/u06/` (as aulas e o `index.ts`);
-   - `content/matematica/geradores/divisibilidade.ts` (os exercícios);
-   - `content/matematica/erros-u06.ts` (os erros comuns novos);
-   - `tests/geradores-u06.test.ts` (os testes dos exercícios).
+6. Uma unidade pronta como modelo. A U8 é a mais recente e mostra a organização atual (a unidade dividida em duas partes, para dois autores trabalharem ao mesmo tempo):
+   - `content/matematica/basica/u08/` (as aulas, `parte-a.ts`, `parte-b.ts` e o `index.ts`);
+   - `content/matematica/geradores/decimais-a.ts` e `decimais-b.ts` (os exercícios);
+   - `content/matematica/erros-u08a.ts` e `erros-u08b.ts` (os erros comuns novos);
+   - `tests/geradores-u08a.test.ts` e `tests/geradores-u08b.test.ts` (os testes dos exercícios).
 
 ## Como criar uma unidade nova
 

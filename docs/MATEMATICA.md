@@ -570,8 +570,8 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **0 · Fundação** | Player, exercícios, mapa | pronto |
 | **1 · Piloto** | U0 e U1 | pronto (falta o teste com adultos "do zero") |
 | **2** | U2 a U5 | pronto (falta o treino de tabuada na Revisão do dia) |
-| **3** | U6 e U7 (frações) | U6 pronta; **U7 em andamento**; revisão extra por educador |
-| **4** | U8 a U11 | Missões revisadas por profissionais da área |
+| **3** | U6 e U7 (frações) | prontas; falta a revisão extra por educador |
+| **4** | U8 a U11 | U8 pronta; **U9 em andamento**; Missões revisadas por profissionais da área |
 | **5** | U12 a U15 | Laboratório da balança integrado |
 | **6** | U16 a U19 | |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | Conferência final com a matriz do ENCCEJA e a BNCC |
