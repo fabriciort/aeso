@@ -28,6 +28,7 @@ import { AULAS_U09 } from './basica/u09'
 import { AULAS_U10 } from './basica/u10'
 import { AULAS_U11 } from './basica/u11'
 import { AULAS_U12 } from './basica/u12'
+import { AULAS_U13 } from './basica/u13'
 import { GERADORES_U3 } from './geradores/multiplicacao'
 import { GERADORES_U4 } from './geradores/divisao'
 import { GERADORES_U5 } from './geradores/expressoes'
@@ -44,9 +45,11 @@ import { GERADORES_U11A } from './geradores/porcentagem-a'
 import { GERADORES_U11B } from './geradores/porcentagem-b'
 import { GERADORES_U12A } from './geradores/negativos-a'
 import { GERADORES_U12B } from './geradores/negativos-b'
+import { GERADORES_U13A } from './geradores/potencias-a'
+import { GERADORES_U13B } from './geradores/potencias-b'
 
 // Índice em ordem do currículo; os testes validam cada aula e cada gerador.
-export const AULAS: Aula[] = [B_U0_A1, B_U0_A2, B_U1_A1, B_U1_A2, B_U1_A3, B_U1_A4, B_U1_A5, B_U2_A1, B_U2_A2, B_U2_A3, B_U2_A4, B_U2_A5, ...AULAS_U03, ...AULAS_U04, ...AULAS_U05, ...AULAS_U06, ...AULAS_U07, ...AULAS_U08, ...AULAS_U09, ...AULAS_U10, ...AULAS_U11, ...AULAS_U12]
+export const AULAS: Aula[] = [B_U0_A1, B_U0_A2, B_U1_A1, B_U1_A2, B_U1_A3, B_U1_A4, B_U1_A5, B_U2_A1, B_U2_A2, B_U2_A3, B_U2_A4, B_U2_A5, ...AULAS_U03, ...AULAS_U04, ...AULAS_U05, ...AULAS_U06, ...AULAS_U07, ...AULAS_U08, ...AULAS_U09, ...AULAS_U10, ...AULAS_U11, ...AULAS_U12, ...AULAS_U13]
 
 export const GERADORES: Gerador[] = [
   ...GERADORES_U0,
@@ -72,6 +75,8 @@ export const GERADORES: Gerador[] = [
   ...GERADORES_U11B,
   ...GERADORES_U12A,
   ...GERADORES_U12B,
+  ...GERADORES_U13A,
+  ...GERADORES_U13B,
 ]
 
 export { ERROS } from './erros'
