@@ -1,5 +1,6 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
+import { revelaveis, type LadosArea } from './visual/monomio'
 import { contaPecas, inclinacaoDe, ladoTexto, pecasDe, pratoDe, valorInferido, type Lado, type PecaBalanca, type Prato } from './visual/balanca-pratos'
 import type { BarraLinha, BarraState } from './visual/Barra'
 import { fmtNum, grausMedir, leituraTransferidor, perimetroDe, poligonosDe, transferidorDe, type FiguraState } from './visual/figura-geo'
@@ -18,7 +19,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -66,6 +67,7 @@ export function kindOf(card: Mexa): Kind {
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
+      if (typeof (e.azulejos as { virar?: number } | undefined)?.virar === 'number' && ok.virado === true) return 'virar'
       if ((e.azulejos as { agrupar?: boolean } | undefined)?.agrupar === true && ok.agrupado === true) return 'azulejos'
       if ((e.saldo as { tirar?: string } | undefined)?.tirar && num(ok.tiradas) !== undefined) return 'saldo'
       if ((e.tabela as { completar?: boolean } | undefined)?.completar === true && num(ok.colunas) !== undefined) return 'tabela'
@@ -74,6 +76,7 @@ export function kindOf(card: Mexa): Kind {
       if (e.adicionar === true && num(ok.linhas) !== undefined) return 'linhas'
       if (e.cortar === true && num(ok.corte) !== undefined) return 'cortar'
       if (ok.girado === true) return 'girar'
+      if (e.revelar === true && num(ok.reveladas) !== undefined && arr(e.base)?.length && arr(e.altura)?.length) return 'revelar'
       return 'mostre'
     case 'barra':
       if (e.pintar === true && num(ok.pintadas) !== undefined) return 'pintar'
@@ -333,6 +336,8 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, drag: num(e.linhas) ?? 0 }
     case 'cortar':
       return { ...base, pick: null }
+    case 'revelar':
+      return { ...base, order: [], casa: null }
     case 'pintar':
       return { ...base, drag: ativaOf(card).b.pintadas ?? 0 }
     case 'partir':
@@ -422,6 +427,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, drag: ok.linhas as number }
     case 'cortar':
       return { ...done, pick: ok.corte as number }
+    case 'revelar':
+      return { ...done, order: revelaveis(e as LadosArea), casa: null }
     case 'pintar':
       return { ...done, drag: ok.pintadas as number }
     case 'partir':
@@ -719,6 +726,37 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         visual: visual({ ...e, girar: st.done ? !e.girar : e.girar }),
         interact: { retangulo: { onTurn: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
       }
+    case 'revelar': {
+      // A tap on a part uncovers its area (or, with a hidden side, that part of the side); done when all are uncovered.
+      const todas = revelaveis(e as LadosArea)
+      const order = st.order ?? []
+      const { revelar: _r, ...rest } = e
+      void _r
+      const ultima = st.casa?.split('-').map(Number) as [number, number] | undefined
+      return {
+        visual: visual({ ...rest, ...(ultima && !st.done ? { destaque: ultima } : {}) }),
+        interact: {
+          retangulo: {
+            reveladas: order,
+            onRevelar: lock
+              ? undefined
+              : (k, i, j) => {
+                  if (order.includes(k) || !todas.includes(k)) return
+                  const o2 = [...order, k]
+                  set({ ...st, order: o2, casa: `${i}-${j}`, done: todas.every((t) => o2.includes(t)), note: undefined })
+                },
+          },
+        },
+      }
+    }
+    case 'virar': {
+      // A tap on the heap with the minus in front turns all its pieces at once.
+      const az = e.azulejos as Record<string, unknown>
+      return {
+        visual: visual({ ...e, azulejos: { ...az, virado: st.done || az.virado === true } }),
+        interact: { livre: { onVirar: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
+    }
     case 'pintar': {
       // A tap paints up to that part; a tap on a painted part takes it and the ones after it back.
       const { i, b, com } = ativaOf(card)
@@ -1282,6 +1320,8 @@ export const GESTO: Record<Kind, string | null> = {
   linhas: 'Toque em "+ 1 linha".',
   cortar: 'Toque entre duas colunas para partir o retângulo.',
   girar: 'Toque no retângulo para girar.',
+  revelar: 'Toque em cada parte do retângulo para descobrir.',
+  virar: 'Toque no monte com o sinal de menos na frente.',
   pintar: 'Toque nas partes da barra para pintar.',
   partir: 'Toque na barra para cortar as partes mais fino.',
   grade: 'Toque nos quadradinhos da grade para pintar.',

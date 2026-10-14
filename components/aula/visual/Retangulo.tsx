@@ -1,6 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
+import { chaveRevelar, comprimento, ehNegativo, escreveMonomio, escreveNumero, escreveSoma, lerMonomio, letraPadrao, letrasDe, MENOS, produto, revelaveis, somaTermos } from './monomio'
 
 // O retângulo da multiplicação. Em quadradinhos, cada linha é um grupo igual
 // e o total é linhas × colunas; partido (cortes), mostra a distributiva. Por
@@ -18,11 +19,17 @@ export interface RetanguloState {
   girar?: boolean
   total?: number | string
   grupos?: boolean
-  /** Por área: as partes de cada lado. Uma parte pode ser uma letra ('x'), desenhada com `tamanhoLetra`. */
+  /** Por área: as partes de cada lado. Uma parte pode ser um monômio ('x', '3x', 'x²', '−2', 'xy'), desenhada com `tamanhoLetra`. */
   base?: (number | string)[]
   altura?: (number | string)[]
   /** Com letras nos lados: quanto uma letra ocupa, na escala dos números (padrão: um pouco mais que a maior parte numérica). */
   tamanhoLetra?: number
+  /** Por área: esse lado aparece com "?" em cada parte (o desenho usa as partes de verdade). Para a divisão. */
+  oculto?: 'base' | 'altura'
+  /** Por área: embaixo, a soma das áreas e, juntando os termos semelhantes, a soma simplificada. */
+  somaTermos?: boolean
+  /** Por área, Mexa "revelar": tocar cada parte descobre a área dela (ou, com `oculto`, a parte do lado). */
+  revelar?: boolean
   /** O resto: quadradinhos soltos numa linha incompleta, embaixo do retângulo. */
   sobra?: number
   /** Fração de fração: as primeiras [linhas, colunas] ficam claras; o cruzamento das duas, em âmbar. */
@@ -40,10 +47,15 @@ export interface RetanguloInteract {
   /** Mexa "girar": a tap on the rectangle. */
   onTurn?: () => void
   wrong?: boolean
+  /** Mexa "revelar" (por área): o que já foi descoberto ('0-1' é a área da parte; 'b1', 'h0', uma parte do lado oculto) e o toque numa parte. */
+  reveladas?: string[]
+  onRevelar?: (chave: string, i: number, j: number) => void
 }
 
 const amber = '#fbbf24'
 const ease = [0.22, 1, 0.36, 1] as const
+// The red of the negative algebra tiles: a part or an area that subtracts.
+const rose = '#fb7185'
 
 /** Sizes of the parts of n squares cut at the given positions. */
 function parts(n: number, cuts: number[] = []): number[] {
@@ -57,8 +69,8 @@ function parts(n: number, cuts: number[] = []): number[] {
   return out
 }
 
-export function Retangulo({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wrong }: { s: RetanguloState; size: { w: number; h: number } } & RetanguloInteract) {
-  if (s.base?.length && s.altura?.length) return <Area s={s} size={size} />
+export function Retangulo({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wrong, reveladas, onRevelar }: { s: RetanguloState; size: { w: number; h: number } } & RetanguloInteract) {
+  if (s.base?.length && s.altura?.length) return <Area s={s} size={size} reveladas={reveladas} onRevelar={onRevelar} />
   return <Quadradinhos s={s} size={size} onAdd={onAdd} onRemove={onRemove} maxLinhas={maxLinhas} onCut={onCut} onTurn={onTurn} wrong={wrong} />
 }
 
@@ -269,18 +281,36 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   )
 }
 
-function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }) {
+function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w: number; h: number } } & RetanguloInteract) {
   const base = s.base!
   const altura = s.altura!
+  const partes = [...base, ...altura]
   // A letter is a length we do not know: it is drawn a little longer than the numbers next to it.
-  const nums = [...base, ...altura].filter((v): v is number => typeof v === 'number')
-  const letra = s.tamanhoLetra ?? Math.max(4, ...nums.map((n) => n * 1.6))
-  const med = (v: number | string) => (typeof v === 'number' ? v : letra)
+  const letra = s.tamanhoLetra ?? letraPadrao(partes)
+  const letras = letrasDe(partes)
+  const med = (v: number | string) => comprimento(v, letra, letras)
   const sb = base.reduce<number>((a, b) => a + med(b), 0)
   const sa = altura.reduce<number>((a, b) => a + med(b), 0)
-  const labelW = 40
+  // Mexa "revelar": until every key is uncovered, the hidden ones show "?".
+  const revelando = Boolean(onRevelar) || reveladas !== undefined
+  const chaves = revelaveis(s)
+  const aberto = (k: string) => !revelando || (reveladas ?? []).includes(k)
+  const tudo = chaves.every(aberto)
+  const rotuloLado = (v: number | string, k: string, lado: 'base' | 'altura') => (s.oculto === lado && (!revelando || !aberto(k)) ? '?' : escreve(v))
+  const areaText = (i: number, j: number): number | string | undefined => {
+    if (Array.isArray(s.areas)) return s.areas[i]?.[j]
+    if (s.areas || revelando) return produto(altura[i], base[j])
+    return undefined
+  }
+  const termos = altura.flatMap((_, i) => base.map((_, j) => areaText(i, j))).filter((t): t is number | string => t !== undefined)
+  // The sum below appears when every area is in view; its room is kept from the start, so nothing jumps.
+  const somaToda = s.somaTermos && termos.length && termos.every((t) => lerMonomio(t) !== null) ? [escreveSoma(termos), somaTermos(termos)] : undefined
+  const linhasSoma = somaToda ? (somaToda[0] === somaToda[1] ? 1 : 2) : 0
+  const soma = tudo ? somaToda : undefined
+  const mostraTotal = s.total !== undefined && tudo
+  const labelW = Math.max(40, ...altura.map((a) => String(rotuloLado(a, '', 'altura')).length * 10 + 14))
   const labelH = 28
-  const totalH = s.total !== undefined ? 40 : 0
+  const totalH = (s.total !== undefined ? 40 : 0) + linhasSoma * 32 + (linhasSoma ? 8 : 0)
   const availW = size.w - 32 - labelW
   const availH = size.h - 24 - labelH - totalH
   // Proportional, but no part thinner than its label.
@@ -299,68 +329,106 @@ function Area({ s, size }: { s: RetanguloState; size: { w: number; h: number } }
   const xs = ws.map((_, i) => ox + ws.slice(0, i).reduce((a, b) => a + b, 0))
   const ys = hs.map((_, i) => oy + hs.slice(0, i).reduce((a, b) => a + b, 0))
   const lit = (i: number, j: number) => Array.isArray(s.destaque) && s.destaque[0] === i && s.destaque[1] === j
-  const areaText = (i: number, j: number) => (Array.isArray(s.areas) ? s.areas[i]?.[j] : s.areas ? produto(altura[i], base[j]) : undefined)
+  const corLado = (v: number | string, rotulo: string) => (rotulo === '?' ? amber : ehNegativo(v) ? rose : 'rgba(255,255,255,0.85)')
+  const fimY = oy + H
 
   return (
-    <svg width={size.w} height={size.h} role="img" aria-label={`Retângulo de ${altura.join(' + ')} por ${base.join(' + ')}, partido`}>
-      {altura.map((a, i) =>
-        base.map((b, j) => (
-          <motion.rect
-            key={`p${i}-${j}`}
-            initial={{ opacity: 0, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
-            animate={{ opacity: 1, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
-            transition={{ duration: 0.45, ease }}
-            rx={6}
-            fill={lit(i, j) ? 'rgba(251,191,36,0.28)' : 'rgba(255,255,255,0.1)'}
-            stroke={lit(i, j) ? amber : 'rgba(255,255,255,0.75)'}
-            strokeWidth={1.5}
-          />
-        )),
-      )}
-      {base.map((b, j) => (
-        <motion.text key={`b${j}-${b}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} x={xs[j] + ws[j] / 2} y={oy - 10} textAnchor="middle" fill="rgba(255,255,255,0.85)" fontSize={16} fontWeight={600} className="tabular-nums">
-          {escreve(b)}
-        </motion.text>
-      ))}
-      {altura.map((a, i) => (
-        <motion.text key={`h${i}-${a}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} x={ox - 12} y={ys[i] + hs[i] / 2 + 5} textAnchor="end" fill="rgba(255,255,255,0.85)" fontSize={16} fontWeight={600} className="tabular-nums">
-          {escreve(a)}
-        </motion.text>
-      ))}
+    <svg width={size.w} height={size.h} className="select-none" role="img" aria-label={`Retângulo de ${altura.map(escreve).join(' + ')} por ${base.map(escreve).join(' + ')}, partido`}>
       {altura.map((_, i) =>
         base.map((_, j) => {
-          const t = areaText(i, j)
-          if (t === undefined) return null
-          const fs = Math.max(13, Math.min(24, Math.min(ws[j], hs[i]) * 0.32))
+          const neg = ehNegativo(areaText(i, j))
+          const fechado = revelando && !s.oculto && !aberto(chaveRevelar(s, i, j))
+          const tocavel = Boolean(onRevelar) && !aberto(chaveRevelar(s, i, j))
           return (
-            <motion.text key={`a${i}-${j}-${t}`} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25 + 0.15 * (i * base.length + j) }} x={xs[j] + ws[j] / 2} y={ys[i] + hs[i] / 2 + fs * 0.35} textAnchor="middle" fill={amber} fontSize={fs} fontWeight={700} className="tabular-nums">
-              {typeof t === 'number' ? t.toLocaleString('pt-BR') : t}
+            <motion.rect
+              key={`p${i}-${j}`}
+              initial={{ opacity: 0, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
+              animate={{ opacity: 1, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
+              transition={{ duration: 0.45, ease }}
+              rx={6}
+              fill={lit(i, j) ? 'rgba(251,191,36,0.28)' : neg && !fechado ? 'rgba(251,113,133,0.16)' : 'rgba(255,255,255,0.1)'}
+              stroke={lit(i, j) ? amber : neg && !fechado ? rose : 'rgba(255,255,255,0.75)'}
+              strokeWidth={1.5}
+              strokeDasharray={tocavel ? '6 4' : undefined}
+              onClick={tocavel ? () => onRevelar!(chaveRevelar(s, i, j), i, j) : undefined}
+              style={{ cursor: tocavel ? 'pointer' : undefined }}
+            />
+          )
+        }),
+      )}
+      {base.map((b, j) => {
+        const r = rotuloLado(b, `b${j}`, 'base')
+        return (
+          <motion.text key={`b${j}-${r}`} initial={{ opacity: 0, scale: r === '?' ? 1 : 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', stiffness: 380, damping: 18 }} x={xs[j] + ws[j] / 2} y={oy - 10} textAnchor="middle" fill={corLado(b, r)} fontSize={16} fontWeight={600} className="tabular-nums">
+            {r}
+          </motion.text>
+        )
+      })}
+      {altura.map((a, i) => {
+        const r = rotuloLado(a, `h${i}`, 'altura')
+        return (
+          <motion.text key={`h${i}-${r}`} initial={{ opacity: 0, scale: r === '?' ? 1 : 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', stiffness: 380, damping: 18 }} x={ox - 12} y={ys[i] + hs[i] / 2 + 5} textAnchor="end" fill={corLado(a, r)} fontSize={16} fontWeight={600} className="tabular-nums">
+            {r}
+          </motion.text>
+        )
+      })}
+      {altura.map((_, i) =>
+        base.map((_, j) => {
+          const t0 = areaText(i, j)
+          if (t0 === undefined) return null
+          const fechado = revelando && !s.oculto && !aberto(chaveRevelar(s, i, j))
+          const t = fechado ? '?' : escreve(t0)
+          const neg = !fechado && ehNegativo(t0)
+          // No wider than its part: '−6x²' in a thin part gets a smaller font.
+          const largura = [...t].reduce((a, c) => a + (/[⁰¹²³⁴⁵⁶⁷⁸⁹]/.test(c) ? 0.4 : 0.62), 0)
+          const fs = Math.max(12, Math.min(24, Math.max(16, Math.min(ws[j], hs[i]) * 0.32), (ws[j] - 10) / Math.max(1, largura)))
+          return (
+            <motion.text
+              key={`a${i}-${j}-${t}`}
+              initial={{ opacity: 0, scale: fechado ? 1 : revelando ? 0.3 : 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={revelando ? { type: 'spring', stiffness: 420, damping: 14 } : { delay: 0.25 + 0.15 * (i * base.length + j) }}
+              x={xs[j] + ws[j] / 2}
+              y={ys[i] + hs[i] / 2 + fs * 0.35}
+              textAnchor="middle"
+              fill={fechado ? 'rgba(255,255,255,0.4)' : neg ? rose : amber}
+              fontSize={fs}
+              fontWeight={700}
+              className="tabular-nums"
+              style={{ pointerEvents: 'none' }}
+            >
+              {t}
             </motion.text>
           )
         }),
       )}
-      {s.total !== undefined && (
-        <motion.text initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} x={size.w / 2} y={oy + H + 32} textAnchor="middle" fill="#fff" fontSize={22} fontWeight={600} className="tabular-nums">
-          {escreve(s.total)}
+      {soma && (
+        <motion.g key={`soma-${soma.join('|')}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: revelando ? 0.35 : 0.25 + 0.15 * termos.length }}>
+          {soma.slice(0, linhasSoma).map((linha, n) => {
+            const txt = n === 0 ? linha : `= ${linha}`
+            const fs = Math.max(14, Math.min(20, (size.w - 24) / Math.max(1, [...txt].length * 0.56)))
+            return (
+              <text key={n} x={size.w / 2} y={fimY + 30 + n * 32} textAnchor="middle" fill={n === linhasSoma - 1 ? amber : 'rgba(255,255,255,0.85)'} fontSize={fs} fontWeight={n === linhasSoma - 1 ? 700 : 600} className="tabular-nums">
+                {txt}
+              </text>
+            )
+          })}
+        </motion.g>
+      )}
+      {mostraTotal && (
+        <motion.text initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: revelando ? 0.35 : 0 }} x={size.w / 2} y={fimY + linhasSoma * 32 + (linhasSoma ? 8 : 0) + 32} textAnchor="middle" fill="#fff" fontSize={22} fontWeight={600} className="tabular-nums">
+          {escreve(s.total!)}
         </motion.text>
       )}
     </svg>
   )
 }
 
-const escreve = (v: number | string) => (typeof v === 'number' ? v.toLocaleString('pt-BR') : v)
-
-/** The area of one part: 3 × 4 = 12, 3 × x = 3x, x × x = x², 2x × 3 = 6x. */
-export function produto(a: number | string, b: number | string): number | string {
-  if (typeof a === 'number' && typeof b === 'number') return a * b
-  const partes = (v: number | string): [number, string] => {
-    if (typeof v === 'number') return [v, '']
-    const m = v.match(/^(\d*)([a-zA-Z]+)$/)
-    return m ? [m[1] ? Number(m[1]) : 1, m[2]] : [1, v]
-  }
-  const [ka, la] = partes(a)
-  const [kb, lb] = partes(b)
-  const k = ka * kb
-  const letras = la && lb && la === lb ? `${la}²` : [la, lb].filter(Boolean).sort().join('')
-  return `${k === 1 ? '' : k.toLocaleString('pt-BR')}${letras}`
+/** A side or an area as the student reads it: 1.000, −2, −3x (a monomial written the usual way). */
+const escreve = (v: number | string) => {
+  if (typeof v === 'number') return escreveNumero(v)
+  const m = lerMonomio(v)
+  return m && Object.keys(m.letras).length ? escreveMonomio(m) : v.replace(/-/g, MENOS)
 }
+
+export { produto }

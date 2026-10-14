@@ -29,6 +29,8 @@ import { ERROS_U18B } from './erros-u18b'
 import { ERROS_U19A } from './erros-u19a'
 import { ERROS_U19B } from './erros-u19b'
 import { ERROS_U20 } from './erros-u20'
+import { ERROS_AF_U01A } from './erros-af-u01a'
+import { ERROS_AF_U01B } from './erros-af-u01b'
 
 // Catálogo de erros comuns da formação. Cada erro tem um id estável, usado
 // por opções de cartões e por exercícios para diagnosticar o que o aluno
@@ -290,7 +292,7 @@ const ERROS_BASE: ErroComum[] = [
   },
 ]
 
-export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B, ...ERROS_U08A, ...ERROS_U08B, ...ERROS_U09A, ...ERROS_U09B, ...ERROS_U10A, ...ERROS_U10B, ...ERROS_U11A, ...ERROS_U11B, ...ERROS_U12A, ...ERROS_U12B, ...ERROS_U13A, ...ERROS_U13B, ...ERROS_U14A, ...ERROS_U14B, ...ERROS_U15A, ...ERROS_U15B, ...ERROS_U16A, ...ERROS_U16B, ...ERROS_U17, ...ERROS_U18A, ...ERROS_U18B, ...ERROS_U19A, ...ERROS_U19B, ...ERROS_U20]
+export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B, ...ERROS_U08A, ...ERROS_U08B, ...ERROS_U09A, ...ERROS_U09B, ...ERROS_U10A, ...ERROS_U10B, ...ERROS_U11A, ...ERROS_U11B, ...ERROS_U12A, ...ERROS_U12B, ...ERROS_U13A, ...ERROS_U13B, ...ERROS_U14A, ...ERROS_U14B, ...ERROS_U15A, ...ERROS_U15B, ...ERROS_U16A, ...ERROS_U16B, ...ERROS_U17, ...ERROS_U18A, ...ERROS_U18B, ...ERROS_U19A, ...ERROS_U19B, ...ERROS_U20, ...ERROS_AF_U01A, ...ERROS_AF_U01B]
 
 export function getErro(id: string): ErroComum | undefined {
   return ERROS.find((e) => e.id === id)
