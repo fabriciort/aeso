@@ -32,10 +32,12 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | U13 Potências e raízes | 6 | pronta |
 | U14 Linguagem algébrica | 5 | pronta; trouxe os azulejos algébricos (`livre.azulejos`) e o retângulo com letras |
 | U15 Equações do 1º grau | 6 | pronta; trouxe a balança (`balanca`) |
-| **U16 Geometria plana** | 8 | **em andamento**; trouxe as figuras (`figura`): ângulos, transferidor, contorno, recorte, círculo e Pitágoras |
-| U17 em diante | | planejadas em `docs/MATEMATICA.md`, seção 6 |
+| U16 Geometria plana | 8 | pronta; trouxe as figuras (`figura`): ângulos, transferidor, contorno, recorte, círculo e Pitágoras |
+| U17 Sólidos e volume | 3 | pronta; trouxe os sólidos (`solido`): planificação, cubinhos em camadas e faces para pintar |
+| **U18 Plano cartesiano e gráficos** | 5 | **em andamento**; trouxe o plano (`plano`, com a máquina de função) e os gráficos (`grafico`) |
+| U19 em diante | | planejadas em `docs/MATEMATICA.md`, seção 6 |
 
-São 79 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
+São 90 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
