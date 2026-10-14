@@ -38,7 +38,7 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | **U19 Estatística e probabilidade** | 6 | **em andamento** |
 | U20 Projeto final | | planejada em `docs/MATEMATICA.md`, seção 6 |
 
-São 95 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
+São 101 aulas no ar. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
