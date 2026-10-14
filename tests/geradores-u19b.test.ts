@@ -67,7 +67,7 @@ function casas(serve: (a: number, b: number) => boolean) {
 }
 
 /** As cores do saco: '**3** azuis, **4** vermelhas e **1** verde' → { azul: 3, vermelha: 4, verde: 1 }. */
-const SINGULAR: Record<string, string> = { azul: 'azul', azuis: 'azul', vermelha: 'vermelha', vermelhas: 'vermelha', verde: 'verde', verdes: 'verde', amarela: 'amarela', amarelas: 'amarela' }
+const SINGULAR: Record<string, string> = { azul: 'azul', azuis: 'azul', vermelha: 'vermelha', vermelhas: 'vermelha', verde: 'verde', verdes: 'verde', roxa: 'roxa', roxas: 'roxa' }
 function saco(t: string): Record<string, number> {
   const out: Record<string, number> = {}
   for (const m of t.matchAll(/\*\*(\d+)\*\* (?:bolas? )?([a-z]+)/g)) out[SINGULAR[m[2]]] = Number(m[1])

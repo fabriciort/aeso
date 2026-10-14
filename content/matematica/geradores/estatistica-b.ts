@@ -244,7 +244,7 @@ function regraDoDado(r: Rng): { texto: string; faces: number[] } {
 }
 
 /** As cores do saco: o nome no singular (a cor do player) e no plural. */
-const CORES: [string, string][] = [['azul', 'azuis'], ['vermelha', 'vermelhas'], ['verde', 'verdes'], ['amarela', 'amarelas']]
+const CORES: [string, string][] = [['azul', 'azuis'], ['vermelha', 'vermelhas'], ['verde', 'verdes'], ['roxa', 'roxas']]
 /** "**3** azuis, **4** vermelhas e **1** verde" */
 const lista = (cs: [string, string][], ns: number[]) => {
   const partes = cs.map(([um, varios], i) => `${neg(ns[i])} ${pl(ns[i], um, varios)}`)

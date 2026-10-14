@@ -3,7 +3,7 @@ import type { Aula, Visual } from '@/lib/formation/schema'
 // Contagem. As roupas de Lia: 3 camisas e 2 calças. O momento-chave é o Mexa
 // "ramificar": cada toque faz a árvore crescer uma etapa, e o aluno vê cada
 // camisa abrir 2 calças, 3 → 3 × 2 = 6. Mais uma etapa (os calçados)
-// multiplica de novo: 6 × 2 = 12. Depois o lanche (2 × 4 × 2 = 16), os dois
+// multiplica de novo: 6 × 2 = 12. Depois o lanche (2 × 3 × 2 = 12), os dois
 // dados na grade (6 × 6 = 36, com 2 e 5 diferente de 5 e 2, que prepara a
 // próxima aula) e o cadeado de 3 rodinhas (1.000 senhas). O erro a desmontar:
 // somar as opções no lugar de multiplicar.
@@ -17,8 +17,8 @@ const CALCADOS = ['tênis', 'bota']
 const ROUPA = { arvore: [CAMISAS, CALCAS], nomes: ['camisa', 'calça'], unidade: 'roupas' }
 /** As roupas com os calçados: 3 × 2 × 2 = 12. */
 const COMPLETA = { arvore: [CAMISAS, CALCAS, CALCADOS], nomes: ['camisa', 'calça', 'calçado'], unidade: 'roupas' }
-/** O lanche: 2 pães, 4 recheios e 2 sucos. */
-const LANCHE = { arvore: [['francês', 'forma'], ['queijo', 'presunto', 'frango', 'ovo'], ['laranja', 'uva']], nomes: ['pão', 'recheio', 'suco'], unidade: 'lanches' }
+/** O lanche: 2 pães, 3 recheios e 2 sucos. */
+const LANCHE = { arvore: [['francês', 'forma'], ['queijo', 'frango', 'ovo'], ['laranja', 'uva']], nomes: ['pão', 'recheio', 'suco'], unidade: 'lanches' }
 /** Dois dados de cores diferentes: as linhas são o amarelo, as colunas, o azul. */
 const DADOS = { linhas: 6, colunas: 6, nomes: ['dado amarelo', 'dado azul'] }
 
@@ -27,7 +27,7 @@ export const aula: Aula = {
   titulo: 'Contagem',
   objetivo: 'Contar as combinações de escolhas em sequência multiplicando as opções de cada etapa (o princípio multiplicativo), com a árvore de possibilidades e a grade de dois dados, e usar a conta em senhas e códigos.',
   modelo: 'contagem',
-  esboco: 'O palco é a árvore de possibilidades. Lia tem 3 camisas e 2 calças: o aluno aposta quantas roupas dá e, no momento-chave, toca a árvore, que cresce uma etapa por vez (3 → 3 × 2 = 6). Um caminho aceso mostra que cada ponta é uma roupa. Os calçados fazem a árvore crescer mais uma etapa: 6 × 2 = 12. O anote dá o princípio multiplicativo. No passo a passo, o lanche (2 × 4 × 2 = 16). Depois a grade de dois dados, um amarelo e um azul: 36 casas, e 2 com 5 é outra casa que 5 com 2. Fecha com o cadeado de 3 rodinhas no caderno.',
+  esboco: 'O palco é a árvore de possibilidades. Lia tem 3 camisas e 2 calças: o aluno aposta quantas roupas dá e, no momento-chave, toca a árvore, que cresce uma etapa por vez (3 → 3 × 2 = 6). Um caminho aceso mostra que cada ponta é uma roupa. Os calçados fazem a árvore crescer mais uma etapa: 6 × 2 = 12. O anote dá o princípio multiplicativo. No passo a passo, o lanche (2 × 3 × 2 = 12). Depois a grade de dois dados, um amarelo e um azul: 36 casas, e 2 com 5 é outra casa que 5 com 2. Fecha com o cadeado de 3 rodinhas no caderno.',
   vega: 'Ideia central: escolhas em sequência se multiplicam. Se a primeira etapa tem 3 opções e cada uma abre 2, são 3 × 2 = 6 combinações; cada etapa nova multiplica de novo. A árvore mostra isso: cada ponta é uma combinação. Com dois dados, a grade 6 × 6 tem 36 resultados, e amarelo 2 com azul 5 é diferente de amarelo 5 com azul 2. Um cadeado de 3 rodinhas de 0 a 9 tem 10 × 10 × 10 = 1.000 senhas. Erros esperados: somar as opções (3 + 2 = 5), contar só uma etapa, juntar 2 e 5 com 5 e 2, contar zeros errado em 10 × 10 × 10. Guie com "Cada camisa vai com quantas calças?", "Cada ponta da árvore é o quê?", "E a próxima etapa, multiplica por quanto?".',
   cartoes: [
     {
@@ -108,46 +108,46 @@ export const aula: Aula = {
     },
     {
       tipo: 'passo',
-      problema: 'Uma lanchonete tem **2 pães**, **4 recheios** e **2 sucos**. Quantos lanches diferentes, com um de cada?',
-      fala: 'Uma lanchonete tem dois pães, quatro recheios e dois sucos. Quantos lanches diferentes, com um de cada?',
+      problema: 'Uma lanchonete tem **2 pães**, **3 recheios** e **2 sucos**. Quantos lanches diferentes, com um de cada?',
+      fala: 'Uma lanchonete tem dois pães, três recheios e dois sucos. Quantos lanches diferentes, com um de cada?',
       visual: cont({ ...LANCHE, mostradas: 1 }, 'A árvore do lanche com a primeira etapa aberta: os 2 pães. Embaixo, 2 lanches.'),
       passos: [
         {
           pergunta: 'Quantos sanduíches, juntando pão e recheio?',
           opcoes: [
             {
-              texto: '$2 \\times 4 = 8$', certa: true,
-              explica: 'Isso. Cada pão abre 4 recheios.',
-              mostra: cont({ ...LANCHE, mostradas: 2 }, 'Cada pão abre 4 ramos. Embaixo, 2 × 4 = 8.'),
+              texto: '$2 \\times 3 = 6$', certa: true,
+              explica: 'Isso. Cada pão abre 3 recheios.',
+              mostra: cont({ ...LANCHE, mostradas: 2 }, 'Cada pão abre 3 ramos. Embaixo, 2 × 3 = 6.'),
             },
             {
-              texto: '$2 + 4 = 6$', erro: 'soma-no-lugar-de-multiplicar',
-              explica: 'Somar conta as peças. Cada pão vai com os 4 recheios: 2 grupos de 4.',
+              texto: '$2 + 3 = 5$', erro: 'soma-no-lugar-de-multiplicar',
+              explica: 'Somar conta as peças. Cada pão vai com os 3 recheios: 2 grupos de 3.',
             },
           ],
-          linha: { tex: '2 \\times 4 = 8', fala: 'dois vezes quatro, oito' },
+          linha: { tex: '2 \\times 3 = 6', fala: 'dois vezes três, seis' },
         },
         {
           pergunta: 'E com o suco?',
           opcoes: [
             {
-              texto: '$8 \\times 2 = 16$', certa: true,
-              explica: 'Isso. Cada um dos 8 sanduíches vai com 2 sucos.',
-              mostra: cont(LANCHE, 'A terceira etapa cresce: 16 pontas. Embaixo, 2 × 4 × 2 = 16 lanches.'),
+              texto: '$6 \\times 2 = 12$', certa: true,
+              explica: 'Isso. Cada um dos 6 sanduíches vai com 2 sucos.',
+              mostra: cont(LANCHE, 'A terceira etapa cresce: 12 pontas. Embaixo, 2 × 3 × 2 = 12 lanches.'),
             },
             {
-              texto: '$8 + 2 = 10$', erro: 'soma-no-lugar-de-multiplicar',
-              explica: 'Cada um dos 8 sanduíches pode ir com os 2 sucos: 8 grupos de 2.',
+              texto: '$6 + 2 = 8$', erro: 'soma-no-lugar-de-multiplicar',
+              explica: 'Cada um dos 6 sanduíches pode ir com os 2 sucos: 6 grupos de 2.',
             },
             {
-              texto: '$8$, o suco não muda', erro: 'esquece-uma-etapa',
+              texto: '$6$, o suco não muda', erro: 'esquece-uma-etapa',
               explica: 'O suco é mais uma escolha: cada sanduíche abre 2 ramos, um de laranja e um de uva.',
             },
           ],
-          linha: { tex: '8 \\times 2 = 16', fala: 'oito vezes dois, dezesseis' },
+          linha: { tex: '6 \\times 2 = 12', fala: 'seis vezes dois, doze' },
         },
       ],
-      esboco: 'A árvore cresce com cada passo certo. Na terceira etapa, as 16 pontas mostram o tamanho da conta.',
+      esboco: 'A árvore cresce com cada passo certo. Na terceira etapa, as 12 pontas mostram o tamanho da conta.',
     },
     {
       tipo: 'aposta',

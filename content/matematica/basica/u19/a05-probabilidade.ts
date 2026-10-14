@@ -134,7 +134,7 @@ export const aula: Aula = {
     },
     {
       tipo: 'mexa',
-      texto: 'Em quantas das 36 casas a soma dá 7?',
+      texto: 'Em quantas casas a soma dá 7?',
       visual: cont({ ...SOMAS, favoraveis: { soma: 7 }, chance: true, simplificada: true, porcentagem: true }, 'A grade com as somas. Cada casa com 7 acende ao toque; a contagem cresce embaixo. Com as 6, aparece 6 de 36 = 6/36 = 1/6 ≈ 16,7 %.'),
       acao: {
         tipo: 'tocar',

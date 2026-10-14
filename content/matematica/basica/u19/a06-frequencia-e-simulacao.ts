@@ -146,7 +146,7 @@ export const aula: Aula = {
             {
               texto: '$600 \\div 6 = 100$', certa: true,
               explica: 'Isso. Um sexto é uma das 6 partes iguais: cerca de 100 vezes.',
-              mostra: sort({ ...DADO, rotulo: 'esperado: cerca de 100 de cada face' }, 'As barras, com "esperado: cerca de 100 de cada face" embaixo.'),
+              mostra: sort({ ...DADO, rotulo: 'esperado: cerca de 100' }, 'As barras, com "esperado: cerca de 100" embaixo.'),
             },
             {
               texto: '$600 \\times 6 = 3{.}600$', erro: 'operacao-trocada',
