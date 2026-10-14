@@ -191,6 +191,22 @@ O retângulo de multiplicação. Duas formas:
 | `total` | o número (ou o texto, como `'2x + 6'`) embaixo |
 | `areas: true` ou `areas: [[200, 30], [80, 12]]` | escreve o produto em cada parte (true calcula; uma lista escreve o que vier, inclusive `'?'`) |
 | `destaque`, `total` | como acima |
+| monômios nos lados | uma parte pode ser um monômio (AF.U1): `-2`, `'3x'`, `'x²'`, `'2x²'`, `'−x'`, `'−3x'`, `'y'`, `'xy'`, `'2a'` (o hífen vale como menos). `areas: true` multiplica de verdade: x² · 3x = 3x³, 2x · (−3) = −6x, x · y = xy, −x · (−2) = 2x. O desenho: um número pelo valor absoluto, x² mais comprido que x, 3x umas 2,5 vezes o x (limitado, para caber no celular), y mais curto que x. Ex.: (x − 2)(x + 3) é `base: ['x', 3], altura: ['x', -2], areas: true` |
+| partes negativas | o rótulo de uma parte negativa e as partes com área negativa ficam vermelhos, como os azulejos negativos: o aluno vê o que se subtrai. A área mantém o sinal (−6x) |
+| `oculto: 'base'` (ou `'altura'`) | esse lado aparece com `?` em cada parte, mas o desenho usa as partes de verdade. Para a divisão: (6x² + 9x) ÷ 3x é `base: ['2x', 3], altura: ['3x'], areas: [['6x²', '9x']], oculto: 'base'` |
+| `somaTermos: true` | embaixo, a soma das áreas e, juntando os termos semelhantes, a soma simplificada: `x² + 3x + 2x + 6` e `= x² + 5x + 6` (em âmbar). Os termos ficam do grau maior para o menor. Se nada se junta, aparece uma linha só |
+| `revelar: true` | o Mexa "revelar" (veja abaixo) |
+
+No Mexa "revelar", cada parte começa com `?` e borda tracejada; o toque descobre a área dela (com um pulo) e acende a parte. Com `oculto`, as áreas já aparecem e o toque descobre a parte do lado escondido (qualquer parte da coluna serve). O `total` e a `somaTermos` aparecem quando tudo está descoberto. `sucesso.reveladas` é o número de partes (com `oculto`, o de partes do lado escondido); os testes cobram.
+
+```ts
+// revelar: (x + 2)(x + 3), as quatro áreas uma a uma
+{ tipo: 'mexa', texto: 'O retângulo tem quatro pedaços.', visual: { modelo: 'retangulo', estado: { base: ['x', 3], altura: ['x', 2], revelar: true, somaTermos: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em cada pedaço para ver a área.', sucesso: { reveladas: 4 }, mostre: 'As quatro áreas aparecem.' }, descoberta: 'x² + 3x + 2x + 6 = x² + 5x + 6.' }
+// revelar com o lado escondido: a área e um lado dão o outro lado
+{ tipo: 'mexa', texto: 'A área é 6x² + 9x e a altura é 3x.', visual: { modelo: 'retangulo', estado: { base: ['2x', 3], altura: ['3x'], areas: [['6x²', '9x']], oculto: 'base', revelar: true, total: '2x + 3' } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em cada parte para achar o lado de cima.', sucesso: { reveladas: 2 }, mostre: 'O lado é 2x + 3.' }, descoberta: '(6x² + 9x) ÷ 3x = 2x + 3.' }
+```
 
 ### `quadro-posicional`: divisão na chave
 
@@ -267,6 +283,17 @@ Os azulejos da U14: o quadradinho vale **1**, a barra vale **x** (o lado comprid
 | `azulejos.agrupar: true` | o Mexa "agrupar" (veja abaixo) |
 | `azulejos.montes: 2` | as peças soltas em montes iguais, na ordem da lista, com um vão entre eles: `2(x + 3)` são 2 montes de `x + 3` |
 | `azulejos.cancela: true` | com as peças juntas, cada par de opostos (um `x` e um `−x`, um `1` e um `−1`) aparece apagado e riscado: vale zero |
+| `azulejos.montes: [3, 5]` | montes de tamanhos diferentes: um de 3 peças e um de 5, na ordem da lista |
+| `azulejos.virar: 1` | o índice do monte que vem com um − vermelho na frente, dentro de uma moldura: o menos antes do parêntese. É o Mexa "virar" (veja abaixo) |
+| `azulejos.virado: true` | o monte `virar` já aparece virado: cada peça com o sinal trocado e um + na frente. A expressão embaixo usa as peças viradas |
+
+No Mexa "virar", o toque no monte vira todas as peças dele de uma vez (cada uma gira e mostra o outro lado: x² vira −x², −x vira x, 1 vira −1), e o − vira +. Use com `montes` em lista, porque os dois polinômios raramente têm o mesmo número de peças. Para juntar depois, o próximo cartão traz as peças já viradas (com `agrupar` ou `agrupado`).
+
+```ts
+// virar: (x² + 2x) − (x² − 3x + 1)
+{ tipo: 'mexa', texto: 'O menos está na frente do parêntese inteiro.', visual: { modelo: 'livre', estado: { azulejos: { pecas: ['x²', 'x', 'x', 'x²', '−x', '−x', '−x', '1'], montes: [3, 5], virar: 1 } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque no monte com o menos na frente.', sucesso: { virado: true }, mostre: 'Todas as peças do monte trocam de sinal.' }, descoberta: '−(x² − 3x + 1) = −x² + 3x − 1.' }
+```
 
 Com um tipo só, a expressão embaixo não repete a contagem do grupo.
 
@@ -845,11 +872,13 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `retangulo` com `adicionar: true` | `{ linhas }` | toca o retângulo (ou "+ 1 linha") e uma linha nova de `colunas` quadradinhos entra; começa de `linhas` (pode ser 0) |
 | `retangulo` com `cortar: true` | `{ corte }` | toca entre duas colunas para partir o retângulo ali; o certo é a coluna `corte` |
 | `retangulo` com `girar: true` em `acao.sucesso` | `{ girado: true }` | toca o retângulo e ele gira 90° |
+| `retangulo` por área com `revelar: true` | `{ reveladas: 4 }` (o número de partes; com `oculto`, o de partes do lado escondido) | toca cada parte: a área aparece com um pulo e a parte acende. Com `oculto`, o toque descobre a parte do lado escondido. Termina com tudo descoberto; aí aparecem o `total` e a `somaTermos` |
 | `barra` com `pintar: true` | `{ pintadas }` | toca as partes da barra para pintar (um toque pinta até ali; um toque numa pintada tira dali em diante). Com várias barras, `ativa` é o índice da que recebe os toques (padrão 0) |
 | `quadro-posicional` com `medida` | `{ para }` | toca a unidade de chegada: a vírgula anda até depois dela e os zeros que faltam aparecem |
 | `grade` com `pintar: true` | `{ pintadas }` | toca os quadradinhos para pintar (um toque pinta até ali, coluna por coluna; um toque num pintado tira dali em diante). Com `porColuna: true`, cada toque pinta a coluna inteira (para décimos; `pintadas` deve ser múltiplo de 10). Com várias grades, `ativa` é o índice do número que recebe os toques |
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
 | `livre` com `azulejos.agrupar: true` | `{ agrupado: true }` | toca uma peça e todas as do mesmo tipo vão juntas para um grupo, com a contagem; termina quando todos os tipos estão juntos (com `mostraExpressao`, a expressão aparece no fim) |
+| `livre` com `azulejos.virar` | `{ virado: true }` | toca o monte com o − na frente: todas as peças dele trocam de sinal de uma vez, girando, e o − vira + |
 | `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
 | `balanca` com `tirar: true` | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio. Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |
 | `balanca` com `dividir: k` | `{ dividido: true }` | os pratos aparecem partidos em `k` grupos, todos acesos; o aluno toca num grupo e fica só um grupo de cada lado (com `mostraEquacao`, `2x = 8` vira `x = 4`) |

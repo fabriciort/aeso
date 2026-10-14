@@ -59,6 +59,8 @@ export interface LivreInteract {
   /** Azulejos, Mexa "agrupar": tipos já juntados e o toque numa peça. */
   agrupados?: string[]
   onPeca?: (tipo: string) => void
+  /** Azulejos, Mexa "virar": o toque no monte com o − na frente. */
+  onVirar?: () => void
 }
 
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
@@ -68,7 +70,7 @@ export function hasLivre(s: LivreState): boolean {
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
-  if (s.azulejos?.pecas?.length) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} wrong={it.wrong} />
+  if (s.azulejos?.pecas?.length) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} onVirar={it.onVirar} wrong={it.wrong} />
   if (s.saldo) return <Saldo s={s.saldo} size={size} removidas={it.removidas} paresPostos={it.paresPostos} onTirar={it.onTirar} onPar={it.onPar} wrong={it.wrong} />
   if (s.tabela?.linhas?.length) return <Tabela s={s.tabela} size={size} onColuna={it.onColuna} mostradas={it.mostradas} wrong={it.wrong} />
   return (

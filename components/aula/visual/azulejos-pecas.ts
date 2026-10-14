@@ -32,3 +32,37 @@ export function expressaoDe(pecas: string[], letra = 'x'): string {
   if (!termos.length) return '0'
   return termos.reduce((s, t, i) => (i === 0 ? t : t.startsWith('−') ? `${s} − ${t.slice(1)}` : `${s} + ${t}`), '')
 }
+
+/** The opposite piece: x → −x, −1 → 1. */
+export const oposto = (t: Peca): Peca => (t.startsWith('−') ? t.slice(1) : `−${t}`) as Peca
+
+/**
+ * The heap of each piece, in the order of the list. `montes: 3` makes 3 equal
+ * heaps; `montes: [3, 5]` makes a heap of 3 pieces and one of 5 (what is left
+ * goes to the last heap).
+ */
+export function montesDe(n: number, montes?: number | number[]): number[] {
+  if (Array.isArray(montes) && montes.length) {
+    const out: number[] = []
+    montes.forEach((k, m) => {
+      for (let i = 0; i < Math.max(0, Math.round(k)) && out.length < n; i++) out.push(m)
+    })
+    while (out.length < n) out.push(montes.length - 1)
+    return out
+  }
+  const nm = Math.max(1, Math.min(n, Math.round(typeof montes === 'number' ? montes : 1)))
+  const por = Math.ceil(n / nm)
+  return Array.from({ length: n }, (_, i) => Math.floor(i / por))
+}
+
+/** How many heaps there are. */
+export function quantosMontes(n: number, montes?: number | number[]): number {
+  const ms = montesDe(n, montes)
+  return ms.length ? ms[ms.length - 1] + 1 : 1
+}
+
+/** Mexa "virar": the pieces with the heap `virar` turned (x² → −x², −2x → 2x) when `virado`. */
+export function pecasViradas(pecas: string[], montes?: number | number[], virar?: number, virado?: boolean): Peca[] {
+  const ms = montesDe(pecas.length, montes)
+  return pecas.map((p, i) => (virado && virar !== undefined && ms[i] === virar ? oposto(tipoDe(p)) : tipoDe(p)))
+}

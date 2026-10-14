@@ -3,7 +3,8 @@ import { AULAS } from '@/content/matematica'
 import type { Mexa } from '@/lib/formation/schema'
 import { favoraveisDoCard, initMexa, kindOf, mexaStage, solveMexa, type MexaState } from '@/components/aula/mexa'
 import { ativoDe, media, meioDaFila, ordemFila, type DadosState } from '@/components/aula/visual/dados-geo'
-import { tipoDe } from '@/components/aula/visual/azulejos-pecas'
+import { pecasViradas, tipoDe } from '@/components/aula/visual/azulejos-pecas'
+import { revelaveis, type LadosArea } from '@/components/aula/visual/monomio'
 import { equacaoDe, inclinacaoDe, pecasDe, valorInferido } from '@/components/aula/visual/balanca-pratos'
 import { areaDe, areaTotal, cameraDe, contagemTexto, dimsDe, dobrar, facesDe, facesVisiveis, partesDe, planificacao, somaTexto as somaFaces, TIRAS, type SolidoState } from '@/components/aula/visual/solido-geo'
 import { aplicarRegra, coordTexto, eixoDe, encaixar, paresDaMaquina, passosDaRegra, quadranteDe, regraTexto, retaNoQuadro, retaTexto, type PlanoState, type Vec as VecPlano } from '@/components/aula/visual/plano-geo'
@@ -73,6 +74,18 @@ function play(card: Mexa): MexaState {
       break
     case 'girar':
       stage().interact!.retangulo!.onTurn!()
+      break
+    case 'revelar': {
+      // Taps every cell, row by row (with a hidden side, the second row only repeats the first).
+      const e = card.visual.estado as unknown as { base: unknown[]; altura: unknown[] } & LadosArea
+      e.altura.forEach((_, i) => e.base.forEach((_, j) => {
+        const r = stage().interact!.retangulo!
+        if (r.onRevelar) r.onRevelar(e.oculto === 'base' ? `b${j}` : e.oculto === 'altura' ? `h${i}` : `${i}-${j}`, i, j)
+      }))
+      break
+    }
+    case 'virar':
+      stage().interact!.livre!.onVirar!()
       break
     case 'pintar': {
       const b = stage().interact!.barra!
@@ -204,6 +217,7 @@ describe('Mexa do piloto', () => {
     expect(st.done).toBe(true)
     expect(st.wrong).toBe(0)
     expect(solveMexa(card, initMexa(card)).done).toBe(true)
+    if (kindOf(card) === 'revelar') expect(card.acao.sucesso.reveladas).toBe(revelaveis(card.visual.estado as LadosArea).length)
   })
 
   test('um erro não conta como acerto', () => {
@@ -213,6 +227,61 @@ describe('Mexa do piloto', () => {
     mexaStage(card, st, (s) => (st = s)).interact!.reta!.onPick!(wrong)
     expect(st.done).toBe(false)
     expect(st.wrong).toBe(1)
+  })
+})
+
+const retangulo = (estado: Record<string, unknown>, sucesso: Record<string, unknown>): Mexa => ({ tipo: 'mexa', texto: '', visual: { modelo: 'retangulo', estado }, acao: { instrucao: '', sucesso } }) as unknown as Mexa
+const livre = (estado: Record<string, unknown>, sucesso: Record<string, unknown>): Mexa => ({ tipo: 'mexa', texto: '', visual: { modelo: 'livre', estado }, acao: { instrucao: '', sucesso } }) as unknown as Mexa
+
+describe('Mexa do retângulo com monômios', () => {
+  const revelar = retangulo({ base: ['x', 3], altura: ['x', 2], revelar: true, total: 'x² + 5x + 6', somaTermos: true }, { reveladas: 4 })
+  const dividir = retangulo({ base: ['2x', 3], altura: ['3x'], areas: [['6x²', '9x']], oculto: 'base', revelar: true }, { reveladas: 2 })
+
+  test('revelar é jogável', () => {
+    for (const card of [revelar, dividir, retangulo({ base: ['x²', '−3x', 1], altura: ['2x'], revelar: true }, { reveladas: 3 })]) {
+      expect(kindOf(card)).toBe('revelar')
+      const st = play(card)
+      expect(st.done).toBe(true)
+      expect(st.wrong).toBe(0)
+      expect(st.order).toHaveLength(card.acao.sucesso.reveladas as number)
+      expect(solveMexa(card, initMexa(card)).order).toEqual(revelaveis(card.visual.estado as LadosArea))
+    }
+  })
+
+  test('cada toque descobre uma parte; tocar de novo não conta', () => {
+    let st = initMexa(revelar)
+    const tap = (k: string, i: number, j: number) => mexaStage(revelar, st, (s) => (st = s)).interact!.retangulo!.onRevelar!(k, i, j)
+    tap('0-1', 0, 1)
+    tap('0-1', 0, 1)
+    expect(st.order).toEqual(['0-1'])
+    expect(mexaStage(revelar, st, () => {}).visual.estado.destaque).toEqual([0, 1])
+    tap('0-0', 0, 0)
+    tap('1-0', 1, 0)
+    expect(st.done).toBe(false)
+    tap('1-1', 1, 1)
+    expect(st.done).toBe(true)
+    expect(mexaStage(revelar, st, () => {}).interact!.retangulo!.onRevelar).toBeUndefined()
+  })
+
+  test('no lado oculto, um toque em qualquer parte da coluna descobre o lado', () => {
+    let st = initMexa(dividir)
+    mexaStage(dividir, st, (s) => (st = s)).interact!.retangulo!.onRevelar!('b1', 0, 1)
+    expect(st.order).toEqual(['b1'])
+  })
+})
+
+describe('Mexa dos azulejos: virar', () => {
+  const virar = livre({ azulejos: { pecas: ['x²', 'x', 'x', 'x²', '−x', '−x', '−x', '1'], montes: [3, 5], virar: 1 } }, { virado: true })
+
+  test('virar é jogável e troca o sinal do monte', () => {
+    expect(kindOf(virar)).toBe('virar')
+    const st = play(virar)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    const az = mexaStage(virar, st, () => {}).visual.estado.azulejos as { pecas: string[]; montes: number[]; virar: number; virado: boolean }
+    expect(az.virado).toBe(true)
+    expect(pecasViradas(az.pecas, az.montes, az.virar, az.virado)).toEqual(['x²', 'x', 'x', '−x²', 'x', 'x', 'x', '−1'])
+    expect(solveMexa(virar, initMexa(virar)).done).toBe(true)
   })
 })
 

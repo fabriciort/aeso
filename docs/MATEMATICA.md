@@ -495,6 +495,44 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 | Plano cartesiano e ideia de função | U18 |
 | Juros compostos | U11 |
 
+## 6b. Álgebra e Funções: as unidades
+
+**11 unidades, ids `AF.U1` a `AF.U11`.** Mesmo formato da seção 6. O plano das unidades depois da AF.U1 é o ponto de partida: cada uma é detalhada quando a anterior estiver pronta.
+
+#### AF.U1. Expressões algébricas (6 aulas)
+1. **Monômios e polinômios:** termo, coeficiente, parte literal e grau.
+2. **Somar e subtrair polinômios:** juntar os semelhantes; o menos antes do parêntese troca o sinal de todos os termos.
+3. **Multiplicar monômios:** números com números, letras com letras; os expoentes da mesma letra se somam.
+4. **Monômio vezes polinômio:** a distributiva no retângulo, agora com x² nas áreas.
+5. **Polinômio vezes polinômio:** cada termo com cada termo; o retângulo tem quatro pedaços.
+6. **Dividir por um monômio:** a área e um lado dão o outro lado.
+
+- **Modelo:** os azulejos da U14 e o retângulo por área com letras nos dois lados.
+- **Erros:** x² + x³ = x⁵; x² · x³ = x⁶; −(x − 3) = −x − 3; (x + 2)(x + 3) = x² + 6; dividir só o primeiro termo.
+- **Hábito:** conferir trocando a letra por um número (x = 2, por exemplo) dos dois lados.
+- **Ao final:** soma, subtrai, multiplica e divide polinômios simples, e confere o resultado.
+
+#### AF.U2. Produtos notáveis e fatoração
+- Quadrado da soma e da diferença (o quadrado partido), produto da soma pela diferença, fator comum, trinômio x² + bx + c como retângulo, diferença de quadrados.
+- **Erro central:** (a + b)² = a² + b².
+
+#### AF.U3. Equações do 2º grau
+- x² = k (duas raízes), produto igual a zero, resolver por fatoração, completar o quadrado com os azulejos, a fórmula e o discriminante, problemas.
+
+#### AF.U4. Sistemas de equações
+- Duas incógnitas, substituição, adição, duas retas no plano, problemas.
+
+#### AF.U5. Inequações
+- Intervalos na reta, multiplicar por negativo inverte o sinal, inequações do 2º grau pelo sinal.
+
+#### AF.U6 a AF.U11. Funções
+- **AF.U6 Funções:** domínio, imagem, gráfico, zeros, crescer e decrescer.
+- **AF.U7 Função afim:** taxa de variação constante.
+- **AF.U8 Função quadrática:** parábola, vértice e raízes; laboratório *funcao-quadratica*.
+- **AF.U9 Função exponencial:** crescer por um fator fixo; juros compostos.
+- **AF.U10 Logaritmo:** o expoente que falta; escalas logarítmicas.
+- **AF.U11 Transformações, composição e inversa.**
+
 ## 7. Do plano ao ar: como cada unidade é produzida
 
 O passo a passo prático (arquivos, comandos, entrega) está em `AGENTS.md`. Em resumo, um mesmo agente escreve o conteúdo e estende o player quando a unidade pede um visual novo. O ponto de encontro é o contrato tipado (`lib/formation/schema.ts`), que os testes validam (`tests/conteudo.test.ts`, `tests/aula-mexa.test.ts`).
@@ -573,8 +611,9 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **3** | U6 e U7 (frações) | prontas; falta a revisão extra por educador |
 | **4** | U8 a U11 | prontas; faltam as Missões revisadas por profissionais da área |
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
-| **6** | U16 a U19 | U16, U17 e U18 prontas (figuras, sólidos, plano e gráficos no player); **U19 em andamento** |
-| **7** | U20, diagnóstico completo, folhas em PDF, certificado | Conferência final com a matriz do ENCCEJA e a BNCC |
+| **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
+| **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
+| **8** | Álgebra e Funções | **AF.U1 em andamento** |
 
 ## 11. Decisões
 
