@@ -136,7 +136,7 @@ export const aula: Aula = {
               texto: '1, 9, 0, 9 e 1', certa: true,
               explica: 'Isso. $(-3)^2 = (-3) \\cdot (-3) = 9$: o quadrado nunca é negativo.',
               fala: 'Isso. Menos três ao quadrado é menos três vezes menos três, nove: o quadrado nunca é negativo.',
-              mostra: dados({ ...A, distancias: true, rotulo: 'quadrados: 1, 9, 0, 9, 1' }, 'Os segmentos sem sinal; embaixo, "quadrados: 1, 9, 0, 9, 1".'),
+              mostra: dados({ ...A, desvios: true, rotulo: 'quadrados: 1, 9, 0, 9, 1' }, 'Os desvios com sinal; embaixo, "quadrados: 1, 9, 0, 9, 1".'),
             },
             {
               texto: '1, 9, 0, −9 e 1', erro: 'potencia-sinal-fora-dos-parenteses',
@@ -153,7 +153,7 @@ export const aula: Aula = {
               texto: '$20 \\div 5 = 4$', certa: true,
               explica: 'Isso. 1 + 9 + 0 + 9 + 1 = 20, para 5 comprimidos.',
               fala: 'Isso. Um mais nove mais zero mais nove mais um, vinte, para cinco comprimidos.',
-              mostra: dados({ ...A, distancias: true, rotulo: '20 ÷ 5 = 4' }, 'Embaixo, "20 ÷ 5 = 4".'),
+              mostra: dados({ ...A, desvios: true, rotulo: '20 ÷ 5 = 4' }, 'Embaixo, "20 ÷ 5 = 4".'),
             },
             {
               texto: '$20 \\div 4 = 5$', erro: 'media-esquece-valores',

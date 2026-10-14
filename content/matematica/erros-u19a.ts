@@ -59,14 +59,14 @@ export const ERROS_U19A: ErroComum[] = [
     id: 'usa-sempre-a-media',
     nome: 'usa sempre a média',
     causa: 'Acha que a média é sempre o melhor resumo, o "valor típico", e que duas listas com a mesma média são iguais. Não olha os valores que destoam nem o espalhamento.',
-    exemplo: 'Uma vaga anuncia salário médio de R$ 6 mil numa loja em que 6 das 7 pessoas ganham até R$ 4 mil. Ou: duas linhas de ônibus com média de 10 minutos "tanto faz", mas uma já fez esperar 18. Ou: um lote de comprimidos com média 500 mg aprovado, mesmo espalhado demais.',
+    exemplo: 'Uma vaga anuncia salário médio de R$ 5 mil numa loja em que 6 das 7 pessoas ganham até R$ 4 mil. Ou: duas linhas de ônibus com média de 10 minutos "tanto faz", mas uma já fez esperar 18. Ou: um lote de comprimidos com média 500 mg aprovado, mesmo espalhado demais.',
     desmonte: 'Olhar os pontos, não só o número: o salário do dono puxa o apoio para longe de todos. A mediana fica junto da maioria; a amplitude e o desvio padrão mostram o espalhamento que a média esconde.',
   },
   {
     id: 'mediana-segue-o-extremo',
     nome: 'acha que a mediana sobe junto com o valor que destoa',
     causa: 'Vê a média mudar quando o maior valor cresce e acha que a mediana muda do mesmo jeito.',
-    exemplo: 'Os salários 2, 2, 3, 3, 3, 4 e 25 mil: o dono passa a ganhar 32. A pessoa diz que a mediana sobe. Ela continua 3: o dono ainda é o último da fila.',
+    exemplo: 'Os salários 2, 2, 3, 3, 3, 4 e 18 mil: o dono passa a ganhar 25. A pessoa diz que a mediana sobe. Ela continua 3: o dono ainda é o último da fila.',
     desmonte: 'Pôr em fila antes e depois: só o último muda de valor, e o do meio continua o mesmo. A mediana só olha a posição na fila.',
   },
   {
