@@ -335,11 +335,11 @@ const BASICA_UNITS: Unit[] = [
 
 // ---------------------------------------------------------------- next modules (planned)
 
-const planned = (module: ModuleId, prefix: string, items: [string, string, string[], string?][]): Unit[] =>
+const planned = (module: ModuleId, prefix: string, items: [string, string, string[], string?][], first = 1): Unit[] =>
   items.map(([title, outcome, requires, lab], i) => ({
-    id: `${prefix}.U${i + 1}`,
+    id: `${prefix}.U${i + first}`,
     module,
-    n: i + 1,
+    n: i + first,
     part: 'p',
     title,
     short: title,
@@ -349,8 +349,24 @@ const planned = (module: ModuleId, prefix: string, items: [string, string, strin
     lab,
   }))
 
-const ALGEBRA_UNITS = planned('algebra', 'AF', [
-  ['Expressões algébricas', 'Opera com polinômios.', ['B.U14']],
+// Álgebra e Funções: as unidades prontas vêm primeiro; as outras seguem em planejamento.
+const AF = 'algebra' as const
+
+const ALGEBRA_UNITS: Unit[] = [
+  {
+    id: 'AF.U1', module: AF, n: 1, part: 'A', title: 'Expressões algébricas', short: 'Expressões algébricas',
+    outcome: 'Soma, subtrai, multiplica e divide polinômios, e confere o resultado.',
+    requires: ['B.U14'],
+    lessons: L('AF.U1', [
+      ['Monômios e polinômios', 'Um polinômio é uma soma de termos; cada termo tem um número e letras.', ['B.U14.A3']],
+      ['Somar e subtrair polinômios', 'Junta os semelhantes; o menos antes do parêntese troca o sinal de todos.', ['B.U12.A3']],
+      ['Multiplicar monômios', 'Números com números, letras com letras: os expoentes se somam.', ['B.U13.A2']],
+      ['Monômio vezes polinômio', 'O retângulo partido, agora com x² nas áreas.', ['B.U14.A4']],
+      ['Polinômio vezes polinômio', 'Cada termo com cada termo: o retângulo tem quatro pedaços.'],
+      ['Dividir por um monômio', 'A área e um lado dão o outro lado.', ['B.U4.A4']],
+    ]),
+  },
+  ...planned('algebra', 'AF', [
   ['Produtos notáveis e fatoração', 'Expande e fatora, vendo o retângulo.', ['AF.U1']],
   ['Equações do 2º grau', 'Resolve por fatoração e pela fórmula.', ['AF.U2', 'B.U15']],
   ['Sistemas de equações', 'Resolve dois problemas ao mesmo tempo.', ['B.U15']],
@@ -361,7 +377,8 @@ const ALGEBRA_UNITS = planned('algebra', 'AF', [
   ['Função exponencial', 'Crescimento por um fator fixo.', ['AF.U6', 'B.U11', 'B.U13']],
   ['Logaritmo', 'O expoente que falta.', ['AF.U9']],
   ['Transformações, composição e inversa', 'Monta funções com outras.', ['AF.U8', 'AF.U10']],
-])
+  ], 2),
+]
 
 const GEOMETRIA_UNITS = planned('geometria', 'GT', [
   ['Semelhança', 'Figuras com a mesma forma, em escalas diferentes.', ['B.U16', 'B.U10']],
@@ -432,9 +449,11 @@ export const MODULES: Module[] = [
     milestone: 'Base para o ENEM',
     color: '#fcd34d',
     requires: ['basica'],
-    parts: [{ id: 'p', title: 'Em planejamento', color: '#fcd34d' }],
+    parts: [
+      { id: 'A', title: 'Expressões e equações', color: '#fcd34d' },
+      { id: 'p', title: 'Em planejamento', color: '#fcd34d' },
+    ],
     units: ALGEBRA_UNITS,
-    planned: true,
   },
   {
     id: 'geometria',
