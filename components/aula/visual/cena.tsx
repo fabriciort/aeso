@@ -97,7 +97,9 @@ export function quadros(de: Map<string, Quadro>, para: Prim[], t: number): Quadr
     }
   }
   const fim = easeOut(clamp(t / 300, 0, 1))
-  for (const [k, a] of de) if (!vistos.has(k) && fim < 1) out.push({ ...a, op: a.op * (1 - fim) })
+  // A fading copy ("k~") may already be out, from a change that came mid-transition: one key, one shape.
+  const saindo = new Set(out.map((q) => q.p.k))
+  for (const [k, a] of de) if (!vistos.has(k) && !saindo.has(a.p.k) && fim < 1) out.push({ ...a, op: a.op * (1 - fim) })
   return out
 }
 
