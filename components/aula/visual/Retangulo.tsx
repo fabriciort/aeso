@@ -1,7 +1,8 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { chaveRevelar, comprimento, ehNegativo, escreveMonomio, escreveNumero, escreveSoma, lerMonomio, letraPadrao, letrasDe, MENOS, produto, revelaveis, somaTermos } from './monomio'
+import { celulasDestaque, chaveRevelar, comprimento, ehNegativo, escreveMonomio, escreveNumero, lerMonomio, letraPadrao, letrasDe, MENOS, pedacosSoma, produto, revelaveis, somaTermos, termosCancelados, type Celula } from './monomio'
+import { Recorte } from './Recorte'
 
 // O retângulo da multiplicação. Em quadradinhos, cada linha é um grupo igual
 // e o total é linhas × colunas; partido (cortes), mostra a distributiva. Por
@@ -15,7 +16,8 @@ export interface RetanguloState {
   cortes?: number[]
   cortesLinhas?: number[]
   areas?: boolean | (number | string)[][]
-  destaque?: [number, number] | 'linha' | 'coluna'
+  /** Acende partes: uma ([0, 1]), uma lista ([[0, 1], [1, 0]]), a primeira linha ou a primeira coluna. */
+  destaque?: Celula | Celula[] | 'linha' | 'coluna'
   girar?: boolean
   total?: number | string
   grupos?: boolean
@@ -34,6 +36,16 @@ export interface RetanguloState {
   sobra?: number
   /** Fração de fração: as primeiras [linhas, colunas] ficam claras; o cruzamento das duas, em âmbar. */
   faixas?: [number, number]
+  /** Por área: duas partes de áreas opostas (3x e −3x) aparecem apagadas e riscadas; na soma também. */
+  cancela?: boolean
+  /** A diferença de quadrados: um quadrado x por x sem o canto `recorte` por `recorte` (AF.U2). */
+  recorte?: number
+  /** Com `recorte`: o pedaço de baixo já foi para o lado; o desenho é (x + b) por (x − b). */
+  movido?: boolean
+  /** Com `recorte`: a letra do lado grande (padrão "x"). */
+  letra?: string
+  /** Com `recorte`, Mexa "mover": o toque corta o L e leva um pedaço para o lado. */
+  mover?: boolean
 }
 
 export interface RetanguloInteract {
@@ -50,6 +62,8 @@ export interface RetanguloInteract {
   /** Mexa "revelar" (por área): o que já foi descoberto ('0-1' é a área da parte; 'b1', 'h0', uma parte do lado oculto) e o toque numa parte. */
   reveladas?: string[]
   onRevelar?: (chave: string, i: number, j: number) => void
+  /** Mexa "mover" (recorte): o toque no quadrado recortado. */
+  onMover?: () => void
 }
 
 const amber = '#fbbf24'
@@ -69,7 +83,8 @@ function parts(n: number, cuts: number[] = []): number[] {
   return out
 }
 
-export function Retangulo({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wrong, reveladas, onRevelar }: { s: RetanguloState; size: { w: number; h: number } } & RetanguloInteract) {
+export function Retangulo({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wrong, reveladas, onRevelar, onMover }: { s: RetanguloState; size: { w: number; h: number } } & RetanguloInteract) {
+  if (typeof s.recorte === 'number' && s.recorte > 0) return <Recorte b={s.recorte} letra={s.letra} movido={Boolean(s.movido)} size={size} onMover={onMover} />
   if (s.base?.length && s.altura?.length) return <Area s={s} size={size} reveladas={reveladas} onRevelar={onRevelar} />
   return <Quadradinhos s={s} size={size} onAdd={onAdd} onRemove={onRemove} maxLinhas={maxLinhas} onCut={onCut} onTurn={onTurn} wrong={wrong} />
 }
@@ -144,8 +159,7 @@ function Quadradinhos({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wron
   const lit = (r: number, c: number) => {
     if (s.destaque === 'linha') return r === 0
     if (s.destaque === 'coluna') return c === 0
-    if (Array.isArray(s.destaque)) return partOfRow(r)[0] === s.destaque[0] && partOfCol(c) === s.destaque[1]
-    return false
+    return celulasDestaque(s.destaque).some(([i, j]) => partOfRow(r)[0] === i && partOfCol(c) === j)
   }
   const faixa = (r: number, c: number) => {
     const inR = r < s.faixas![0]
@@ -304,7 +318,7 @@ function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w:
   }
   const termos = altura.flatMap((_, i) => base.map((_, j) => areaText(i, j))).filter((t): t is number | string => t !== undefined)
   // The sum below appears when every area is in view; its room is kept from the start, so nothing jumps.
-  const somaToda = s.somaTermos && termos.length && termos.every((t) => lerMonomio(t) !== null) ? [escreveSoma(termos), somaTermos(termos)] : undefined
+  const somaToda = s.somaTermos && termos.length && termos.every((t) => lerMonomio(t) !== null) ? [pedacosSoma(termos).join(''), somaTermos(termos)] : undefined
   const linhasSoma = somaToda ? (somaToda[0] === somaToda[1] ? 1 : 2) : 0
   const soma = tudo ? somaToda : undefined
   const mostraTotal = s.total !== undefined && tudo
@@ -320,15 +334,24 @@ function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w:
   const heights = altura.map((a) => Math.max(altura.length === 1 ? 84 : 60, med(a) * scale))
   const fitW = Math.min(1, availW / widths.reduce((a, b) => a + b, 0))
   const fitH = Math.min(1, availH / heights.reduce((a, b) => a + b, 0))
-  const ws = widths.map((w) => w * fitW)
-  const hs = heights.map((h) => h * fitH)
+  // The same parts on both sides ((x + 3)²) make a square: both sides take the smaller fit.
+  const quadrado = base.length === altura.length && base.every((b, i) => String(b) === String(altura[i]))
+  const lados = base.map((b) => Math.max(minPart, med(b) * scale))
+  const fitQ = Math.min(1, Math.min(availW, availH) / lados.reduce((a, b) => a + b, 0))
+  const ws = quadrado ? lados.map((l) => l * fitQ) : widths.map((w) => w * fitW)
+  const hs = quadrado ? ws : heights.map((h) => h * fitH)
   const W = ws.reduce((a, b) => a + b, 0)
   const H = hs.reduce((a, b) => a + b, 0)
   const ox = (size.w - W - labelW) / 2 + labelW
   const oy = Math.max(8, (size.h - H - labelH - totalH) / 2) + labelH
   const xs = ws.map((_, i) => ox + ws.slice(0, i).reduce((a, b) => a + b, 0))
   const ys = hs.map((_, i) => oy + hs.slice(0, i).reduce((a, b) => a + b, 0))
-  const lit = (i: number, j: number) => Array.isArray(s.destaque) && s.destaque[0] === i && s.destaque[1] === j
+  const acesas = celulasDestaque(s.destaque)
+  const lit = (i: number, j: number) => acesas.some(([a, b]) => a === i && b === j)
+  // Opposite areas cancel (3x and −3x): only areas in view take part.
+  const vistas = altura.map((_, i) => base.map((_, j) => (revelando && !s.oculto && !aberto(chaveRevelar(s, i, j)) ? undefined : areaText(i, j))))
+  const cancelados = s.cancela ? termosCancelados(vistas.flat()) : []
+  const riscada = (i: number, j: number) => Boolean(cancelados[i * base.length + j])
   const corLado = (v: number | string, rotulo: string) => (rotulo === '?' ? amber : ehNegativo(v) ? rose : 'rgba(255,255,255,0.85)')
   const fimY = oy + H
 
@@ -343,12 +366,13 @@ function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w:
             <motion.rect
               key={`p${i}-${j}`}
               initial={{ opacity: 0, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
-              animate={{ opacity: 1, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
+              animate={{ opacity: riscada(i, j) ? 0.4 : 1, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
               transition={{ duration: 0.45, ease }}
               rx={6}
-              fill={lit(i, j) ? 'rgba(251,191,36,0.28)' : neg && !fechado ? 'rgba(251,113,133,0.16)' : 'rgba(255,255,255,0.1)'}
-              stroke={lit(i, j) ? amber : neg && !fechado ? rose : 'rgba(255,255,255,0.75)'}
-              strokeWidth={1.5}
+              // A lit part that subtracts stays red, only stronger: amber would hide its sign.
+              fill={lit(i, j) ? (neg && !fechado ? 'rgba(251,113,133,0.34)' : 'rgba(251,191,36,0.28)') : neg && !fechado ? 'rgba(251,113,133,0.16)' : 'rgba(255,255,255,0.1)'}
+              stroke={lit(i, j) ? (neg && !fechado ? rose : amber) : neg && !fechado ? rose : 'rgba(255,255,255,0.75)'}
+              strokeWidth={lit(i, j) && neg && !fechado ? 2.5 : 1.5}
               strokeDasharray={tocavel ? '6 4' : undefined}
               onClick={tocavel ? () => onRevelar!(chaveRevelar(s, i, j), i, j) : undefined}
               style={{ cursor: tocavel ? 'pointer' : undefined }}
@@ -382,11 +406,15 @@ function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w:
           // No wider than its part: '−6x²' in a thin part gets a smaller font.
           const largura = [...t].reduce((a, c) => a + (/[⁰¹²³⁴⁵⁶⁷⁸⁹]/.test(c) ? 0.4 : 0.62), 0)
           const fs = Math.max(12, Math.min(24, Math.max(16, Math.min(ws[j], hs[i]) * 0.32), (ws[j] - 10) / Math.max(1, largura)))
+          const fora = riscada(i, j)
+          const meio = largura * fs * 0.5 + 6
+          const cx = xs[j] + ws[j] / 2
+          const cy = ys[i] + hs[i] / 2
           return (
+            <g key={`a${i}-${j}-${t}`}>
             <motion.text
-              key={`a${i}-${j}-${t}`}
               initial={{ opacity: 0, scale: fechado ? 1 : revelando ? 0.3 : 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: fora ? 0.45 : 1, scale: 1 }}
               transition={revelando ? { type: 'spring', stiffness: 420, damping: 14 } : { delay: 0.25 + 0.15 * (i * base.length + j) }}
               x={xs[j] + ws[j] / 2}
               y={ys[i] + hs[i] / 2 + fs * 0.35}
@@ -399,6 +427,9 @@ function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w:
             >
               {t}
             </motion.text>
+            {/* A cancelled area (3x against −3x) is struck through, like the opposite tiles. */}
+            {fora && <motion.line initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: revelando ? 0.3 : 0.6, duration: 0.35 }} x1={cx - meio} y1={cy + fs * 0.3} x2={cx + meio} y2={cy - fs * 0.3} stroke="#fff" strokeWidth={2} strokeLinecap="round" style={{ pointerEvents: 'none' }} />}
+            </g>
           )
         }),
       )}
@@ -407,9 +438,18 @@ function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w:
           {soma.slice(0, linhasSoma).map((linha, n) => {
             const txt = n === 0 ? linha : `= ${linha}`
             const fs = Math.max(14, Math.min(20, (size.w - 24) / Math.max(1, [...txt].length * 0.56)))
+            // With `cancela`, the first line strikes the terms that cancel (x² + 3x − 3x − 9).
+            const pedacos = n === 0 && linhasSoma > 1 && s.cancela ? pedacosSoma(termos) : undefined
+            const fora = pedacos ? termosCancelados(termos) : []
             return (
               <text key={n} x={size.w / 2} y={fimY + 30 + n * 32} textAnchor="middle" fill={n === linhasSoma - 1 ? amber : 'rgba(255,255,255,0.85)'} fontSize={fs} fontWeight={n === linhasSoma - 1 ? 700 : 600} className="tabular-nums">
-                {txt}
+                {pedacos
+                  ? pedacos.map((p, k) => (
+                      <tspan key={k} fillOpacity={fora[k] ? 0.45 : 1} textDecoration={fora[k] ? 'line-through' : undefined}>
+                        {p.replace(/^ /, '\u00a0').replace(/ $/, '\u00a0')}
+                      </tspan>
+                    ))
+                  : txt}
               </text>
             )
           })}

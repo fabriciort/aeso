@@ -76,7 +76,7 @@ describe('respostas e suporte dos geradores do piloto', () => {
         }
       }
     }
-  })
+  }, 60_000) // 300 sementes de todos os geradores: o tempo cresce com cada unidade
 
   it('termina também com rng que sempre seleciona a borda inferior ou superior', () => {
     for (const superior of [false, true]) {

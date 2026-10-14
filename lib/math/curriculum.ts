@@ -366,9 +366,34 @@ const ALGEBRA_UNITS: Unit[] = [
       ['Dividir por um monômio', 'A área e um lado dão o outro lado.', ['B.U4.A4']],
     ]),
   },
+  {
+    id: 'AF.U2', module: AF, n: 2, part: 'A', title: 'Produtos notáveis e fatoração', short: 'Produtos notáveis',
+    outcome: 'Expande os produtos notáveis de cabeça e fatora, vendo o retângulo.',
+    requires: ['AF.U1'],
+    lessons: L('AF.U2', [
+      ['O quadrado da soma', '(x + 3)² não é x² + 9: o quadrado tem quatro pedaços.', ['AF.U1.A5']],
+      ['O quadrado da diferença', 'Os dois pedaços do meio se tiram; o canto, menos vezes menos, soma.'],
+      ['A soma vezes a diferença', 'Os pedaços do meio se cancelam: sobra x² − 9.'],
+      ['Fator comum em evidência', 'O caminho de volta da distributiva: achar o lado que todos os pedaços têm.', ['AF.U1.A6']],
+      ['Fatorar x² + bx + c', 'Arrumar as peças num retângulo: dois números com aquela soma e aquele produto.', ['B.U6.A1']],
+      ['Reconhecer os produtos notáveis', 'Ler x² − 9 e x² + 6x + 9 e ver de onde vieram.'],
+    ]),
+  },
+  {
+    id: 'AF.U3', module: AF, n: 3, part: 'A', title: 'Equações do 2º grau', short: 'Equações do 2º grau',
+    outcome: 'Resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, e confere as raízes.',
+    requires: ['AF.U2', 'B.U15'],
+    lessons: L('AF.U3', [
+      ['x² = k tem duas raízes', 'O quadrado de área 25 tem lado 5, mas (−5)² também dá 25.', ['B.U13.A5']],
+      ['Produto igual a zero', 'Se um produto dá zero, um dos fatores é zero.', ['B.U15.A2']],
+      ['Resolver por fatoração', 'Fatorar e igualar cada fator a zero.', ['AF.U2.A5']],
+      ['Completar o quadrado', 'As barras se partem ao redor do x², e falta um canto.', ['AF.U2.A1']],
+      ['A fórmula', 'Completar o quadrado de uma vez por todas.'],
+      ['O discriminante', 'Antes de resolver, o b² − 4ac diz quantas raízes há.'],
+      ['Problemas do 2º grau', 'O terreno, a moldura e os dois números: montar, resolver e ver que raiz serve.', ['B.U15.A5']],
+    ]),
+  },
   ...planned('algebra', 'AF', [
-  ['Produtos notáveis e fatoração', 'Expande e fatora, vendo o retângulo.', ['AF.U1']],
-  ['Equações do 2º grau', 'Resolve por fatoração e pela fórmula.', ['AF.U2', 'B.U15']],
   ['Sistemas de equações', 'Resolve dois problemas ao mesmo tempo.', ['B.U15']],
   ['Inequações', 'Resolve e mostra a solução na reta.', ['AF.U3']],
   ['Funções', 'Domínio, imagem e gráfico.', ['B.U18']],
@@ -377,7 +402,7 @@ const ALGEBRA_UNITS: Unit[] = [
   ['Função exponencial', 'Crescimento por um fator fixo.', ['AF.U6', 'B.U11', 'B.U13']],
   ['Logaritmo', 'O expoente que falta.', ['AF.U9']],
   ['Transformações, composição e inversa', 'Monta funções com outras.', ['AF.U8', 'AF.U10']],
-  ], 2),
+  ], 4),
 ]
 
 const GEOMETRIA_UNITS = planned('geometria', 'GT', [

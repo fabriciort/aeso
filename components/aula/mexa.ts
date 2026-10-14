@@ -1,5 +1,6 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
+import { avisoDoPar, mesmoPar, paresDeFatores, retanguloDe, type Par } from './visual/azulejos-retangulo'
 import { revelaveis, type LadosArea } from './visual/monomio'
 import { contaPecas, inclinacaoDe, ladoTexto, pecasDe, pratoDe, valorInferido, type Lado, type PecaBalanca, type Prato } from './visual/balanca-pratos'
 import type { BarraLinha, BarraState } from './visual/Barra'
@@ -19,7 +20,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -67,12 +68,14 @@ export function kindOf(card: Mexa): Kind {
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
+      if (fatorarOf(card)) return 'fatorar'
       if (typeof (e.azulejos as { virar?: number } | undefined)?.virar === 'number' && ok.virado === true) return 'virar'
       if ((e.azulejos as { agrupar?: boolean } | undefined)?.agrupar === true && ok.agrupado === true) return 'azulejos'
       if ((e.saldo as { tirar?: string } | undefined)?.tirar && num(ok.tiradas) !== undefined) return 'saldo'
       if ((e.tabela as { completar?: boolean } | undefined)?.completar === true && num(ok.colunas) !== undefined) return 'tabela'
       return arr(e.fichas) && arr(ok.ordem) ? 'ordem' : 'mostre'
     case 'retangulo':
+      if ((num(e.recorte) ?? 0) > 0 && e.mover === true && ok.movido === true) return 'mover'
       if (e.adicionar === true && num(ok.linhas) !== undefined) return 'linhas'
       if (e.cortar === true && num(ok.corte) !== undefined) return 'cortar'
       if (ok.girado === true) return 'girar'
@@ -266,6 +269,24 @@ function ativaOf(card: Mexa): { i: number; b: BarraLinha; com: (b: BarraLinha) =
   return { i, b: bs[i] ?? { partes: 1 }, com: (b) => ({ ...rest, barras: bs.map((x, j) => (j === i ? b : x)) }) }
 }
 
+/**
+ * Mexa "fatorar": x² + bx + c (from `azulejos.fatorar`), the ways to arrange
+ * the units (1 × c, 2 × c/2…), the pair that closes the rectangle and where
+ * the Mexa starts (an `arranjo`, or loose).
+ */
+export function fatorarOf(card: Mexa): { b: number; c: number; pares: Par[]; alvo: number; inicio: number | null } | null {
+  const az = card.visual.estado.azulejos as { fatorar?: unknown; arranjo?: unknown } | undefined
+  const ok = arr<number>(card.acao.sucesso.fatorado)
+  if (!az || !Array.isArray(az.fatorar) || !ok || ok.length !== 2) return null
+  const r = retanguloDe({ fatorar: az.fatorar, arranjo: az.arranjo })
+  if (!r) return null
+  const pares = paresDeFatores(r.c)
+  const alvo = pares.findIndex((p) => p[0] + p[1] === r.b && mesmoPar(p, ok as Par))
+  if (alvo < 0) return null
+  const ini = r.par ? pares.findIndex((p) => mesmoPar(p, r.par!)) : -1
+  return { b: r.b, c: r.c, pares, alvo, inicio: ini < 0 ? null : ini }
+}
+
 /** The kinds of algebra tiles in the Mexa (x², x, 1 and their negatives). */
 function tiposAzulejos(card: Mexa): string[] {
   const pecas = arr<string>((card.visual.estado.azulejos as { pecas?: string[] } | undefined)?.pecas) ?? []
@@ -338,6 +359,8 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, pick: null }
     case 'revelar':
       return { ...base, order: [], casa: null }
+    case 'fatorar':
+      return { ...base, pick: fatorarOf(card)!.inicio }
     case 'pintar':
       return { ...base, drag: ativaOf(card).b.pintadas ?? 0 }
     case 'partir':
@@ -429,6 +452,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, pick: ok.corte as number }
     case 'revelar':
       return { ...done, order: revelaveis(e as LadosArea), casa: null }
+    case 'fatorar':
+      return { ...done, pick: fatorarOf(card)!.alvo }
     case 'pintar':
       return { ...done, drag: ok.pintadas as number }
     case 'partir':
@@ -747,6 +772,36 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
                 },
           },
         },
+      }
+    }
+    case 'fatorar': {
+      // Each tap arranges the units another way (the next factor pair); the bars follow.
+      // A pair whose sum is not b leaves bars missing or left over: it is shown, not counted as an error.
+      const f = fatorarOf(card)!
+      const az = e.azulejos as Record<string, unknown>
+      const par = st.pick === null || st.pick === undefined ? undefined : f.pares[st.pick]
+      return {
+        visual: visual({ ...e, azulejos: { ...az, arranjo: par } }),
+        interact: {
+          livre: {
+            escala: f.inicio === null ? [null, ...f.pares] : f.pares,
+            onArrumar: lock
+              ? undefined
+              : () => {
+                  const i = st.pick === null || st.pick === undefined ? 0 : (st.pick + 1) % f.pares.length
+                  set({ ...st, pick: i, done: i === f.alvo, note: i === f.alvo ? undefined : (avisoDoPar(f.b, f.pares[i]) ?? undefined) })
+                },
+          },
+        },
+      }
+    }
+    case 'mover': {
+      // A tap cuts the L in two and takes the bottom piece to the side.
+      const { mover: _m, ...rest } = e
+      void _m
+      return {
+        visual: visual({ ...rest, movido: st.done || e.movido === true }),
+        interact: { retangulo: { onMover: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
       }
     }
     case 'virar': {
@@ -1322,6 +1377,8 @@ export const GESTO: Record<Kind, string | null> = {
   girar: 'Toque no retângulo para girar.',
   revelar: 'Toque em cada parte do retângulo para descobrir.',
   virar: 'Toque no monte com o sinal de menos na frente.',
+  fatorar: 'Toque nos azulejos para arrumar os quadradinhos de outro jeito.',
+  mover: 'Toque no pedaço tracejado para cortar e levar para o lado.',
   pintar: 'Toque nas partes da barra para pintar.',
   partir: 'Toque na barra para cortar as partes mais fino.',
   grade: 'Toque nos quadradinhos da grade para pintar.',

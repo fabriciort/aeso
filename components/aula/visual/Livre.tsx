@@ -3,7 +3,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Check, Eraser, Grid3x3, NotebookPen, Pencil, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Azulejos, type AzulejosState } from './Azulejos'
+import { Azulejos, temAzulejos, type AzulejosState } from './Azulejos'
+import type { Par } from './azulejos-retangulo'
 import { Saldo, type SaldoState } from './Saldo'
 import { Tabela, type TabelaState } from './Tabela'
 
@@ -61,16 +62,19 @@ export interface LivreInteract {
   onPeca?: (tipo: string) => void
   /** Azulejos, Mexa "virar": o toque no monte com o − na frente. */
   onVirar?: () => void
+  /** Azulejos, Mexa "fatorar": o toque que arruma os quadradinhos de outro jeito, e os arranjos do Mexa (uma escala só). */
+  onArrumar?: () => void
+  escala?: (Par | null)[]
 }
 
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(s.azulejos?.pecas?.length || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(temAzulejos(s.azulejos) || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
-  if (s.azulejos?.pecas?.length) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} onVirar={it.onVirar} wrong={it.wrong} />
+  if (s.azulejos && temAzulejos(s.azulejos)) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} onVirar={it.onVirar} onArrumar={it.onArrumar} escala={it.escala} wrong={it.wrong} />
   if (s.saldo) return <Saldo s={s.saldo} size={size} removidas={it.removidas} paresPostos={it.paresPostos} onTirar={it.onTirar} onPar={it.onPar} wrong={it.wrong} />
   if (s.tabela?.linhas?.length) return <Tabela s={s.tabela} size={size} onColuna={it.onColuna} mostradas={it.mostradas} wrong={it.wrong} />
   return (

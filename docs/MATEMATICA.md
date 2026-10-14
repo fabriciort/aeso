@@ -512,12 +512,31 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Hábito:** conferir trocando a letra por um número (x = 2, por exemplo) dos dois lados.
 - **Ao final:** soma, subtrai, multiplica e divide polinômios simples, e confere o resultado.
 
-#### AF.U2. Produtos notáveis e fatoração
-- Quadrado da soma e da diferença (o quadrado partido), produto da soma pela diferença, fator comum, trinômio x² + bx + c como retângulo, diferença de quadrados.
-- **Erro central:** (a + b)² = a² + b².
+#### AF.U2. Produtos notáveis e fatoração (6 aulas)
+1. **O quadrado da soma:** (x + 3)² é um quadrado partido em quatro pedaços: x² + 6x + 9, não x² + 9.
+2. **O quadrado da diferença:** (x − 3)² = x² − 6x + 9; os dois pedaços do meio se tiram, e o canto (menos vezes menos) soma.
+3. **A soma vezes a diferença:** em (x + 3)(x − 3), os pedaços do meio se cancelam: x² − 9.
+4. **Fator comum em evidência:** o caminho de volta da distributiva; 6x² + 9x = 3x(2x + 3).
+5. **Fatorar x² + bx + c:** arrumar os azulejos num retângulo; dois números com aquela soma e aquele produto.
+6. **Reconhecer os produtos notáveis:** x² − 9 e x² + 6x + 9 lidos de trás para a frente; a diferença de quadrados vista como um recorte que muda de lugar.
 
-#### AF.U3. Equações do 2º grau
-- x² = k (duas raízes), produto igual a zero, resolver por fatoração, completar o quadrado com os azulejos, a fórmula e o discriminante, problemas.
+- **Modelo:** o quadrado partido, os azulejos arrumados em retângulo e o recorte da diferença de quadrados.
+- **Erro central:** (a + b)² = a² + b². Também: o sinal do canto em (x − 3)², o fator comum que esquece um termo, os dois números com a soma certa e o produto errado.
+- **Ao final:** expande os produtos notáveis de cabeça, fatora por fator comum, trinômio e diferença de quadrados, e confere multiplicando de volta.
+
+#### AF.U3. Equações do 2º grau (7 aulas)
+1. **x² = k tem duas raízes:** o quadrado de área 25 tem lado 5, mas a equação x² = 25 também aceita −5, porque (−5)² = 25. Depois, (x − 1)² = 16: x − 1 é 4 ou −4.
+2. **Produto igual a zero:** se a · b = 0, um dos dois é zero. O aluno troca o x em (x − 2)(x + 3) e vê o produto zerar só em 2 e em −3.
+3. **Resolver por fatoração:** x² − 5x + 6 = 0 vira (x − 2)(x − 3) = 0. Em x² − 4x = 0, pôr x em evidência guarda a raiz 0 que a divisão por x perderia.
+4. **Completar o quadrado:** nos azulejos de x² + 6x, as barras se partem em 3 de cada lado do x², e falta um canto 3 por 3. Somar 9 dos dois lados: (x + 3)² = 25.
+5. **A fórmula:** completar o quadrado de ax² + bx + c = 0 uma vez por todas dá x = (−b ± √(b² − 4ac)) / 2a. Usar e conferir.
+6. **O discriminante:** Δ = b² − 4ac diz, antes de resolver, se há duas raízes, uma ou nenhuma. Nenhuma porque nenhum quadrado tem área negativa.
+7. **Problemas do 2º grau:** montar a equação de um terreno, de uma moldura ou de dois números, resolver e ver que raiz o problema aceita (um lado não é negativo).
+
+- **Modelo:** o quadrado por área com o lado '?', o produto que zera, os azulejos que completam o quadrado.
+- **Erro central:** x² = 25 dá só x = 5. Também: dividir por x e perder a raiz 0; igualar cada fator a zero sem fatorar (x² − 5x + 6 = 0 vira x = 6); o sinal de −b; dividir só a raiz por 2a; aceitar a raiz negativa como um lado.
+- **Hábito:** conferir cada raiz pondo o número no lugar do x.
+- **Ao final:** resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, sabe quantas raízes esperar e escolhe a que serve ao problema.
 
 #### AF.U4. Sistemas de equações
 - Duas incógnitas, substituição, adição, duas retas no plano, problemas.
@@ -613,7 +632,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
 | **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
-| **8** | Álgebra e Funções | **AF.U1 em andamento** |
+| **8** | Álgebra e Funções | **AF.U1 e AF.U2 em revisão** (PR 23); AF.U3 em andamento |
 
 ## 11. Decisões
 
