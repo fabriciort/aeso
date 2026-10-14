@@ -8,6 +8,9 @@ import type { GradeItem } from './visual/Grade'
 import { ajustarValor, dadosDe, eixoDoAjuste, tipoDe as tipoGrafico, type GraficoState } from './visual/grafico-geo'
 import { coordTexto, mesmoPonto, pontosDe, trocado, type PlanoState, type Vec } from './visual/plano-geo'
 import { areaDe, camadasDe, dimsDe, facesVisiveis, partesDe, type SolidoState } from './visual/solido-geo'
+import { ativoDe, eixoDados, encaixarFulcro, fulcroNaMedia, lerValor, media, mediana, meioDaFila, mesmo, modas, ordemFila, type DadosState } from './visual/dados-geo'
+import { casosDaGrade, etapasDe, favoraveisDe, gradeDe, type Caso, type ContagemState } from './visual/contagem-geo'
+import { casosDe, MAX_JOGADAS, resultadosDe, type SorteioState } from './visual/sorteio-geo'
 import type { Interact } from './visual/Stage'
 
 // O "Mexa": o aluno manipula o modelo até chegar ao estado de sucesso que o
@@ -15,7 +18,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -106,6 +109,20 @@ export function kindOf(card: Mexa): Kind {
       if (itemApontar(card) !== undefined) return 'apontar'
       if (num(ok.valor) !== undefined && tipoGrafico(e as GraficoState) === 'barras') return 'ajustar'
       return 'mostre'
+    case 'dados':
+      if (!ativoDe(e as DadosState).length) return 'mostre'
+      if (ok.ordenado === true) return 'ordenar'
+      if (num(ok.media) !== undefined) return 'equilibrar'
+      if (num(ok.mediana) !== undefined || num(ok.moda) !== undefined || num(ok.valor) !== undefined) return 'achar'
+      return 'mostre'
+    case 'contagem':
+      if (num(ok.etapas) !== undefined && etapasDe(e as ContagemState).length) return 'ramificar'
+      if (num(ok.favoraveis) !== undefined && favoraveisDoCard(card).fav.length) return 'favoraveis'
+      return 'mostre'
+    case 'sorteio':
+      if (num(ok.jogadas) !== undefined && resultadosDe(e as SorteioState).length) return 'jogar'
+      if (num(ok.favoraveis) !== undefined && favoraveisDoCard(card).fav.length) return 'favoraveis'
+      return 'mostre'
     default:
       return 'mostre'
   }
@@ -125,6 +142,68 @@ function itemApontar(card: Mexa): number | undefined {
   const ok = card.acao.sucesso
   const tipo = tipoGrafico(card.visual.estado as GraficoState)
   return tipo === 'setores' ? num(ok.setor) : tipo === 'linhas' ? num(ok.ponto) : num(ok.barra)
+}
+
+/** Mexa "favoráveis": every case (a cell of the grid, a face, a ball) and the favourable ones, by the state's rule. */
+export function favoraveisDoCard(card: Mexa): { casos: Caso[]; fav: number[] } {
+  const e = card.visual.estado
+  const g = card.visual.modelo === 'contagem' ? gradeDe(e as ContagemState) : undefined
+  const casos: Caso[] = card.visual.modelo === 'contagem' ? (g ? casosDaGrade(g) : []) : casosDe(e as SorteioState)
+  return { casos, fav: favoraveisDe(casos, e.favoraveis) }
+}
+
+/** Mexa "favoráveis": why a case does not count, said with what is on it. */
+function motivoFavoravel(caso: Caso, regra: unknown): string {
+  const r = (regra && typeof regra === 'object' && !Array.isArray(regra) ? regra : {}) as Record<string, unknown>
+  const ou = (xs: unknown[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} ou ${xs[xs.length - 1]}` : String(xs[0]))
+  if (r.soma !== undefined && caso.a !== undefined && caso.b !== undefined) {
+    const ss = Array.isArray(r.soma) ? r.soma : [r.soma]
+    return `Essa casa dá ${caso.a} + ${caso.b} = ${caso.a + caso.b}. Procure as que dão ${ou(ss)}.`
+  }
+  if (r.iguais === true && caso.l !== undefined) return 'Nessa casa os dois números são diferentes. Procure os pares iguais.'
+  if (r.cor !== undefined && caso.l === undefined) return `Essa é ${caso.nome}. Toque só nas ${ou(Array.isArray(r.cor) ? r.cor : [r.cor])}.`
+  if (r.valores !== undefined && Array.isArray(r.valores)) return `Esse é o ${caso.nome}. Procure ${ou(r.valores)}.`
+  if (typeof r.maior === 'number') return `${caso.nome} não é maior que ${r.maior}.`
+  if (typeof r.menor === 'number') return `${caso.nome} não é menor que ${r.menor}.`
+  return 'Esse caso não serve. Confira o que a pergunta pede.'
+}
+
+/** Mexa "achar": what is asked (the median, the mode or a value) and the right number. */
+function pedidoAchar(card: Mexa): { pedido: 'mediana' | 'moda' | 'valor'; alvo: number; vals: number[] } {
+  const ok = card.acao.sucesso
+  const vals = ativoDe(card.visual.estado as DadosState)
+  if (num(ok.mediana) !== undefined) return { pedido: 'mediana', alvo: mediana(vals), vals }
+  if (num(ok.moda) !== undefined) return { pedido: 'moda', alvo: ok.moda as number, vals }
+  return { pedido: 'valor', alvo: ok.valor as number, vals }
+}
+
+const NOTE_ACHAR = {
+  mediaNaMediana: 'Esse é o ponto de equilíbrio, a média. A mediana é o valor do meio, com os valores em fila.',
+  modaNaMediana: 'Essa é a pilha mais alta, a moda. A mediana é o valor do meio, com os valores em fila.',
+  mediana: 'Ainda não. Ponha os valores em fila, do menor ao maior: a mediana fica no meio.',
+  meioNaModa: 'Esse é o valor do meio, a mediana. A moda é a pilha mais alta.',
+  mediaNaModa: 'Esse é o ponto de equilíbrio, a média. A moda é a pilha mais alta.',
+  moda: 'Ainda não. A moda é a pilha mais alta: o valor que mais aparece.',
+  valor: 'Ainda não. Leia o número embaixo de cada pilha.',
+}
+
+/** Mexa "achar": a touched value, right or with the note that says what it is. */
+function conferirAchar(card: Mexa, v: number, i?: number): { certo: boolean; note?: string } {
+  const { pedido, alvo, vals } = pedidoAchar(card)
+  const n = vals.length
+  // In the queue, either middle place counts as the median (an even count: the median is between them).
+  if (pedido === 'mediana' && i !== undefined && card.visual.estado.fila === true) {
+    const j = ordemFila(vals).indexOf(i)
+    if (meioDaFila(n).includes(j) && mesmo(mediana(vals), num(card.acao.sucesso.mediana) ?? NaN)) return { certo: true }
+  }
+  const ok = card.acao.sucesso
+  const certo = mesmo(v, alvo) && (pedido !== 'moda' || modas(vals).some((x) => mesmo(x, alvo))) && (pedido !== 'mediana' || mesmo(alvo, ok.mediana as number))
+  if (certo) return { certo }
+  const m = media(vals)
+  const ehModa = modas(vals).some((x) => mesmo(x, v))
+  if (pedido === 'mediana') return { certo, note: mesmo(v, m) && !mesmo(m, alvo) ? NOTE_ACHAR.mediaNaMediana : ehModa ? NOTE_ACHAR.modaNaMediana : NOTE_ACHAR.mediana }
+  if (pedido === 'moda') return { certo, note: mesmo(v, mediana(vals)) ? NOTE_ACHAR.meioNaModa : mesmo(v, m) ? NOTE_ACHAR.mediaNaModa : NOTE_ACHAR.moda }
+  return { certo, note: NOTE_ACHAR.valor }
 }
 
 /** Mexa "ler": the named points, in order. */
@@ -278,6 +357,19 @@ export function initMexa(card: Mexa): MexaState {
       const d = dadosDe(e as GraficoState)
       return { ...base, drag: d[num(e.ativa) ?? 0]?.valor ?? 0 }
     }
+    case 'ordenar':
+    case 'favoraveis':
+      return { ...base, order: [], pick: null }
+    case 'equilibrar': {
+      const ex = eixoDados(e as DadosState)
+      return { ...base, drag: num(e.fulcro) ?? ex.de + ex.passo }
+    }
+    case 'achar':
+      return { ...base, drag: undefined, pick: null }
+    case 'ramificar':
+      return { ...base, drag: num(e.mostradas) ?? 0 }
+    case 'jogar':
+      return { ...base, drag: num(e.jogadas) ?? 0 }
     default:
       return base
   }
@@ -353,6 +445,18 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, pick: null }
     case 'ajustar':
       return { ...done, drag: ok.valor as number }
+    case 'ordenar':
+      return { ...done, order: ordemFila(ativoDe(e as DadosState)).map(String), pick: null }
+    case 'equilibrar':
+      return { ...done, drag: media(ativoDe(e as DadosState)) }
+    case 'achar':
+      return { ...done, drag: undefined, pick: null }
+    case 'ramificar':
+      return { ...done, drag: ok.etapas as number }
+    case 'favoraveis':
+      return { ...done, order: favoraveisDoCard(card).fav.map(String), pick: null }
+    case 'jogar':
+      return { ...done, drag: ok.jogadas as number }
     case 'saldo': {
       // Just enough zero pairs to have the chips to take.
       const sd = e.saldo as { positivas?: number; negativas?: number; tirar?: string }
@@ -376,6 +480,7 @@ const NOTE_APONTAR: Record<string, string> = {
   linhas: 'Ainda não. Siga a linha e leia cada ponto no eixo.',
   setores: 'Ainda não. Compare o tamanho das fatias.',
 }
+const NOTE_ORDENAR = 'Ainda não. Vá do menor para o maior: toque no ponto mais à esquerda.'
 const NOTE_INCLINOU = 'A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado.'
 
 /** What the stage shows and how a touch changes the state. */
@@ -1025,6 +1130,128 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'ordenar': {
+      // A tap on a point sends it to the queue, if it is the smallest left; done when every point is in it.
+      const vals = ativoDe(e as DadosState)
+      const fila = (st.order ?? []).map(Number)
+      return {
+        visual: visual({ ...e, fila: false }),
+        interact: {
+          dados: {
+            naFila: fila,
+            errado: st.done ? null : (st.pick ?? null),
+            tremer: st.wrong,
+            onPonto: lock
+              ? undefined
+              : (i) => {
+                  if (fila.includes(i) || i < 0 || i >= vals.length) return
+                  const menor = Math.min(...vals.filter((_, j) => !fila.includes(j)))
+                  if (!mesmo(vals[i], menor)) return set({ ...st, pick: i, wrong: st.wrong + 1, note: NOTE_ORDENAR })
+                  const o2 = [...fila, i]
+                  set({ ...st, order: o2.map(String), pick: null, done: o2.length === vals.length, note: undefined })
+                },
+          },
+        },
+      }
+    }
+    case 'equilibrar': {
+      // The student drags the support; the line tilts while it is off the mean. Checked when the finger lifts.
+      const ds = e as DadosState
+      const vals = ativoDe(ds)
+      const m = media(vals)
+      const f = st.drag ?? m
+      return {
+        visual: visual(st.done ? { ...e, media: true, fulcro: undefined } : { ...e, media: false, fulcro: f }),
+        interact: {
+          dados: {
+            tremer: st.wrong,
+            onFulcro: lock
+              ? undefined
+              : (v) => {
+                  const n = encaixarFulcro(ds, v, m)
+                  if (n !== st.drag) set({ ...st, drag: n, note: undefined })
+                },
+            onSolta: lock
+              ? undefined
+              : () => {
+                  if (fulcroNaMedia(ds, f, m)) set({ ...st, drag: m, done: true, note: undefined })
+                  else set({ ...st, wrong: st.wrong + 1, note: f < m ? 'A reta pende para a direita: leve o apoio para a direita.' : 'A reta pende para a esquerda: leve o apoio para a esquerda.' })
+                },
+          },
+        },
+      }
+    }
+    case 'achar': {
+      // A tap on the line (or on a point of the queue) reads a value; the right one lights the median, the mode or the point.
+      const ds = e as DadosState
+      const { pedido, alvo, vals } = pedidoAchar(card)
+      const ex = eixoDados(ds)
+      const fila = e.fila === true
+      const tocar = (v: number, i?: number) => {
+        const r = conferirAchar(card, v, i)
+        if (r.certo) return set({ ...st, drag: undefined, pick: null, done: true, note: undefined })
+        set({ ...st, drag: v, pick: i ?? null, wrong: st.wrong + 1, note: r.note })
+      }
+      const feito = pedido === 'mediana' ? { mediana: true } : pedido === 'moda' ? { moda: true } : { destaque: alvo }
+      return {
+        visual: visual(st.done ? { ...e, ...feito } : e),
+        interact: {
+          dados: {
+            tremer: st.wrong,
+            marcado: st.done || fila || st.drag === undefined ? null : { v: st.drag, certo: false },
+            errado: st.done ? null : (st.pick ?? null),
+            onValor: lock || fila ? undefined : (v) => tocar(lerValor(vals, v, ex)),
+            onPonto: lock || !fila ? undefined : (i) => tocar(vals[i], i),
+          },
+        },
+      }
+    }
+    case 'ramificar': {
+      // Each tap grows the next stage of the tree; the count underneath grows with it.
+      const meta = Math.min(ok.etapas as number, etapasDe(e as ContagemState).length)
+      const k = st.drag ?? 0
+      return {
+        visual: visual({ ...e, mostradas: k }),
+        interact: { contagem: { onRamo: lock || k >= meta ? undefined : () => set({ ...st, drag: k + 1, done: k + 1 >= meta, note: undefined }) } },
+      }
+    }
+    case 'favoraveis': {
+      // A tap lights a favourable case; a case that does not count shakes, with why. Done when all are lit.
+      const { casos, fav } = favoraveisDoCard(card)
+      const marcados = (st.order ?? []).map(Number)
+      const meta = ok.favoraveis as number
+      const onCaso = lock
+        ? undefined
+        : (i: number) => {
+            if (marcados.includes(i) || !casos[i]) return
+            if (!fav.includes(i)) return set({ ...st, pick: i, wrong: st.wrong + 1, note: motivoFavoravel(casos[i], e.favoraveis) })
+            const o2 = [...marcados, i]
+            set({ ...st, order: o2.map(String), pick: null, done: o2.length === fav.length && fav.length === meta, note: undefined })
+          }
+      const it = { marcados: st.done ? undefined : marcados, errado: st.done ? null : (st.pick ?? null), tremer: st.wrong, onCaso }
+      return {
+        visual: visual(st.done ? { ...e, marcar: false } : e),
+        interact: card.visual.modelo === 'contagem' ? { contagem: it } : { sorteio: it },
+      }
+    }
+    case 'jogar': {
+      // Each button throws 1, 10 or 100 more times: the bars grow. Done at `jogadas`.
+      const meta = ok.jogadas as number
+      const k = st.drag ?? 0
+      return {
+        visual: visual({ ...e, jogadas: k }),
+        interact: {
+          sorteio: {
+            onJogar: lock
+              ? undefined
+              : (b) => {
+                  const n = Math.min(MAX_JOGADAS, k + Math.max(1, Math.round(b)))
+                  set({ ...st, drag: n, done: n >= meta, note: undefined })
+                },
+          },
+        },
+      }
+    }
     default:
       return { visual: card.visual }
   }
@@ -1066,5 +1293,11 @@ export const GESTO: Record<Kind, string | null> = {
   alimentar: 'Toque na máquina para pôr o próximo número.',
   apontar: 'Toque na barra, no ponto ou na fatia que responde à pergunta.',
   ajustar: 'Arraste a barra para cima ou para baixo até o valor.',
+  ordenar: 'Toque no ponto mais à esquerda: ele vai para a fila.',
+  equilibrar: 'Arraste o apoio pela reta até ela ficar reta.',
+  achar: 'Toque na reta, no valor pedido.',
+  ramificar: 'Toque na árvore para abrir a próxima etapa.',
+  favoraveis: 'Toque em cada caso que serve.',
+  jogar: 'Toque nos botões para jogar.',
   mostre: null,
 }
