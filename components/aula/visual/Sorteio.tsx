@@ -5,7 +5,7 @@ import { motion, useAnimationControls } from 'framer-motion'
 import { alpha, amber, clamp, Desenho, green, largura, rose, sky, useCena, type Prim } from './cena'
 import { fmtNum } from './figura-geo'
 import { favoraveisDe } from './contagem-geo'
-import { corCaso, linhaChance } from './Contagem'
+import { bordaCaso, corCaso, linhaChance } from './Contagem'
 import { casosDe, chancesDe, contarResultados, jogadasDe, pctTexto, resultadosDe, sortear, tipoSorteio, type SorteioState } from './sorteio-geo'
 
 export type { SorteioState }
@@ -38,9 +38,16 @@ const PIPS: Record<number, [number, number][]> = {
   6: [[-0.5, -0.55], [0.5, -0.55], [-0.5, 0], [0.5, 0], [-0.5, 0.55], [0.5, 0.55]],
 }
 const quadrado = (cx: number, cy: number, s: number, r = s * 0.18) => {
-  // A rounded square as a closed path (corners cut, close enough at this size).
-  const h = s / 2
-  return [cx - h + r, cy - h, cx + h - r, cy - h, cx + h, cy - h + r, cx + h, cy + h - r, cx + h - r, cy + h, cx - h + r, cy + h, cx - h, cy + h - r, cx - h, cy - h + r]
+  // A rounded square as a closed path: each corner a quarter circle in 4 pieces.
+  const h = s / 2 - r
+  const v: number[] = []
+  ;[[h, -h, -90], [h, h, 0], [-h, h, 90], [-h, -h, 180]].forEach(([dx, dy, a0]) => {
+    for (let q = 0; q <= 4; q++) {
+      const a = ((a0 + q * 22.5) * Math.PI) / 180
+      v.push(cx + dx + r * Math.cos(a), cy + dy + r * Math.sin(a))
+    }
+  })
+  return v
 }
 
 function face(prims: Prim[], k: string, cx: number, cy: number, s: number, n: number, o: { fill: string; pip: string; op?: number; stroke?: string; sw?: number }) {
@@ -76,7 +83,8 @@ function montarCasos(s: SorteioState, W: number, H: number, it: SorteioInteract)
   const acesos = marcando ? it.marcados! : s.marcar ? [] : fav
   const mostraChance = marcando || s.chance === true
   const completa = s.chance === true && (!marcando || acesos.length === fav.length)
-  const rodape = mostraChance ? (completa ? 56 : 36) : 0
+  // The room for the chance does not change while the student marks (the pieces never jump).
+  const rodape = mostraChance ? (s.chance === true ? 56 : 36) : 0
   const sorteado = typeof s.sorteado === 'number' && s.sorteado >= 0 && s.sorteado < N ? s.sorteado : undefined
   const apaga = (i: number) => (sorteado !== undefined ? i !== sorteado : !marcando && completa && acesos.length > 0 && !acesos.includes(i))
   const bolas = tipo === 'bolas'
@@ -91,7 +99,12 @@ function montarCasos(s: SorteioState, W: number, H: number, it: SorteioInteract)
   const passoX = Math.min(lado, t * 1.25)
   const passoY = passoX * razao
   const x0 = W / 2 - (passoX * (cols - 1)) / 2
-  const y0 = pad + (bolas ? 8 : 0) + (areaH - passoY * (rows - 1)) / 2
+  // The pieces and the chance under them sit together in the middle of the stage.
+  const meiaPeca = tipo === 'lista' ? t * 0.65 : t / 2
+  const alto = passoY * (rows - 1) + 2 * meiaPeca + (bolas ? 40 : 0)
+  const topoBloco = Math.max(0, (H - alto - (mostraChance ? rodape + 12 : 0)) / 2)
+  const y0 = topoBloco + (bolas ? 22 : 0) + meiaPeca
+  const yChance = topoBloco + alto + 12 + (s.chance === true ? 30 : 18)
   if (bolas) {
     // The bag: a rounded outline around the balls, open at the top.
     const bw = passoX * cols + 22
@@ -119,7 +132,7 @@ function montarCasos(s: SorteioState, W: number, H: number, it: SorteioInteract)
       prims.push({ k: `${k}:in`, t: 'circle', v: [cx, cy, t / 2 - 6], stroke: 'rgba(0,0,0,0.35)', sw: 1.5, op })
       topo.push({ k: `${k}:t`, t: 'text', v: [cx, cy], texto: c.nome, fs: clamp(t * 0.2, 12, 18), peso: 700, op })
     } else if (bolas) {
-      prims.push({ k, t: 'circle', v: [cx, cy, t / 2], fill: corCaso(c.cor, PECA), stroke: anel, sw, op })
+      prims.push({ k, t: 'circle', v: [cx, cy, t / 2], fill: corCaso(c.cor, PECA), stroke: anel === '#000' ? bordaCaso(c.cor) : anel, sw, op })
       prims.push({ k: `${k}:brilho`, t: 'circle', v: [cx - t * 0.16, cy - t * 0.16, t * 0.1], fill: 'rgba(255,255,255,0.55)', op })
     } else {
       const w = t
@@ -132,7 +145,7 @@ function montarCasos(s: SorteioState, W: number, H: number, it: SorteioInteract)
     }
     alvos.casos.push({ i, x: cx, y: cy, r: Math.max(t * 0.6, 20) })
   })
-  if (mostraChance) topo.push(...linhaChance('ch', W, H - rodape + (completa ? 30 : 18), acesos.length, N, { completa, simplificada: s.simplificada, porcentagem: s.porcentagem }))
+  if (mostraChance) topo.push(...linhaChance('ch', W, yChance, acesos.length, N, { completa, simplificada: s.simplificada, porcentagem: s.porcentagem }))
   return { prims: [...prims, ...topo], alvos }
 }
 
@@ -150,8 +163,10 @@ function montarSimulacao(s: SorteioState, W: number, H: number): Prim[] {
 
   // The header: how many throws, and the last ones (the newest on the right).
   texto('n', [10, 14], `${fmtNum(n)} ${n === 1 ? 'jogada' : 'jogadas'}`, { anchor: 'start', fs: 16, peso: 700 })
-  const ult = Math.min(10, res.length)
+  // The last results fit to the right of the count ("10.000 jogadas").
+  const cabe = W - 20 - largura(`${fmtNum(n)} jogadas`, 16) * 1.05 - 12
   const ts = clamp((W - 130) / 10 - 4, 14, 22)
+  const ult = Math.max(0, Math.min(10, res.length, Math.floor((cabe + 4) / (ts + 4))))
   for (let q = 0; q < ult; q++) {
     const j = res.length - ult + q
     const cx = W - 10 - ts / 2 - (ult - 1 - q) * (ts + 4)
@@ -192,7 +207,10 @@ function montarSimulacao(s: SorteioState, W: number, H: number): Prim[] {
     const x = left + slot * (i + 0.5)
     const yt = Y(freqs[i])
     prims.push({ k: `bar:${i}`, t: 'path', v: [x - bw / 2, bottom, x + bw / 2, bottom, x + bw / 2, yt, x - bw / 2, yt], fechado: true, fill: alpha(cores[i], 0.82), stroke: cores[i], sw: 1 })
-    texto(`cnt:${i}`, [x, yt - 10], fmtNum(cont[i]), { fs: 13, peso: 700 })
+    // The count over the bar; when the dashed line of the chance passes there, inside the bar (or over the line).
+    const yc = Y(chances[i])
+    const yCnt = s.probabilidade === false || Math.abs(yt - 10 - yc) > 9 ? yt - 10 : bottom - yt > 28 ? yt + 12 : yc - 12
+    texto(`cnt:${i}`, [x, yCnt], fmtNum(cont[i]), { fs: 13, peso: 700 })
     const nome = tipo === 'dado' ? r.nome : r.nome
     texto(`cat:${i}`, [x, bottom + 12], nome, { fs: clamp((slot - 2) / (nome.length * 0.58), 10, 13), peso: 600, fill: 'rgba(255,255,255,0.9)' })
     texto(`pct:${i}`, [x, bottom + 27], n ? pctTexto(freqs[i]) : '', { fs: clamp((slot - 2) / 5, 9, 12), peso: 600, fill: amber })

@@ -113,11 +113,11 @@ function montar(s: DadosState, W: number, H: number, it: DadosInteract & { arras
     const gap = distintos.slice(1).reduce((g, v, i) => Math.min(g, X(v) - X(distintos[i])), X(e.de + e.passo) - X(e.de))
     return { temApoio, fila, mo, baixo, yAmp, linhasTexto, rf, filaH, extra, cont, maxPilha, gap, fixo: extra + baixo + 10 }
   })
-  const R_MAX = 13
+  const R_MAX = W >= 600 ? 16 : 13
   const livre = (H - y0) / conjuntos.length
-  const ph = Math.min(livre, Math.max(...medidas.map((q) => q.fixo + (2 * Math.min(R_MAX, q.gap * 0.46) + folga) * q.maxPilha)))
-  // The dots may touch when the values are close (an outlier squeezes the others), but never get too small to see.
-  const r = Math.min(...medidas.map((q) => clamp(Math.min(porLinha ? R_MAX : q.gap * 0.5, (ph - q.fixo) / q.maxPilha / 2 - folga / 2), 4.5, R_MAX)))
+  const ph = Math.min(livre, Math.max(...medidas.map((q) => q.fixo + (2 * Math.min(R_MAX, Math.max(6, q.gap * 0.5)) + folga) * q.maxPilha)))
+  // The dots may touch, and overlap a little, when the values are close (an outlier squeezes the others), but never get too small to see.
+  const r = Math.min(...medidas.map((q) => clamp(Math.min(porLinha ? R_MAX : q.gap * 0.5, (ph - q.fixo) / q.maxPilha / 2 - folga / 2), 6, R_MAX)))
   const passoY = 2 * r + folga
   // The panels sit in the middle of the stage.
   y0 += (H - y0 - ph * conjuntos.length) / 2
@@ -140,7 +140,7 @@ function montar(s: DadosState, W: number, H: number, it: DadosInteract & { arras
     // Above the stacks, one row each: "moda", "mediana", the band's label.
     const cima = Math.max(top + filaH, axisY - 4 - (maxPilha - 1) * passoY - 2 * r)
     const comModa = Boolean(s.moda)
-    const yMediana = cima - (comModa ? 16 : 0) - 9
+    const yMediana = cima - (comModa ? 16 : 0) - 11
     const dotTop = cima - (comModa ? 14 : 0) - (s.mediana && !fila ? 16 : 0)
     // The beam tilts about the support.
     const ang = temApoio ? inclinacao(vals, fulcro, e) : 0
@@ -179,7 +179,11 @@ function montar(s: DadosState, W: number, H: number, it: DadosInteract & { arras
       const tapado = temApoio && n > 0 && Math.abs(x - X(fulcro)) < largura(fmtNum(v), fs) / 2 + 13
       if (forte) texto(`${id}:nx:${v}`, rot(x, axisY + 15), fmtNum(v), { fs, peso: 500, fill: 'rgba(255,255,255,0.8)', dur: arrasta, op: tapado ? 0 : 1 })
     })
-    if (s.unidade && ci === conjuntos.length - 1) texto(`${id}:unid`, rot(right + 4, axisY - 12), s.unidade, { anchor: 'end', fs: 12, peso: 500, fill: 'rgba(255,255,255,0.6)', dur: arrasta })
+    if (s.unidade && ci === conjuntos.length - 1) {
+      // Over the end of the line; when a point is there, under the last number.
+      const livreFim = !n || X(Math.max(...vals)) + r + 4 < right + 4 - largura(s.unidade, 12)
+      texto(`${id}:unid`, rot(right + 4, livreFim ? axisY - 12 : axisY + 28), s.unidade, { anchor: 'end', fs: 12, peso: 500, fill: 'rgba(255,255,255,0.6)', dur: arrasta })
+    }
 
     // The mean line (the deviations go to it).
     if ((s.desvios || s.distancias) && n) viga(`${id}:mlinha`, [X(m), axisY, X(m), dotTop - 2], { stroke: alpha(amber, 0.85), sw: 1.75, dash: '5 4' })
@@ -203,7 +207,7 @@ function montar(s: DadosState, W: number, H: number, it: DadosInteract & { arras
       const naReta: [number, number] = rot(X(v), altura(i))
       if (j !== undefined) {
         // In the queue: a bigger circle with the number inside; the middle one(s) lit.
-        const noMeio = (s.mediana || (!ordenando && s.fila)) && meio.includes(j) && naFila.length === n
+        const noMeio = s.mediana === true && meio.includes(j) && naFila.length === n
         const cor = it.errado === i ? rose : noMeio ? sky : acesos.some((a) => mesmo(a, v)) ? amber : PONTO
         const at: [number, number] = [filaX(j), filaY]
         prims.push({ k, t: 'circle', v: [...at, rf], fill: alpha(cor, noMeio ? 0.5 : 0.18), stroke: cor, sw: noMeio ? 2.5 : 1.75 })
@@ -231,7 +235,7 @@ function montar(s: DadosState, W: number, H: number, it: DadosInteract & { arras
     })
 
     // The median between two queue places.
-    if (fila && naFila.length === n && (s.mediana || (!ordenando && s.fila)) && n) {
+    if (fila && naFila.length === n && s.mediana === true && n) {
       const xm = meio.length === 2 ? (filaX(meio[0]) + filaX(meio[1])) / 2 : filaX(meio[0])
       if (meio.length === 2) prims.push({ k: `${id}:entre`, t: 'path', v: [xm, filaY + rf + 2, xm, filaY + rf + 9], stroke: sky, sw: 2.5 })
       texto(`${id}:mdF`, [clamp(xm, 54, W - 54), filaY + rf + 17], `mediana ${fmtNum(md)}`, { fs: 13, peso: 700, fill: sky })

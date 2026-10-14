@@ -215,7 +215,7 @@ function mdc(a: number, b: number): number {
 /** The chance, in pieces: "6 de 36", the fraction, the simplified one and the percentage. */
 export function chanceDe(f: number, n: number): { de: string; fracao: [number, number]; simples: [number, number] | null; pct: string; exata: boolean } {
   const d = n > 0 ? mdc(f, n) || 1 : 1
-  const simples: [number, number] | null = d > 1 ? [f / d, n / d] : null
+  const simples: [number, number] | null = d > 1 && f > 0 ? [f / d, n / d] : null
   const p = n > 0 ? (f / n) * 100 : 0
   const r = Math.round(p * 10) / 10
   return { de: `${fmtNum(f)} de ${fmtNum(n)}`, fracao: [f, n], simples, pct: `${fmtNum(r, 1)} %`, exata: Math.abs(r - p) < 1e-9 }

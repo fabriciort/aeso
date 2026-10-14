@@ -2,14 +2,14 @@ import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
 import { contaPecas, inclinacaoDe, ladoTexto, pecasDe, pratoDe, valorInferido, type Lado, type PecaBalanca, type Prato } from './visual/balanca-pratos'
 import type { BarraLinha, BarraState } from './visual/Barra'
-import { grausMedir, leituraTransferidor, perimetroDe, poligonosDe, transferidorDe, type FiguraState } from './visual/figura-geo'
+import { fmtNum, grausMedir, leituraTransferidor, perimetroDe, poligonosDe, transferidorDe, type FiguraState } from './visual/figura-geo'
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'
 import { ajustarValor, dadosDe, eixoDoAjuste, tipoDe as tipoGrafico, type GraficoState } from './visual/grafico-geo'
 import { coordTexto, mesmoPonto, pontosDe, trocado, type PlanoState, type Vec } from './visual/plano-geo'
 import { areaDe, camadasDe, dimsDe, facesVisiveis, partesDe, type SolidoState } from './visual/solido-geo'
 import { ativoDe, eixoDados, encaixarFulcro, fulcroNaMedia, lerValor, media, mediana, meioDaFila, mesmo, modas, ordemFila, type DadosState } from './visual/dados-geo'
-import { casosDaGrade, etapasDe, favoraveisDe, gradeDe, type Caso, type ContagemState } from './visual/contagem-geo'
+import { casosDaGrade, corCanonica, etapasDe, favoraveisDe, gradeDe, type Caso, type ContagemState } from './visual/contagem-geo'
 import { casosDe, MAX_JOGADAS, resultadosDe, type SorteioState } from './visual/sorteio-geo'
 import type { Interact } from './visual/Stage'
 
@@ -152,19 +152,29 @@ export function favoraveisDoCard(card: Mexa): { casos: Caso[]; fav: number[] } {
   return { casos, fav: favoraveisDe(casos, e.favoraveis) }
 }
 
+/** A colour in the plural, for "Toque só nas vermelhas": azul → azuis, verde → verdes. */
+function corPlural(c: unknown): string {
+  const t = String(c).toLowerCase().trim()
+  if (t.endsWith('s') || ['cinza', 'laranja', 'lilás', 'lilas'].includes(t)) return t
+  return t.endsWith('l') ? `${t.slice(0, -1)}is` : `${t}s`
+}
+
 /** Mexa "favoráveis": why a case does not count, said with what is on it. */
 function motivoFavoravel(caso: Caso, regra: unknown): string {
   const r = (regra && typeof regra === 'object' && !Array.isArray(regra) ? regra : {}) as Record<string, unknown>
-  const ou = (xs: unknown[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} ou ${xs[xs.length - 1]}` : String(xs[0]))
-  if (r.soma !== undefined && caso.a !== undefined && caso.b !== undefined) {
-    const ss = Array.isArray(r.soma) ? r.soma : [r.soma]
-    return `Essa casa dá ${caso.a} + ${caso.b} = ${caso.a + caso.b}. Procure as que dão ${ou(ss)}.`
-  }
+  const txt = (x: unknown) => (typeof x === 'number' ? fmtNum(x) : String(x))
+  const ou = (xs: unknown[]) => (xs.length > 1 ? `${xs.slice(0, -1).map(txt).join(', ')} ou ${txt(xs[xs.length - 1])}` : txt(xs[0]))
+  const lista = (v: unknown) => (Array.isArray(v) ? v : [v])
+  if (r.soma !== undefined && caso.a !== undefined && caso.b !== undefined) return `Essa casa dá ${fmtNum(caso.a)} + ${fmtNum(caso.b)} = ${fmtNum(caso.a + caso.b)}. Procure as que dão ${ou(lista(r.soma))}.`
   if (r.iguais === true && caso.l !== undefined) return 'Nessa casa os dois números são diferentes. Procure os pares iguais.'
-  if (r.cor !== undefined && caso.l === undefined) return `Essa é ${caso.nome}. Toque só nas ${ou(Array.isArray(r.cor) ? r.cor : [r.cor])}.`
-  if (r.valores !== undefined && Array.isArray(r.valores)) return `Esse é o ${caso.nome}. Procure ${ou(r.valores)}.`
-  if (typeof r.maior === 'number') return `${caso.nome} não é maior que ${r.maior}.`
-  if (typeof r.menor === 'number') return `${caso.nome} não é menor que ${r.menor}.`
+  if (r.cor !== undefined && caso.l === undefined) {
+    // A ball is called by its colour; a card or a name, by what is written on it.
+    if (corCanonica(caso.nome)) return `Essa bola é ${caso.nome}. Toque só nas ${ou(lista(r.cor).map(corPlural))}.`
+    return `Esse não é da cor pedida. Toque só nos casos ${ou(lista(r.cor).map(corPlural))}.`
+  }
+  if (r.valores !== undefined) return `Esse é o ${caso.nome}. Procure ${ou(lista(r.valores))}.`
+  if (typeof r.maior === 'number') return `${caso.nome} não é maior que ${fmtNum(r.maior)}.`
+  if (typeof r.menor === 'number') return `${caso.nome} não é menor que ${fmtNum(r.menor)}.`
   return 'Esse caso não serve. Confira o que a pergunta pede.'
 }
 
@@ -181,6 +191,7 @@ const NOTE_ACHAR = {
   mediaNaMediana: 'Esse é o ponto de equilíbrio, a média. A mediana é o valor do meio, com os valores em fila.',
   modaNaMediana: 'Essa é a pilha mais alta, a moda. A mediana é o valor do meio, com os valores em fila.',
   mediana: 'Ainda não. Ponha os valores em fila, do menor ao maior: a mediana fica no meio.',
+  medianaFila: 'Ainda não. A mediana fica no meio da fila: sobram tantos valores à esquerda quanto à direita.',
   meioNaModa: 'Esse é o valor do meio, a mediana. A moda é a pilha mais alta.',
   mediaNaModa: 'Esse é o ponto de equilíbrio, a média. A moda é a pilha mais alta.',
   moda: 'Ainda não. A moda é a pilha mais alta: o valor que mais aparece.',
@@ -197,11 +208,13 @@ function conferirAchar(card: Mexa, v: number, i?: number): { certo: boolean; not
     if (meioDaFila(n).includes(j) && mesmo(mediana(vals), num(card.acao.sucesso.mediana) ?? NaN)) return { certo: true }
   }
   const ok = card.acao.sucesso
-  const certo = mesmo(v, alvo) && (pedido !== 'moda' || modas(vals).some((x) => mesmo(x, alvo))) && (pedido !== 'mediana' || mesmo(alvo, ok.mediana as number))
+  // With two modes (a tie), either one counts.
+  const mos = modas(vals)
+  const certo = pedido === 'moda' ? mos.some((x) => mesmo(x, v)) && mos.some((x) => mesmo(x, alvo)) : mesmo(v, alvo) && (pedido !== 'mediana' || mesmo(alvo, ok.mediana as number))
   if (certo) return { certo }
   const m = media(vals)
-  const ehModa = modas(vals).some((x) => mesmo(x, v))
-  if (pedido === 'mediana') return { certo, note: mesmo(v, m) && !mesmo(m, alvo) ? NOTE_ACHAR.mediaNaMediana : ehModa ? NOTE_ACHAR.modaNaMediana : NOTE_ACHAR.mediana }
+  const ehModa = mos.some((x) => mesmo(x, v))
+  if (pedido === 'mediana') return { certo, note: i !== undefined ? NOTE_ACHAR.medianaFila : mesmo(v, m) && !mesmo(m, alvo) ? NOTE_ACHAR.mediaNaMediana : ehModa ? NOTE_ACHAR.modaNaMediana : NOTE_ACHAR.mediana }
   if (pedido === 'moda') return { certo, note: mesmo(v, mediana(vals)) ? NOTE_ACHAR.meioNaModa : mesmo(v, m) ? NOTE_ACHAR.mediaNaModa : NOTE_ACHAR.moda }
   return { certo, note: NOTE_ACHAR.valor }
 }
@@ -1235,19 +1248,18 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
       }
     }
     case 'jogar': {
-      // Each button throws 1, 10 or 100 more times: the bars grow. Done at `jogadas`.
+      // Each button throws 1, 10 or 100 more times: the bars grow. Done at `jogadas` (and it goes on, up to 10.000).
       const meta = ok.jogadas as number
       const k = st.drag ?? 0
       return {
         visual: visual({ ...e, jogadas: k }),
         interact: {
           sorteio: {
-            onJogar: lock
-              ? undefined
-              : (b) => {
-                  const n = Math.min(MAX_JOGADAS, k + Math.max(1, Math.round(b)))
-                  set({ ...st, drag: n, done: n >= meta, note: undefined })
-                },
+            // The buttons stay after the goal: the student may keep throwing and watch the frequency settle.
+            onJogar: (b) => {
+              const n = Math.min(MAX_JOGADAS, k + Math.max(1, Math.round(b)))
+              if (n !== k) set({ ...st, drag: n, done: st.done || n >= meta, note: undefined })
+            },
           },
         },
       }
@@ -1295,7 +1307,7 @@ export const GESTO: Record<Kind, string | null> = {
   ajustar: 'Arraste a barra para cima ou para baixo até o valor.',
   ordenar: 'Toque no ponto mais à esquerda: ele vai para a fila.',
   equilibrar: 'Arraste o apoio pela reta até ela ficar reta.',
-  achar: 'Toque na reta, no valor pedido.',
+  achar: 'Toque na reta (ou na fila), no valor pedido.',
   ramificar: 'Toque na árvore para abrir a próxima etapa.',
   favoraveis: 'Toque em cada caso que serve.',
   jogar: 'Toque nos botões para jogar.',

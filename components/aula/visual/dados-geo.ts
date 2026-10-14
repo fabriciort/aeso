@@ -183,7 +183,8 @@ export function inclinacao(valores: number[], fulcro: number, e: EixoDados): num
   if (!valores.length) return 0
   const d = (media(valores) - fulcro) / Math.max(EPS, e.ate - e.de)
   if (Math.abs(d) < 1e-6) return 0
-  return Math.max(-9, Math.min(9, d * 60 + Math.sign(d) * 2))
+  // Proportional to how far the support is from the mean (the student sees it level off as it gets closer), up to 10°.
+  return Math.max(-10, Math.min(10, d * 45 + Math.sign(d) * 1.5))
 }
 
 /** Mexa "equilibrar": the support snapped to the drag step (the line's step, or a half, a quarter, a fifth, a tenth of it: what reaches the mean). */
@@ -193,14 +194,22 @@ export function passoDoFulcro(s: DadosState, alvo: number): number {
   return finito(s.ajustePasso) && s.ajustePasso > 0 ? s.ajustePasso : ([1, 2, 4, 5, 10].map((k) => e.passo / k).find(divide) ?? e.passo / 10)
 }
 
+/** Mexa "equilibrar": how close to the mean the support snaps onto it (a finger is not precise): half a drag step, or 3 % of the line. */
+export function imaDoFulcro(s: DadosState, alvo: number): number {
+  const e = eixoDados(s)
+  return Math.max(passoDoFulcro(s, alvo) / 2, (e.ate - e.de) * 0.03)
+}
+
+/** Mexa "equilibrar": the support where the finger is, on the drag step; near the mean, on the mean. */
 export function encaixarFulcro(s: DadosState, v: number, alvo: number): number {
   const e = eixoDados(s)
+  if (Math.abs(v - alvo) <= imaDoFulcro(s, alvo)) return alvo
   const passo = passoDoFulcro(s, alvo)
   return limpa(Math.min(e.ate, Math.max(e.de, Math.round((v - e.de) / passo) * passo + e.de)))
 }
 
-/** Mexa "equilibrar": the support is on the mean when it is within half a drag step of it (a mean like 7,33 is not on the grid). */
-export const fulcroNaMedia = (s: DadosState, f: number, m: number) => Math.abs(f - m) <= passoDoFulcro(s, m) / 2 + 1e-9
+/** Mexa "equilibrar": the support is on the mean (a mean like 7,33 is not on the drag step: it snaps). */
+export const fulcroNaMedia = (s: DadosState, f: number, m: number) => Math.abs(f - m) <= imaDoFulcro(s, m) + 1e-9
 
 /** Mexa "achar": the value read where the student touched the line. Near a value, the mean or the median, that one; else the nearest half step. */
 export function lerValor(valores: number[], v: number, e: EixoDados): number {

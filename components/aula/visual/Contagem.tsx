@@ -29,7 +29,9 @@ export const lilas = '#c4b5fd'
 export const cinza = '#9ca3af'
 const ETAPA = [amber, sky, green, lilas]
 export const corCaso = (c: CorCaso | undefined, padrao: string) =>
-  c === 'ambar' ? amber : c === 'azul' ? sky : c === 'verde' ? green : c === 'erro' ? rose : c === 'cinza' ? cinza : c === 'lilas' ? lilas : c === 'branco' ? '#f8fafc' : c === 'preto' ? '#3f3f46' : padrao
+  c === 'ambar' ? amber : c === 'azul' ? sky : c === 'verde' ? green : c === 'erro' ? rose : c === 'cinza' ? cinza : c === 'lilas' ? lilas : c === 'branco' ? '#f8fafc' : c === 'preto' ? '#52525b' : padrao
+/** The ring of a piece: a black one gets a light ring, so it shows on the dark stage. */
+export const bordaCaso = (c: CorCaso | undefined) => (c === 'preto' ? 'rgba(255,255,255,0.7)' : '#000')
 
 /**
  * The chance, written in one line at y: "6 de 36 = 6/36 = 1/6 ≈ 16,7 %" (the fractions stacked).
@@ -78,23 +80,26 @@ function montarGrade(s: ContagemState, W: number, H: number, it: ContagemInterac
   const acesos = marcando ? it.marcados! : fav
   const mostraChance = marcando || s.chance === true
   const N = casos.length
-  const rodape = mostraChance ? (s.chance && (!marcando || acesos.length === fav.length) ? 52 : 34) : s.conta === false ? 6 : 34
+  // The room under the grid does not change while the student marks (the grid never jumps).
+  const rodape = mostraChance ? (s.chance ? 52 : 34) : s.conta === false ? 6 : 34
   const nomes = g.nomes
   const headTop = nomes ? 20 : 0
   const L = g.linhas.length
   const C = g.colunas.length
   const fsCab = 13
-  const cabW = clamp(Math.max(...g.linhas.map((o) => largura(o.nome, fsCab)), nomes ? largura(nomes[0], 11) : 0) + 12, 26, 90)
+  const cabW = clamp(Math.max(Math.max(...g.linhas.map((o) => largura(o.nome, fsCab))) + 12, nomes ? largura(`${nomes[0]} ↓`, 11) * 1.15 + 10 : 0), 26, 110)
   const cabH = 24
   const areaW = W - cabW - 6
   const areaH = H - headTop - cabH - rodape - 6
   const cw = Math.min(areaW / C, 74)
   const ch = clamp(areaH / L, 16, Math.max(cw * 0.8, 30))
   const gx = cabW + (areaW - cw * C) / 2
-  const gy = headTop + cabH + 2
+  // The grid and what goes under it sit in the middle of the stage.
+  const sobra = Math.max(0, (areaH - ch * L) / 2)
+  const gy = sobra + headTop + cabH + 2
   if (nomes) {
-    topo.push({ k: 'g:nomeC', t: 'text', v: [gx + (cw * C) / 2, 9], texto: `${nomes[1]} →`, fs: 13, peso: 600, fill: sky })
-    topo.push({ k: 'g:nomeL', t: 'text', v: [gx - 6, gy - cabH / 2 - 2], texto: `${nomes[0]} ↓`, anchor: 'end', fs: 11, peso: 600, fill: amber })
+    topo.push({ k: 'g:nomeC', t: 'text', v: [gx + (cw * C) / 2, sobra + 9], texto: `${nomes[1]} →`, fs: 13, peso: 600, fill: sky })
+    topo.push({ k: 'g:nomeL', t: 'text', v: [Math.max(4, gx - 6 - largura(`${nomes[0]} ↓`, 11) * 1.15), gy - cabH / 2 - 2], texto: `${nomes[0]} ↓`, anchor: 'start', fs: 11, peso: 600, fill: amber })
   }
   g.colunas.forEach((o, c) => topo.push({ k: `g:cc:${c}`, t: 'text', v: [gx + cw * (c + 0.5), gy - cabH / 2], texto: o.nome, fs: clamp((cw - 4) / (o.nome.length * 0.56), 10, fsCab), peso: 700, fill: sky }))
   g.linhas.forEach((o, l) => topo.push({ k: `g:cl:${l}`, t: 'text', v: [gx - 8, gy + ch * (l + 0.5)], texto: o.nome, anchor: 'end', fs: clamp(ch * 0.6, 10, fsCab), peso: 700, fill: amber }))
@@ -118,7 +123,7 @@ function montarGrade(s: ContagemState, W: number, H: number, it: ContagemInterac
   const yb = gy + ch * L + 6
   if (mostraChance) {
     const completa = s.chance === true && (!marcando || acesos.length === fav.length)
-    topo.push(...linhaChance('g:ch', W, yb + (completa ? 24 : 14), acesos.length, N, { completa, simplificada: s.simplificada, porcentagem: s.porcentagem }))
+    topo.push(...linhaChance('g:ch', W, yb + (s.chance ? 24 : 14), acesos.length, N, { completa, simplificada: s.simplificada, porcentagem: s.porcentagem }))
   } else if (s.conta !== false) topo.push({ k: 'g:conta', t: 'text', v: [W / 2, yb + 15], texto: contaTexto([L, C], s.unidade), fs: 18, peso: 700, fill: '#fff' })
   return { prims: [...prims, ...topo], alvos }
 }
@@ -134,7 +139,8 @@ function montarArvore(s: ContagemState, W: number, H: number): { prims: Prim[]; 
   const temNomes = Array.isArray(s.nomes) && s.nomes.length > 0
   const top = temNomes ? 26 : 8
   const conta = s.conta !== false && k > 0
-  const bottom = H - (conta ? 40 : 8)
+  // The room for the count is kept while the tree grows (the nodes never jump).
+  const bottom = H - (s.conta !== false ? 40 : 8)
   const sp = (bottom - top) / N
   const r = clamp(sp * 0.22, 3.5, 6.5)
   const combos = s.combinacoes === true && k > 0
@@ -162,7 +168,8 @@ function montarArvore(s: ContagemState, W: number, H: number): { prims: Prim[]; 
   if (temNomes)
     etapas.forEach((_, e) => {
       const nome = s.nomes?.[e]
-      if (nome && e < k) topo.push({ k: `nome:${e}`, t: 'text', v: [xs[e + 1] + labelW[e] / 2 - r, 10], texto: nome, fs: 13, peso: 600, fill: alpha(ETAPA[e % 4], 1), atraso: 200 })
+      // The names of the stages still to grow show dim: the student sees what comes next.
+      if (nome) topo.push({ k: `nome:${e}`, t: 'text', v: [xs[e + 1] + labelW[e] / 2 - r, 10], texto: nome, fs: 13, peso: 600, fill: ETAPA[e % 4], op: e < k ? 1 : 0.35, atraso: 200 })
     })
   // The root.
   const yRaiz = yDe([])
@@ -181,7 +188,7 @@ function montarArvore(s: ContagemState, W: number, H: number): { prims: Prim[]; 
       const atraso = Math.min(700, ordem * 45)
       prims.push({ k: `ramo:${key}`, t: 'path', v: [sx, sy, ex, ey], stroke: lit ? amber : 'rgba(255,255,255,0.45)', sw: lit ? 3 : 1.75, rota: [[sx, sy, sx, sy]], atraso, dur: 420 })
       const cor = o.cor ? corCaso(o.cor, ETAPA[e % 4]) : ETAPA[e % 4]
-      prims.push({ k: `no:${key}`, t: 'circle', v: [xs[e + 1], ey, r], fill: cor, stroke: lit ? '#fff' : '#000', sw: lit ? 2 : 1.25, rota: [[sx, sy, r]], atraso, dur: 420 })
+      prims.push({ k: `no:${key}`, t: 'circle', v: [xs[e + 1], ey, r], fill: cor, stroke: lit ? '#fff' : bordaCaso(o.cor), sw: lit ? 2 : 1.25, rota: [[sx, sy, r]], atraso, dur: 420 })
       const rotulo = combos && e === k - 1 ? comboTexto(p) : o.nome
       topo.push({ k: `rot:${key}`, t: 'text', v: [xs[e + 1] + r + 5, ey], texto: rotulo, anchor: 'start', fs, peso: lit ? 700 : 500, fill: lit ? amber : 'rgba(255,255,255,0.9)', atraso: atraso + 300, entrada: true })
     }

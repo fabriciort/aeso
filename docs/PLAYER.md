@@ -605,6 +605,228 @@ Limites:
 - Nos setores, a legenda vai ao lado da pizza quando cabe; senão, embaixo. Até 6 fatias ficam boas.
 - No Mexa "ajustar", o eixo fica parado enquanto a barra anda: vai até uma marca redonda acima do maior valor e do alvo (ou até `eixoFim`). O arraste anda de passo das marcas (ou de meio, um quarto, um quinto ou um décimo dele, o que alcança o alvo); `ajustePasso` troca. Só barras.
 
+### `dados`
+
+Os dados da U19: um conjunto de valores como **pontos empilhados sobre a reta** (o gráfico de pontos). Cada valor é um ponto; valores iguais formam uma pilha. Sobre esse desenho o player mostra a **média como ponto de equilíbrio** (um apoio embaixo da reta: fora da média, a reta inclina para o lado mais pesado), a **mediana como o valor do meio da fila** (os pontos saem da reta e se enfileiram do menor ao maior, com o número dentro), a **moda como a pilha mais alta**, a **amplitude** (o colchete do menor ao maior), os **desvios** até a média (e a soma deles, que dá zero) e a **faixa média ± desvio padrão**. Dois ou três conjuntos podem ficar um embaixo do outro, na mesma escala.
+
+O motor é o mesmo da `figura` e do `plano`: de um cartão para o outro, os pontos se movem até o novo lugar. Mantenha os mesmos `valores` e mude só as chaves: `{ valores }` → `{ valores, media: true }` → `{ valores, fila: true, mediana: true }`. As contas ficam em `components/aula/visual/dados-geo.ts`.
+
+| Chave | Efeito |
+|---|---|
+| `valores` | os valores, na ordem em que foram anotados: `[7, 5, 8, 7, 6]`. Decimais valem (`2.5` aparece `2,5`) |
+| `conjuntos` | dois ou três conjuntos, um embaixo do outro, na mesma reta: `[{ nome: 'Loja A', valores: [...] }, { nome: 'Loja B', valores: [...] }]`. O nome do primeiro fica em âmbar, o do segundo em azul. Todas as outras chaves valem para cada conjunto |
+| `de`, `ate`, `passo` | a reta: o começo, o fim e a distância entre as marcas. Padrão: um passo redondo, de uma marca antes do menor a uma depois do maior; dados que não são negativos não descem do 0 |
+| `numeros` | de quantas em quantas marcas vai um número (padrão: o que cabe); `false` esconde |
+| `unidade`, `antes` | junto dos números: `unidade: 'min'` escreve "média 7 min" e põe "min" na ponta da reta; `antes: 'R$ '` escreve "média R$ 1.200" |
+| `media: true` | o apoio (o triângulo âmbar) embaixo da reta, na média, com "média 6,7". A reta fica reta |
+| `fulcro` | o apoio neste lugar (`fulcro: 5`): fora da média, a reta inclina para o lado mais pesado, mais quanto mais longe (até 10°). Com `media: true`, o apoio vai para a média |
+| `fila: true` | os pontos saem da reta e formam uma fila, do menor ao maior, com o número dentro |
+| `mediana: true` | sem `fila`, uma linha azul tracejada no valor do meio, com "mediana 7" em cima. Com `fila`, os do meio da fila acendem em azul e "mediana 5,5" aparece embaixo (com quantidade par, uma marca entre os dois do meio) |
+| `moda: true` | as pilhas mais altas em verde, com "moda" em cima (num empate, todas). Sem valor repetido: "sem moda: nenhum valor se repete" |
+| `amplitude: true` | o colchete lilás embaixo da reta, do menor ao maior, com "amplitude: 32 − 28 = 4" |
+| `desvios: true` | a linha tracejada da média e, de cada ponto até ela, um segmento (à direita em verde, à esquerda em rosa) com o desvio (`+2`, `−3`). Cada ponto ganha a sua altura, para os segmentos não se cruzarem |
+| `somaDesvios: true` | embaixo, a soma dos desvios escrita: `(−2) + (0) + (+1) + … = 0` |
+| `distancias: true` | como `desvios`, mas sem sinal e todos em lilás (a distância até a média), com "distância média: 1,5" embaixo |
+| `faixa` | a faixa média ± desvio padrão, sombreada em azul, com "média ± desvio: 500 ± 1,87". `true` calcula o desvio padrão (dividindo por n, a quantidade de valores); um número usa esse desvio (`faixa: 2`, para escrever um valor redondo) |
+| `destaque` | valores acesos em âmbar (todos os pontos com esse valor): `30` ou `[2, 30]` |
+| `titulo` | em cima |
+| `rotulo` | a frase embaixo |
+| `ativo` | Mexa com `conjuntos`: o índice do conjunto que recebe os toques (padrão 0) |
+| `ajustePasso` | Mexa "equilibrar": o passo do arraste do apoio (padrão: o passo da reta, ou meio, um quarto, um quinto ou um décimo dele, o que alcança a média) |
+
+As contas: média = soma ÷ quantidade; mediana = o do meio da fila (com quantidade par, a média dos dois do meio); moda = o valor que mais aparece (todos, num empate; nenhum, se nenhum se repete); amplitude = maior − menor; desvio = valor − média; desvio padrão = raiz da média dos quadrados dos desvios (dividindo por n, não por n − 1). Os números saem com vírgula, até duas casas (`6,57`); quando a conta não fecha, escolha valores que dão uma média redonda ou use `faixa: 2`.
+
+Exemplos, um por aula da U19:
+
+```ts
+// A1 Média, mediana e moda: as notas, depois a média equilibrando, a fila com a mediana e a moda
+{ modelo: 'dados', estado: { valores: [5, 7, 8, 6, 7, 9, 7, 6, 8, 4] } }
+{ modelo: 'dados', estado: { valores: [5, 7, 8, 6, 7, 9, 7, 6, 8, 4], media: true } }
+{ modelo: 'dados', estado: { valores: [5, 7, 8, 6, 7, 9, 7, 6, 8, 4], fulcro: 5 } }  // a reta inclina para a direita
+{ modelo: 'dados', estado: { valores: [7, 4, 9, 6, 8], fila: true, mediana: true } }
+{ modelo: 'dados', estado: { valores: [5, 7, 8, 6, 7, 9, 7, 6, 8, 4], moda: true } }
+// A2 Quando a média engana: o salário do dono puxa a média; a mediana não sai do lugar
+{ modelo: 'dados', estado: { valores: [2, 2, 3, 3, 3, 4, 30], unidade: 'mil R$', media: true, mediana: true, destaque: 30 } }
+// A2 Duas lojas com a mesma média e espalhamentos diferentes
+{ modelo: 'dados', estado: { conjuntos: [{ nome: 'Loja A', valores: [26, 28, 30, 30, 32, 34] }, { nome: 'Loja B', valores: [18, 22, 30, 30, 38, 42] }], media: true, amplitude: true } }
+// A3 Desvio padrão: cada desvio, a soma que dá zero e a faixa média ± desvio
+{ modelo: 'dados', estado: { valores: [498, 500, 501, 499, 502, 500, 503, 497], unidade: 'mg', desvios: true, somaDesvios: true } }
+{ modelo: 'dados', estado: { valores: [498, 500, 501, 499, 502, 500, 503, 497], unidade: 'mg', distancias: true } }
+{ modelo: 'dados', estado: { valores: [498, 500, 501, 499, 502, 500, 503, 497], unidade: 'mg', media: true, faixa: true } }
+```
+
+Os Mexa, prontos para copiar:
+
+```ts
+// ordenar: tocar os pontos do menor ao maior; cada um vai para a fila. Com mediana: true, os do meio acendem no fim
+{ tipo: 'mexa', texto: 'Cinco tempos de espera, em minutos.', visual: { modelo: 'dados', estado: { valores: [7, 4, 9, 6, 8], unidade: 'min', mediana: true } },
+  acao: { tipo: 'tocar', instrucao: 'Ponha os tempos em fila: toque do menor para o maior.', sucesso: { ordenado: true }, mostre: 'A fila: 4, 6, 7, 8, 9.' }, descoberta: 'O do meio da fila é a mediana: 7 minutos.' }
+// equilibrar: arrastar o apoio até a reta ficar reta (conferido quando o dedo sai)
+{ tipo: 'mexa', texto: 'Onde a reta fica em equilíbrio?', visual: { modelo: 'dados', estado: { valores: [5, 7, 8, 6, 7, 9, 7, 6, 8, 4], fulcro: 4 } },
+  acao: { tipo: 'arrastar', instrucao: 'Arraste o apoio até a reta ficar reta.', sucesso: { media: 6.7 }, mostre: 'O apoio vai para 6,7.' }, descoberta: 'O ponto de equilíbrio é a média: 67 ÷ 10 = 6,7.' }
+// achar: tocar na reta, no valor pedido (a mediana, a moda ou um valor)
+{ tipo: 'mexa', texto: 'Sete salários, em mil reais.', visual: { modelo: 'dados', estado: { valores: [2, 2, 3, 3, 3, 4, 30], unidade: 'mil R$' } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na mediana.', sucesso: { mediana: 3 }, mostre: 'A mediana é 3.' }, descoberta: 'O salário de 30 não muda a mediana.' }
+{ tipo: 'mexa', texto: 'Qual tamanho a loja mais vende?', visual: { modelo: 'dados', estado: { valores: [38, 40, 40, 40, 42, 42, 44] } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na moda.', sucesso: { moda: 40 }, mostre: 'A pilha mais alta é a do 40.' }, descoberta: 'A moda é o valor que mais aparece.' }
+{ tipo: 'mexa', texto: 'Um salário destoa dos outros.', visual: { modelo: 'dados', estado: { valores: [2, 2, 3, 3, 3, 4, 30], unidade: 'mil R$', media: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque no salário que puxa a média.', sucesso: { valor: 30 }, mostre: 'O 30 fica longe de todos.' }, descoberta: 'Um valor muito longe puxa a média para o lado dele.' }
+// achar na fila: com fila: true, o aluno toca o ponto do meio (com quantidade par, qualquer um dos dois do meio)
+{ tipo: 'mexa', texto: 'Seis alturas, em fila.', visual: { modelo: 'dados', estado: { valores: [3, 8, 5, 6, 9, 4], fila: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque no meio da fila.', sucesso: { mediana: 5.5 }, mostre: 'No meio ficam o 5 e o 6.' }, descoberta: 'Com quantidade par, a mediana fica entre os dois do meio: 5,5.' }
+```
+
+Limites (medidos no celular, palco de uns 374 × 400 px):
+
+- Os pontos têm raio de 6 a 13 px (16 px no computador). O raio sai da menor distância entre dois valores diferentes: valores a 1 unidade numa reta de 0 a 35 ficam com uns 6 px e se tocam. Para pontos grandes, a reta deve ter no máximo umas 18 unidades entre os valores mais próximos (`(ate − de) ÷ menor diferença ≤ 18`). Com um valor que destoa (o salário de 30), use inteiros pequenos nos outros (2, 3, 4), não 2,5 e 3,5.
+- Pilhas: com um conjunto, uma pilha de até umas 12 ainda tem pontos de 13 px; mais alta, os pontos encolhem (até 6 px). Com dois conjuntos, cada um tem metade da altura (pilhas de até umas 5). Até uns 20 valores ficam bons.
+- A fila cabe até uns 18 valores no celular (o círculo vai de 15 a 8 px de raio e o número encolhe até 9 px). Números de até 3 algarismos.
+- Com `desvios` ou `distancias`, cada ponto tem a sua linha: até uns 10 valores.
+- No Mexa "equilibrar", o apoio encaixa na média quando o dedo chega perto (meio passo do arraste, ou 3 % da reta): uma média como 7,33 também se alcança. `sucesso.media` tem de ser a média dos valores (os testes cobram).
+- No Mexa "achar", o toque vai para o valor mais perto (um valor, a média ou a mediana, até 0,6 passo da reta); longe deles, para o meio passo mais perto. Tocar a média ou a moda no lugar da mediana tem aviso próprio ("Esse é o ponto de equilíbrio, a média…", "Essa é a pilha mais alta, a moda…"); tocar a mediana no lugar da moda também.
+- Com `fila: true`, a mediana só acende com `mediana: true`: num Mexa "achar" na fila, deixe `mediana` de fora (o player acende no fim).
+
+### `contagem`
+
+A contagem da U19: a **árvore de possibilidades** (cada etapa abre um ramo para cada opção; as escolhas se multiplicam, `3 × 2 = 6`) e a **tabela de dupla entrada** (a grade de pares, como os 36 resultados de dois dados), com os **casos favoráveis** acesos e a **chance** escrita embaixo (`6 de 36 = 6/36 = 1/6 ≈ 16,7 %`). Com `grade`, o palco mostra a grade; sem ela, a árvore. As contas ficam em `components/aula/visual/contagem-geo.ts`.
+
+**A árvore.** Cada etapa entra crescendo da anterior: de um cartão para o outro, aumente `mostradas` de 1 em 1 (ou use o Mexa "ramificar"). A árvore inteira decide onde fica cada nó, então crescer uma etapa não mexe nas outras.
+
+| Chave | Efeito |
+|---|---|
+| `arvore` | as opções de cada etapa, na ordem: `[['azul', 'preta', 'branca'], ['jeans', 'social']]`. Uma opção pode ter cor: `{ nome: 'azul', cor: 'azul' }`. Até 4 etapas |
+| `nomes` | o nome de cada etapa, em cima da coluna: `['camisa', 'calça']`. As etapas que ainda não cresceram mostram o nome apagado |
+| `mostradas` | quantas etapas aparecem (padrão: todas; 0 mostra só a raiz) |
+| `caminho` | um caminho aceso em âmbar, uma opção por etapa: `[0, 1]` (a primeira camisa com a segunda calça) |
+| `combinacoes: true` | na ponta de cada ramo, a combinação inteira ("azul, social, tênis") |
+| `conta` | a conta embaixo, `3 × 2 = 6` (só as etapas mostradas); `false` esconde |
+| `unidade` | depois do total: `'roupas'` escreve "3 × 2 = 6 roupas" |
+| `rotulo` | a frase embaixo |
+
+As cores de opção (aqui, no `sorteio` e nas bolas): `'ambar'`, `'azul'`, `'verde'`, `'erro'` (rosa), `'cinza'`, `'lilas'`, `'branco'`, `'preto'`, e também os nomes do dia a dia: `'amarela'`, `'vermelha'`, `'roxa'`, `'branca'`, `'preta'`, no singular ou no plural. Sem cor, cada etapa tem a sua: âmbar, azul, verde, lilás.
+
+**A grade de pares.** Linhas e colunas com as opções de cada lado; cada casa é um par.
+
+| Chave | Efeito |
+|---|---|
+| `grade.linhas`, `grade.colunas` | o que vai em cada linha e coluna: `6` (de 1 a 6) ou uma lista (`['cara', 'coroa']`). Sem `colunas`, iguais às linhas. Até 12 de cada lado |
+| `grade.nomes` | o nome de cada lado: `['1º dado', '2º dado']` (as linhas, à esquerda, em âmbar; as colunas, em cima, em azul) |
+| `grade.conteudo` | o que cada casa mostra: `'par'` (padrão, "2, 5"), `'soma'`, `'produto'`, `'diferenca'` (a maior menos a menor) ou `'vazio'` |
+| `grade.preenchidas` | quantas casas estão escritas, linha por linha (padrão: todas). De um cartão para o outro, as casas se escrevem uma a uma |
+| `favoraveis` | as casas acesas em âmbar, por uma regra: `{ soma: 7 }`, `{ soma: [7, 11] }`, `{ iguais: true }` (pares iguais), `{ maior: 10 }`, `{ menor: 4 }`, `{ valores: [6, 12] }` (pelo que a casa mostra), ou a lista de casas `[[0, 5], [1, 4]]` (linha, coluna, contando do 0). Duas regras juntas valem as duas |
+| `chance: true` | embaixo, "6 de 36 = 6/36"; com `simplificada: true`, "= 1/6"; com `porcentagem: true`, "≈ 16,7 %" (ou "= 50 %" quando é exata) |
+| `conta` | sem `chance`, embaixo vai `6 × 6 = 36`; `false` esconde |
+
+Exemplos, um por aula da U19:
+
+```ts
+// A4 Contagem: as roupas, a árvore inteira, e um caminho aceso com as combinações
+{ modelo: 'contagem', estado: { arvore: [[{ nome: 'azul', cor: 'azul' }, { nome: 'preta', cor: 'preto' }, { nome: 'branca', cor: 'branco' }], ['jeans', 'social']], nomes: ['camisa', 'calça'], unidade: 'roupas' } }
+{ modelo: 'contagem', estado: { arvore: [['azul', 'preta', 'branca'], ['jeans', 'social'], ['tênis', 'sapato']], nomes: ['camisa', 'calça', 'sapato'], caminho: [0, 1, 0], combinacoes: true } }
+// A4 Dois dados: os 36 pares
+{ modelo: 'contagem', estado: { grade: { linhas: 6, colunas: 6, nomes: ['1º dado', '2º dado'] } } }
+// A5 Probabilidade: a soma 7 com dois dados
+{ modelo: 'contagem', estado: { grade: { linhas: 6, conteudo: 'soma', nomes: ['1º dado', '2º dado'] }, favoraveis: { soma: 7 }, chance: true, simplificada: true, porcentagem: true } }
+// A moeda e o dado juntos
+{ modelo: 'contagem', estado: { grade: { linhas: ['cara', 'coroa'], colunas: 6, nomes: ['moeda', 'dado'] } } }
+```
+
+Os Mexa, prontos para copiar:
+
+```ts
+// ramificar: cada toque na árvore faz a próxima etapa crescer; a conta embaixo cresce junto
+{ tipo: 'mexa', texto: 'Três camisas e duas calças. Quantas roupas diferentes?', visual: { modelo: 'contagem', estado: { arvore: [['azul', 'preta', 'branca'], ['jeans', 'social']], nomes: ['camisa', 'calça'], unidade: 'roupas' } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na árvore para abrir cada escolha.', sucesso: { etapas: 2 }, mostre: 'Cada camisa abre duas calças.' }, descoberta: '3 × 2 = 6 roupas.' }
+// favoráveis: tocar cada casa que serve; a que não serve diz quanto dá
+{ tipo: 'mexa', texto: 'Dois dados. Em quantos resultados a soma dá 7?', visual: { modelo: 'contagem', estado: { grade: { linhas: 6, conteudo: 'soma' }, favoraveis: { soma: 7 }, chance: true, simplificada: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em cada casa com soma 7.', sucesso: { favoraveis: 6 }, mostre: 'São 6 casas, na diagonal.' }, descoberta: '6 de 36: a chance é 1/6.' }
+```
+
+Limites (medidos no celular):
+
+- A árvore cabe até umas 12 pontas no celular com `combinacoes` (os nomes encolhem até 9 px), até 24 sem elas. Use nomes curtos (até uns 8 letras); com 3 etapas e `combinacoes`, "branca, social, sapato" ainda cabe.
+- A grade 6 × 6 fica com casas de uns 50 × 45 px no celular: `'par'` ("6, 6") e a soma cabem bem. Até 12 × 12 funciona, mas as casas ficam pequenas (uns 25 px): para tocar, até 6 × 6.
+- No Mexa "favoráveis", `sucesso.favoraveis` tem de ser a quantidade de casas da regra (os testes cobram): com 5 para `{ soma: 7 }`, o Mexa nunca fecha. A casa errada treme e diz o porquê: "Essa casa dá 1 + 1 = 2. Procure as que dão 7.", "Nessa casa os dois números são diferentes. Procure os pares iguais."
+- Durante o Mexa, a chance mostra só "2 de 36"; a fração e a porcentagem aparecem quando todas as casas estão acesas.
+
+### `sorteio`
+
+O sorteio da U19: os **casos possíveis** (as faces do dado, a moeda, as bolas no saco, as cartas), com os **favoráveis** acesos e a **chance** escrita; e a **simulação**: jogar muitas vezes, as contagens crescem nas barras e a frequência relativa (a porcentagem de cada resultado) chega perto da chance, a linha tracejada. A simulação é **determinística**: a mesma `semente` dá sempre os mesmos resultados, e jogar mais não muda as primeiras jogadas (as barras só crescem). As contas ficam em `components/aula/visual/sorteio-geo.ts`.
+
+Com `jogadas`, o palco mostra a simulação; sem ela, os casos.
+
+| Chave | Efeito |
+|---|---|
+| `casos` | `'dado'` (as 6 faces), `'moeda'` (cara e coroa) ou uma lista: `['A', 'K', 'Q', 'J']` ou `[{ nome: 'A', cor: 'erro' }]` (cartas com borda colorida; até 24) |
+| `bolas` | as bolas no saco, por cor: `{ azul: 3, vermelha: 2 }` (ou `[['azul', 3], ['vermelha', 2]]`; até 30 de cada cor). Cada bola é um caso |
+| `favoraveis` | os casos acesos em âmbar (os outros apagam): `{ valores: [2, 4, 6] }` (pelo nome ou pelo número), `{ maior: 4 }`, `{ menor: 3 }`, `{ cor: 'vermelha' }` (ou uma lista de cores), ou a lista dos índices `[0, 1]` (contando do 0, na ordem dos casos; nas bolas, cor por cor) |
+| `chance: true` | embaixo, "3 de 6 = 3/6"; com `simplificada: true`, "= 1/2"; com `porcentagem: true`, "= 50 %" (ou "≈ 16,7 %") |
+| `sorteado` | um caso que saiu (índice): ele sobe, com um anel branco; os outros apagam |
+| `jogadas` | quantas vezes já jogou (até 10.000): o palco mostra a simulação. Em cima, "100 jogadas" e os últimos resultados (o mais novo à direita, com anel); no meio, uma barra por resultado com a contagem em cima e a porcentagem embaixo; a linha tracejada é a chance. De um cartão para o outro, aumente `jogadas` (10 → 100 → 1.000) e as barras crescem |
+| `semente` | a semente do sorteio (padrão 1). Mude para ter outra sequência; escolha uma que conte a história que você quer (veja abaixo) |
+| `sequencia` | os primeiros resultados, fixos: `['cara', 'cara', 'cara', 'cara', 'cara']` (a falácia do jogador; nas bolas, a cor). Depois deles, o sorteio segue pela semente |
+| `curva` | embaixo das barras, a curva da porcentagem de um resultado ao longo das jogadas, com a chance tracejada: `true` (o primeiro resultado) ou o índice (`curva: 5` é o 6 do dado) |
+| `probabilidade: false` | sem a linha tracejada da chance |
+| `botoes` | Mexa "jogar": os botões (padrão `[1, 10, 100]`; até 4) |
+| `rotulo` | a frase embaixo |
+
+Algumas sementes, para copiar (as contagens de cara e coroa, ou das faces 1 a 6):
+
+| Estado | Resultado |
+|---|---|
+| `{ casos: 'moeda', jogadas: 10, semente: 3 }` | 7 caras e 3 coroas: com poucas jogadas, longe de metade |
+| `{ casos: 'moeda', jogadas: 100, semente: 3 }` | 40 e 60 |
+| `{ casos: 'moeda', jogadas: 1000, semente: 3 }` | 494 e 506: perto de metade |
+| `{ casos: 'moeda', jogadas: 10000, semente: 3 }` | 4.992 e 5.008 |
+| `{ casos: 'moeda' }` (semente 1), com 10, 100 e 1.000 jogadas | 3 e 7; 53 e 47; 505 e 495 |
+| `{ casos: 'dado', jogadas: 600, semente: 7 }` | 85, 96, 89, 111, 124, 95 |
+
+Exemplos, um por aula da U19:
+
+```ts
+// A5 Probabilidade: as faces pares do dado, as bolas azuis no saco, duas cartas
+{ modelo: 'sorteio', estado: { casos: 'dado', favoraveis: { valores: [2, 4, 6] }, chance: true, simplificada: true, porcentagem: true } }
+{ modelo: 'sorteio', estado: { bolas: { azul: 3, vermelha: 2, verde: 1 }, favoraveis: { cor: 'azul' }, chance: true, porcentagem: true } }
+{ modelo: 'sorteio', estado: { casos: ['A', 'K', 'Q', 'J', '10', '9'], favoraveis: [0, 1], chance: true, simplificada: true } }
+{ modelo: 'sorteio', estado: { casos: 'moeda', sorteado: 0 } }
+// A6 Frequência e simulação: 100 jogadas da moeda; 600 do dado com a curva do 6; a falácia do jogador
+{ modelo: 'sorteio', estado: { casos: 'moeda', jogadas: 100, semente: 3 } }
+{ modelo: 'sorteio', estado: { casos: 'dado', jogadas: 600, semente: 7, curva: 5 } }
+{ modelo: 'sorteio', estado: { casos: 'moeda', jogadas: 5, sequencia: ['cara', 'cara', 'cara', 'cara', 'cara'], rotulo: 'A próxima: ainda 1/2' } }
+```
+
+Os Mexa, prontos para copiar:
+
+```ts
+// jogar: cada botão joga 1, 10 ou 100 vezes; termina com `jogadas` (e o aluno pode continuar jogando)
+{ tipo: 'mexa', texto: 'Cara ou coroa: metade das vezes?', visual: { modelo: 'sorteio', estado: { casos: 'moeda', jogadas: 0, semente: 3, curva: true } },
+  acao: { tipo: 'tocar', instrucao: 'Jogue a moeda pelo menos 100 vezes.', sucesso: { jogadas: 100 }, mostre: 'A moeda é jogada 100 vezes.' }, descoberta: 'Com muitas jogadas, a porcentagem de caras fica perto de 50 %.' }
+// favoráveis: tocar cada caso que serve; o que não serve diz o porquê
+{ tipo: 'mexa', texto: 'Três bolas azuis e duas vermelhas no saco.', visual: { modelo: 'sorteio', estado: { bolas: { azul: 3, vermelha: 2 }, favoraveis: { cor: 'vermelha' }, chance: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nas bolas vermelhas.', sucesso: { favoraveis: 2 }, mostre: 'As duas vermelhas acendem.' }, descoberta: '2 de 5: a chance de tirar vermelha é 2/5.' }
+{ tipo: 'mexa', texto: 'No dado, quais faces são maiores que 4?', visual: { modelo: 'sorteio', estado: { casos: 'dado', favoraveis: { maior: 4 }, chance: true, simplificada: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em cada face maior que 4.', sucesso: { favoraveis: 2 }, mostre: 'O 5 e o 6.' }, descoberta: '2 de 6 = 1/3.' }
+```
+
+Limites (medidos no celular):
+
+- Os casos crescem até caber: o dado fica com faces de uns 78 px (6 em duas linhas no celular, uma linha no computador); a moeda, com uns 96 px; as bolas, até 44 px (com 12 bolas, umas 6 por linha). Até 24 cartas; nomes de até 3 letras ficam grandes.
+- A simulação cabe até uns 8 resultados lado a lado no celular (nomes de até 6 letras); o dado e a moeda ficam muito bem. Com `curva`, as barras ficam com pouco mais da metade da altura.
+- As jogadas vão até 10.000. Com poucas jogadas (10, 20), a frequência fica longe da chance; com 1.000 ou mais, perto: é o que a aula mostra. Confira na tela a semente que você escolher.
+- No Mexa "favoráveis", `sucesso.favoraveis` tem de ser a quantidade de casos da regra. Os avisos: "Essa bola é azul. Toque só nas vermelhas.", "Esse é o 1. Procure 2, 4 ou 6.", "3 não é maior que 4."
+- No Mexa "jogar", os botões continuam depois da meta: o aluno pode jogar mais e ver a curva assentar.
+
+**A U19, aula por aula.** O modelo de cada momento, para planejar:
+
+| Aula | Modelo | O momento que o player já desenha |
+|---|---|---|
+| A1 Média, mediana e moda | `dados` | os pontos sobre a reta; o apoio que equilibra (Mexa "equilibrar"); a fila e o do meio (Mexa "ordenar", "achar" a mediana); a pilha mais alta (Mexa "achar" a moda) |
+| A2 Quando a média engana | `dados` | o valor que destoa puxa a média e não mexe na mediana (`media` + `mediana` + `destaque`); duas lojas com a mesma média e amplitudes diferentes (`conjuntos` + `amplitude`) |
+| A3 Desvio padrão, a ideia | `dados` | cada desvio até a média e a soma que dá zero (`desvios`, `somaDesvios`); as distâncias sem sinal (`distancias`); a faixa média ± desvio de duas máquinas (`conjuntos` + `faixa`): o lote passou no controle? |
+| A4 Contagem | `contagem` | a árvore que cresce etapa por etapa (Mexa "ramificar"), o caminho aceso, a grade dos 36 pares de dois dados |
+| A5 Probabilidade | `sorteio`, `contagem` | os casos possíveis e os favoráveis acesos com a chance escrita (Mexa "favoráveis" no dado, no saco, nas cartas); a soma 7 na grade |
+| A6 Frequência e simulação | `sorteio` | jogar 1, 10, 100 vezes e ver as barras e a curva chegarem na chance (Mexa "jogar"); cinco caras seguidas e a próxima ainda 1/2 (`sequencia`) |
+
 ## Mexa: as manipulações
 
 O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
@@ -646,6 +868,13 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `plano` com `maquina` | `{ saidas: 4 }` | toca a máquina (ou a tabela): o próximo número de `entradas` voa até a máquina, a saída sai, entra na tabela e, com o plano, vira um ponto. Começa de `maquina.feitas` (padrão 0) e termina com `saidas` números passados |
 | `grafico` | `{ barra: 2 }`, `{ ponto: 2 }` (linhas) ou `{ setor: 1 }` | toca a barra, o ponto da linha ou a fatia: o certo acende em âmbar; o errado fica rosa ("Ainda não. Compare o topo de cada barra com os números do eixo.", "… Siga a linha e leia cada ponto no eixo.", "… Compare o tamanho das fatias.") |
 | `grafico` (barras) | `{ valor: 60 }` | arrasta a barra `ativa` (padrão 0) para cima ou para baixo; o valor anda com o dedo e é conferido quando o dedo sai. Errado: "Ainda não. Leve o topo da barra até o valor, olhando os números do eixo." |
+| `dados` | `{ ordenado: true }` | toca os pontos do menor para o maior: cada um sai da reta e entra na fila, com o número dentro. Tocar um que não é o menor que falta é erro (o ponto fica rosa: "Ainda não. Vá do menor para o maior: toque no ponto mais à esquerda."). Termina com todos na fila; com `mediana: true`, os do meio acendem |
+| `dados` | `{ media: 6.7 }` (a média dos valores) | arrasta o apoio pela reta (começa em `fulcro`; sem ele, na segunda marca); fora da média, a reta inclina para o lado mais pesado. Perto da média, o apoio encaixa nela. Conferido quando o dedo sai: "A reta pende para a direita: leve o apoio para a direita." (ou para a esquerda) |
+| `dados` | `{ mediana: 7 }`, `{ moda: 40 }` ou `{ valor: 30 }` | toca a reta no valor pedido (o toque vai para o valor, a média ou a mediana mais perto); o errado fica marcado em rosa, com o número. Na mediana, tocar a média ou a moda tem aviso próprio ("Esse é o ponto de equilíbrio, a média. A mediana é o valor do meio, com os valores em fila."); na moda, tocar a mediana ou a média também. Com duas modas, as duas valem. Com `fila: true`, toca um ponto da fila: com quantidade par, qualquer um dos dois do meio. No fim, a mediana, a moda ou o valor acendem |
+| `contagem` com `arvore` | `{ etapas: 2 }` | toca a árvore: a próxima etapa cresce, um ramo para cada opção, e a conta embaixo cresce junto (`3` → `3 × 2 = 6`). Começa de `mostradas` (padrão 0, só a raiz) |
+| `contagem` com `grade` e `favoraveis` | `{ favoraveis: 6 }` (quantas casas a regra acende) | toca cada casa que serve: ela acende e a contagem embaixo cresce ("2 de 36"). A casa que não serve treme e diz o porquê ("Essa casa dá 1 + 1 = 2. Procure as que dão 7."). Termina com todas acesas, e aí a chance aparece inteira |
+| `sorteio` com `favoraveis` | `{ favoraveis: 2 }` | toca cada caso que serve (face, bola, carta), como na grade. Avisos: "Essa bola é azul. Toque só nas vermelhas.", "Esse é o 1. Procure 2, 4 ou 6.", "3 não é maior que 4." |
+| `sorteio` com `jogadas` | `{ jogadas: 100 }` | toca os botões (`+ 1`, `+ 10`, `+ 100`, ou os de `botoes`): as jogadas somam, as barras e a curva crescem. Termina com `jogadas` ou mais; os botões continuam, para jogar mais |
 
 - **Retorno:**
   - Um erro balança o palco e mostra uma frase curta.
