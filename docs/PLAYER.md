@@ -190,7 +190,7 @@ O retângulo de multiplicação. Duas formas:
 | `tamanhoLetra` | quanto uma letra ocupa, na escala dos números (padrão: 1,6 vez a maior parte numérica, no mínimo 4) |
 | `total` | o número (ou o texto, como `'2x + 6'`) embaixo |
 | `areas: true` ou `areas: [[200, 30], [80, 12]]` | escreve o produto em cada parte (true calcula; uma lista escreve o que vier, inclusive `'?'`) |
-| `destaque`, `total` | como acima. Uma lista acende várias partes juntas: em (x + 3)², `destaque: [[0, 1], [1, 0]]` acende os dois 3x do meio |
+| `destaque`, `total` | como acima. Uma lista acende várias partes juntas: em (x + 3)², `destaque: [[0, 1], [1, 0]]` acende os dois 3x do meio. Uma parte negativa acesa continua vermelha, mais forte |
 | lados iguais | com `base` e `altura` iguais (`['x', 3]` e `['x', 3]`), o desenho é um quadrado, no celular e no computador: (x + 3)² |
 | monômios nos lados | uma parte pode ser um monômio (AF.U1): `-2`, `'3x'`, `'x²'`, `'2x²'`, `'−x'`, `'−3x'`, `'y'`, `'xy'`, `'2a'` (o hífen vale como menos). `areas: true` multiplica de verdade: x² · 3x = 3x³, 2x · (−3) = −6x, x · y = xy, −x · (−2) = 2x. O desenho: um número pelo valor absoluto, x² mais comprido que x, 3x umas 2,5 vezes o x (limitado, para caber no celular), y mais curto que x. Ex.: (x − 2)(x + 3) é `base: ['x', 3], altura: ['x', -2], areas: true` |
 | partes negativas | o rótulo de uma parte negativa e as partes com área negativa ficam vermelhos, como os azulejos negativos: o aluno vê o que se subtrai. A área mantém o sinal (−6x) |

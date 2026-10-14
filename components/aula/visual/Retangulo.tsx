@@ -369,9 +369,10 @@ function Area({ s, size, reveladas, onRevelar }: { s: RetanguloState; size: { w:
               animate={{ opacity: riscada(i, j) ? 0.4 : 1, x: xs[j], y: ys[i], width: ws[j] - 3, height: hs[i] - 3 }}
               transition={{ duration: 0.45, ease }}
               rx={6}
-              fill={lit(i, j) ? 'rgba(251,191,36,0.28)' : neg && !fechado ? 'rgba(251,113,133,0.16)' : 'rgba(255,255,255,0.1)'}
-              stroke={lit(i, j) ? amber : neg && !fechado ? rose : 'rgba(255,255,255,0.75)'}
-              strokeWidth={1.5}
+              // A lit part that subtracts stays red, only stronger: amber would hide its sign.
+              fill={lit(i, j) ? (neg && !fechado ? 'rgba(251,113,133,0.34)' : 'rgba(251,191,36,0.28)') : neg && !fechado ? 'rgba(251,113,133,0.16)' : 'rgba(255,255,255,0.1)'}
+              stroke={lit(i, j) ? (neg && !fechado ? rose : amber) : neg && !fechado ? rose : 'rgba(255,255,255,0.75)'}
+              strokeWidth={lit(i, j) && neg && !fechado ? 2.5 : 1.5}
               strokeDasharray={tocavel ? '6 4' : undefined}
               onClick={tocavel ? () => onRevelar!(chaveRevelar(s, i, j), i, j) : undefined}
               style={{ cursor: tocavel ? 'pointer' : undefined }}
