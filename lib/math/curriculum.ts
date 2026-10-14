@@ -379,8 +379,21 @@ const ALGEBRA_UNITS: Unit[] = [
       ['Reconhecer os produtos notáveis', 'Ler x² − 9 e x² + 6x + 9 e ver de onde vieram.'],
     ]),
   },
+  {
+    id: 'AF.U3', module: AF, n: 3, part: 'A', title: 'Equações do 2º grau', short: 'Equações do 2º grau',
+    outcome: 'Resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, e confere as raízes.',
+    requires: ['AF.U2', 'B.U15'],
+    lessons: L('AF.U3', [
+      ['x² = k tem duas raízes', 'O quadrado de área 25 tem lado 5, mas (−5)² também dá 25.', ['B.U13.A5']],
+      ['Produto igual a zero', 'Se um produto dá zero, um dos fatores é zero.', ['B.U15.A2']],
+      ['Resolver por fatoração', 'Fatorar e igualar cada fator a zero.', ['AF.U2.A5']],
+      ['Completar o quadrado', 'As barras se partem ao redor do x², e falta um canto.', ['AF.U2.A1']],
+      ['A fórmula', 'Completar o quadrado de uma vez por todas.'],
+      ['O discriminante', 'Antes de resolver, o b² − 4ac diz quantas raízes há.'],
+      ['Problemas do 2º grau', 'O terreno, a moldura e os dois números: montar, resolver e ver que raiz serve.', ['B.U15.A5']],
+    ]),
+  },
   ...planned('algebra', 'AF', [
-  ['Equações do 2º grau', 'Resolve por fatoração e pela fórmula.', ['AF.U2', 'B.U15']],
   ['Sistemas de equações', 'Resolve dois problemas ao mesmo tempo.', ['B.U15']],
   ['Inequações', 'Resolve e mostra a solução na reta.', ['AF.U3']],
   ['Funções', 'Domínio, imagem e gráfico.', ['B.U18']],
@@ -389,7 +402,7 @@ const ALGEBRA_UNITS: Unit[] = [
   ['Função exponencial', 'Crescimento por um fator fixo.', ['AF.U6', 'B.U11', 'B.U13']],
   ['Logaritmo', 'O expoente que falta.', ['AF.U9']],
   ['Transformações, composição e inversa', 'Monta funções com outras.', ['AF.U8', 'AF.U10']],
-  ], 3),
+  ], 4),
 ]
 
 const GEOMETRIA_UNITS = planned('geometria', 'GT', [

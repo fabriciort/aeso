@@ -524,8 +524,19 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Erro central:** (a + b)² = a² + b². Também: o sinal do canto em (x − 3)², o fator comum que esquece um termo, os dois números com a soma certa e o produto errado.
 - **Ao final:** expande os produtos notáveis de cabeça, fatora por fator comum, trinômio e diferença de quadrados, e confere multiplicando de volta.
 
-#### AF.U3. Equações do 2º grau
-- x² = k (duas raízes), produto igual a zero, resolver por fatoração, completar o quadrado com os azulejos, a fórmula e o discriminante, problemas.
+#### AF.U3. Equações do 2º grau (7 aulas)
+1. **x² = k tem duas raízes:** o quadrado de área 25 tem lado 5, mas a equação x² = 25 também aceita −5, porque (−5)² = 25. Depois, (x − 1)² = 16: x − 1 é 4 ou −4.
+2. **Produto igual a zero:** se a · b = 0, um dos dois é zero. O aluno troca o x em (x − 2)(x + 3) e vê o produto zerar só em 2 e em −3.
+3. **Resolver por fatoração:** x² − 5x + 6 = 0 vira (x − 2)(x − 3) = 0. Em x² − 4x = 0, pôr x em evidência guarda a raiz 0 que a divisão por x perderia.
+4. **Completar o quadrado:** nos azulejos de x² + 6x, as barras se partem em 3 de cada lado do x², e falta um canto 3 por 3. Somar 9 dos dois lados: (x + 3)² = 25.
+5. **A fórmula:** completar o quadrado de ax² + bx + c = 0 uma vez por todas dá x = (−b ± √(b² − 4ac)) / 2a. Usar e conferir.
+6. **O discriminante:** Δ = b² − 4ac diz, antes de resolver, se há duas raízes, uma ou nenhuma. Nenhuma porque nenhum quadrado tem área negativa.
+7. **Problemas do 2º grau:** montar a equação de um terreno, de uma moldura ou de dois números, resolver e ver que raiz o problema aceita (um lado não é negativo).
+
+- **Modelo:** o quadrado por área com o lado '?', o produto que zera, os azulejos que completam o quadrado.
+- **Erro central:** x² = 25 dá só x = 5. Também: dividir por x e perder a raiz 0; igualar cada fator a zero sem fatorar (x² − 5x + 6 = 0 vira x = 6); o sinal de −b; dividir só a raiz por 2a; aceitar a raiz negativa como um lado.
+- **Hábito:** conferir cada raiz pondo o número no lugar do x.
+- **Ao final:** resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, sabe quantas raízes esperar e escolhe a que serve ao problema.
 
 #### AF.U4. Sistemas de equações
 - Duas incógnitas, substituição, adição, duas retas no plano, problemas.

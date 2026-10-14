@@ -39,6 +39,7 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | U20 Projeto final | 2 | pronta; fecha a Matemática Básica |
 | **AF.U1 Expressões algébricas** | 6 | **em revisão** (PR 23): começa o módulo Álgebra e Funções |
 | **AF.U2 Produtos notáveis e fatoração** | 6 | **em revisão** (PR 23): trouxe os azulejos que fatoram (`fatorar`) e o recorte da diferença de quadrados |
+| **AF.U3 Equações do 2º grau** | 7 | **em andamento** |
 
 São 109 aulas no ar, e a Matemática Básica está completa. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
