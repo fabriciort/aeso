@@ -366,8 +366,20 @@ const ALGEBRA_UNITS: Unit[] = [
       ['Dividir por um monômio', 'A área e um lado dão o outro lado.', ['B.U4.A4']],
     ]),
   },
+  {
+    id: 'AF.U2', module: AF, n: 2, part: 'A', title: 'Produtos notáveis e fatoração', short: 'Produtos notáveis',
+    outcome: 'Expande os produtos notáveis de cabeça e fatora, vendo o retângulo.',
+    requires: ['AF.U1'],
+    lessons: L('AF.U2', [
+      ['O quadrado da soma', '(x + 3)² não é x² + 9: o quadrado tem quatro pedaços.', ['AF.U1.A5']],
+      ['O quadrado da diferença', 'Os dois pedaços do meio se tiram; o canto, menos vezes menos, soma.'],
+      ['A soma vezes a diferença', 'Os pedaços do meio se cancelam: sobra x² − 9.'],
+      ['Fator comum em evidência', 'O caminho de volta da distributiva: achar o lado que todos os pedaços têm.', ['AF.U1.A6']],
+      ['Fatorar x² + bx + c', 'Arrumar as peças num retângulo: dois números com aquela soma e aquele produto.', ['B.U6.A1']],
+      ['Reconhecer os produtos notáveis', 'Ler x² − 9 e x² + 6x + 9 e ver de onde vieram.'],
+    ]),
+  },
   ...planned('algebra', 'AF', [
-  ['Produtos notáveis e fatoração', 'Expande e fatora, vendo o retângulo.', ['AF.U1']],
   ['Equações do 2º grau', 'Resolve por fatoração e pela fórmula.', ['AF.U2', 'B.U15']],
   ['Sistemas de equações', 'Resolve dois problemas ao mesmo tempo.', ['B.U15']],
   ['Inequações', 'Resolve e mostra a solução na reta.', ['AF.U3']],
@@ -377,7 +389,7 @@ const ALGEBRA_UNITS: Unit[] = [
   ['Função exponencial', 'Crescimento por um fator fixo.', ['AF.U6', 'B.U11', 'B.U13']],
   ['Logaritmo', 'O expoente que falta.', ['AF.U9']],
   ['Transformações, composição e inversa', 'Monta funções com outras.', ['AF.U8', 'AF.U10']],
-  ], 2),
+  ], 3),
 ]
 
 const GEOMETRIA_UNITS = planned('geometria', 'GT', [

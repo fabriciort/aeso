@@ -512,9 +512,17 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Hábito:** conferir trocando a letra por um número (x = 2, por exemplo) dos dois lados.
 - **Ao final:** soma, subtrai, multiplica e divide polinômios simples, e confere o resultado.
 
-#### AF.U2. Produtos notáveis e fatoração
-- Quadrado da soma e da diferença (o quadrado partido), produto da soma pela diferença, fator comum, trinômio x² + bx + c como retângulo, diferença de quadrados.
-- **Erro central:** (a + b)² = a² + b².
+#### AF.U2. Produtos notáveis e fatoração (6 aulas)
+1. **O quadrado da soma:** (x + 3)² é um quadrado partido em quatro pedaços: x² + 6x + 9, não x² + 9.
+2. **O quadrado da diferença:** (x − 3)² = x² − 6x + 9; os dois pedaços do meio se tiram, e o canto (menos vezes menos) soma.
+3. **A soma vezes a diferença:** em (x + 3)(x − 3), os pedaços do meio se cancelam: x² − 9.
+4. **Fator comum em evidência:** o caminho de volta da distributiva; 6x² + 9x = 3x(2x + 3).
+5. **Fatorar x² + bx + c:** arrumar os azulejos num retângulo; dois números com aquela soma e aquele produto.
+6. **Reconhecer os produtos notáveis:** x² − 9 e x² + 6x + 9 lidos de trás para a frente; a diferença de quadrados vista como um recorte que muda de lugar.
+
+- **Modelo:** o quadrado partido, os azulejos arrumados em retângulo e o recorte da diferença de quadrados.
+- **Erro central:** (a + b)² = a² + b². Também: o sinal do canto em (x − 3)², o fator comum que esquece um termo, os dois números com a soma certa e o produto errado.
+- **Ao final:** expande os produtos notáveis de cabeça, fatora por fator comum, trinômio e diferença de quadrados, e confere multiplicando de volta.
 
 #### AF.U3. Equações do 2º grau
 - x² = k (duas raízes), produto igual a zero, resolver por fatoração, completar o quadrado com os azulejos, a fórmula e o discriminante, problemas.
