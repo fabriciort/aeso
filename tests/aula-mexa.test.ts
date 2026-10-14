@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import { AULAS } from '@/content/matematica'
 import type { Mexa } from '@/lib/formation/schema'
-import { initMexa, kindOf, mexaStage, solveMexa, type MexaState } from '@/components/aula/mexa'
+import { favoraveisDoCard, initMexa, kindOf, mexaStage, solveMexa, type MexaState } from '@/components/aula/mexa'
+import { ativoDe, media, meioDaFila, ordemFila, type DadosState } from '@/components/aula/visual/dados-geo'
 import { tipoDe } from '@/components/aula/visual/azulejos-pecas'
 import { equacaoDe, inclinacaoDe, pecasDe, valorInferido } from '@/components/aula/visual/balanca-pratos'
 import { areaDe, areaTotal, cameraDe, contagemTexto, dimsDe, dobrar, facesDe, facesVisiveis, partesDe, planificacao, somaTexto as somaFaces, TIRAS, type SolidoState } from '@/components/aula/visual/solido-geo'
@@ -158,6 +159,33 @@ function play(card: Mexa): MexaState {
     case 'ajustar':
       stage().interact!.grafico!.onAjuste!(ok.valor as number)
       stage().interact!.grafico!.onSolta!()
+      break
+    case 'ordenar':
+      for (const i of ordemFila(ativoDe(card.visual.estado as DadosState))) stage().interact!.dados!.onPonto!(i)
+      break
+    case 'equilibrar':
+      stage().interact!.dados!.onFulcro!(media(ativoDe(card.visual.estado as DadosState)))
+      stage().interact!.dados!.onSolta!()
+      break
+    case 'achar': {
+      const vals = ativoDe(card.visual.estado as DadosState)
+      const alvo = (ok.mediana ?? ok.moda ?? ok.valor) as number
+      const d = stage().interact!.dados!
+      if (d.onPonto) d.onPonto(ordemFila(vals)[meioDaFila(vals.length)[0]])
+      else d.onValor!(alvo)
+      break
+    }
+    case 'ramificar':
+      for (let n = 0; n < 6 && !st.done; n++) stage().interact!.contagem!.onRamo!()
+      break
+    case 'favoraveis':
+      for (const i of favoraveisDoCard(card).fav) {
+        const it = stage().interact!
+        ;(it.contagem ?? it.sorteio)!.onCaso!(i)
+      }
+      break
+    case 'jogar':
+      for (let n = 0; n < 200 && !st.done; n++) stage().interact!.sorteio!.onJogar!(10)
       break
     case 'partir':
       for (let n = 0; n < 10 && !st.done; n++) {
@@ -605,5 +633,214 @@ describe('Mexa do gráfico', () => {
     stage().interact!.grafico!.onAjuste!(61)
     stage().interact!.grafico!.onSolta!()
     expect(st.done).toBe(true)
+  })
+})
+
+const dados = (estado: Record<string, unknown>, sucesso: Record<string, unknown>): Mexa => ({ tipo: 'mexa', texto: '', visual: { modelo: 'dados', estado }, acao: { instrucao: '', sucesso } }) as unknown as Mexa
+const contagem = (estado: Record<string, unknown>, sucesso: Record<string, unknown>): Mexa => ({ tipo: 'mexa', texto: '', visual: { modelo: 'contagem', estado }, acao: { instrucao: '', sucesso } }) as unknown as Mexa
+const sorteio = (estado: Record<string, unknown>, sucesso: Record<string, unknown>): Mexa => ({ tipo: 'mexa', texto: '', visual: { modelo: 'sorteio', estado }, acao: { instrucao: '', sucesso } }) as unknown as Mexa
+
+describe('Mexa dos dados', () => {
+  const notas = [5, 7, 8, 6, 7, 9, 7, 6, 8, 4]
+  const ordenar = dados({ valores: [7, 4, 9, 6, 8], mediana: true }, { ordenado: true })
+  const equilibrar = dados({ valores: notas, fulcro: 4 }, { media: 6.7 })
+  const mediana = dados({ valores: [3, 7, 4, 8, 4, 9, 10] }, { mediana: 7 })
+  const filaPar = dados({ valores: [3, 8, 5, 6, 9, 4], fila: true }, { mediana: 5.5 })
+  const moda = dados({ valores: [2, 3, 3, 5, 5, 6] }, { moda: 3 })
+  const cartoes: [string, Mexa][] = [
+    ['ordenar', ordenar],
+    ['equilibrar', equilibrar],
+    ['equilibrar com média que não cai na marca', dados({ valores: [6, 7, 9] }, { media: 22 / 3 })],
+    ['achar a mediana', mediana],
+    ['achar a mediana na fila (quantidade par)', filaPar],
+    ['achar a moda', moda],
+    ['achar o valor que destoa', dados({ valores: [2, 2, 2.5, 3, 3, 3.5, 30], unidade: 'mil R$' }, { valor: 30 })],
+    ['dois conjuntos: o ativo recebe o toque', dados({ conjuntos: [{ nome: 'A', valores: [28, 30, 32] }, { nome: 'B', valores: [20, 30, 40, 42] }], ativo: 1, fulcro: 25 }, { media: 33 })],
+  ]
+
+  test.each(cartoes)('%s é jogável', (_, card) => {
+    expect(kindOf(card)).not.toBe('mostre')
+    const st = play(card)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    expect(solveMexa(card, initMexa(card)).done).toBe(true)
+  })
+
+  test('os formatos de sucesso', () => {
+    expect(kindOf(ordenar)).toBe('ordenar')
+    expect(kindOf(equilibrar)).toBe('equilibrar')
+    expect(kindOf(mediana)).toBe('achar')
+    expect(kindOf(moda)).toBe('achar')
+    expect(kindOf(dados({}, { media: 3 }))).toBe('mostre')
+  })
+
+  test('ordenar: só o menor que falta vai para a fila', () => {
+    let st = initMexa(ordenar)
+    const stage = () => mexaStage(ordenar, st, (s) => (st = s))
+    expect(stage().interact!.dados!.naFila).toEqual([])
+    stage().interact!.dados!.onPonto!(0)
+    expect(st.wrong).toBe(1)
+    expect(st.note).toMatch(/do menor para o maior/)
+    expect(stage().interact!.dados!.errado).toBe(0)
+    stage().interact!.dados!.onPonto!(1)
+    expect(stage().interact!.dados!.naFila).toEqual([1])
+    expect(stage().interact!.dados!.errado).toBeNull()
+    // The median shows only when the queue is complete.
+    for (const i of [3, 0, 4, 2]) stage().interact!.dados!.onPonto!(i)
+    expect(st.done).toBe(true)
+    expect(stage().visual.estado.mediana).toBe(true)
+  })
+
+  test('equilibrar: confere ao soltar, diz para que lado ir e encaixa perto da média', () => {
+    let st = initMexa(equilibrar)
+    const stage = () => mexaStage(equilibrar, st, (s) => (st = s))
+    expect(st.drag).toBe(4)
+    expect(stage().visual.estado.fulcro).toBe(4)
+    stage().interact!.dados!.onFulcro!(5.5)
+    expect(st.done).toBe(false)
+    stage().interact!.dados!.onSolta!()
+    expect(st.wrong).toBe(1)
+    expect(st.note).toMatch(/para a direita/)
+    stage().interact!.dados!.onFulcro!(8.5)
+    stage().interact!.dados!.onSolta!()
+    expect(st.note).toMatch(/para a esquerda/)
+    // A finger near 6,7 (6,55) lands on it.
+    stage().interact!.dados!.onFulcro!(6.55)
+    expect(st.drag).toBe(6.7)
+    stage().interact!.dados!.onSolta!()
+    expect(st.done).toBe(true)
+    expect(stage().visual.estado.media).toBe(true)
+  })
+
+  test('achar: a média e a moda no lugar da mediana têm aviso próprio', () => {
+    // 3, 4, 4, 7, 8, 9, 10: média 45 ÷ 7 ≈ 6,43; moda 4; mediana 7.
+    let st = initMexa(mediana)
+    const stage = () => mexaStage(mediana, st, (s) => (st = s))
+    stage().interact!.dados!.onValor!(45 / 7)
+    expect(st.note).toMatch(/ponto de equilíbrio, a média/)
+    expect(stage().interact!.dados!.marcado?.certo).toBe(false)
+    expect(stage().interact!.dados!.marcado?.v).toBeCloseTo(45 / 7)
+    stage().interact!.dados!.onValor!(4)
+    expect(st.note).toMatch(/pilha mais alta, a moda/)
+    stage().interact!.dados!.onValor!(9.1)
+    expect(st.note).toMatch(/Ponha os valores em fila/)
+    expect(st.wrong).toBe(3)
+    stage().interact!.dados!.onValor!(7.2)
+    expect(st.done).toBe(true)
+    expect(stage().visual.estado.mediana).toBe(true)
+  })
+
+  test('achar na fila: a mediana fica escondida até o toque certo; com duas modas, as duas valem', () => {
+    let st = initMexa(filaPar)
+    const stage = () => mexaStage(filaPar, st, (s) => (st = s))
+    expect(stage().visual.estado.mediana).toBeUndefined()
+    // 3, 4, 5, 6, 8, 9: o 4 (índice 5) não é do meio.
+    stage().interact!.dados!.onPonto!(5)
+    expect(st.note).toMatch(/meio da fila/)
+    stage().interact!.dados!.onPonto!(3)
+    expect(st.done).toBe(true)
+    expect(stage().visual.estado.mediana).toBe(true)
+    let sm = initMexa(moda)
+    mexaStage(moda, sm, (s) => (sm = s)).interact!.dados!.onValor!(5)
+    expect(sm.done).toBe(true)
+  })
+})
+
+describe('Mexa da contagem', () => {
+  const roupas = contagem({ arvore: [['azul', 'preta', 'branca'], ['jeans', 'social']], nomes: ['camisa', 'calça'] }, { etapas: 2 })
+  const soma7 = contagem({ grade: { linhas: 6, colunas: 6, conteudo: 'soma' }, favoraveis: { soma: 7 }, chance: true, simplificada: true }, { favoraveis: 6 })
+  const cartoes: [string, Mexa][] = [
+    ['ramificar', roupas],
+    ['ramificar a partir da primeira etapa', contagem({ arvore: [['a', 'b'], ['1', '2', '3'], ['x', 'y']], mostradas: 1 }, { etapas: 3 })],
+    ['marcar as somas 7', soma7],
+    ['marcar os pares iguais', contagem({ grade: { linhas: 6 }, favoraveis: { iguais: true } }, { favoraveis: 6 })],
+  ]
+
+  test.each(cartoes)('%s é jogável', (_, card) => {
+    expect(kindOf(card)).not.toBe('mostre')
+    const st = play(card)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    expect(solveMexa(card, initMexa(card)).done).toBe(true)
+  })
+
+  test('ramificar: cada toque abre uma etapa', () => {
+    let st = initMexa(roupas)
+    const stage = () => mexaStage(roupas, st, (s) => (st = s))
+    expect(stage().visual.estado.mostradas).toBe(0)
+    stage().interact!.contagem!.onRamo!()
+    expect(stage().visual.estado.mostradas).toBe(1)
+    expect(st.done).toBe(false)
+    stage().interact!.contagem!.onRamo!()
+    expect(st.done).toBe(true)
+    expect(stage().interact!.contagem!.onRamo).toBeUndefined()
+  })
+
+  test('favoráveis: a casa que não serve diz quanto dá', () => {
+    let st = initMexa(soma7)
+    const stage = () => mexaStage(soma7, st, (s) => (st = s))
+    stage().interact!.contagem!.onCaso!(0)
+    expect(st.wrong).toBe(1)
+    expect(st.note).toBe('Essa casa dá 1 + 1 = 2. Procure as que dão 7.')
+    expect(stage().interact!.contagem!.errado).toBe(0)
+    stage().interact!.contagem!.onCaso!(5)
+    expect(stage().interact!.contagem!.marcados).toEqual([5])
+    // Touching a lit cell again does nothing.
+    stage().interact!.contagem!.onCaso!(5)
+    expect(st.wrong).toBe(1)
+    for (const i of [10, 15, 20, 25, 30]) stage().interact!.contagem!.onCaso!(i)
+    expect(st.done).toBe(true)
+  })
+
+  test('um sucesso com a conta errada não fecha', () => {
+    const errado = contagem({ grade: { linhas: 6, conteudo: 'soma' }, favoraveis: { soma: 7 } }, { favoraveis: 5 })
+    expect(play(errado).done).toBe(false)
+  })
+})
+
+describe('Mexa do sorteio', () => {
+  const moeda = sorteio({ casos: 'moeda', jogadas: 0, semente: 3, curva: true }, { jogadas: 100 })
+  const saco = sorteio({ bolas: { azul: 3, vermelha: 2 }, favoraveis: { cor: 'vermelha' }, chance: true }, { favoraveis: 2 })
+  const cartoes: [string, Mexa][] = [
+    ['jogar', moeda],
+    ['jogar o dado mil vezes', sorteio({ casos: 'dado', jogadas: 0, botoes: [10, 100, 1000] }, { jogadas: 1000 })],
+    ['marcar as bolas vermelhas', saco],
+    ['marcar as faces pares', sorteio({ casos: 'dado', favoraveis: { valores: [2, 4, 6] }, chance: true }, { favoraveis: 3 })],
+    ['marcar as cartas', sorteio({ casos: ['A', 'K', 'Q', 'J'], favoraveis: [0] }, { favoraveis: 1 })],
+  ]
+
+  test.each(cartoes)('%s é jogável', (_, card) => {
+    expect(kindOf(card)).not.toBe('mostre')
+    const st = play(card)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    expect(solveMexa(card, initMexa(card)).done).toBe(true)
+  })
+
+  test('jogar: as jogadas somam, e dá para continuar depois da meta', () => {
+    let st = initMexa(moeda)
+    const stage = () => mexaStage(moeda, st, (s) => (st = s))
+    stage().interact!.sorteio!.onJogar!(1)
+    stage().interact!.sorteio!.onJogar!(10)
+    expect(stage().visual.estado.jogadas).toBe(11)
+    expect(st.done).toBe(false)
+    stage().interact!.sorteio!.onJogar!(100)
+    expect(st.done).toBe(true)
+    stage().interact!.sorteio!.onJogar!(100)
+    expect(stage().visual.estado.jogadas).toBe(211)
+    expect(st.done).toBe(true)
+  })
+
+  test('favoráveis: a bola de outra cor diz a cor', () => {
+    let st = initMexa(saco)
+    const stage = () => mexaStage(saco, st, (s) => (st = s))
+    stage().interact!.sorteio!.onCaso!(0)
+    expect(st.note).toBe('Essa bola é azul. Toque só nas vermelhas.')
+    stage().interact!.sorteio!.onCaso!(3)
+    stage().interact!.sorteio!.onCaso!(4)
+    expect(st.done).toBe(true)
+    let sd = initMexa(cartoes[3][1])
+    mexaStage(cartoes[3][1], sd, (s) => (sd = s)).interact!.sorteio!.onCaso!(0)
+    expect(sd.note).toBe('Esse é o 1. Procure 2, 4 ou 6.')
   })
 })

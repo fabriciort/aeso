@@ -573,7 +573,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **3** | U6 e U7 (frações) | prontas; falta a revisão extra por educador |
 | **4** | U8 a U11 | prontas; faltam as Missões revisadas por profissionais da área |
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
-| **6** | U16 a U19 | U16 e U17 prontas (figuras e sólidos no player); **U18 em andamento**, com o plano e os gráficos |
+| **6** | U16 a U19 | U16, U17 e U18 prontas (figuras, sólidos, plano e gráficos no player); **U19 em andamento** |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | Conferência final com a matriz do ENCCEJA e a BNCC |
 
 ## 11. Decisões
