@@ -4,6 +4,8 @@ import { useId } from 'react'
 import { LayoutGroup, motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { expressaoDe, montesDe, oposto, pecasViradas, quantosMontes, termo, type Peca } from './azulejos-pecas'
+import { retanguloDe, type Par } from './azulejos-retangulo'
+import { AzulejosRetangulo } from './AzulejosRetangulo'
 
 export type { Peca }
 
@@ -41,6 +43,12 @@ export interface AzulejosState {
   virado?: boolean
   /** Com as peças juntas, cada par de opostos (um x e um −x, um 1 e um −1) aparece riscado: vale zero. */
   cancela?: boolean
+  /** O retângulo pronto de (x + p)(x + q): x², p + q barras e p × q quadradinhos arrumados (AF.U2). */
+  retangulo?: Par
+  /** As peças de x² + bx + c ([b, c]), soltas; com `arranjo`, arrumadas assim. Mexa "fatorar": cada toque tenta outro par. */
+  fatorar?: Par
+  /** Com `fatorar`: a grade dos quadradinhos, [colunas, linhas] (as barras vão atrás; faltam ou sobram). */
+  arranjo?: Par
 }
 
 export interface AzulejosInteract {
@@ -49,8 +57,14 @@ export interface AzulejosInteract {
   onPeca?: (tipo: Peca) => void
   /** Mexa "virar": o toque no monte `virar`. */
   onVirar?: () => void
+  /** Mexa "fatorar": o toque que arruma os quadradinhos de outro jeito, e os arranjos possíveis (para uma escala só). */
+  onArrumar?: () => void
+  escala?: (Par | null)[]
   wrong?: boolean
 }
+
+/** Whether the tiles draw something: loose pieces or a rectangle. */
+export const temAzulejos = (s?: AzulejosState) => Boolean(s && (s.pecas?.length || retanguloDe(s)))
 
 // Each type sits next to its opposite: 3x beside −x.
 const ORDEM: Peca[] = ['x²', '−x²', 'x', '−x', '1', '−1']
@@ -64,7 +78,13 @@ const rose = '#fb7185'
 
 
 
-export function Azulejos({ s, size, agrupados, onPeca, onVirar, wrong }: { s: AzulejosState; size: { w: number; h: number } } & AzulejosInteract) {
+export function Azulejos(props: { s: AzulejosState; size: { w: number; h: number } } & AzulejosInteract) {
+  const ret = retanguloDe(props.s)
+  if (ret) return <AzulejosRetangulo r={ret} letra={props.s.letra} escala={props.escala} size={props.size} onArrumar={props.onArrumar} wrong={props.wrong} />
+  return <Soltos {...props} />
+}
+
+function Soltos({ s, size, agrupados, onPeca, onVirar, wrong }: { s: AzulejosState; size: { w: number; h: number } } & AzulejosInteract) {
   // Each stage moves its own pieces: the layout ids never meet another stage's.
   const grupo = useId()
   const letra = s.letra ?? 'x'

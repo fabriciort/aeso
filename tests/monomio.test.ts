@@ -126,3 +126,30 @@ describe('virar um monte de azulejos', () => {
     expect(expressaoDe(virado)).toBe('5x − 1')
   })
 })
+
+describe('o retângulo que cancela (AF.U2)', () => {
+  test('pedaços da soma, com o sinal na frente', async () => {
+    const { pedacosSoma } = await import('@/components/aula/visual/monomio')
+    expect(pedacosSoma(['x²', '3x', '-3x', -9])).toEqual(['x²', ' + 3x', ' − 3x', ' − 9'])
+    expect(pedacosSoma(['x²', '3x', '-3x', -9]).join('')).toBe(escreveSoma(['x²', '3x', '-3x', -9]))
+    expect(escreveSoma([])).toBe('0')
+  })
+
+  test('as áreas opostas se cancelam aos pares', async () => {
+    const { termosCancelados } = await import('@/components/aula/visual/monomio')
+    expect(termosCancelados(['x²', '3x', '−3x', -9])).toEqual([false, true, true, false])
+    expect(termosCancelados(['x²', '3x', '3x', 9])).toEqual([false, false, false, false])
+    expect(termosCancelados(['3x', '−3x', '3x'])).toEqual([true, true, false])
+    expect(termosCancelados([6, -6, undefined, '?'])).toEqual([true, true, false, false])
+    expect(termosCancelados(['2x', '−2y'])).toEqual([false, false])
+    expect(somaTermos(['x²', '3x', '−3x', -9])).toBe('x² − 9')
+  })
+
+  test('destaque: uma parte ou uma lista', async () => {
+    const { celulasDestaque } = await import('@/components/aula/visual/monomio')
+    expect(celulasDestaque([0, 1])).toEqual([[0, 1]])
+    expect(celulasDestaque([[0, 1], [1, 0]])).toEqual([[0, 1], [1, 0]])
+    expect(celulasDestaque('linha')).toEqual([])
+    expect(celulasDestaque(undefined)).toEqual([])
+  })
+})

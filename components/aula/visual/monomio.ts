@@ -91,13 +91,53 @@ export function ehNegativo(v: number | string | undefined): boolean {
 
 /** Terms written as a sum, the signs folded in: x² + 3x − 2x − 6. */
 export function escreveSoma(termos: (number | string)[]): string {
+  return pedacosSoma(termos).join('') || '0'
+}
+
+/**
+ * The sum split term by term, each with its sign in front: ['x²', ' + 3x',
+ * ' − 3x', ' − 9'] (joined, it is `escreveSoma`). Terms that are not
+ * monomials are left out.
+ */
+export function pedacosSoma(termos: (number | string)[]): string[] {
   const ms = termos.map(lerMonomio).filter((m): m is Monomio => m !== null)
-  if (!ms.length) return '0'
-  return ms.reduce((s, m, i) => {
+  return ms.map((m, i) => {
     const t = escreveMonomio(m)
     if (i === 0) return t
-    return t.startsWith(MENOS) ? `${s} ${MENOS} ${t.slice(1)}` : `${s} + ${t}`
-  }, '')
+    return t.startsWith(MENOS) ? ` ${MENOS} ${t.slice(1)}` : ` + ${t}`
+  })
+}
+
+/**
+ * Which terms cancel: each term pairs with the first later term that is its
+ * opposite (3x and −3x, 9 and −9), and both are marked. A term pairs once.
+ * `undefined` (or anything that is not a monomial) never cancels.
+ */
+export function termosCancelados(termos: (number | string | undefined)[]): boolean[] {
+  const ms = termos.map((t) => (t === undefined ? null : lerMonomio(t)))
+  const out = ms.map(() => false)
+  ms.forEach((m, i) => {
+    if (!m || out[i] || m.k === 0) return
+    const lit = parteLiteral(m)
+    const j = ms.findIndex((n, jj) => jj > i && !out[jj] && n !== null && parteLiteral(n) === lit && Math.abs(n.k + m.k) < 1e-9)
+    if (j >= 0) out[i] = out[j] = true
+  })
+  return out
+}
+
+/** A cell of the rectangle by area: [linha, coluna] of the parts. */
+export type Celula = [number, number]
+
+const ehCelula = (v: unknown): v is Celula => Array.isArray(v) && v.length === 2 && v.every((n) => typeof n === 'number')
+
+/**
+ * The cells `destaque` lights: one cell ([0, 1]) or a list of cells
+ * ([[0, 1], [1, 0]]). Anything else ('linha', 'coluna', nothing) lights none here.
+ */
+export function celulasDestaque(d: unknown): Celula[] {
+  if (ehCelula(d)) return [d]
+  if (Array.isArray(d)) return d.filter(ehCelula)
+  return []
 }
 
 /** Like terms combined, highest grade first (ties keep the order they came in): x² + 3x + 2x + 6 → x² + 5x + 6. */

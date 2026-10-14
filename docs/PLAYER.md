@@ -175,7 +175,7 @@ O retângulo de multiplicação. Duas formas:
 | `cortes` | colunas onde o retângulo se parte, contando da esquerda (`[5]` parte 7 colunas em 5 + 2) |
 | `cortesLinhas` | o mesmo, nas linhas |
 | `areas: true` | escreve o produto dentro de cada parte |
-| `destaque` | acende uma parte: `[linha, coluna]` das partes (`[0, 1]`), `'linha'` (a primeira linha, um grupo) ou `'coluna'` (a primeira coluna) |
+| `destaque` | acende uma parte: `[linha, coluna]` das partes (`[0, 1]`), uma lista de partes (`[[0, 1], [1, 0]]`), `'linha'` (a primeira linha, um grupo) ou `'coluna'` (a primeira coluna) |
 | `sobra` | o resto: quadradinhos soltos, contornados em âmbar, numa linha incompleta embaixo do retângulo |
 | `girar: true` | o retângulo gira 90° (linhas viram colunas) |
 | `total` | o número embaixo |
@@ -190,11 +190,13 @@ O retângulo de multiplicação. Duas formas:
 | `tamanhoLetra` | quanto uma letra ocupa, na escala dos números (padrão: 1,6 vez a maior parte numérica, no mínimo 4) |
 | `total` | o número (ou o texto, como `'2x + 6'`) embaixo |
 | `areas: true` ou `areas: [[200, 30], [80, 12]]` | escreve o produto em cada parte (true calcula; uma lista escreve o que vier, inclusive `'?'`) |
-| `destaque`, `total` | como acima |
+| `destaque`, `total` | como acima. Uma lista acende várias partes juntas: em (x + 3)², `destaque: [[0, 1], [1, 0]]` acende os dois 3x do meio |
+| lados iguais | com `base` e `altura` iguais (`['x', 3]` e `['x', 3]`), o desenho é um quadrado, no celular e no computador: (x + 3)² |
 | monômios nos lados | uma parte pode ser um monômio (AF.U1): `-2`, `'3x'`, `'x²'`, `'2x²'`, `'−x'`, `'−3x'`, `'y'`, `'xy'`, `'2a'` (o hífen vale como menos). `areas: true` multiplica de verdade: x² · 3x = 3x³, 2x · (−3) = −6x, x · y = xy, −x · (−2) = 2x. O desenho: um número pelo valor absoluto, x² mais comprido que x, 3x umas 2,5 vezes o x (limitado, para caber no celular), y mais curto que x. Ex.: (x − 2)(x + 3) é `base: ['x', 3], altura: ['x', -2], areas: true` |
 | partes negativas | o rótulo de uma parte negativa e as partes com área negativa ficam vermelhos, como os azulejos negativos: o aluno vê o que se subtrai. A área mantém o sinal (−6x) |
 | `oculto: 'base'` (ou `'altura'`) | esse lado aparece com `?` em cada parte, mas o desenho usa as partes de verdade. Para a divisão: (6x² + 9x) ÷ 3x é `base: ['2x', 3], altura: ['3x'], areas: [['6x²', '9x']], oculto: 'base'` |
 | `somaTermos: true` | embaixo, a soma das áreas e, juntando os termos semelhantes, a soma simplificada: `x² + 3x + 2x + 6` e `= x² + 5x + 6` (em âmbar). Os termos ficam do grau maior para o menor. Se nada se junta, aparece uma linha só |
+| `cancela: true` | duas partes de áreas opostas (3x e −3x) aparecem apagadas e riscadas, como os azulejos que se cancelam. Na `somaTermos`, os dois termos também aparecem riscados: `x² + 3x − 3x − 9` e `= x² − 9`. Ex.: (x + 3)(x − 3) é `base: ['x', 3], altura: ['x', -3], areas: true, cancela: true, somaTermos: true`. Funciona com `revelar` (risca quando as duas áreas estão descobertas) |
 | `revelar: true` | o Mexa "revelar" (veja abaixo) |
 
 No Mexa "revelar", cada parte começa com `?` e borda tracejada; o toque descobre a área dela (com um pulo) e acende a parte. Com `oculto`, as áreas já aparecem e o toque descobre a parte do lado escondido (qualquer parte da coluna serve). O `total` e a `somaTermos` aparecem quando tudo está descoberto. `sucesso.reveladas` é o número de partes (com `oculto`, o de partes do lado escondido); os testes cobram.
@@ -206,6 +208,30 @@ No Mexa "revelar", cada parte começa com `?` e borda tracejada; o toque descobr
 // revelar com o lado escondido: a área e um lado dão o outro lado
 { tipo: 'mexa', texto: 'A área é 6x² + 9x e a altura é 3x.', visual: { modelo: 'retangulo', estado: { base: ['2x', 3], altura: ['3x'], areas: [['6x²', '9x']], oculto: 'base', revelar: true, total: '2x + 3' } },
   acao: { tipo: 'tocar', instrucao: 'Toque em cada parte para achar o lado de cima.', sucesso: { reveladas: 2 }, mostre: 'O lado é 2x + 3.' }, descoberta: '(6x² + 9x) ÷ 3x = 2x + 3.' }
+```
+
+### `retangulo`: o recorte da diferença de quadrados
+
+A diferença de quadrados da AF.U2: um quadrado x por x sem um canto b por b. O L que sobra se parte em dois retângulos; o de baixo gira e vai para o lado do outro, e os dois formam um retângulo só, (x + b) por (x − b). A área não muda: x² − 9 = (x + 3)(x − 3).
+
+| Chave | Efeito |
+|---|---|
+| `recorte` | o lado do canto que falta, um número (`recorte: 3` é x² − 9). O x é desenhado umas três vezes maior que o b, sempre igual (é um tamanho que não sabemos). Antes: em cima "x", à esquerda "x"; à direita e embaixo, os pedaços do lado ("x − 3" e "3"); o canto tracejado, com 9 dentro; o pedaço de baixo em âmbar; embaixo, `x² − 9` |
+| `movido: true` | o depois: o retângulo (x + 3) por (x − 3), com "x + 3" em cima (numa cota), "x − 3" à esquerda, e "x" e "3" dentro, em cima de cada pedaço. Embaixo, em âmbar, `x² − 9 = (x + 3)(x − 3)` |
+| `letra` | outra letra no lugar do x (`'a'`) |
+| `mover: true` | o Mexa "mover" (veja abaixo) |
+
+O recorte não usa `base` nem `altura`: com `recorte`, as outras chaves do retângulo ficam de fora.
+
+No Mexa "mover", o pedaço de baixo aparece com a borda tracejada e a linha do corte, em âmbar, já marcada. O toque corta, o pedaço gira um quarto de volta e desliza para a direita do outro; depois os rótulos mudam e a igualdade aparece embaixo.
+
+```ts
+// mover: x² − 9 vira (x + 3)(x − 3)
+{ tipo: 'mexa', texto: 'Do quadrado de lado x saiu um canto de 3 por 3. Sobrou x² − 9.', visual: { modelo: 'retangulo', estado: { recorte: 3, mover: true } },
+  acao: { tipo: 'tocar', instrucao: 'Toque no pedaço tracejado para cortar e levar para o lado.', sucesso: { movido: true }, mostre: 'O pedaço vai para o lado e o L vira um retângulo.' }, descoberta: 'x² − 9 = (x + 3)(x − 3).' }
+// antes e depois, sem Mexa
+{ modelo: 'retangulo', estado: { recorte: 2 } }
+{ modelo: 'retangulo', estado: { recorte: 2, movido: true } }
 ```
 
 ### `quadro-posicional`: divisão na chave
@@ -296,6 +322,31 @@ No Mexa "virar", o toque no monte vira todas as peças dele de uma vez (cada uma
 ```
 
 Com um tipo só, a expressão embaixo não repete a contagem do grupo.
+
+### `livre`: azulejos em retângulo (fatorar)
+
+Os azulejos de x² + bx + c arrumados num retângulo, para fatorar (AF.U2). O x² fica no canto de cima, à esquerda; p barras de pé à direita dele; q barras deitadas embaixo; e os c quadradinhos numa grade de p colunas por q linhas, no canto de baixo. Em cima, "x + p"; à esquerda, "x + q". O retângulo fecha quando p × q = c e p + q = b.
+
+| Chave | Efeito |
+|---|---|
+| `azulejos.retangulo: [p, q]` | o retângulo pronto de (x + p)(x + q). Embaixo, em âmbar, `x² + 5x + 6 = (x + 2)(x + 3)`; com p = q, `x² + 4x + 4 = (x + 2)²` (um quadrado) |
+| `azulejos.fatorar: [b, c]` | as peças de x² + bx + c, soltas: o x², as b barras de pé ao lado dele (até 5 por linha) e os c quadradinhos embaixo (até 6 por linha). Embaixo, `x² + 5x + 6` |
+| `azulejos.arranjo: [p, q]` | com `fatorar`: os quadradinhos numa grade de p colunas por q linhas, e as barras atrás (à direita primeiro, depois embaixo). Se o par pede mais barras do que há, as que faltam são vagas tracejadas no fim da fila de baixo ("faltam 2 barras", em rosa). Se pede menos, as que sobram ficam de lado, à direita, apagadas ("sobram 2 barras") |
+| `azulejos.letra` | outra letra no lugar do x |
+
+Limites: b até 8 e c até 12. O pior caso, 1 × 12, ainda deixa o "1" legível (o quadradinho fica com uns 27 px no celular e uns 18 px no computador); abaixo de 15 px o "1" some. Os pares vêm do mais fino ao mais largo (1 × 6, depois 2 × 3), com p ≤ q: p são as colunas, q as linhas.
+
+No Mexa "fatorar", as peças começam soltas (ou em `arranjo`, se vier). Cada toque arruma os quadradinhos do próximo jeito possível, só os pares de fatores de c (1 × 6, 2 × 3, e de volta ao primeiro), e as barras vão atrás. O par que não fecha não conta como erro: o desenho mostra as vagas ou as sobras, e a frase diz por quê ("1 + 6 = 7 barras, mas você tem 5: faltam 2 barras. Toque de novo."). Quando p + q = b, o retângulo fecha e o Mexa termina. `sucesso.fatorado` é o par que fecha, em qualquer ordem; um par que não tem soma b (ou um trinômio sem par) não vira Mexa. Todos os arranjos usam a mesma escala, para nada mudar de tamanho entre um toque e outro.
+
+```ts
+// fatorar: x² + 5x + 6
+{ tipo: 'mexa', texto: 'Os azulejos de x² + 5x + 6: um x², 5 barras e 6 quadradinhos. Dá para montar um retângulo?', visual: { modelo: 'livre', estado: { azulejos: { fatorar: [5, 6] } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nos azulejos para arrumar os quadradinhos de outro jeito.', sucesso: { fatorado: [2, 3] }, mostre: 'Com 2 × 3, as 5 barras fecham o retângulo.' }, descoberta: 'x² + 5x + 6 = (x + 2)(x + 3): 2 · 3 = 6 e 2 + 3 = 5.' }
+// o retângulo pronto, nos cartões seguintes
+{ modelo: 'livre', estado: { azulejos: { retangulo: [2, 3] } } }
+// um par que não serve: 2 × 3 em x² + 7x + 6 (sobram 2 barras)
+{ modelo: 'livre', estado: { azulejos: { fatorar: [7, 6], arranjo: [2, 3] } } }
+```
 
 ### `barra`
 
@@ -879,6 +930,8 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `barra` com `partir: true` | `{ partes }` | toca a barra e cada parte se corta em `fator` (padrão 2); o pintado continua do mesmo tamanho (1/2 → 2/4 → 4/8) |
 | `livre` com `azulejos.agrupar: true` | `{ agrupado: true }` | toca uma peça e todas as do mesmo tipo vão juntas para um grupo, com a contagem; termina quando todos os tipos estão juntos (com `mostraExpressao`, a expressão aparece no fim) |
 | `livre` com `azulejos.virar` | `{ virado: true }` | toca o monte com o − na frente: todas as peças dele trocam de sinal de uma vez, girando, e o − vira + |
+| `livre` com `azulejos.fatorar: [b, c]` | `{ fatorado: [p, q] }` (o par que fecha, em qualquer ordem) | toca os azulejos: os quadradinhos se arrumam no próximo par de fatores de c (1 × 6, 2 × 3…) e as barras vão atrás. O par que não fecha mostra as barras que faltam (vagas tracejadas) ou que sobram (de lado) e diz por quê, sem contar como erro. Termina quando p + q = b |
+| `retangulo` com `recorte` e `mover: true` | `{ movido: true }` | toca o quadrado recortado: o L se corta em dois, o pedaço de baixo gira e vai para o lado, e aparece x² − 9 = (x + 3)(x − 3) |
 | `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
 | `balanca` com `tirar: true` | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio. Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |
 | `balanca` com `dividir: k` | `{ dividido: true }` | os pratos aparecem partidos em `k` grupos, todos acesos; o aluno toca num grupo e fica só um grupo de cada lado (com `mostraEquacao`, `2x = 8` vira `x = 4`) |

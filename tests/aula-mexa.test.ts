@@ -87,6 +87,13 @@ function play(card: Mexa): MexaState {
     case 'virar':
       stage().interact!.livre!.onVirar!()
       break
+    case 'fatorar':
+      // Tries the factor pairs in turn until the rectangle closes.
+      for (let n = 0; n < 12 && !st.done; n++) stage().interact!.livre!.onArrumar!()
+      break
+    case 'mover':
+      stage().interact!.retangulo!.onMover!()
+      break
     case 'pintar': {
       const b = stage().interact!.barra!
       b.onPart!(b.ativa ?? 0, (ok.pintadas as number) - 1)
@@ -282,6 +289,73 @@ describe('Mexa dos azulejos: virar', () => {
     expect(az.virado).toBe(true)
     expect(pecasViradas(az.pecas, az.montes, az.virar, az.virado)).toEqual(['x²', 'x', 'x', '−x²', 'x', 'x', 'x', '−1'])
     expect(solveMexa(virar, initMexa(virar)).done).toBe(true)
+  })
+})
+
+describe('Mexa dos azulejos: fatorar', () => {
+  const fatorar = (b: number, c: number, fatorado: [number, number], extra: Record<string, unknown> = {}) => livre({ azulejos: { fatorar: [b, c], ...extra } }, { fatorado })
+
+  test('fatorar é jogável: x² + 5x + 6, x² + 7x + 12, x² + 4x + 4, x² + 7x + 6', () => {
+    for (const [b, c, f] of [[5, 6, [2, 3]], [7, 12, [3, 4]], [4, 4, [2, 2]], [7, 6, [1, 6]], [8, 12, [6, 2]]] as [number, number, [number, number]][]) {
+      const card = fatorar(b, c, f)
+      expect(kindOf(card)).toBe('fatorar')
+      const st = play(card)
+      expect(st.done).toBe(true)
+      expect(st.wrong).toBe(0)
+      const az = mexaStage(card, st, () => {}).visual.estado.azulejos as { arranjo: [number, number] }
+      expect([...az.arranjo].sort((x, y) => x - y)).toEqual([...f].sort((x, y) => x - y))
+      expect(solveMexa(card, initMexa(card)).done).toBe(true)
+      expect(solveMexa(card, initMexa(card)).pick).toBe(st.pick)
+    }
+  })
+
+  test('cada toque tenta o próximo par; o que não fecha diz o que falta ou sobra', () => {
+    const card = fatorar(5, 6, [3, 2])
+    let st = initMexa(card)
+    const tap = () => mexaStage(card, st, (s) => (st = s)).interact!.livre!.onArrumar!()
+    expect(mexaStage(card, st, () => {}).visual.estado.azulejos).not.toHaveProperty('arranjo', expect.anything())
+    tap()
+    expect((mexaStage(card, st, () => {}).visual.estado.azulejos as { arranjo: number[] }).arranjo).toEqual([1, 6])
+    expect(st.done).toBe(false)
+    expect(st.wrong).toBe(0)
+    expect(st.note).toBe('1 + 6 = 7 barras, mas você tem 5: faltam 2 barras. Toque de novo.')
+    tap()
+    expect(st.done).toBe(true)
+    expect(st.note).toBeUndefined()
+    expect(mexaStage(card, st, () => {}).interact!.livre!.onArrumar).toBeUndefined()
+
+    const sobra = fatorar(7, 6, [1, 6], { arranjo: [2, 3] })
+    let s2 = initMexa(sobra)
+    expect(s2.pick).toBe(1)
+    const tap2 = () => mexaStage(sobra, s2, (s) => (s2 = s)).interact!.livre!.onArrumar!()
+    tap2()
+    expect(s2.done).toBe(true)
+  })
+
+  test('sem par que feche, ou com o par errado, não é um Mexa fatorar', () => {
+    expect(kindOf(fatorar(5, 7, [1, 7]))).toBe('mostre')
+    expect(kindOf(fatorar(5, 6, [1, 6]))).toBe('mostre')
+  })
+})
+
+describe('Mexa do recorte: mover', () => {
+  const mover = retangulo({ recorte: 3, mover: true }, { movido: true })
+
+  test('mover é jogável e deixa o retângulo (x + 3)(x − 3)', () => {
+    expect(kindOf(mover)).toBe('mover')
+    expect(mexaStage(mover, initMexa(mover), () => {}).visual.estado.movido).toBe(false)
+    const st = play(mover)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    const v = mexaStage(mover, st, () => {}).visual.estado
+    expect(v.movido).toBe(true)
+    expect(v).not.toHaveProperty('mover')
+    expect(mexaStage(mover, st, () => {}).interact!.retangulo!.onMover).toBeUndefined()
+    expect(solveMexa(mover, initMexa(mover)).done).toBe(true)
+  })
+
+  test('sem mover: true, o recorte é só um desenho', () => {
+    expect(kindOf(retangulo({ recorte: 3 }, { movido: true }))).toBe('mostre')
   })
 })
 
