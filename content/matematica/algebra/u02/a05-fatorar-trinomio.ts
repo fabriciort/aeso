@@ -86,7 +86,7 @@ export const aula: Aula = {
           texto: '1 por 12', erro: 'fatores-com-a-soma-errada',
           explica: 'Pede ${1 + 12 = 13}$ barras, e há 7. Procure o par de produto 12 e soma 7.',
           fala: 'Pede um mais doze, treze barras, e há sete. Procure o par de produto doze e soma sete.',
-          mostra: DOZE([1, 12], 'Os 12 quadradinhos numa fila de 1 por 12: faltam 6 barras.'),
+          mostra: DOZE(null, 'Os azulejos seguem soltos: uma fila de 1 por 12 pediria 13 barras, e há 7.'),
         },
         {
           texto: '2 por 6', erro: 'fatores-com-a-soma-errada',
