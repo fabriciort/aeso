@@ -51,6 +51,8 @@ export interface Prim {
   dur?: number
   /** A new primitive travels these values (same shape as `v`) and ends at `v`, instead of fading in: a point that walks first along x, then along y. Hidden until its `atraso`. */
   rota?: number[][]
+  /** `atraso` and `dur` are for its entrance only: once on stage, it moves with the rest (a new point that flew out of the machine follows the layout like any other). Implied by `rota`. */
+  entrada?: boolean
 }
 
 export interface Quadro {
@@ -79,7 +81,8 @@ export function quadros(de: Map<string, Quadro>, para: Prim[], t: number): Quadr
     vistos.add(b.k)
     const a = de.get(b.k)
     const opB = b.op ?? 1
-    const raw = clamp((t - (b.atraso ?? 0)) / (b.dur ?? DUR), 0, 1)
+    const so = a && (b.entrada || b.rota)
+    const raw = clamp((t - (so ? 0 : (b.atraso ?? 0))) / (so ? DUR : (b.dur ?? DUR)), 0, 1)
     const p = (b.t === 'roll' || (b.rota && !a) ? easeIO : easeOut)(raw)
     if (a && a.p.t === b.t && a.v.length === b.v.length) {
       const bv = alinha(a.v, b.v, b.t)
@@ -97,7 +100,9 @@ export function quadros(de: Map<string, Quadro>, para: Prim[], t: number): Quadr
     }
   }
   const fim = easeOut(clamp(t / 300, 0, 1))
-  for (const [k, a] of de) if (!vistos.has(k) && fim < 1) out.push({ ...a, op: a.op * (1 - fim) })
+  // A fading copy ("k~") may already be out, from a change that came mid-transition: one key, one shape.
+  const saindo = new Set(out.map((q) => q.p.k))
+  for (const [k, a] of de) if (!vistos.has(k) && !saindo.has(a.p.k) && fim < 1) out.push({ ...a, op: a.op * (1 - fim) })
   return out
 }
 

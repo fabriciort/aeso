@@ -140,7 +140,7 @@ function montar(s: PlanoState, W: number, H: number, it: PlanoInteract): { prims
       const ps: [number, number] = [cx, r0 + rh * 1.5]
       celulas.push({ e: pe, s: ps })
       if (c.e !== null) texto(`t:e:${i}`, pe, c.e, { fs, op: c.pendente ? 0.4 : 1 })
-      if (c.s !== null) texto(`t:s:${i}`, ps, c.s, { fs, fill: amber, atraso: m && i === feitas - 1 ? 1050 : 0 })
+      if (c.s !== null) texto(`t:s:${i}`, ps, c.s, { fs, fill: amber, ...(m && i === feitas - 1 ? { atraso: 1050, entrada: true } : {}) })
       else if (!m) texto(`t:s:${i}`, ps, '?', { fs, fill: amber })
     })
     if (m && it.onAlimentar && feitas < n) prims.push({ k: 't:prox', t: 'path', v: retangulo({ x: x0 + hw + feitas * cw + 2, y: r0 + 2, w: cw - 4, h: rh - 4 }), fechado: true, stroke: amber, sw: 1.5, dash: '4 3' })
