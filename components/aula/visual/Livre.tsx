@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils'
 import { Azulejos, temAzulejos, type AzulejosState } from './Azulejos'
 import type { Par } from './azulejos-retangulo'
 import { Saldo, type SaldoState } from './Saldo'
+import { Sistema } from './Sistema'
+import type { SistemaState } from './sistema-geo'
 import { ProdutoZero } from './ProdutoZero'
 import type { ProdutoZeroState } from './produto-zero'
 import { Tabela, type TabelaState } from './Tabela'
@@ -18,6 +20,7 @@ import { Tabela, type TabelaState } from './Tabela'
 // desenham nada: o cartão fica só com o texto.
 
 export interface LivreState {
+  sistema?: SistemaState
   produtoZero?: ProdutoZeroState
   /** Até três linhas de TeX, para frações e radicais da dedução. */
   formulas?: string[]
@@ -53,6 +56,8 @@ export interface LivreState {
 }
 
 export interface LivreInteract {
+  onParSistema?: (i: number) => void
+  onSomarSistema?: () => void
   onX?: (x: number) => void
   order?: string[]
   onFicha?: (f: string) => void
@@ -78,10 +83,11 @@ export interface LivreInteract {
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(s.formulas?.length || s.produtoZero || temAzulejos(s.azulejos) || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(s.sistema || s.formulas?.length || s.produtoZero || temAzulejos(s.azulejos) || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
+  if (s.sistema) return <Sistema s={s.sistema} size={size} onParSistema={it.onParSistema} onSomarSistema={it.onSomarSistema} />
   if (s.produtoZero) return <ProdutoZero s={s.produtoZero} onX={it.onX} />
   if (s.azulejos && temAzulejos(s.azulejos)) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} onVirar={it.onVirar} onArrumar={it.onArrumar} escala={it.escala} wrong={it.wrong} />
   if (s.saldo) return <Saldo s={s.saldo} size={size} removidas={it.removidas} paresPostos={it.paresPostos} onTirar={it.onTirar} onPar={it.onPar} wrong={it.wrong} />

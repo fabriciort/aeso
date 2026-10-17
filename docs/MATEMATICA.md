@@ -538,8 +538,19 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Hábito:** conferir cada raiz pondo o número no lugar do x.
 - **Ao final:** resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, sabe quantas raízes esperar e escolhe a que serve ao problema.
 
-#### AF.U4. Sistemas de equações
-- Duas incógnitas, substituição, adição, duas retas no plano, problemas.
+#### AF.U4. Sistemas de equações (6 aulas)
+1. **Duas condições ao mesmo tempo:** quantidade e dinheiro; teste o mesmo par nas duas igualdades.
+2. **Substituir sem mudar o valor:** igualdade autoriza a troca; parênteses protegem a expressão inteira.
+3. **Somar para eliminar:** termos opostos somam zero; uma original permite recuperar a outra incógnita.
+4. **Preparar a eliminação:** fatores não nulos multiplicam cada termo e o total; a escolha da letra é flexível.
+5. **As duas retas do sistema:** ponto comum, paralelas distintas e coincidência; 0 = 0 não fixa as letras em zero.
+6. **Problemas com duas incógnitas:** definir grandezas, modelar, escolher o método e conferir as restrições do contexto.
+
+- **Modelos:** `livre.sistema` compara as duas condições e transforma equações antes da soma; `plano` mostra as retas.
+- **Erros centrais:** conferir só uma igualdade; trocar a ordem do par; distribuir só no primeiro termo; esquecer o lado direito; apagar uma condição com fator zero; arredondar bilhetes fracionários.
+- **Prática:** 18 geradores em três níveis, com apoio visual apenas no primeiro; pares negativos e fracionários, retas verticais e horizontais e compras inviáveis.
+- **Pré-requisitos:** equações do 1º grau e plano cartesiano. Não depende das raízes do 2º grau.
+- **Ao final:** modela duas condições, resolve por substituição ou adição, interpreta o conjunto de soluções e confere o par no contexto.
 
 #### AF.U5. Inequações
 - Intervalos na reta, multiplicar por negativo inverte o sinal, inequações do 2º grau pelo sinal.
@@ -632,7 +643,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
 | **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
-| **8** | Álgebra e Funções | **AF.U1 e AF.U2 prontas** (PR 23); AF.U3 em revisão nesta branch (7 aulas, 128 no total); próxima: AF.U4 Sistemas de equações |
+| **8** | Álgebra e Funções | **AF.U1 e AF.U2 prontas** (PR 23); AF.U3 em revisão no PR 24 (7 aulas); AF.U4 em revisão nesta branch sobre o PR 24 (6 aulas, 134 no total das duas branches); próxima: AF.U5 Inequações |
 
 ## 11. Decisões
 

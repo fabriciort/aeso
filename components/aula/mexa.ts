@@ -1,3 +1,4 @@
+import { parJogavel, somaJogavel, atende, type SistemaState } from './visual/sistema-geo'
 import { produtoEm, produtoJogavel, numeroComSinal, type ProdutoZeroState } from './visual/produto-zero'
 import type { CompletarState } from './visual/CompletarQuadrado'
 import type { Mexa, Visual } from '@/lib/formation/schema'
@@ -22,7 +23,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'zerar' | 'completarQuadrado' | 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
+export type Kind = 'testarSistema' | 'somarSistema' | 'zerar' | 'completarQuadrado' | 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -70,6 +71,8 @@ export function kindOf(card: Mexa): Kind {
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
+      if (parJogavel(e.sistema as SistemaState | undefined, ok.sistema)) return 'testarSistema'
+      if (ok.somado === true && somaJogavel(e.sistema as SistemaState | undefined)) return 'somarSistema'
       if (produtoJogavel(e.produtoZero as ProdutoZeroState | undefined) && ok.zerado === true) return 'zerar'
       if (fatorarOf(card)) return 'fatorar'
       if (typeof (e.azulejos as { virar?: number } | undefined)?.virar === 'number' && ok.virado === true) return 'virar'
@@ -341,6 +344,8 @@ export function initMexa(card: Mexa): MexaState {
   const e = card.visual.estado
   const base: MexaState = { kind, wrong: 0, done: false }
   switch (kind) {
+    case 'testarSistema': return { ...base, pick: null }
+    case 'somarSistema': return { ...base, pick: ((e.sistema as SistemaState).fatores ?? [1, 1]).every(k => k === 1) ? 1 : 0 }
     case 'zerar': return { ...base, order: [], pick: undefined }
     case 'completarQuadrado': return { ...base, pick: 0 }
     case 'blocos':
@@ -431,6 +436,12 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
   const e = card.visual.estado
   const done = { ...st, done: true, shown: true, note: undefined }
   switch (st.kind) {
+    case 'testarSistema': {
+      const s = e.sistema as SistemaState
+      const p = ok.sistema as number[]
+      return { ...done, pick: s.pares!.findIndex(q => q[0] === p[0] && q[1] === p[1]) }
+    }
+    case 'somarSistema': return { ...done, pick: 2 }
     case 'zerar': {
       const p = e.produtoZero as ProdutoZeroState
       return { ...done, order: [...new Set(p.raizes)].map(String), pick: p.raizes[0] }
@@ -550,6 +561,24 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
   const lock = st.done
 
   switch (st.kind) {
+    case 'testarSistema': {
+      const s = e.sistema as SistemaState
+      return { visual: visual({ ...e, sistema: { ...s, par: st.pick == null ? undefined : s.pares![st.pick] } }),
+        interact: { livre: { onParSistema: (j) => {
+          if (!Number.isInteger(j) || j < 0 || j >= s.pares!.length) return
+          const par = s.pares![j]
+          const ok = s.equacoes.every(eq => atende(eq, par))
+          set({ ...st, pick: j, done: st.done || ok, note: ok ? undefined : 'Confira as duas linhas: o mesmo par precisa atender às duas.' })
+        } } } }
+    }
+    case 'somarSistema': {
+      const s = e.sistema as SistemaState
+      return { visual: visual({ ...e, sistema: { ...s, etapa: st.pick } }),
+        interact: { livre: { onSomarSistema: lock ? undefined : () => {
+          const etapa = Math.min(2, (st.pick ?? 0) + 1)
+          set({ ...st, pick: etapa, done: etapa === 2, note: undefined })
+        } } } }
+    }
     case 'zerar': {
       const p = e.produtoZero as ProdutoZeroState
       const order = st.order ?? []
@@ -1403,6 +1432,8 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
 
 /** The gesture, said plainly, for a student who has not found it yet. */
 export const GESTO: Record<Kind, string | null> = {
+  testarSistema: 'Toque nos pares e confira as duas condições.',
+  somarSistema: 'Toque no botão para transformar e somar as equações.',
   zerar: 'Toque nos valores de x e veja os fatores e o produto.',
   completarQuadrado: 'Toque no botão abaixo das peças para completar o quadrado.',
   blocos: 'Toque nas peças com a borda tracejada.',
