@@ -384,7 +384,7 @@ const ALGEBRA_UNITS: Unit[] = [
     outcome: 'Resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, e confere as raízes.',
     requires: ['AF.U2', 'B.U15'],
     lessons: L('AF.U3', [
-      ['x² = k tem duas raízes', 'O quadrado de área 25 tem lado 5, mas (−5)² também dá 25.', ['B.U13.A5']],
+      ['As raízes de x² = k', 'O quadrado de área 25 tem lado 5, mas (−5)² também dá 25.', ['B.U13.A5']],
       ['Produto igual a zero', 'Se um produto dá zero, um dos fatores é zero.', ['B.U15.A2']],
       ['Resolver por fatoração', 'Fatorar e igualar cada fator a zero.', ['AF.U2.A5']],
       ['Completar o quadrado', 'As barras se partem ao redor do x², e falta um canto.', ['AF.U2.A1']],

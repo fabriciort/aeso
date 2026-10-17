@@ -1,5 +1,7 @@
 import type { Aula } from '@/lib/formation/schema'
+import { aula as A1 } from './a01-duas-raizes'
+import { aula as A2 } from './a02-produto-zero'
+import { aula as A3 } from './a03-resolver-fatoracao'
+import { aula as A4 } from './a04-completar-quadrado'
 
-// Álgebra e Funções, unidade 3, parte A: aulas 1 a 4 (x² = k; produto igual
-// a zero; resolver por fatoração; completar o quadrado).
-export const AULAS_AF_U03A: Aula[] = []
+export const AULAS_AF_U03A: Aula[] = [A1, A2, A3, A4]

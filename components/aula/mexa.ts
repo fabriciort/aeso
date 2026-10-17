@@ -1,3 +1,5 @@
+import { produtoEm, produtoJogavel, numeroComSinal, type ProdutoZeroState } from './visual/produto-zero'
+import type { CompletarState } from './visual/CompletarQuadrado'
 import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
 import { avisoDoPar, mesmoPar, paresDeFatores, retanguloDe, type Par } from './visual/azulejos-retangulo'
@@ -20,7 +22,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
+export type Kind = 'zerar' | 'completarQuadrado' | 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -68,6 +70,7 @@ export function kindOf(card: Mexa): Kind {
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
+      if (produtoJogavel(e.produtoZero as ProdutoZeroState | undefined) && ok.zerado === true) return 'zerar'
       if (fatorarOf(card)) return 'fatorar'
       if (typeof (e.azulejos as { virar?: number } | undefined)?.virar === 'number' && ok.virado === true) return 'virar'
       if ((e.azulejos as { agrupar?: boolean } | undefined)?.agrupar === true && ok.agrupado === true) return 'azulejos'
@@ -75,6 +78,10 @@ export function kindOf(card: Mexa): Kind {
       if ((e.tabela as { completar?: boolean } | undefined)?.completar === true && num(ok.colunas) !== undefined) return 'tabela'
       return arr(e.fichas) && arr(ok.ordem) ? 'ordem' : 'mostre'
     case 'retangulo':
+      if (e.completarQuadrado && ok.completado === true) {
+        const q = e.completarQuadrado as CompletarState
+        if (Number.isFinite(q.metade) && q.metade > 0 && Number.isFinite(q.direita)) return 'completarQuadrado'
+      }
       if ((num(e.recorte) ?? 0) > 0 && e.mover === true && ok.movido === true) return 'mover'
       if (e.adicionar === true && num(ok.linhas) !== undefined) return 'linhas'
       if (e.cortar === true && num(ok.corte) !== undefined) return 'cortar'
@@ -334,6 +341,8 @@ export function initMexa(card: Mexa): MexaState {
   const e = card.visual.estado
   const base: MexaState = { kind, wrong: 0, done: false }
   switch (kind) {
+    case 'zerar': return { ...base, order: [], pick: undefined }
+    case 'completarQuadrado': return { ...base, pick: 0 }
     case 'blocos':
       return { ...base, counts: { milhares: num(e.milhares) ?? 0, centenas: num(e.centenas) ?? 0, dezenas: num(e.dezenas) ?? 0, unidades: num(e.unidades) ?? 0 } }
     case 'digitos': {
@@ -422,6 +431,11 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
   const e = card.visual.estado
   const done = { ...st, done: true, shown: true, note: undefined }
   switch (st.kind) {
+    case 'zerar': {
+      const p = e.produtoZero as ProdutoZeroState
+      return { ...done, order: [...new Set(p.raizes)].map(String), pick: p.raizes[0] }
+    }
+    case 'completarQuadrado': return { ...done, pick: 2 }
     case 'blocos':
       return { ...done, counts: { ...st.counts!, ...(ok as Partial<Record<Ordem, number>>) } }
     case 'digitos': {
@@ -536,6 +550,31 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
   const lock = st.done
 
   switch (st.kind) {
+    case 'zerar': {
+      const p = e.produtoZero as ProdutoZeroState
+      const order = st.order ?? []
+      return {
+        visual: visual({ ...e, produtoZero: { ...p, x: st.pick, encontradas: order.map(Number) } }),
+        interact: { livre: { onX: (x) => {
+          if (!p.valores.includes(x)) return
+          const v = produtoEm(p, x)
+          const o = v.produto === 0 ? [...new Set([...order, String(x)])] : order
+          set({ ...st, pick: x, order: o, done: st.done || p.raizes.every((r) => o.includes(String(r))),
+            note: v.produto === 0 ? undefined : `${numeroComSinal(v.a)} · (${numeroComSinal(v.b)}) = ${numeroComSinal(v.produto)}. O produto ainda não zerou.` })
+        } } },
+      }
+    }
+    case 'completarQuadrado': {
+      const q = e.completarQuadrado as CompletarState
+      const etapa = st.pick ?? 0
+      return {
+        visual: visual({ ...e, completarQuadrado: { ...q, etapa } }),
+        interact: { retangulo: { onCompletar: lock ? undefined : () => {
+          const next = Math.min(2, etapa + 1)
+          set({ ...st, pick: next, done: next === 2, note: undefined })
+        } } },
+      }
+    }
     case 'blocos': {
       const c = st.counts!
       const next: Record<Ordem, Ordem | null> = { unidades: 'dezenas', dezenas: 'centenas', centenas: 'milhares', milhares: null }
@@ -1364,6 +1403,8 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
 
 /** The gesture, said plainly, for a student who has not found it yet. */
 export const GESTO: Record<Kind, string | null> = {
+  zerar: 'Toque nos valores de x e veja os fatores e o produto.',
+  completarQuadrado: 'Toque no botão abaixo das peças para completar o quadrado.',
   blocos: 'Toque nas peças com a borda tracejada.',
   digitos: 'Toque num algarismo e depois na casa dele.',
   classes: 'Toque num grupo e depois na classe dele.',

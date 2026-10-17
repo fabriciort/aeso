@@ -266,6 +266,14 @@ Um destes, nesta ordem:
 
 Um estado `livre` sem nenhuma dessas chaves não desenha nada. O cartão fica só com o texto, maior.
 
+### Equações do 2º grau: produto nulo e completar o quadrado
+
+- `livre.formulas`: até três linhas de TeX, para uma dedução com frações e radicais. A última linha fica em âmbar; cada linha ajusta a fonte à largura. Use `fala` no cartão para explicar a leitura quando necessário.
+- `livre.produtoZero`: `{ raizes: [2, -3], valores: [-3, -1, 0, 1, 2, 3], x?: 0, encontradas?: [2] }` desenha `(x − 2)(x + 3) = 0`, os valores para testar e três colunas: primeiro fator, segundo fator e produto. São fatores numéricos com sinal, não lados de uma área. No Mexa com `sucesso: { zerado: true }`, cada toque substitui x, o zero acende, e a atividade termina quando todas as raízes distintas foram encontradas. Repetir uma raiz não avança; valores que não zeram ensinam sem contar como erro. Depois da meta, o aluno pode continuar testando. Todas as raízes devem constar em `valores`.
+- `retangulo.completarQuadrado`: `{ metade: 3, direita: 16, etapa?: 0 }` representa `x² + 6x = 16`. Na etapa 0, duas faixas de 3x ficam à direita de x². Na etapa 1, uma faixa muda de lugar e forma um L, com um canto 3 por 3 vazio. Na etapa 2, o canto entra, **os dois lados recebem +9** e aparece `(x + 3)² = 25`. O Mexa com `sucesso: { completado: true }` exige dois toques, um para mover e outro para acrescentar a área. `Me mostre` chega à mesma etapa 2. O desenho exige `metade > 0` e ilustra x positivo; as duas raízes da equação aparecem em um cartão seguinte. Movimento reduzido respeita a preferência do sistema.
+
+Os dois novos Mexa são jogados por `tests/aula-mexa.test.ts`. `tests/segundo-grau-mexa.test.ts` cobre exploração, repetição, raiz dupla, etapas e a saída `Me mostre`.
+
 ### `livre`: tabela de proporção
 
 A tabela de proporção da U10: uma grandeza em cada linha e os pares lado a lado, em colunas. As setas mostram a conta que leva de uma coluna a outra (em cima e embaixo) ou de uma linha à outra (à direita).

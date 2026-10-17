@@ -37,11 +37,11 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | U18 Plano cartesiano e gráficos | 5 | pronta; trouxe o plano (`plano`, com a máquina de função) e os gráficos (`grafico`) |
 | U19 Estatística e probabilidade | 6 | pronta; trouxe os dados (`dados`), a árvore de contagem (`contagem`) e o sorteio (`sorteio`) |
 | U20 Projeto final | 2 | pronta; fecha a Matemática Básica |
-| **AF.U1 Expressões algébricas** | 6 | **em revisão** (PR 23): começa o módulo Álgebra e Funções |
-| **AF.U2 Produtos notáveis e fatoração** | 6 | **em revisão** (PR 23): trouxe os azulejos que fatoram (`fatorar`) e o recorte da diferença de quadrados |
-| **AF.U3 Equações do 2º grau** | 7 | **em andamento** |
+| **AF.U1 Expressões algébricas** | 6 | pronta (PR 23): começa o módulo Álgebra e Funções |
+| **AF.U2 Produtos notáveis e fatoração** | 6 | pronta (PR 23): trouxe os azulejos que fatoram (`fatorar`) e o recorte da diferença de quadrados |
+| **AF.U3 Equações do 2º grau** | 7 | **em revisão** nesta branch; trouxe o produto nulo (`livre.produtoZero`) e completar o quadrado (`retangulo.completarQuadrado`) |
 
-São 109 aulas no ar, e a Matemática Básica está completa. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
+São 121 aulas na `main` (109 de Matemática Básica e 12 de Álgebra). Esta branch acrescenta 7 aulas de Equações do 2º grau, chegando a 128. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
@@ -55,6 +55,14 @@ São 109 aulas no ar, e a Matemática Básica está completa. A fonte de verdade
    - `content/matematica/geradores/decimais-a.ts` e `decimais-b.ts` (os exercícios);
    - `content/matematica/erros-u08a.ts` e `erros-u08b.ts` (os erros comuns novos);
    - `tests/geradores-u08a.test.ts` e `tests/geradores-u08b.test.ts` (os testes dos exercícios).
+
+## Qualidade pedagógica de cada unidade
+
+- A pessoa precisa entender a razão de cada passo antes de memorizar uma regra. Comece pela situação e pela descoberta no desenho.
+- Linguagem curta, natural e adulta. A dificuldade fica no raciocínio, nunca em decifrar o enunciado.
+- As alternativas erradas e as dicas explicam o porquê com uma conta, um desenho ou um contraexemplo.
+- Retire o apoio aos poucos: previsão, exemplo guiado, caderno e problemas novos. Confira casos de fronteira e as restrições do contexto.
+- Revise matemática, leitura, interação e aparência de cada aula. Só entregue a unidade completa, com os quatro comandos e a revisão no navegador.
 
 ## Como criar uma unidade nova
 

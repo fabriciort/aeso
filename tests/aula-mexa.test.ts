@@ -23,6 +23,13 @@ function play(card: Mexa): MexaState {
   const stage = () => mexaStage(card, st, set)
   const ok = card.acao.sucesso as Record<string, unknown>
   switch (st.kind) {
+    case 'zerar':
+      for (const x of (card.visual.estado.produtoZero as { raizes: number[] }).raizes) stage().interact!.livre!.onX!(x)
+      break
+    case 'completarQuadrado':
+      stage().interact!.retangulo!.onCompletar!()
+      stage().interact!.retangulo!.onCompletar!()
+      break
     case 'blocos':
       for (let n = 0; n < 50 && !st.done; n++) {
         const b = stage().interact!.blocos!
