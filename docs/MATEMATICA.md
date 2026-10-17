@@ -525,7 +525,7 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Ao final:** expande os produtos notáveis de cabeça, fatora por fator comum, trinômio e diferença de quadrados, e confere multiplicando de volta.
 
 #### AF.U3. Equações do 2º grau (7 aulas)
-1. **x² = k tem duas raízes:** o quadrado de área 25 tem lado 5, mas a equação x² = 25 também aceita −5, porque (−5)² = 25. Depois, (x − 1)² = 16: x − 1 é 4 ou −4.
+1. **As raízes de x² = k:** o quadrado de área 25 tem lado 5, mas a equação x² = 25 também aceita −5, porque (−5)² = 25. Depois, (x − 1)² = 16: x − 1 é 4 ou −4.
 2. **Produto igual a zero:** se a · b = 0, um dos dois é zero. O aluno troca o x em (x − 2)(x + 3) e vê o produto zerar só em 2 e em −3.
 3. **Resolver por fatoração:** x² − 5x + 6 = 0 vira (x − 2)(x − 3) = 0. Em x² − 4x = 0, pôr x em evidência guarda a raiz 0 que a divisão por x perderia.
 4. **Completar o quadrado:** nos azulejos de x² + 6x, as barras se partem em 3 de cada lado do x², e falta um canto 3 por 3. Somar 9 dos dois lados: (x + 3)² = 25.
@@ -632,7 +632,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
 | **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
-| **8** | Álgebra e Funções | **AF.U1 e AF.U2 em revisão** (PR 23); AF.U3 em andamento |
+| **8** | Álgebra e Funções | **AF.U1 e AF.U2 prontas** (PR 23); AF.U3 em revisão nesta branch (7 aulas, 128 no total); próxima: AF.U4 Sistemas de equações |
 
 ## 11. Decisões
 

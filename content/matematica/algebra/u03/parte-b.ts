@@ -1,5 +1,6 @@
 import type { Aula } from '@/lib/formation/schema'
+import { aula as A5 } from './a05-formula'
+import { aula as A6 } from './a06-discriminante'
+import { aula as A7 } from './a07-problemas'
 
-// Álgebra e Funções, unidade 3, parte B: aulas 5 a 7 (a fórmula; o
-// discriminante; problemas do 2º grau).
-export const AULAS_AF_U03B: Aula[] = []
+export const AULAS_AF_U03B: Aula[] = [A5, A6, A7]

@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { celulasDestaque, chaveRevelar, comprimento, ehNegativo, escreveMonomio, escreveNumero, lerMonomio, letraPadrao, letrasDe, MENOS, pedacosSoma, produto, revelaveis, somaTermos, termosCancelados, type Celula } from './monomio'
+import { CompletarQuadrado, type CompletarState } from './CompletarQuadrado'
 import { Recorte } from './Recorte'
 
 // O retângulo da multiplicação. Em quadradinhos, cada linha é um grupo igual
@@ -10,6 +11,7 @@ import { Recorte } from './Recorte'
 // desenhar 322 quadradinhos.
 
 export interface RetanguloState {
+  completarQuadrado?: CompletarState
   linhas?: number
   colunas?: number
   rotulos?: boolean
@@ -49,6 +51,7 @@ export interface RetanguloState {
 }
 
 export interface RetanguloInteract {
+  onCompletar?: () => void
   /** Mexa "adicionar": the ghost row to tap, and taps on the last row to take it back. */
   onAdd?: () => void
   onRemove?: () => void
@@ -83,7 +86,8 @@ function parts(n: number, cuts: number[] = []): number[] {
   return out
 }
 
-export function Retangulo({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wrong, reveladas, onRevelar, onMover }: { s: RetanguloState; size: { w: number; h: number } } & RetanguloInteract) {
+export function Retangulo({ s, size, onAdd, onRemove, maxLinhas, onCut, onTurn, wrong, reveladas, onRevelar, onMover, onCompletar }: { s: RetanguloState; size: { w: number; h: number } } & RetanguloInteract) {
+  if (s.completarQuadrado) return <CompletarQuadrado s={s.completarQuadrado} size={size} onCompletar={onCompletar} />
   if (typeof s.recorte === 'number' && s.recorte > 0) return <Recorte b={s.recorte} letra={s.letra} movido={Boolean(s.movido)} size={size} onMover={onMover} />
   if (s.base?.length && s.altura?.length) return <Area s={s} size={size} reveladas={reveladas} onRevelar={onRevelar} />
   return <Quadradinhos s={s} size={size} onAdd={onAdd} onRemove={onRemove} maxLinhas={maxLinhas} onCut={onCut} onTurn={onTurn} wrong={wrong} />

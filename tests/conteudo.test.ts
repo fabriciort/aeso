@@ -55,6 +55,10 @@ function opcoes(os: Opcao[], where: string) {
 const visual = (v: Visual, where: string) => {
   expect(v.modelo, `${where}: visual sem modelo`).toBeTruthy()
   expect(typeof v.estado, `${where}: estado deve ser um objeto com dados`).toBe('object')
+  if (Array.isArray(v.estado.formulas)) {
+    expect(v.estado.formulas.length, `${where}: no máximo três linhas no palco`).toBeLessThanOrEqual(3)
+    for (const t of v.estado.formulas) texOk(String(t), where)
+  }
 }
 
 function cartao(c: Cartao, where: string) {
