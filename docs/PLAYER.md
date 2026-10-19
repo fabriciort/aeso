@@ -143,6 +143,12 @@ No Mexa, com `acao.sucesso: { para: 'cm' }`, o aluno toca a unidade e a vírgula
 
 ### `reta`
 
+
+- `faixas`: `{ de, ate, intervalos: [{ de: 1, ate: 5, incluiDe: true, incluiAte: false }], rotulo?: '[1;5[' }` mostra faixas contínuas. Extremo `null` significa infinito; aparece uma seta, nunca uma borda fechada. Um intervalo com extremos iguais e ambos fechados representa um ponto. Lista vazia representa conjunto vazio.
+- Para explorar, `faixas.candidatos` oferece os números. `teste: { coeficientes: [a,b,c], relacao: '<' | '<=' | '>' | '>=', direita }` avalia ax² + bx + c e mostra se a comparação é verdadeira. `fatores: [p,q]` também exibe x − p, x − q e seu produto; use para o produto de coeficiente 1. `linhas` permite mostrar duas condições acima do conjunto comum.
+- Mexa com `sucesso: { testados: true }`: cada candidato precisa ser testado. Repetições não avançam, tentativas não somam erros e a exploração continua após concluir. `ocultar: true` só revela as faixas depois de todos os testes. A configuração exige candidatos finitos na janela e consistência com a comparação.
+- `espelho`: `{ par: [2,5], fatores: [1,-1,2,-2], fator?: -2 }` mostra os dois pontos antes e depois da multiplicação, com as identidades preservadas e a comparação exata. Mexa com `sucesso: { ordemVista: true }` exige experimentar todos os fatores. A lista deve conter fatores positivos e negativos, finitos e não nulos.
+
 | Chave | Efeito |
 |---|---|
 | `de`, `ate`, `passo` | o trecho e a escala (sem `passo`, uma escala redonda) |

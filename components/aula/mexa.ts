@@ -1,3 +1,4 @@
+import { faixasJogaveis, espelhoJogavel, type FaixasState, type EspelhoState } from './visual/inequacao-geo'
 import { parJogavel, somaJogavel, atende, type SistemaState } from './visual/sistema-geo'
 import { produtoEm, produtoJogavel, numeroComSinal, type ProdutoZeroState } from './visual/produto-zero'
 import type { CompletarState } from './visual/CompletarQuadrado'
@@ -23,7 +24,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'testarSistema' | 'somarSistema' | 'zerar' | 'completarQuadrado' | 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
+export type Kind = 'testarFaixa' | 'espelharOrdem' | 'testarSistema' | 'somarSistema' | 'zerar' | 'completarQuadrado' | 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -66,6 +67,8 @@ export function kindOf(card: Mexa): Kind {
       if (arr(e.algarismos) && num(ok.numero) !== undefined) return 'digitos'
       return 'mostre'
     case 'reta':
+      if (ok.testados === true && faixasJogaveis(e.faixas as FaixasState | undefined)) return 'testarFaixa'
+      if (ok.ordemVista === true && espelhoJogavel(e.espelho as EspelhoState | undefined)) return 'espelharOrdem'
       if (card.acao.tipo === 'deslizar' && num(ok.numero) !== undefined) return 'deslizar'
       if (num(ok.vizinho) !== undefined && arr(e.escolhas)) return 'vizinho'
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
@@ -344,6 +347,8 @@ export function initMexa(card: Mexa): MexaState {
   const e = card.visual.estado
   const base: MexaState = { kind, wrong: 0, done: false }
   switch (kind) {
+    case 'testarFaixa': return { ...base, order: [], pick: undefined }
+    case 'espelharOrdem': return { ...base, order: [], pick: 1 }
     case 'testarSistema': return { ...base, pick: null }
     case 'somarSistema': return { ...base, pick: ((e.sistema as SistemaState).fatores ?? [1, 1]).every(k => k === 1) ? 1 : 0 }
     case 'zerar': return { ...base, order: [], pick: undefined }
@@ -436,6 +441,8 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
   const e = card.visual.estado
   const done = { ...st, done: true, shown: true, note: undefined }
   switch (st.kind) {
+    case 'testarFaixa': return { ...done, order: (e.faixas as FaixasState).candidatos!.map(String), pick: (e.faixas as FaixasState).candidatos![0] }
+    case 'espelharOrdem': return { ...done, order: (e.espelho as EspelhoState).fatores.map(String), pick: (e.espelho as EspelhoState).fatores.find(k => k < 0) }
     case 'testarSistema': {
       const s = e.sistema as SistemaState
       const p = ok.sistema as number[]
@@ -561,6 +568,25 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
   const lock = st.done
 
   switch (st.kind) {
+    case 'testarFaixa': {
+      const s = e.faixas as FaixasState
+      return { visual: visual({ ...e, faixas: { ...s, escolhido: st.pick, visitados: (st.order ?? []).map(Number) } }),
+        interact: { reta: { onTestarFaixa: x => {
+          if (!s.candidatos!.includes(x)) return
+          const order = [...new Set([...(st.order ?? []), String(x)])]
+          set({ ...st, pick: x, order, done: st.done || s.candidatos!.every(v => order.includes(String(v))), note: undefined })
+        } } } }
+    }
+    case 'espelharOrdem': {
+      const s = e.espelho as EspelhoState
+      return { visual: visual({ ...e, espelho: { ...s, fator: st.pick, visitados: (st.order ?? []).map(Number) } }),
+        interact: { reta: { onFatorOrdem: k => {
+          if (!s.fatores.includes(k)) return
+          const order = [...new Set([...(st.order ?? []), String(k)])]
+          set({ ...st, pick: k, order, done: st.done || s.fatores.every(v => order.includes(String(v))), note: undefined })
+        } } } }
+    }
+
     case 'testarSistema': {
       const s = e.sistema as SistemaState
       return { visual: visual({ ...e, sistema: { ...s, par: st.pick == null ? undefined : s.pares![st.pick] } }),
@@ -1432,6 +1458,8 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
 
 /** The gesture, said plainly, for a student who has not found it yet. */
 export const GESTO: Record<Kind, string | null> = {
+  testarFaixa: 'Teste os números e veja quais pertencem ao conjunto.',
+  espelharOrdem: 'Multiplique pelos fatores e compare a ordem dos pontos.',
   testarSistema: 'Toque nos pares e confira as duas condições.',
   somarSistema: 'Toque no botão para transformar e somar as equações.',
   zerar: 'Toque nos valores de x e veja os fatores e o produto.',

@@ -40,10 +40,10 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | **AF.U1 Expressões algébricas** | 6 | pronta (PR 23): começa o módulo Álgebra e Funções |
 | **AF.U2 Produtos notáveis e fatoração** | 6 | pronta (PR 23): trouxe os azulejos que fatoram (`fatorar`) e o recorte da diferença de quadrados |
 | **AF.U3 Equações do 2º grau** | 7 | **em revisão** no PR 24; trouxe o produto nulo (`livre.produtoZero`) e completar o quadrado (`retangulo.completarQuadrado`) |
+| **AF.U4 Sistemas de equações** | 6 | **incorporada ao PR 24 pelo PR 25**, aguardando a main; trouxe a conferência de pares e a soma de equações (`livre.sistema`) |
+| **AF.U5 Inequações** | 7 | **em revisão** nesta branch, sobre o PR 24; intervalos contínuos, reflexão e exploração de sinais (`reta.faixas`, `reta.espelho`) |
 
-| **AF.U4 Sistemas de equações** | 6 | **em revisão** nesta branch, sobre o PR 24; trouxe a conferência de pares e a soma de equações (`livre.sistema`) |
-
-São 121 aulas na `main` (109 de Matemática Básica e 12 de Álgebra). O PR 24 acrescenta 7 aulas de Equações do 2º grau (128 no total). Esta branch parte dele e acrescenta 6 aulas de Sistemas de equações, chegando a 134; as duas unidades aguardam merge. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
+São 121 aulas na `main` (109 de Matemática Básica e 12 de Álgebra). O PR 24 agora contém as 7 aulas de Equações do 2º grau e as 6 de Sistemas, incorporadas pelo merge do PR 25 (134 no total). Esta branch parte desse conjunto e acrescenta 7 aulas de Inequações, chegando a 141; o PR 24 ainda aguarda merge na main. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
