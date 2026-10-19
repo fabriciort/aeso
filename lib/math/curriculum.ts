@@ -393,8 +393,20 @@ const ALGEBRA_UNITS: Unit[] = [
       ['Problemas do 2º grau', 'O terreno, a moldura e os dois números: montar, resolver e ver que raiz serve.', ['B.U15.A5']],
     ]),
   },
+  {
+    id: 'AF.U4', module: AF, n: 4, part: 'A', title: 'Sistemas de equações', short: 'Sistemas de equações',
+    outcome: 'Modela duas condições, resolve por substituição ou adição e confere o par no contexto e no plano.',
+    requires: ['B.U15', 'B.U18'],
+    lessons: L('AF.U4', [
+      ['Duas condições ao mesmo tempo', 'O mesmo par precisa acertar quantidade e dinheiro.', ['B.U15.A2']],
+      ['Substituir sem mudar o valor', 'Uma igualdade permite trocar x por uma expressão de mesmo valor.'],
+      ['Somar para eliminar', 'Termos opostos se cancelam quando somamos os dois lados.'],
+      ['Preparar a eliminação', 'Multiplicar a equação inteira cria coeficientes opostos.'],
+      ['As duas retas do sistema', 'Uma, nenhuma ou infinitas soluções são pontos comuns das retas.', ['B.U18.A1']],
+      ['Problemas com duas incógnitas', 'Definir, modelar, resolver e conferir o que faz sentido.', ['B.U15.A5']],
+    ]),
+  },
   ...planned('algebra', 'AF', [
-  ['Sistemas de equações', 'Resolve dois problemas ao mesmo tempo.', ['B.U15']],
   ['Inequações', 'Resolve e mostra a solução na reta.', ['AF.U3']],
   ['Funções', 'Domínio, imagem e gráfico.', ['B.U18']],
   ['Função afim', 'Taxa de variação constante.', ['AF.U6']],
@@ -402,7 +414,7 @@ const ALGEBRA_UNITS: Unit[] = [
   ['Função exponencial', 'Crescimento por um fator fixo.', ['AF.U6', 'B.U11', 'B.U13']],
   ['Logaritmo', 'O expoente que falta.', ['AF.U9']],
   ['Transformações, composição e inversa', 'Monta funções com outras.', ['AF.U8', 'AF.U10']],
-  ], 4),
+  ], 5),
 ]
 
 const GEOMETRIA_UNITS = planned('geometria', 'GT', [
