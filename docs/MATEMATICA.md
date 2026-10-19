@@ -525,7 +525,7 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Ao final:** expande os produtos notáveis de cabeça, fatora por fator comum, trinômio e diferença de quadrados, e confere multiplicando de volta.
 
 #### AF.U3. Equações do 2º grau (7 aulas)
-1. **x² = k tem duas raízes:** o quadrado de área 25 tem lado 5, mas a equação x² = 25 também aceita −5, porque (−5)² = 25. Depois, (x − 1)² = 16: x − 1 é 4 ou −4.
+1. **As raízes de x² = k:** o quadrado de área 25 tem lado 5, mas a equação x² = 25 também aceita −5, porque (−5)² = 25. Depois, (x − 1)² = 16: x − 1 é 4 ou −4.
 2. **Produto igual a zero:** se a · b = 0, um dos dois é zero. O aluno troca o x em (x − 2)(x + 3) e vê o produto zerar só em 2 e em −3.
 3. **Resolver por fatoração:** x² − 5x + 6 = 0 vira (x − 2)(x − 3) = 0. Em x² − 4x = 0, pôr x em evidência guarda a raiz 0 que a divisão por x perderia.
 4. **Completar o quadrado:** nos azulejos de x² + 6x, as barras se partem em 3 de cada lado do x², e falta um canto 3 por 3. Somar 9 dos dois lados: (x + 3)² = 25.
@@ -538,11 +538,33 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Hábito:** conferir cada raiz pondo o número no lugar do x.
 - **Ao final:** resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, sabe quantas raízes esperar e escolhe a que serve ao problema.
 
-#### AF.U4. Sistemas de equações
-- Duas incógnitas, substituição, adição, duas retas no plano, problemas.
+#### AF.U4. Sistemas de equações (6 aulas)
+1. **Duas condições ao mesmo tempo:** quantidade e dinheiro; teste o mesmo par nas duas igualdades.
+2. **Substituir sem mudar o valor:** igualdade autoriza a troca; parênteses protegem a expressão inteira.
+3. **Somar para eliminar:** termos opostos somam zero; uma original permite recuperar a outra incógnita.
+4. **Preparar a eliminação:** fatores não nulos multiplicam cada termo e o total; a escolha da letra é flexível.
+5. **As duas retas do sistema:** ponto comum, paralelas distintas e coincidência; 0 = 0 não fixa as letras em zero.
+6. **Problemas com duas incógnitas:** definir grandezas, modelar, escolher o método e conferir as restrições do contexto.
 
-#### AF.U5. Inequações
-- Intervalos na reta, multiplicar por negativo inverte o sinal, inequações do 2º grau pelo sinal.
+- **Modelos:** `livre.sistema` compara as duas condições e transforma equações antes da soma; `plano` mostra as retas.
+- **Erros centrais:** conferir só uma igualdade; trocar a ordem do par; distribuir só no primeiro termo; esquecer o lado direito; apagar uma condição com fator zero; arredondar bilhetes fracionários.
+- **Prática:** 18 geradores em três níveis, com apoio visual apenas no primeiro; pares negativos e fracionários, retas verticais e horizontais e compras inviáveis.
+- **Pré-requisitos:** equações do 1º grau e plano cartesiano. Não depende das raízes do 2º grau.
+- **Ao final:** modela duas condições, resolve por substituição ou adição, interpreta o conjunto de soluções e confere o par no contexto.
+
+#### AF.U5. Inequações (7 aulas)
+1. **Limites e intervalos:** testar as bordas, incluir ou excluir pontos, ler faixas contínuas e distinguir reais de inteiros.
+2. **Resolver inequações do 1º grau:** operar nos dois lados, preservar as soluções e interpretar contradições e condições sempre verdadeiras.
+3. **Quando o sinal se inverte:** fatores negativos refletem a reta; somar um negativo apenas desloca.
+4. **Juntar condições:** E seleciona a interseção; OU reúne as faixas. A parte comum pode ser vazia ou um ponto só.
+5. **O sinal de um produto:** os zeros dos fatores separam regiões; sinais iguais e opostos decidem positivo e negativo.
+6. **Inequações do 2º grau:** fatoração e sinais com coeficiente negativo, raiz dupla e ausência de raízes reais, antes do estudo de parábolas.
+7. **Problemas com limites:** orçamento, metas e área; conferir igualdade, contagem inteira e comprimento positivo.
+
+- **Modelo:** `reta.faixas` desenha intervalos, círculos abertos ou fechados e setas; cada teste mostra a comparação. `reta.espelho` conserva a identidade dos dois pontos ao multiplicar por fatores positivos e negativos.
+- **Erros centrais:** responder só a fronteira, incluir empate em desigualdade estrita, inverter ao somar ou dividir por positivo, esquecer a inversão por negativo, confundir E e OU, dividir por expressão de sinal desconhecido e escolher faixas sem conferir os sinais.
+- **Prática:** 21 geradores em três níveis, com visual só no primeiro. Cada conjunto e cada borda são conferidos por substituição independente; alternativas equivalentes são unificadas.
+- **Ao final:** resolve inequações do 1º e 2º grau, representa seus conjuntos e confere as restrições da situação.
 
 #### AF.U6 a AF.U11. Funções
 - **AF.U6 Funções:** domínio, imagem, gráfico, zeros, crescer e decrescer.
@@ -632,7 +654,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
 | **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
-| **8** | Álgebra e Funções | **AF.U1 e AF.U2 em revisão** (PR 23); AF.U3 em andamento |
+| **8** | Álgebra e Funções | **AF.U1 e AF.U2 prontas** (PR 23); AF.U3 e AF.U4 reunidas no PR 24 após o merge do PR 25 (134 aulas); AF.U5 em revisão nesta branch (7 aulas, 141 no total); próxima: AF.U6 Funções |
 
 ## 11. Decisões
 

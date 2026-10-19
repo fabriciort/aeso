@@ -143,6 +143,12 @@ No Mexa, com `acao.sucesso: { para: 'cm' }`, o aluno toca a unidade e a vírgula
 
 ### `reta`
 
+
+- `faixas`: `{ de, ate, intervalos: [{ de: 1, ate: 5, incluiDe: true, incluiAte: false }], rotulo?: '[1;5[' }` mostra faixas contínuas. Extremo `null` significa infinito; aparece uma seta, nunca uma borda fechada. Um intervalo com extremos iguais e ambos fechados representa um ponto. Lista vazia representa conjunto vazio.
+- Para explorar, `faixas.candidatos` oferece os números. `teste: { coeficientes: [a,b,c], relacao: '<' | '<=' | '>' | '>=', direita }` avalia ax² + bx + c e mostra se a comparação é verdadeira. `fatores: [p,q]` também exibe x − p, x − q e seu produto; use para o produto de coeficiente 1. `linhas` permite mostrar duas condições acima do conjunto comum.
+- Mexa com `sucesso: { testados: true }`: cada candidato precisa ser testado. Repetições não avançam, tentativas não somam erros e a exploração continua após concluir. `ocultar: true` só revela as faixas depois de todos os testes. A configuração exige candidatos finitos na janela e consistência com a comparação.
+- `espelho`: `{ par: [2,5], fatores: [1,-1,2,-2], fator?: -2 }` mostra os dois pontos antes e depois da multiplicação, com as identidades preservadas e a comparação exata. Mexa com `sucesso: { ordemVista: true }` exige experimentar todos os fatores. A lista deve conter fatores positivos e negativos, finitos e não nulos.
+
 | Chave | Efeito |
 |---|---|
 | `de`, `ate`, `passo` | o trecho e a escala (sem `passo`, uma escala redonda) |
@@ -265,6 +271,16 @@ Um destes, nesta ordem:
 | `alvos`, `registros`, `caminhos`, `comparacao`, `superficie` | uma lista |
 
 Um estado `livre` sem nenhuma dessas chaves não desenha nada. O cartão fica só com o texto, maior.
+
+### Equações do 2º grau: produto nulo e completar o quadrado
+
+- `livre.formulas`: até três linhas de TeX, para uma dedução com frações e radicais. A última linha fica em âmbar; cada linha ajusta a fonte à largura. Use `fala` no cartão para explicar a leitura quando necessário.
+- `livre.sistema`: `{ equacoes: [[1,1,12], [10,5,100]], pares?: [[6,6],[8,4]], par?: [8,4], rotulos?: ['Quantidade','Dinheiro'] }`. Cada tripla representa ax + by = c. Mostra duas linhas, substitui o mesmo par nas duas e identifica qual igualdade confere. No Mexa com `sucesso: { sistema: [8,4] }`, só conclui quando ambas conferem; o alvo deve estar em `pares`. Tentativas exploratórias não contam como erro e podem continuar depois da descoberta.
+- Em `livre.sistema`, `modo: 'somar'`, `fatores: [2,-1]` e `etapa: 0 | 1 | 2` mostram originais, linhas multiplicadas e soma. No Mexa com `sucesso: { somado: true }`, um toque multiplica todos os termos e os totais, outro soma os dois lados. Com fatores `[1,1]`, começa na etapa 1. Só aceita fatores finitos não nulos e a eliminação de exatamente uma incógnita. A soma é uma consequência: o roteiro deve conservar uma original para recuperar o par.
+- `livre.produtoZero`: `{ raizes: [2, -3], valores: [-3, -1, 0, 1, 2, 3], x?: 0, encontradas?: [2] }` desenha `(x − 2)(x + 3) = 0`, os valores para testar e três colunas: primeiro fator, segundo fator e produto. São fatores numéricos com sinal, não lados de uma área. No Mexa com `sucesso: { zerado: true }`, cada toque substitui x, o zero acende, e a atividade termina quando todas as raízes distintas foram encontradas. Repetir uma raiz não avança; valores que não zeram ensinam sem contar como erro. Depois da meta, o aluno pode continuar testando. Todas as raízes devem constar em `valores`.
+- `retangulo.completarQuadrado`: `{ metade: 3, direita: 16, etapa?: 0 }` representa `x² + 6x = 16`. Na etapa 0, duas faixas de 3x ficam à direita de x². Na etapa 1, uma faixa muda de lugar e forma um L, com um canto 3 por 3 vazio. Na etapa 2, o canto entra, **os dois lados recebem +9** e aparece `(x + 3)² = 25`. O Mexa com `sucesso: { completado: true }` exige dois toques, um para mover e outro para acrescentar a área. `Me mostre` chega à mesma etapa 2. O desenho exige `metade > 0` e ilustra x positivo; as duas raízes da equação aparecem em um cartão seguinte. Movimento reduzido respeita a preferência do sistema.
+
+Os dois novos Mexa são jogados por `tests/aula-mexa.test.ts`. `tests/segundo-grau-mexa.test.ts` cobre exploração, repetição, raiz dupla, etapas e a saída `Me mostre`.
 
 ### `livre`: tabela de proporção
 

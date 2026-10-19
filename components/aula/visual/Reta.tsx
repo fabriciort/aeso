@@ -1,6 +1,8 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
+import { Faixas, Espelho } from './Inequacao'
+import type { FaixasState, EspelhoState } from './inequacao-geo'
 import { cn } from '@/lib/utils'
 
 // Reta numérica: marcas a cada passo, números nas marcas pedidas, pontos e
@@ -8,6 +10,8 @@ import { cn } from '@/lib/utils'
 // levar uma etiqueta ao lugar, deslizar um ponto.
 
 export interface RetaState {
+  faixas?: FaixasState
+  espelho?: EspelhoState
   de?: number
   ate?: number
   passo?: number
@@ -41,6 +45,8 @@ export interface RetaState {
 }
 
 export interface RetaInteract {
+  onTestarFaixa?: (x: number) => void
+  onFatorOrdem?: (k: number) => void
   /** Etiquetas the student placed: label → position. */
   placed?: Record<number, number>
   /** Etiquetas still in the tray, and the one selected to place. */
@@ -79,6 +85,8 @@ function niceStep(span: number): number {
 }
 
 export function Reta({ s, size, ...it }: { s: RetaState; size: { w: number; h: number } } & RetaInteract) {
+  if (s.faixas) return <Faixas s={s.faixas} size={size} onTestarFaixa={it.onTestarFaixa} />
+  if (s.espelho) return <Espelho s={s.espelho} size={size} onFatorOrdem={it.onFatorOrdem} />
   const fmt = s.fracoes ? fmtFrac(s.fracoes) : fmtNum
   const de = s.de ?? 0
   const ate = s.ate ?? 10

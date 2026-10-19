@@ -1,3 +1,5 @@
+import { ERROS_AF_U05 } from './erros-af-u05'
+import { ERROS_AF_U04 } from './erros-af-u04'
 import type { ErroComum } from '@/lib/formation/schema'
 import { ERROS_U03 } from './erros-u03'
 import { ERROS_U04 } from './erros-u04'
@@ -296,7 +298,7 @@ const ERROS_BASE: ErroComum[] = [
   },
 ]
 
-export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B, ...ERROS_U08A, ...ERROS_U08B, ...ERROS_U09A, ...ERROS_U09B, ...ERROS_U10A, ...ERROS_U10B, ...ERROS_U11A, ...ERROS_U11B, ...ERROS_U12A, ...ERROS_U12B, ...ERROS_U13A, ...ERROS_U13B, ...ERROS_U14A, ...ERROS_U14B, ...ERROS_U15A, ...ERROS_U15B, ...ERROS_U16A, ...ERROS_U16B, ...ERROS_U17, ...ERROS_U18A, ...ERROS_U18B, ...ERROS_U19A, ...ERROS_U19B, ...ERROS_U20, ...ERROS_AF_U01A, ...ERROS_AF_U01B, ...ERROS_AF_U02A, ...ERROS_AF_U02B, ...ERROS_AF_U03A, ...ERROS_AF_U03B]
+export const ERROS: ErroComum[] = [...ERROS_BASE, ...ERROS_U03, ...ERROS_U04, ...ERROS_U05, ...ERROS_U06, ...ERROS_U07A, ...ERROS_U07B, ...ERROS_U08A, ...ERROS_U08B, ...ERROS_U09A, ...ERROS_U09B, ...ERROS_U10A, ...ERROS_U10B, ...ERROS_U11A, ...ERROS_U11B, ...ERROS_U12A, ...ERROS_U12B, ...ERROS_U13A, ...ERROS_U13B, ...ERROS_U14A, ...ERROS_U14B, ...ERROS_U15A, ...ERROS_U15B, ...ERROS_U16A, ...ERROS_U16B, ...ERROS_U17, ...ERROS_U18A, ...ERROS_U18B, ...ERROS_U19A, ...ERROS_U19B, ...ERROS_U20, ...ERROS_AF_U01A, ...ERROS_AF_U01B, ...ERROS_AF_U02A, ...ERROS_AF_U02B, ...ERROS_AF_U03A, ...ERROS_AF_U03B, ...ERROS_AF_U04, ...ERROS_AF_U05]
 
 export function getErro(id: string): ErroComum | undefined {
   return ERROS.find((e) => e.id === id)

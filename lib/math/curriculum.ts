@@ -384,7 +384,7 @@ const ALGEBRA_UNITS: Unit[] = [
     outcome: 'Resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, e confere as raízes.',
     requires: ['AF.U2', 'B.U15'],
     lessons: L('AF.U3', [
-      ['x² = k tem duas raízes', 'O quadrado de área 25 tem lado 5, mas (−5)² também dá 25.', ['B.U13.A5']],
+      ['As raízes de x² = k', 'O quadrado de área 25 tem lado 5, mas (−5)² também dá 25.', ['B.U13.A5']],
       ['Produto igual a zero', 'Se um produto dá zero, um dos fatores é zero.', ['B.U15.A2']],
       ['Resolver por fatoração', 'Fatorar e igualar cada fator a zero.', ['AF.U2.A5']],
       ['Completar o quadrado', 'As barras se partem ao redor do x², e falta um canto.', ['AF.U2.A1']],
@@ -393,16 +393,41 @@ const ALGEBRA_UNITS: Unit[] = [
       ['Problemas do 2º grau', 'O terreno, a moldura e os dois números: montar, resolver e ver que raiz serve.', ['B.U15.A5']],
     ]),
   },
+  {
+    id: 'AF.U4', module: AF, n: 4, part: 'A', title: 'Sistemas de equações', short: 'Sistemas de equações',
+    outcome: 'Modela duas condições, resolve por substituição ou adição e confere o par no contexto e no plano.',
+    requires: ['B.U15', 'B.U18'],
+    lessons: L('AF.U4', [
+      ['Duas condições ao mesmo tempo', 'O mesmo par precisa acertar quantidade e dinheiro.', ['B.U15.A2']],
+      ['Substituir sem mudar o valor', 'Uma igualdade permite trocar x por uma expressão de mesmo valor.'],
+      ['Somar para eliminar', 'Termos opostos se cancelam quando somamos os dois lados.'],
+      ['Preparar a eliminação', 'Multiplicar a equação inteira cria coeficientes opostos.'],
+      ['As duas retas do sistema', 'Uma, nenhuma ou infinitas soluções são pontos comuns das retas.', ['B.U18.A1']],
+      ['Problemas com duas incógnitas', 'Definir, modelar, resolver e conferir o que faz sentido.', ['B.U15.A5']],
+    ]),
+  },
+  {
+    id: 'AF.U5', module: AF, n: 5, part: 'A', title: 'Inequações', short: 'Inequações',
+    outcome: 'Resolve inequações do 1º e 2º grau, representa os conjuntos na reta e confere os limites no contexto.',
+    requires: ['AF.U3', 'B.U15'],
+    lessons: L('AF.U5', [
+      ['Limites e intervalos', 'O ponto pode entrar ou ficar fora; a faixa reúne todos os valores que servem.', ['B.U15.A6']],
+      ['Resolver inequações do 1º grau', 'Isolar x preserva um conjunto, que pode ser vazio ou conter todos os reais.'],
+      ['Quando o sinal se inverte', 'Multiplicar por negativo reflete a reta e troca a ordem.'],
+      ['Juntar condições', 'E seleciona a parte comum; OU reúne as faixas.'],
+      ['O sinal de um produto', 'Os zeros dos fatores separam regiões de sinais.', ['AF.U3.A2']],
+      ['Inequações do 2º grau', 'As raízes marcam fronteiras; o sinal decide quais faixas servem.', ['AF.U3.A6']],
+      ['Problemas com limites', 'Modelar, resolver e conferir contagens, medidas e positividade.'],
+    ]),
+  },
   ...planned('algebra', 'AF', [
-  ['Sistemas de equações', 'Resolve dois problemas ao mesmo tempo.', ['B.U15']],
-  ['Inequações', 'Resolve e mostra a solução na reta.', ['AF.U3']],
   ['Funções', 'Domínio, imagem e gráfico.', ['B.U18']],
   ['Função afim', 'Taxa de variação constante.', ['AF.U6']],
   ['Função quadrática', 'Parábola, vértice e raízes.', ['AF.U7', 'AF.U3'], 'funcao-quadratica'],
   ['Função exponencial', 'Crescimento por um fator fixo.', ['AF.U6', 'B.U11', 'B.U13']],
   ['Logaritmo', 'O expoente que falta.', ['AF.U9']],
   ['Transformações, composição e inversa', 'Monta funções com outras.', ['AF.U8', 'AF.U10']],
-  ], 4),
+  ], 6),
 ]
 
 const GEOMETRIA_UNITS = planned('geometria', 'GT', [
