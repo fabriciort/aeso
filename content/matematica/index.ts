@@ -1,3 +1,5 @@
+import { AULAS_AF_U05 } from './algebra/u05'
+import { GERADORES_AF_U05 } from './geradores/inequacoes'
 import { AULAS_AF_U04 } from './algebra/u04'
 import { GERADORES_AF_U04 } from './geradores/sistemas'
 import type { Aula, Gerador } from '@/lib/formation/schema'
@@ -79,7 +81,7 @@ import { GERADORES_AF_U03A } from './geradores/segundo-grau-a'
 import { GERADORES_AF_U03B } from './geradores/segundo-grau-b'
 
 // Índice em ordem do currículo; os testes validam cada aula e cada gerador.
-export const AULAS: Aula[] = [B_U0_A1, B_U0_A2, B_U1_A1, B_U1_A2, B_U1_A3, B_U1_A4, B_U1_A5, B_U2_A1, B_U2_A2, B_U2_A3, B_U2_A4, B_U2_A5, ...AULAS_U03, ...AULAS_U04, ...AULAS_U05, ...AULAS_U06, ...AULAS_U07, ...AULAS_U08, ...AULAS_U09, ...AULAS_U10, ...AULAS_U11, ...AULAS_U12, ...AULAS_U13, ...AULAS_U14, ...AULAS_U15, ...AULAS_U16, ...AULAS_U17, ...AULAS_U18, ...AULAS_U19, ...AULAS_U20, ...AULAS_AF_U01, ...AULAS_AF_U02, ...AULAS_AF_U03, ...AULAS_AF_U04]
+export const AULAS: Aula[] = [B_U0_A1, B_U0_A2, B_U1_A1, B_U1_A2, B_U1_A3, B_U1_A4, B_U1_A5, B_U2_A1, B_U2_A2, B_U2_A3, B_U2_A4, B_U2_A5, ...AULAS_U03, ...AULAS_U04, ...AULAS_U05, ...AULAS_U06, ...AULAS_U07, ...AULAS_U08, ...AULAS_U09, ...AULAS_U10, ...AULAS_U11, ...AULAS_U12, ...AULAS_U13, ...AULAS_U14, ...AULAS_U15, ...AULAS_U16, ...AULAS_U17, ...AULAS_U18, ...AULAS_U19, ...AULAS_U20, ...AULAS_AF_U01, ...AULAS_AF_U02, ...AULAS_AF_U03, ...AULAS_AF_U04, ...AULAS_AF_U05]
 
 export const GERADORES: Gerador[] = [
   ...GERADORES_U0,
@@ -126,6 +128,7 @@ export const GERADORES: Gerador[] = [
   ...GERADORES_AF_U03A,
   ...GERADORES_AF_U03B,
   ...GERADORES_AF_U04,
+  ...GERADORES_AF_U05,
 ]
 
 export { ERROS } from './erros'

@@ -1,0 +1,37 @@
+{
+  "data": "2026-10-19",
+  "unidade": "AF.U5",
+  "aulas": 7,
+  "cartoes_por_resolucao": 84,
+  "telas": [
+    {
+      "largura": 390,
+      "altura": 844
+    },
+    {
+      "largura": 1440,
+      "altura": 1000
+    }
+  ],
+  "navegador": {
+    "cards": 168,
+    "steps": 28,
+    "practices": 42,
+    "overflows": [],
+    "errors": []
+  },
+  "testes": {
+    "arquivos": 72,
+    "aprovados": 2569
+  },
+  "geradores": {
+    "quantidade": 21,
+    "sementes_por_gerador": 300,
+    "extremos_por_gerador": 2,
+    "feedbacks_de_borda": 200
+  },
+  "tipos": "aprovado",
+  "lint": "aprovado",
+  "build": "aprovado",
+  "capturas_selecionadas": 16
+}

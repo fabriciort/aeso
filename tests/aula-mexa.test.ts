@@ -23,6 +23,13 @@ function play(card: Mexa): MexaState {
   const stage = () => mexaStage(card, st, set)
   const ok = card.acao.sucesso as Record<string, unknown>
   switch (st.kind) {
+    case 'testarFaixa':
+      for (const x of (card.visual.estado.faixas as { candidatos: number[] }).candidatos) stage().interact!.reta!.onTestarFaixa!(x)
+      break
+    case 'espelharOrdem':
+      for (const k of (card.visual.estado.espelho as { fatores: number[] }).fatores) stage().interact!.reta!.onFatorOrdem!(k)
+      break
+
     case 'testarSistema':
       stage().interact!.livre!.onParSistema!(solveMexa(card, st).pick!)
       break
