@@ -88,7 +88,7 @@ export function AzulejosCompletar({ c, size, onCompletar }: { c: Completar; size
         const fs = l.nota ? notaFs : legFs
         const y = oy + a.altura * u + 36 + i * legFs * 1.4
         return (
-          <motion.text key={`${c.fase}-${i}-${l.trechos.map((t) => t.t).join('')}`} initial={{ opacity: 0, y: y + 6 }} animate={{ opacity: 1, y }} transition={{ delay: 0.35 + i * 0.25 }} x={size.w / 2} textAnchor="middle" fill={CORES[l.cor]} fontSize={fs} fontWeight={l.nota ? 600 : 700} className="tabular-nums">
+          <motion.text key={`${c.fase}-${i}-${l.trechos.map((t) => t.t).join('')}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 + i * 0.25 }} x={size.w / 2} y={y} textAnchor="middle" fill={CORES[l.cor]} fontSize={fs} fontWeight={l.nota ? 600 : 700} className="tabular-nums">
             {l.trechos.map((t, j) => (
               <tspan key={j} fill={t.novo ? NOVO : undefined} style={t.novo ? { textDecoration: 'underline', textUnderlineOffset: 4 } : undefined}>
                 {t.t.replace(/ /g, ' ')}
