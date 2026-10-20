@@ -4,14 +4,20 @@ import { useEffect } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { alpha, amber, clamp, Desenho, gray, green, largura, rose, sky, useCena, type Prim } from './cena'
 import { fmtNum } from './figura-geo'
+import { conferirTexto, cruzamentoDe } from './sistema'
 import {
+  abcDaReta,
   coordTexto,
   cruzamento,
+  cruzamentoDoPlano,
+  equacaoDa,
   eixoDe,
   encaixar,
+  letrasDoPlano,
   linhasDoEixo,
   mesmoPonto,
   paresDaMaquina,
+  parConferir,
   pontosDe,
   regraDaMaquina,
   resolve,
@@ -47,6 +53,10 @@ export interface PlanoInteract {
   lidos?: string[]
   /** Mexa "alimentar": um toque na máquina (ou na tabela) põe o próximo número. */
   onAlimentar?: () => void
+  /** Mexa "pares": os pares achados (pontos âmbar com as coordenadas). */
+  achados?: Vec[]
+  /** Mexa "pares": o último toque que não serve; pisca e some (n muda a cada toque). */
+  piscar?: { v: Vec; n: number } | null
   /** Cresce a cada erro: o palco treme. */
   tremer?: number
 }
@@ -55,10 +65,15 @@ const corDe = (c: Cor | undefined, padrao = amber) => (c === 'azul' ? sky : c ==
 const FS_NUM = 12
 
 interface Alvos {
-  plano?: { x0: number; y0: number; x1: number; y1: number; mundo: (px: number, py: number) => Vec; ex: EixoFinal; ey: EixoFinal }
+  plano?: { x0: number; y0: number; x1: number; y1: number; mundo: (px: number, py: number) => Vec; tela: (v: Vec) => [number, number]; ex: EixoFinal; ey: EixoFinal }
   pontos: { nome: string; x: number; y: number }[]
   maquina?: { x: number; y: number; w: number; h: number }
+  /** Under the plane: each equation with the pair put in ('6 + 4 = 10'), in the line's colour. */
+  conferir: { texto: string; ok: boolean; cor: string }[]
 }
+
+/** The colours of the lines of equations, in order: amber, sky, green. */
+const CORES_EQ = [amber, sky, green]
 
 interface Caixa {
   x: number
@@ -76,7 +91,7 @@ function multiplo(passoPx: number, min: number): number {
 function montar(s: PlanoState, W: number, H: number, it: PlanoInteract): { prims: Prim[]; alvos: Alvos } {
   const prims: Prim[] = []
   const topo: Prim[] = []
-  const alvos: Alvos = { pontos: [] }
+  const alvos: Alvos = { pontos: [], conferir: [] }
   const linha = (k: string, a: [number, number], b: [number, number], o: Partial<Prim> = {}) => prims.push({ k, t: 'path', v: [...a, ...b], stroke: gray, sw: 2, ...o })
   const texto = (k: string, at: [number, number], t: string, o: Partial<Prim> = {}) => topo.push({ k, t: 'text', v: at, texto: t, ...o })
   const retangulo = (r: Caixa): number[] => [r.x, r.y, r.x + r.w, r.y, r.x + r.w, r.y + r.h, r.x, r.y + r.h]
@@ -212,7 +227,7 @@ function montar(s: PlanoState, W: number, H: number, it: PlanoInteract): { prims
     const right = left + pw
     const bottom = top + ph
     const C = X([cxw, cyw])
-    alvos.plano = { x0: left, y0: top, x1: right, y1: bottom, mundo: (px, py) => [(px - ox) / sx, (oy - py) / sy], ex, ey }
+    alvos.plano = { x0: left, y0: top, x1: right, y1: bottom, mundo: (px, py) => [(px - ox) / sx, (oy - py) / sy], tela: X, ex, ey }
 
     // Grid.
     if (s.grade !== false) {
@@ -300,56 +315,33 @@ function montar(s: PlanoState, W: number, H: number, it: PlanoInteract): { prims
     texto('nome:x', [right + 14, C[1] - 14], ex.rotulo, { anchor: 'end', fs: 14, peso: 600, fill: 'rgba(255,255,255,0.85)' })
     texto('nome:y', [C[0] + 10, top - 12], ey.rotulo, { anchor: 'start', fs: 14, peso: 600, fill: 'rgba(255,255,255,0.85)' })
 
-    // Lines by a rule (or by two points), and segments.
+    // Lines by a rule, by two points or by an equation, and segments. The lines of
+    // equations take amber, sky and green in turn and are labelled with the equation.
+    // A line drawn twice (x + y = 3 and 2x + 2y = 6) goes dashed over the first, which is thicker.
+    const letras = letrasDoPlano(s)
+    const retas = s.retas ?? []
+    const abcs = retas.map((r) => abcDaReta(r, pts, letras))
+    const mesmaQue = abcs.map((v, i) => (v ? abcs.slice(0, i).findIndex((w) => w && cruzamentoDe(v, w)?.tipo === 'mesma') : -1))
+    const coresRetas: string[] = []
+    let nEq = 0
     const rotulosRetas: { i: number; a: [number, number]; b: [number, number]; rot: string; cor: string }[] = []
-    ;(s.retas ?? []).forEach((r, i) => {
-      const seg = retaNoQuadro(r, ex, ey, pts)
+    retas.forEach((r, i) => {
+      const eq = equacaoDa(r)
+      const cor = r.destaque !== undefined ? corDe(r.destaque, sky) : eq ? CORES_EQ[nEq % CORES_EQ.length] : sky
+      if (eq) nEq++
+      coresRetas[i] = cor
+      const seg = retaNoQuadro(r, ex, ey, pts, letras)
       if (!seg) return
-      const cor = corDe(r.destaque, sky)
       const a = X(seg[0])
       const b = X(seg[1])
-      prims.push({ k: `reta:${i}`, t: 'path', v: [...a, ...b], stroke: cor, sw: 2.75, dash: r.tracejado ? '7 5' : undefined, rota: [[...a, ...a]], dur: 700 })
-      const rot = r.rotulo === true ? retaTexto(r, pts) : typeof r.rotulo === 'string' ? r.rotulo : ''
+      const sobre = mesmaQue[i] >= 0
+      const base = mesmaQue.some((j) => j === i)
+      prims.push({ k: `reta:${i}`, t: 'path', v: [...a, ...b], stroke: cor, sw: base ? 7.5 : sobre ? 3.5 : 2.75, dash: sobre ? '14 10' : r.tracejado ? '7 5' : undefined, cap: sobre ? 'butt' : undefined, rota: [[...a, ...a]], dur: 700, ...(sobre ? { atraso: 500 } : {}) })
+      const rot = r.rotulo === true || (eq && r.rotulo === undefined) ? retaTexto(r, pts) : typeof r.rotulo === 'string' ? r.rotulo : ''
       if (rot) rotulosRetas.push({ i, a, b, rot, cor })
     })
-    // The rule beside each line: the place along it (and the side) that stays inside the plane, off the axes and off the other labels.
     const ocupados: Caixa[] = []
-    for (const { i, a, b, rot, cor } of rotulosRetas) {
-      const w = largura(rot, 14) + 6
-      const h = 18
-      const L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1
-      const nx0 = (b[1] - a[1]) / L
-      const ny0 = -(b[0] - a[0]) / L
-      let melhor: { x: number; y: number; nota: number } | undefined
-      for (const t of [0.86, 0.74, 0.62, 0.5, 0.38, 0.26, 0.14]) {
-        for (const lado of [1, -1]) {
-          const nx = nx0 * lado
-          const ny = ny0 * lado
-          const off = 10 + Math.abs(nx) * (w / 2) + Math.abs(ny) * (h / 2)
-          const x = a[0] + (b[0] - a[0]) * t + nx * off
-          const y = a[1] + (b[1] - a[1]) * t + ny * off
-          const r: Caixa = { x: x - w / 2, y: y - h / 2, w, h }
-          const fora = Math.max(0, left - r.x) + Math.max(0, r.x + r.w - right) + Math.max(0, top - r.y) + Math.max(0, r.y + r.h - bottom)
-          const eixo = (r.x < C[0] && r.x + r.w > C[0] ? 1 : 0) + (r.y < C[1] && r.y + r.h > C[1] ? 1 : 0)
-          const bate = ocupados.filter((o) => r.x < o.x + o.w && r.x + r.w > o.x && r.y < o.y + o.h && r.y + r.h > o.y).length
-          // Over another line (sampled along it).
-          let cruza = 0
-          for (const o of rotulosRetas) {
-            if (o.i === i) continue
-            for (let k = 0; k <= 40; k++) {
-              const px = o.a[0] + ((o.b[0] - o.a[0]) * k) / 40
-              const py = o.a[1] + ((o.b[1] - o.a[1]) * k) / 40
-              if (px > r.x && px < r.x + r.w && py > r.y && py < r.y + r.h) cruza++
-            }
-          }
-          const nota = fora * 10 + eixo * 40 + bate * 60 + cruza * 12 + (1 - t) * 8 + (ny > 0 ? 3 : 0)
-          if (!melhor || nota < melhor.nota) melhor = { x, y, nota }
-        }
-      }
-      if (!melhor) continue
-      ocupados.push({ x: melhor.x - w / 2, y: melhor.y - h / 2, w, h })
-      texto(`retat:${i}`, [clamp(melhor.x, w / 2, W - w / 2), melhor.y], rot, { fs: 14, peso: 700, fill: cor, atraso: 400 })
-    }
+    const longe: [number, number][] = []
     ;(s.segmentos ?? []).forEach((t, i) => {
       const o = Array.isArray(t) ? { de: t[0], ate: t[1] } : t
       const a = resolve(o.de, pts)
@@ -402,6 +394,7 @@ function montar(s: PlanoState, W: number, H: number, it: PlanoInteract): { prims
       }
       if (y < 10) y = P[1] + 16
       texto(k, [x, y], t, { anchor: ax, fs: 15, peso: 600, ...o })
+      ocupados.push({ x: ax === 'start' ? x : x - w, y: y - 10, w, h: 20 })
     }
 
     // The walk: from the crossing along x (amber), then up or down along y (sky).
@@ -451,6 +444,103 @@ function montar(s: PlanoState, W: number, H: number, it: PlanoInteract): { prims
       prims.push({ k: `err:${it.errado.join(',')}`, t: 'circle', v: [...B, 6], fill: rose, stroke: '#000', sw: 1.5 })
       rotuloPonto(`errt:${it.errado.join(',')}`, B, coordTexto(it.errado), undefined, { fill: rose })
     }
+
+    // Mexa "pares": each pair found is an amber point with its coordinates.
+    for (const v of it.achados ?? []) {
+      const B = X(v)
+      prims.push({ k: `ach:${v[0]},${v[1]}`, t: 'circle', v: [...B, 6], fill: amber, stroke: '#000', sw: 1.5, dur: 300 })
+      rotuloPonto(`acht:${v[0]},${v[1]}`, B, coordTexto(v), undefined, { fill: '#fff', fs: 14 })
+    }
+
+    // Where the first two lines cross: a white point with a ring and its coordinates,
+    // on the side (of the four diagonals) that is off the lines and inside the plane.
+    const cz = s.cruzamento ? cruzamentoDoPlano(s)?.c : undefined
+    const destacarPar = (k: string, v: Vec, cor: string) => {
+      const B = X(v)
+      if (B[0] < left - 1 || B[0] > right + 1 || B[1] < top - 1 || B[1] > bottom + 1) return
+      prims.push({ k: `${k}:anel`, t: 'circle', v: [...B, 13], stroke: cor, sw: 2, op: 0.55, atraso: 600 })
+      prims.push({ k: `${k}:pt`, t: 'circle', v: [...B, 7], fill: cor, stroke: '#000', sw: 1.5, atraso: 600 })
+      // The point keeps the line labels a little away.
+      longe.push(B)
+      ocupados.push({ x: B[0] - 24, y: B[1] - 24, w: 48, h: 48 })
+      const t = coordTexto(v)
+      const w = largura(t, 17) + 4
+      const h = 22
+      let melhor: { x: number; y: number; nota: number } | undefined
+      for (const [dx, dy] of [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0]]) {
+        const cx = B[0] + dx * (16 + w / 2)
+        const cy = B[1] + dy * 22
+        const r: Caixa = { x: cx - w / 2, y: cy - h / 2, w, h }
+        const fora = Math.max(0, left - r.x) + Math.max(0, r.x + r.w - right) + Math.max(0, top - 4 - r.y) + Math.max(0, r.y + r.h - bottom)
+        let cruza = 0
+        for (const o of rotulosRetas)
+          for (let q = 0; q <= 60; q++) {
+            const px = o.a[0] + ((o.b[0] - o.a[0]) * q) / 60
+            const py = o.a[1] + ((o.b[1] - o.a[1]) * q) / 60
+            if (px > r.x - 2 && px < r.x + r.w + 2 && py > r.y - 2 && py < r.y + r.h + 2) cruza++
+          }
+        const bate = ocupados.filter((o) => r.x < o.x + o.w && r.x + r.w > o.x && r.y < o.y + o.h && r.y + r.h > o.y).length
+        const nota = fora * 10 + cruza * 15 + bate * 60 + (dy === 0 ? 4 : 0)
+        if (!melhor || nota < melhor.nota) melhor = { x: cx, y: cy, nota }
+      }
+      if (!melhor) return
+      ocupados.push({ x: melhor.x - w / 2, y: melhor.y - h / 2, w, h })
+      texto(`${k}:t`, [melhor.x, melhor.y], t, { fs: 17, peso: 700, fill: cor, atraso: 750 })
+    }
+    if (cz?.tipo === 'ponto') destacarPar('cz', cz.v, '#fff')
+
+    // `conferir`: the pair in each equation, under the plane; a pair that is not the crossing is drawn too.
+    const pc = parConferir(s)
+    if (pc) {
+      const valores = { [letras[0]]: pc[0], [letras[1]]: pc[1] }
+      retas.forEach((r, i) => {
+        const eq = equacaoDa(r)
+        if (eq) alvos.conferir.push({ ...conferirTexto(eq, valores), cor: coresRetas[i] })
+      })
+      const ehCruz = cz?.tipo === 'ponto' && mesmoPonto(cz.v, pc)
+      if (!ehCruz) destacarPar(`cf:${pc[0]},${pc[1]}`, pc, alvos.conferir.length && alvos.conferir.every((c) => c.ok) ? '#fff' : rose)
+    }
+
+    // The rule beside each line: the place along it (and the side) that stays inside the plane, off the axes and off the other labels.
+    for (const { i, a, b, rot, cor } of rotulosRetas) {
+      const w = largura(rot, 14) + 6
+      const h = 18
+      const L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1
+      const nx0 = (b[1] - a[1]) / L
+      const ny0 = -(b[0] - a[0]) / L
+      let melhor: { x: number; y: number; nota: number } | undefined
+      for (const t of [0.86, 0.74, 0.62, 0.5, 0.38, 0.26, 0.14]) {
+        for (const lado of [1, -1]) {
+          const nx = nx0 * lado
+          const ny = ny0 * lado
+          const off = 10 + Math.abs(nx) * (w / 2) + Math.abs(ny) * (h / 2)
+          const x = a[0] + (b[0] - a[0]) * t + nx * off
+          const y = a[1] + (b[1] - a[1]) * t + ny * off
+          const r: Caixa = { x: x - w / 2, y: y - h / 2, w, h }
+          const fora = Math.max(0, left - r.x) + Math.max(0, r.x + r.w - right) + Math.max(0, top - r.y) + Math.max(0, r.y + r.h - bottom)
+          // The axes and their numbers (under the x axis, left of the y axis).
+          const eixo = (r.x < C[0] + 4 && r.x + r.w > C[0] - 28 ? 1 : 0) + (r.y < C[1] + 24 && r.y + r.h > C[1] - 4 ? 1 : 0)
+          const bate = ocupados.filter((o) => r.x < o.x + o.w && r.x + r.w > o.x && r.y < o.y + o.h && r.y + r.h > o.y).length
+          // Over another line (sampled along it).
+          let cruza = 0
+          for (const o of rotulosRetas) {
+            if (o.i === i) continue
+            for (let k = 0; k <= 40; k++) {
+              const px = o.a[0] + ((o.b[0] - o.a[0]) * k) / 40
+              const py = o.a[1] + ((o.b[1] - o.a[1]) * k) / 40
+              if (px > r.x && px < r.x + r.w && py > r.y && py < r.y + r.h) cruza++
+            }
+          }
+          // Away from the crossing of the lines, where the eye goes.
+          const perto = longe.filter((q) => Math.hypot(q[0] - x, q[1] - y) < 34 + w / 2).length
+          const nota = fora * 10 + eixo * 40 + bate * 60 + cruza * 12 + perto * 30 + (1 - t) * 8 + (ny > 0 ? 3 : 0)
+          if (!melhor || nota < melhor.nota) melhor = { x, y, nota }
+        }
+      }
+      if (!melhor) continue
+      ocupados.push({ x: melhor.x - w / 2, y: melhor.y - h / 2, w, h })
+      texto(`retat:${i}`, [clamp(melhor.x, w / 2, W - w / 2), melhor.y], rot, { fs: 14, peso: 700, fill: cor, atraso: 400 })
+    }
   }
 
   return { prims: [...prims, ...topo], alvos }
@@ -458,16 +548,18 @@ function montar(s: PlanoState, W: number, H: number, it: PlanoInteract): { prims
 
 // ---------------------------------------------------------------- the component
 
-export function Plano({ s, size, onMarcar, marcados, errado, onPonto, lidos, onAlimentar, tremer = 0 }: { s: PlanoState; size: { w: number; h: number } } & PlanoInteract) {
+export function Plano({ s, size, onMarcar, marcados, errado, onPonto, lidos, onAlimentar, achados, piscar, tremer = 0 }: { s: PlanoState; size: { w: number; h: number } } & PlanoInteract) {
   const controls = useAnimationControls()
   useEffect(() => {
     if (tremer > 0) void controls.start({ x: [0, -6, 6, -4, 4, 0], transition: { duration: 0.35 } })
   }, [tremer, controls])
 
-  const textH = s.rotulo ? 56 : 0
+  // Under the plane: one line per equation checked (`conferir`), then the caption.
+  const nConf = parConferir(s) ? (s.retas ?? []).filter((r) => equacaoDa(r)).length : 0
+  const textH = (s.rotulo ? 56 : 0) + (nConf ? nConf * 30 + 8 : 0)
   const W = size.w
   const H = Math.max(160, size.h - textH)
-  const { prims, alvos } = montar(s, W, H, { onMarcar, marcados, errado, onPonto, lidos, onAlimentar })
+  const { prims, alvos } = montar(s, W, H, { onMarcar, marcados, errado, onPonto, lidos, onAlimentar, achados })
   const cena = useCena(prims)
 
   const toquePlano = (e: React.PointerEvent<SVGRectElement>) => {
@@ -493,8 +585,29 @@ export function Plano({ s, size, onMarcar, marcados, errado, onPonto, lidos, onA
           alvos.pontos.map((p) => (
             <circle key={p.nome} cx={p.x} cy={p.y} r={22} fill="transparent" className="cursor-pointer" onClick={() => onPonto(p.nome)} aria-label={`ponto ${p.nome}`} role="button" />
           ))}
+        {pl && piscar && (
+          // A pair that does not serve blinks and goes.
+          // A CSS animation, not framer: the scene re-renders every frame while it moves, and that would restart a framer keyframe animation.
+          <g key={`piscar:${piscar.n}`} style={{ pointerEvents: 'none', opacity: 0, animation: 'plano-piscar 1.5s ease-out' }}>
+            <style>{'@keyframes plano-piscar { 0% { opacity: 0 } 12% { opacity: 1 } 35% { opacity: 0.25 } 60% { opacity: 1 } 100% { opacity: 0 } }'}</style>
+            <circle cx={pl.tela(piscar.v)[0]} cy={pl.tela(piscar.v)[1]} r={6.5} fill={rose} stroke="#000" strokeWidth={1.5} />
+            <text x={pl.tela(piscar.v)[0] + 10} y={pl.tela(piscar.v)[1] - 14} fontSize={14} fontWeight={600} fill={rose} stroke="#000" strokeWidth={4} paintOrder="stroke" strokeLinejoin="round" className="tabular-nums">
+              {coordTexto(piscar.v)}
+            </text>
+          </g>
+        )}
         {mq && onAlimentar && <rect x={mq.x} y={mq.y} width={mq.w} height={mq.h} fill="transparent" className="cursor-pointer" onClick={onAlimentar} aria-label="pôr o próximo número na máquina" role="button" />}
       </svg>
+      {alvos.conferir.length ? (
+        <motion.div key={JSON.stringify(alvos.conferir)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.4 }} className="flex flex-col items-center gap-1">
+          {alvos.conferir.map((c, i) => (
+            <p key={i} className="flex items-center gap-2 whitespace-nowrap text-[19px] font-semibold tabular-nums leading-tight" style={{ color: c.ok ? c.cor : rose }}>
+              {c.texto}
+              <span className={c.ok ? 'text-white' : ''}>{c.ok ? '✓' : '✗'}</span>
+            </p>
+          ))}
+        </motion.div>
+      ) : null}
       {s.rotulo ? (
         <motion.p key={s.rotulo} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="px-4 text-center text-[20px] font-semibold leading-tight text-white">
           {s.rotulo}

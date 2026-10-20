@@ -7,7 +7,7 @@ import { pecasViradas, tipoDe } from '@/components/aula/visual/azulejos-pecas'
 import { revelaveis, type LadosArea } from '@/components/aula/visual/monomio'
 import { equacaoDe, inclinacaoDe, pecasDe, valorInferido } from '@/components/aula/visual/balanca-pratos'
 import { areaDe, areaTotal, cameraDe, contagemTexto, dimsDe, dobrar, facesDe, facesVisiveis, partesDe, planificacao, somaTexto as somaFaces, TIRAS, type SolidoState } from '@/components/aula/visual/solido-geo'
-import { aplicarRegra, coordTexto, eixoDe, encaixar, paresDaMaquina, passosDaRegra, quadranteDe, regraTexto, retaNoQuadro, retaTexto, type PlanoState, type Vec as VecPlano } from '@/components/aula/visual/plano-geo'
+import { aplicarRegra, coordTexto, cruzamentoDoPlano, eixoDe, encaixar, paresDaMaquina, parConferir, passosDaRegra, quadranteDe, regraTexto, retaNoQuadro, retaTexto, type PlanoState, type Vec as VecPlano } from '@/components/aula/visual/plano-geo'
 import { ajustarValor, eixoDoAjuste, escalaDe, porcentagensDe, setoresDe, valorTexto, type GraficoState } from '@/components/aula/visual/grafico-geo'
 import { anguloInterno, cantosNaReta, encaixeDe, escalaCerta, grausMedir, leituraTransferidor, perimetroDe, pitagorasDe, poligonosDe, quadradoNoLado, recortePadrao, somaTexto, ladosValores, transferidorDe, valorDeMedida, type FiguraState, type Vec } from '@/components/aula/visual/figura-geo'
 
@@ -179,6 +179,19 @@ function play(card: Mexa): MexaState {
       break
     case 'alimentar':
       for (let n = 0; n < 30 && !st.done; n++) stage().interact!.plano!.onAlimentar!()
+      break
+    case 'pares':
+      // Taps the pairs "Me mostre" would show, one at a time.
+      for (const k of solveMexa(card, st).order!) stage().interact!.plano!.onMarcar!(k.split(',').map(Number) as VecPlano)
+      break
+    case 'cruzar':
+      stage().interact!.plano!.onMarcar!(ok.par as VecPlano)
+      break
+    case 'somar':
+      for (let n = 0; n < 3 && !st.done; n++) stage().interact!.livre!.onSomar!()
+      break
+    case 'trocar':
+      stage().interact!.livre!.onTrocar!()
       break
     case 'apontar':
       stage().interact!.grafico!.onItem!((ok.barra ?? ok.setor ?? ok.ponto) as number)
@@ -1098,5 +1111,169 @@ describe('Mexa do sorteio', () => {
     let sd = initMexa(cartoes[3][1])
     mexaStage(cartoes[3][1], sd, (s) => (sd = s)).interact!.sorteio!.onCaso!(0)
     expect(sd.note).toBe('Esse é o 1. Procure 2, 4 ou 6.')
+  })
+})
+
+describe('Mexa do plano com equações: pares e cruzar', () => {
+  const pares = plano({ x: [0, 10], y: [0, 10], retas: [{ equacao: 'x + y = 10' }] }, { pontos: 4 })
+  const frutas = plano({ x: [0, 10], y: [0, 10], retas: [{ equacao: 'x + y = 10' }, { equacao: '2x + 3y = 26' }] }, { par: [4, 6] })
+
+  test.each([
+    ['pares', pares],
+    ['pares sem eixos', plano({ retas: [{ equacao: 'x + y = 10' }] }, { pontos: 5 })],
+    ['pares com negativos', plano({ x: [-5, 5], y: [-5, 5], retas: [{ equacao: 'x − y = 2' }] }, { pontos: 3 })],
+    ['cruzar', frutas],
+    ['cruzar x + y = 10 e x − y = 4', plano({ retas: [{ equacao: 'x + y = 10' }, { equacao: 'x - y = 4' }] }, { par: [7, 3] })],
+  ] as [string, Mexa][])('%s é jogável', (_, card) => {
+    expect(kindOf(card)).not.toBe('mostre')
+    const st = play(card)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    expect(solveMexa(card, initMexa(card)).done).toBe(true)
+  })
+
+  test('pares: a reta só aparece no fim, e o eixo não muda de escala', () => {
+    const card = plano({ retas: [{ equacao: 'x + y = 10' }] }, { pontos: 3 })
+    let st = initMexa(card)
+    const stage = () => mexaStage(card, st, (s) => (st = s))
+    const e0 = stage().visual.estado as PlanoState
+    expect(e0.retas).toEqual([])
+    expect(e0.rotulo).toBe('0 de 3 pares')
+    const x0 = JSON.stringify(e0.x)
+    stage().interact!.plano!.onMarcar!([3, 7])
+    stage().interact!.plano!.onMarcar!([3, 7])
+    expect(stage().interact!.plano!.achados).toEqual([[3, 7]])
+    // A pair that does not serve blinks, with the sum; it is not a mistake.
+    stage().interact!.plano!.onMarcar!([3, 5])
+    expect(st.note).toBe('(3, 5): 3 + 5 = 8 ≠ 10. Esse par não serve.')
+    expect(st.wrong).toBe(0)
+    expect(stage().interact!.plano!.piscar).toEqual({ v: [3, 5], n: 1 })
+    stage().interact!.plano!.onMarcar!([0, 10])
+    stage().interact!.plano!.onMarcar!([10, 0])
+    expect(st.done).toBe(true)
+    const e1 = stage().visual.estado as PlanoState
+    expect(e1.retas).toEqual([{ equacao: 'x + y = 10' }])
+    expect(JSON.stringify(e1.x)).toBe(x0)
+    expect(e1.rotulo).toBe('3 de 3 pares')
+    expect(stage().interact!.plano!.onMarcar).toBeUndefined()
+  })
+
+  test('pares: me mostre espalha os pares pela reta', () => {
+    const st = solveMexa(pares, initMexa(pares))
+    expect(st.order).toHaveLength(4)
+    expect(new Set(st.order).size).toBe(4)
+    for (const k of st.order!) expect(k.split(',').map(Number).reduce((a, b) => a + b)).toBe(10)
+  })
+
+  test('pares: sem pares bastantes na grade, ou sem equação, não é Mexa', () => {
+    expect(kindOf(plano({ x: [0, 3], y: [0, 3], retas: [{ equacao: 'x + y = 10' }] }, { pontos: 2 }))).toBe('mostre')
+    expect(kindOf(plano({ x: [0, 10], y: [0, 10], retas: [{ a: 1 }] }, { pontos: 2 }))).toBe('mostre')
+  })
+
+  test('cruzar: um par numa reta só é erro, com a conta que falha', () => {
+    let st = initMexa(frutas)
+    const stage = () => mexaStage(frutas, st, (s) => (st = s))
+    expect((stage().visual.estado as PlanoState).cruzamento).toBe(false)
+    stage().interact!.plano!.onMarcar!([3, 7])
+    expect(st.wrong).toBe(1)
+    expect(st.note).toBe('(3, 7) está na reta x + y = 10, mas não na 2x + 3y = 26: 2 · 3 + 3 · 7 = 27 ≠ 26.')
+    expect(stage().interact!.plano!.errado).toEqual([3, 7])
+    stage().interact!.plano!.onMarcar!([1, 8])
+    expect(st.note).toBe('(1, 8) está na reta 2x + 3y = 26, mas não na x + y = 10: 1 + 8 = 9 ≠ 10.')
+    stage().interact!.plano!.onMarcar!([2, 2])
+    expect(st.note).toMatch(/nenhuma das duas retas/)
+    stage().interact!.plano!.onMarcar!([4, 6])
+    expect(st.done).toBe(true)
+    const e = stage().visual.estado as PlanoState
+    expect(e.cruzamento).toBe(true)
+    expect(parConferir(e)).toEqual([4, 6])
+  })
+
+  test('cruzar: o par tem de ser o cruzamento, num ponto da grade', () => {
+    expect(kindOf(plano({ retas: [{ equacao: 'x + y = 10' }, { equacao: '2x + 3y = 26' }] }, { par: [6, 4] }))).toBe('mostre')
+    // x + y = 3 and x − y = 0 cross at (1,5; 1,5), off the grid of 1 in 1.
+    expect(kindOf(plano({ x: [0, 10], y: [0, 10], retas: [{ equacao: 'x + y = 3' }, { equacao: 'x − y = 0' }] }, { par: [1.5, 1.5] }))).toBe('mostre')
+    expect(kindOf(plano({ retas: [{ equacao: 'x + y = 3' }, { equacao: 'x + y = 5' }] }, { par: [1, 2] }))).toBe('mostre')
+  })
+
+  test('o plano lê as retas das equações', () => {
+    const s: PlanoState = { retas: [{ equacao: 'x + y = 10' }, { equacao: '2x + 3y = 26' }] }
+    expect(cruzamentoDoPlano(s)?.c).toEqual({ tipo: 'ponto', v: [4, 6] })
+    expect(cruzamentoDoPlano({ retas: [{ equacao: 'x + y = 3' }, { equacao: 'x + y = 5' }] })?.c.tipo).toBe('paralelas')
+    expect(cruzamentoDoPlano({ retas: [{ equacao: 'x + y = 3' }, { equacao: '2x + 2y = 6' }] })?.c.tipo).toBe('mesma')
+    // A rule line and an equation line also cross.
+    expect(cruzamentoDoPlano({ retas: [{ a: 1, b: 2 }, { equacao: 'x + y = 10' }] })?.c).toEqual({ tipo: 'ponto', v: [4, 6] })
+    // The axes fit where the lines cut them: 0 to 13 and 0 to 8,67.
+    const ex = eixoDe(s, 'x')
+    const ey = eixoDe(s, 'y')
+    expect(ex.de).toBe(0)
+    expect(ex.ate).toBeGreaterThanOrEqual(13)
+    expect(ey.ate).toBeGreaterThanOrEqual(10)
+    expect(eixoDe({ retas: [{ equacao: 'x − y = 4' }] }, 'y').de).toBeLessThan(-4)
+    expect(retaNoQuadro({ equacao: 'x + y = 10' }, ex, ey, undefined)).toEqual([[0, 10], [10, 0]])
+    expect(retaNoQuadro({ equacao: '2x = 6' }, ex, ey, undefined)).toEqual([[3, ey.de], [3, ey.ate]])
+    expect(retaTexto({ equacao: 'x - y = 4' }, undefined)).toBe('x − y = 4')
+    // Other letters: the first one is the horizontal axis.
+    expect(cruzamentoDoPlano({ retas: [{ equacao: 'i + m = 10' }, { equacao: '20i + 10m = 150' }] })?.c).toEqual({ tipo: 'ponto', v: [5, 5] })
+    expect(parConferir({ ...s, conferir: [3, 7] })).toEqual([3, 7])
+    expect(parConferir({ ...s, conferir: true })).toEqual([4, 6])
+  })
+})
+
+describe('Mexa do sistema: somar e trocar', () => {
+  const soma = livre({ sistema: { equacoes: ['x + y = 10', 'x − y = 4'] } }, { somado: true })
+  const vezes = livre({ sistema: { equacoes: ['x + 2y = 7', 'x + y = 5'], vezes: [1, -1] } }, { somado: true })
+  const troca = livre({ sistema: { equacoes: ['y = x + 2', 'x + y = 10'], trocar: 'y' } }, { trocado: true })
+  const sis = (card: Mexa, st: MexaState) => mexaStage(card, st, () => {}).visual.estado.sistema as Record<string, unknown>
+
+  test.each([
+    ['somar', soma],
+    ['multiplicar e somar', vezes],
+    ['só multiplicar', livre({ sistema: { equacoes: ['x + 2y = 7', 'x + y = 5'], vezes: [1, 2] } }, { multiplicado: true })],
+    ['trocar', troca],
+    ['trocar com coeficiente', livre({ sistema: { equacoes: ['y = 2x', '3x + 2y = 14'], trocar: 'y' } }, { trocado: true })],
+  ] as [string, Mexa][])('%s é jogável', (_, card) => {
+    expect(kindOf(card)).not.toBe('mostre')
+    const st = play(card)
+    expect(st.done).toBe(true)
+    expect(st.wrong).toBe(0)
+    expect(solveMexa(card, initMexa(card)).done).toBe(true)
+  })
+
+  test('somar: um toque soma', () => {
+    let st = initMexa(soma)
+    const stage = () => mexaStage(soma, st, (s) => (st = s))
+    expect(stage().interact!.livre!.proximo).toBe('somar')
+    stage().interact!.livre!.onSomar!()
+    expect(st.done).toBe(true)
+    expect(sis(soma, st)).toMatchObject({ somado: true })
+    expect(stage().interact!.livre!.onSomar).toBeUndefined()
+  })
+
+  test('com "× (−1)": o primeiro toque multiplica, o segundo soma', () => {
+    let st = initMexa(vezes)
+    const stage = () => mexaStage(vezes, st, (s) => (st = s))
+    expect(stage().interact!.livre!.proximo).toBe('multiplicar')
+    stage().interact!.livre!.onSomar!()
+    expect(st.done).toBe(false)
+    expect(sis(vezes, st)).toMatchObject({ multiplicado: true, somado: false })
+    expect(stage().interact!.livre!.proximo).toBe('somar')
+    stage().interact!.livre!.onSomar!()
+    expect(st.done).toBe(true)
+  })
+
+  test('trocar: um toque põe a caixa', () => {
+    let st = initMexa(troca)
+    expect(sis(troca, st).trocado).toBe(false)
+    mexaStage(troca, st, (s) => (st = s)).interact!.livre!.onTrocar!()
+    expect(st.done).toBe(true)
+    expect(sis(troca, st).trocado).toBe(true)
+  })
+
+  test('o que não vira Mexa', () => {
+    expect(kindOf(livre({ sistema: { equacoes: ['x + y = 10', 'x − y = 4'], somado: true } }, { somado: true }))).toBe('mostre')
+    expect(kindOf(livre({ sistema: { equacoes: ['x + y = 10'] } }, { somado: true }))).toBe('mostre')
+    expect(kindOf(livre({ sistema: { equacoes: ['x + y = 10', 'x − y = 4'] } }, { multiplicado: true }))).toBe('mostre')
+    expect(kindOf(livre({ sistema: { equacoes: ['x + y = 10', 'x − y = 4'], trocar: 'y' } }, { trocado: true }))).toBe('mostre')
   })
 })

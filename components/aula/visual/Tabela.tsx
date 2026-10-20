@@ -54,7 +54,8 @@ const amber = '#f6b74e'
 const ease = [0.22, 1, 0.36, 1] as const
 
 const falta = (v: TabelaValor) => v === null || v === '?'
-const texto = (v: TabelaValor) => (falta(v) ? '?' : typeof v === 'number' ? v.toLocaleString('pt-BR') : v)
+// Negatives with the true minus sign (−3), not the hyphen of toLocaleString.
+const texto = (v: TabelaValor) => (falta(v) ? '?' : typeof v === 'number' ? v.toLocaleString('pt-BR').replace('-', '−') : v)
 
 export function Tabela({ s, size, onColuna, mostradas: shown, wrong }: { s: TabelaState; size: { w: number; h: number } } & TabelaInteract) {
   const linhas = s.linhas ?? []
