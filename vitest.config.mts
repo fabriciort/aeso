@@ -8,5 +8,6 @@ export default defineConfig({
       'server-only': fileURLToPath(new URL('./tests/stubs/empty.ts', import.meta.url)),
     },
   },
-  test: { include: ['tests/**/*.test.ts'] },
+  // Os testes dos geradores rodam 300 sementes cada; com a suíte toda junta, 5 s não bastam.
+  test: { include: ['tests/**/*.test.ts'], testTimeout: 30_000 },
 })
