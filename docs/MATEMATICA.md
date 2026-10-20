@@ -538,8 +538,18 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Hábito:** conferir cada raiz pondo o número no lugar do x.
 - **Ao final:** resolve equações do 2º grau por fatoração, completando o quadrado e pela fórmula, sabe quantas raízes esperar e escolhe a que serve ao problema.
 
-#### AF.U4. Sistemas de equações
-- Duas incógnitas, substituição, adição, duas retas no plano, problemas.
+#### AF.U4. Sistemas de equações (6 aulas)
+1. **Duas incógnitas:** x + y = 10 tem muitos pares (0 e 10, 3 e 7, 4,5 e 5,5...). Numa tabela e no plano, os pares formam uma reta: a reta é a equação.
+2. **Duas condições ao mesmo tempo:** 10 frutas que custaram R$ 26 (maçã a R$ 2, pera a R$ 3). Cada condição é uma reta; o par que serve às duas é onde elas se cruzam. Conferir nas duas equações.
+3. **Substituição:** quando uma equação diz quanto vale y (y = x + 2), troca y por isso na outra e sobra uma equação com uma letra só, como no 1º grau.
+4. **Adição:** duas balanças em equilíbrio, somadas, continuam em equilíbrio. Somar x + y = 10 e x − y = 4 faz o y sumir: 2x = 14. Às vezes é preciso multiplicar uma equação antes.
+5. **Nenhuma ou infinitas soluções:** retas paralelas (x + y = 3 e x + y = 5) nunca se cruzam; a mesma reta escrita duas vezes (x + y = 3 e 2x + 2y = 6) se cruza toda. Na conta, aparece 0 = 2 ou 0 = 0.
+6. **Problemas com sistemas:** ingressos de inteira e meia, moedas, idades, uma mistura. Escolher as letras, montar as duas equações, resolver e conferir no problema.
+
+- **Modelo:** a tabela de pares, o plano com as duas retas, a balança dupla.
+- **Erros:** um par que serve a uma equação só; trocar y sem os parênteses (2(x + 2) vira 2x + 2); somar as equações sem que uma letra suma; esquecer de achar a segunda letra; achar que 0 = 0 dá x = 0.
+- **Hábito:** conferir o par nas DUAS equações.
+- **Ao final:** monta um sistema a partir de um problema, resolve por substituição ou por adição, lê a solução no plano e reconhece quando não há solução ou há infinitas.
 
 #### AF.U5. Inequações
 - Intervalos na reta, multiplicar por negativo inverte o sinal, inequações do 2º grau pelo sinal.
@@ -632,7 +642,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
 | **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
-| **8** | Álgebra e Funções | AF.U1 e AF.U2 prontas (PR 23); **AF.U3 em revisão** (PR 27) |
+| **8** | Álgebra e Funções | AF.U1 e AF.U2 prontas (PR 23); **AF.U3 em revisão** (PR 27); AF.U4 em andamento |
 
 ## 11. Decisões
 
