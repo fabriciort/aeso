@@ -551,8 +551,18 @@ Em `/app/matematica`, o aluno vê a formação como uma **árvore de pré-requis
 - **Hábito:** conferir o par nas DUAS equações.
 - **Ao final:** monta um sistema a partir de um problema, resolve por substituição ou por adição, lê a solução no plano e reconhece quando não há solução ou há infinitas.
 
-#### AF.U5. Inequações
-- Intervalos na reta, multiplicar por negativo inverte o sinal, inequações do 2º grau pelo sinal.
+#### AF.U5. Inequações (6 aulas)
+1. **Desigualdades e intervalos:** x > 3 não é um número, é um pedaço da reta. O aluno testa números na reta e os que servem acendem. A bolinha vazia (o 3 não entra) e a cheia (x ≥ 3, o 3 entra); a seta que segue sem fim. Um pedaço entre dois números: 2 < x ≤ 5.
+2. **Resolver uma inequação:** a balança inclinada continua inclinada para o mesmo lado quando se tira ou se põe o mesmo peso nos dois pratos, ou quando se divide os dois por 2. 2x + 3 < 11 vira x < 4. Conferir com um número de dentro e um de fora.
+3. **Multiplicar por negativo:** 3 < 5, mas −3 > −5. Na reta, multiplicar por −1 espelha os números em torno do zero, e quem estava à direita passa para a esquerda: o sinal se inverte. −2x < 6 vira x > −3.
+4. **Duas condições:** −1 ≤ 2x + 1 < 7 vale as duas ao mesmo tempo; cada condição é um pedaço da reta, e a solução é onde os dois pedaços se sobrepõem. Às vezes não há sobreposição.
+5. **Inequações do 2º grau:** em (x − 2)(x − 5) < 0, o produto só troca de sinal nas raízes (o produto que zera). Testar um número em cada pedaço dá o sinal do pedaço inteiro: + fora das raízes, − entre elas. x² < 9 dá −3 < x < 3, não só x < 3.
+6. **Problemas com inequações:** "no máximo", "pelo menos", "mais de" viram ≤, ≥, >. O plano de celular de R$ 40 mais R$ 0,50 por minuto que não pode passar de R$ 100; a nota que falta para a média. A resposta muitas vezes é um número inteiro (o maior ou o menor que serve).
+
+- **Modelo:** a reta com o pedaço que serve (bolinha vazia ou cheia, a seta), a balança inclinada, a reta espelhada, os sinais do produto entre as raízes.
+- **Erros:** resolver como equação e dar um número só; trocar a bolinha vazia pela cheia; não inverter o sinal ao multiplicar por negativo (ou inverter ao somar um negativo); juntar duas condições em vez de sobrepor; x² < 9 dar só x < 3; ler "no máximo" como <.
+- **Hábito:** conferir com um número de dentro e um de fora do pedaço.
+- **Ao final:** resolve inequações do 1º grau e do 2º grau, sabe quando o sinal se inverte e mostra a solução na reta.
 
 #### AF.U6 a AF.U11. Funções
 - **AF.U6 Funções:** domínio, imagem, gráfico, zeros, crescer e decrescer.
@@ -642,7 +652,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
 | **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
-| **8** | Álgebra e Funções | AF.U1 e AF.U2 prontas (PR 23); **AF.U3 e AF.U4 em revisão** (PR 27); AF.U5 a seguir |
+| **8** | Álgebra e Funções | AF.U1 e AF.U2 prontas (PR 23); **AF.U3 e AF.U4 em revisão** (PR 27); AF.U5 em andamento |
 
 ## 11. Decisões
 
