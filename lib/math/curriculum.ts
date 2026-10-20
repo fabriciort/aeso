@@ -393,16 +393,40 @@ const ALGEBRA_UNITS: Unit[] = [
       ['Problemas do 2º grau', 'O terreno, a moldura e os dois números: montar, resolver e ver que raiz serve.', ['B.U15.A5']],
     ]),
   },
+  {
+    id: 'AF.U4', module: AF, n: 4, part: 'A', title: 'Sistemas de equações', short: 'Sistemas',
+    outcome: 'Monta e resolve sistemas de duas equações por substituição e por adição, e lê a solução no plano.',
+    requires: ['B.U15', 'B.U18'],
+    lessons: L('AF.U4', [
+      ['Duas incógnitas', 'Uma equação com x e y tem muitos pares; no plano, eles formam uma reta.', ['B.U18.A1']],
+      ['Duas condições ao mesmo tempo', 'O par que serve às duas é onde as duas retas se cruzam.'],
+      ['Substituição', 'Uma equação diz quanto vale y; troca y por isso na outra.', ['B.U15.A2']],
+      ['Adição', 'Somar as duas equações faz uma letra sumir.'],
+      ['Nenhuma ou infinitas soluções', 'Retas paralelas não se cruzam; a mesma reta se cruza toda.'],
+      ['Problemas com sistemas', 'Duas informações, duas equações: montar, resolver e conferir.', ['B.U15.A5']],
+    ]),
+  },
+  {
+    id: 'AF.U5', module: AF, n: 5, part: 'A', title: 'Inequações', short: 'Inequações',
+    outcome: 'Resolve inequações do 1º e do 2º grau, sabe quando o sinal se inverte e mostra a solução na reta.',
+    requires: ['B.U15', 'B.U12', 'AF.U3'],
+    lessons: L('AF.U5', [
+      ['Desigualdades e intervalos', 'x > 3 não é um número: é um pedaço da reta.', ['B.U15.A6', 'B.U12.A1']],
+      ['Resolver uma inequação', 'Somar, tirar ou dividir por um positivo dos dois lados mantém o sinal.', ['B.U15.A2']],
+      ['Multiplicar por negativo', 'Multiplicar ou dividir por um negativo inverte o sinal.', ['B.U12.A4']],
+      ['Duas condições', 'Duas desigualdades ao mesmo tempo: o pedaço que serve às duas.'],
+      ['Inequações do 2º grau', 'O sinal do produto só muda nas raízes.', ['AF.U3.A2']],
+      ['Problemas com inequações', '"No máximo" e "pelo menos" viram ≤ e ≥.', ['B.U15.A5']],
+    ]),
+  },
   ...planned('algebra', 'AF', [
-  ['Sistemas de equações', 'Resolve dois problemas ao mesmo tempo.', ['B.U15']],
-  ['Inequações', 'Resolve e mostra a solução na reta.', ['AF.U3']],
   ['Funções', 'Domínio, imagem e gráfico.', ['B.U18']],
   ['Função afim', 'Taxa de variação constante.', ['AF.U6']],
   ['Função quadrática', 'Parábola, vértice e raízes.', ['AF.U7', 'AF.U3'], 'funcao-quadratica'],
   ['Função exponencial', 'Crescimento por um fator fixo.', ['AF.U6', 'B.U11', 'B.U13']],
   ['Logaritmo', 'O expoente que falta.', ['AF.U9']],
   ['Transformações, composição e inversa', 'Monta funções com outras.', ['AF.U8', 'AF.U10']],
-  ], 4),
+  ], 6),
 ]
 
 const GEOMETRIA_UNITS = planned('geometria', 'GT', [

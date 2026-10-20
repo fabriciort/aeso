@@ -5,7 +5,11 @@ import { ArrowRight, Check, Eraser, Grid3x3, NotebookPen, Pencil, Smartphone } f
 import { cn } from '@/lib/utils'
 import { Azulejos, temAzulejos, type AzulejosState } from './Azulejos'
 import type { Par } from './azulejos-retangulo'
+import { produtoZeroDe } from './produto-zero'
+import { ProdutoZero } from './ProdutoZero'
 import { Saldo, type SaldoState } from './Saldo'
+import { sistemaDe, trocaDe, type SistemaEstado } from './sistema'
+import { SistemaSoma, SistemaTroca } from './Sistema'
 import { Tabela, type TabelaState } from './Tabela'
 
 // Modelo livre: quando nenhum modelo-âncora serve (U0: como estudar). Mostra
@@ -43,6 +47,10 @@ export interface LivreState {
   saldo?: SaldoState
   /** Azulejos algébricos: x², x e 1 (U14). */
   azulejos?: AzulejosState
+  /** O produto que zera (AF.U3): os fatores x + a, os valores de x, a conta de um x e os já postos. */
+  produtoZero?: { fatores: number[]; valores: number[]; x?: number; marcados?: number[]; letra?: string }
+  /** Os sistemas (AF.U4): as equações empilhadas para somar, ou a troca de uma letra pelo que ela vale. */
+  sistema?: SistemaEstado
 }
 
 export interface LivreInteract {
@@ -65,16 +73,31 @@ export interface LivreInteract {
   /** Azulejos, Mexa "fatorar": o toque que arruma os quadradinhos de outro jeito, e os arranjos do Mexa (uma escala só). */
   onArrumar?: () => void
   escala?: (Par | null)[]
+  /** Azulejos, Mexa "completar": o toque que parte as barras e, depois, enche o canto. */
+  onCompletar?: () => void
+  /** Produto que zera, Mexa "zerar": o toque num valor de x. */
+  onValor?: (x: number) => void
+  /** Sistema, Mexa "somar": o toque que multiplica (se houver o "× 2") e, depois, soma; e o que ele faz agora. */
+  onSomar?: () => void
+  proximo?: 'multiplicar' | 'somar'
+  /** Sistema, Mexa "trocar": o toque que põe a caixa no lugar da letra. */
+  onTrocar?: () => void
 }
 
 const ICONS: Record<string, typeof Pencil> = { celular: Smartphone, lápis: Pencil, borracha: Eraser, 'caderno fechado': NotebookPen, caderno: NotebookPen, 'caderno quadriculado': Grid3x3 }
 
 export function hasLivre(s: LivreState): boolean {
-  return Boolean(temAzulejos(s.azulejos) || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
+  return Boolean(temAzulejos(s.azulejos) || produtoZeroDe(s.produtoZero) || sistemaDe(s.sistema) || trocaDe(s.sistema) || s.saldo || s.tabela?.linhas?.length || s.expressao?.length || s.calculadoras?.length || s.jornada || s.etapas || s.materiais || s.fichas || s.pagina || s.dicas || s.alvos || s.registros || s.caminhos || s.comparacao || s.atalho || s.superficie)
 }
 
 export function Livre({ s, size, ...it }: { s: LivreState; size: { w: number; h: number } } & LivreInteract) {
-  if (s.azulejos && temAzulejos(s.azulejos)) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} onVirar={it.onVirar} onArrumar={it.onArrumar} escala={it.escala} wrong={it.wrong} />
+  if (s.azulejos && temAzulejos(s.azulejos)) return <Azulejos s={s.azulejos} size={size} agrupados={it.agrupados} onPeca={it.onPeca} onVirar={it.onVirar} onArrumar={it.onArrumar} escala={it.escala} onCompletar={it.onCompletar} wrong={it.wrong} />
+  const pz = produtoZeroDe(s.produtoZero)
+  if (pz) return <ProdutoZero p={pz} size={size} onValor={it.onValor} />
+  const troca = trocaDe(s.sistema)
+  if (troca) return <SistemaTroca t={troca} size={size} onTrocar={it.onTrocar} />
+  const sis = sistemaDe(s.sistema)
+  if (sis) return <SistemaSoma s={sis} size={size} onSomar={it.onSomar} proximo={it.proximo} />
   if (s.saldo) return <Saldo s={s.saldo} size={size} removidas={it.removidas} paresPostos={it.paresPostos} onTirar={it.onTirar} onPar={it.onPar} wrong={it.wrong} />
   if (s.tabela?.linhas?.length) return <Tabela s={s.tabela} size={size} onColuna={it.onColuna} mostradas={it.mostradas} wrong={it.wrong} />
   return (

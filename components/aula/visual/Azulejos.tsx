@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils'
 import { expressaoDe, montesDe, oposto, pecasViradas, quantosMontes, termo, type Peca } from './azulejos-pecas'
 import { retanguloDe, type Par } from './azulejos-retangulo'
 import { AzulejosRetangulo } from './AzulejosRetangulo'
+import { completarDe } from './azulejos-completar'
+import { AzulejosCompletar } from './AzulejosCompletar'
 
 export type { Peca }
 
@@ -49,6 +51,12 @@ export interface AzulejosState {
   fatorar?: Par
   /** Com `fatorar`: a grade dos quadradinhos, [colunas, linhas] (as barras vão atrás; faltam ou sobram). */
   arranjo?: Par
+  /** Completar o quadrado (AF.U3): as peças de x² + bx, b par de 2 a 10. Soltas; com `partido`, metade das barras de cada lado do x² e o canto vazio; com `completo`, o canto cheio. */
+  completar?: number
+  partido?: boolean
+  completo?: boolean
+  /** Com `completar`: o lado direito da equação, x² + bx = igual. */
+  igual?: number
 }
 
 export interface AzulejosInteract {
@@ -60,11 +68,13 @@ export interface AzulejosInteract {
   /** Mexa "fatorar": o toque que arruma os quadradinhos de outro jeito, e os arranjos possíveis (para uma escala só). */
   onArrumar?: () => void
   escala?: (Par | null)[]
+  /** Mexa "completar": o toque que parte as barras e, depois, enche o canto. */
+  onCompletar?: () => void
   wrong?: boolean
 }
 
 /** Whether the tiles draw something: loose pieces or a rectangle. */
-export const temAzulejos = (s?: AzulejosState) => Boolean(s && (s.pecas?.length || retanguloDe(s)))
+export const temAzulejos = (s?: AzulejosState) => Boolean(s && (s.pecas?.length || retanguloDe(s) || completarDe(s)))
 
 // Each type sits next to its opposite: 3x beside −x.
 const ORDEM: Peca[] = ['x²', '−x²', 'x', '−x', '1', '−1']
@@ -79,6 +89,8 @@ const rose = '#fb7185'
 
 
 export function Azulejos(props: { s: AzulejosState; size: { w: number; h: number } } & AzulejosInteract) {
+  const comp = completarDe(props.s)
+  if (comp) return <AzulejosCompletar c={comp} size={props.size} onCompletar={props.onCompletar} />
   const ret = retanguloDe(props.s)
   if (ret) return <AzulejosRetangulo r={ret} letra={props.s.letra} escala={props.escala} size={props.size} onArrumar={props.onArrumar} wrong={props.wrong} />
   return <Soltos {...props} />

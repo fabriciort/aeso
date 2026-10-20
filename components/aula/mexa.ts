@@ -1,6 +1,8 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
 import { avisoDoPar, mesmoPar, paresDeFatores, retanguloDe, type Par } from './visual/azulejos-retangulo'
+import { completarDe } from './visual/azulejos-completar'
+import { produtoZeroDe, raizesDe } from './visual/produto-zero'
 import { revelaveis, type LadosArea } from './visual/monomio'
 import { contaPecas, inclinacaoDe, ladoTexto, pecasDe, pratoDe, valorInferido, type Lado, type PecaBalanca, type Prato } from './visual/balanca-pratos'
 import type { BarraLinha, BarraState } from './visual/Barra'
@@ -8,11 +10,13 @@ import { fmtNum, grausMedir, leituraTransferidor, perimetroDe, poligonosDe, tran
 import type { Ordem } from './visual/Blocos'
 import type { GradeItem } from './visual/Grade'
 import { ajustarValor, dadosDe, eixoDoAjuste, tipoDe as tipoGrafico, type GraficoState } from './visual/grafico-geo'
-import { coordTexto, mesmoPonto, pontosDe, trocado, type PlanoState, type Vec } from './visual/plano-geo'
+import { abcDaReta, coordTexto, cruzamentoDoPlano, eixoDe, encaixar, equacaoDa, letrasDoPlano, mesmoPonto, pontosDe, retaTexto, trocado, type PlanoState, type RetaPlano, type Vec } from './visual/plano-geo'
+import { conferirTexto, paresNaGrade, satisfaz, sistemaDe, trocaDe } from './visual/sistema'
 import { areaDe, camadasDe, dimsDe, facesVisiveis, partesDe, type SolidoState } from './visual/solido-geo'
 import { ativoDe, eixoDados, encaixarFulcro, fulcroNaMedia, lerValor, media, mediana, meioDaFila, mesmo, modas, ordemFila, type DadosState } from './visual/dados-geo'
 import { casosDaGrade, corCanonica, etapasDe, favoraveisDe, gradeDe, type Caso, type ContagemState } from './visual/contagem-geo'
 import { casosDe, MAX_JOGADAS, resultadosDe, type SorteioState } from './visual/sorteio-geo'
+import { lerCondicao, testarFeito, testesDaSolucao, tracosDaReta, type MetaTestar } from './visual/reta-intervalos'
 import type { Interact } from './visual/Stage'
 
 // O "Mexa": o aluno manipula o modelo até chegar ao estado de sucesso que o
@@ -20,7 +24,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'completar' | 'zerar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'pares' | 'cruzar' | 'somar' | 'trocar' | 'testar' | 'espelhar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -63,12 +67,18 @@ export function kindOf(card: Mexa): Kind {
       if (arr(e.algarismos) && num(ok.numero) !== undefined) return 'digitos'
       return 'mostre'
     case 'reta':
+      if (testarOf(card)) return 'testar'
+      if (ok.espelhado === true && e.espelhado !== true && (arr(e.numeros)?.length || arr(e.intervalos)?.length)) return 'espelhar'
       if (card.acao.tipo === 'deslizar' && num(ok.numero) !== undefined) return 'deslizar'
       if (num(ok.vizinho) !== undefined && arr(e.escolhas)) return 'vizinho'
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
       return 'mostre'
     case 'livre':
       if (fatorarOf(card)) return 'fatorar'
+      if (completarDe(e.azulejos as Record<string, unknown> | undefined) && ok.completo === true) return 'completar'
+      if (zerarOf(card)) return 'zerar'
+      if (somarOf(card)) return 'somar'
+      if (trocarOf(card)) return 'trocar'
       if (typeof (e.azulejos as { virar?: number } | undefined)?.virar === 'number' && ok.virado === true) return 'virar'
       if ((e.azulejos as { agrupar?: boolean } | undefined)?.agrupar === true && ok.agrupado === true) return 'azulejos'
       if ((e.saldo as { tirar?: string } | undefined)?.tirar && num(ok.tiradas) !== undefined) return 'saldo'
@@ -107,6 +117,8 @@ export function kindOf(card: Mexa): Kind {
       if (e.pintar === true && num(ok.area) !== undefined) return 'faces'
       return 'mostre'
     case 'plano':
+      if (paresOf(card)) return 'pares'
+      if (cruzarOf(card)) return 'cruzar'
       if (alvosMarcar(card).length) return 'marcar'
       if (typeof ok.lido === 'string' || num(ok.lidos) !== undefined) return 'ler'
       if (e.maquina && num(ok.saidas) !== undefined) return 'alimentar'
@@ -287,6 +299,120 @@ export function fatorarOf(card: Mexa): { b: number; c: number; pares: Par[]; alv
   return { b: r.b, c: r.c, pares, alvo, inicio: ini < 0 ? null : ini }
 }
 
+/**
+ * Mexa "zerar": the product (from `produtoZero`) and the values of x that
+ * zero it. It is a Mexa only when `sucesso.raizes` are those values (in any
+ * order) and every one of them has its button.
+ */
+export function zerarOf(card: Mexa): { raizes: number[]; marcados: number[]; x?: number } | null {
+  const p = produtoZeroDe(card.visual.estado.produtoZero)
+  const ok = arr<unknown>(card.acao.sucesso.raizes)
+  if (!p || !ok?.length) return null
+  const raizes = raizesDe(p.fatores)
+  const pedidas = [...new Set(ok)]
+  if (pedidas.length !== raizes.length || !raizes.every((r) => pedidas.includes(r) && p.valores.includes(r))) return null
+  return { raizes, marcados: p.marcados, x: p.x }
+}
+
+/**
+ * Mexa "pares": the first line of an equation (x + y = 10) is the rule; the
+ * student finds `sucesso.pontos` pairs of it on the grid. It is a Mexa only
+ * when the grid has that many. The axes are fixed from the start (the line
+ * shows only at the end, and the plane must not change scale then).
+ */
+export function paresOf(card: Mexa) {
+  const e = card.visual.estado as PlanoState
+  const meta = num(card.acao.sucesso.pontos)
+  if (card.visual.modelo !== 'plano' || meta === undefined || meta < 1) return null
+  const i = (e.retas ?? []).findIndex((r) => equacaoDa(r))
+  if (i < 0) return null
+  const r = e.retas![i]
+  const eq = equacaoDa(r)!
+  const letras = letrasDoPlano(e)
+  const abc = abcDaReta(r, undefined, letras)
+  if (!abc) return null
+  const ex = eixoDe(e, 'x')
+  const ey = eixoDe(e, 'y')
+  const solucoes = paresNaGrade(abc, ex, ey)
+  if (solucoes.length < meta) return null
+  return { i, eq, abc, letras, ex, ey, meta: Math.round(meta), solucoes }
+}
+
+/** Mexa "cruzar": the pair where the first two lines cross (`sucesso.par`), on the grid. */
+export function cruzarOf(card: Mexa) {
+  const e = card.visual.estado as PlanoState
+  const par = card.acao.sucesso.par
+  if (card.visual.modelo !== 'plano' || !ehVec(par)) return null
+  const cz = cruzamentoDoPlano(e)
+  if (cz?.c.tipo !== 'ponto' || !mesmoPonto(cz.c.v, par)) return null
+  const ex = eixoDe(e, 'x')
+  const ey = eixoDe(e, 'y')
+  if (!mesmoPonto(encaixar(par, ex, ey), par)) return null
+  return { par, i: cz.i, j: cz.j, letras: letrasDoPlano(e) }
+}
+
+/** Mexa "cruzar": why a pair is not the answer (on one line only, or on neither). */
+function notaCruzar(card: Mexa, v: Vec): string {
+  const e = card.visual.estado as PlanoState
+  const { i, j, letras } = cruzarOf(card)!
+  const retas = e.retas as RetaPlano[]
+  const pts = e.pontos && !Array.isArray(e.pontos) ? e.pontos : undefined
+  const serve = (k: number) => satisfaz(abcDaReta(retas[k], pts, letras)!, v)
+  const nome = (k: number) => retaTexto(retas[k], pts) || 'a outra reta'
+  const conta = (k: number) => {
+    const eq = equacaoDa(retas[k])
+    return eq ? `: ${conferirTexto(eq, { [letras[0]]: v[0], [letras[1]]: v[1] }).texto}` : ''
+  }
+  const p = coordTexto(v)
+  if (serve(i) && !serve(j)) return `${p} está na reta ${nome(i)}, mas não na ${nome(j)}${conta(j)}.`
+  if (serve(j) && !serve(i)) return `${p} está na reta ${nome(j)}, mas não na ${nome(i)}${conta(i)}.`
+  return `${p} não está em nenhuma das duas retas. Procure onde elas se cruzam.`
+}
+
+/**
+ * Mexa "somar": the stacked equations (`sistema`). With a "× 2", the first
+ * tap multiplies and the second sums; without one, a tap sums. Done at
+ * `sucesso.somado` (or `sucesso.multiplicado`, when only the multiplying is asked).
+ */
+export function somarOf(card: Mexa): { inicio: number; meta: number; temVezes: boolean } | null {
+  if (card.visual.modelo !== 'livre') return null
+  const o = card.visual.estado.sistema as { somado?: boolean; multiplicado?: boolean } | undefined
+  const sis = sistemaDe(o)
+  const ok = card.acao.sucesso
+  if (!sis || o?.somado === true) return null
+  if (ok.somado === true) return { inicio: !sis.temVezes || sis.multiplicado ? 1 : 0, meta: 2, temVezes: sis.temVezes }
+  if (ok.multiplicado === true && sis.temVezes && !sis.multiplicado) return { inicio: 0, meta: 1, temVezes: true }
+  return null
+}
+
+/** Mexa "trocar": the letter's box goes into the second equation (`sucesso.trocado`). */
+export function trocarOf(card: Mexa) {
+  if (card.visual.modelo !== 'livre' || card.acao.sucesso.trocado !== true) return null
+  const t = trocaDe(card.visual.estado.sistema)
+  return t && !t.trocado ? t : null
+}
+
+/**
+ * Mexa "testar": the condition (`condicao`) and what to test (`sucesso.testados`,
+ * how many different numbers, and/or `sucesso.testar`, numbers that must be
+ * tested). The student taps the marks of the line. It is a Mexa only when the
+ * condition reads and the marks are enough for the goal.
+ */
+export function testarOf(card: Mexa) {
+  if (card.visual.modelo !== 'reta') return null
+  const e = card.visual.estado
+  const ok = card.acao.sucesso
+  const cond = lerCondicao(e.condicao)
+  const testados = num(ok.testados)
+  const testar = arr<unknown>(ok.testar)?.filter((v): v is number => typeof v === 'number')
+  if (!cond || (testados === undefined && !testar?.length)) return null
+  const meta: MetaTestar = { testados: testados !== undefined ? Math.max(1, Math.round(testados)) : undefined, testar }
+  const candidatos = tracosDaReta(e)
+  if (!candidatos.length || (meta.testados ?? 0) > candidatos.length) return null
+  if (testar?.some((v) => !candidatos.some((t) => Math.abs(t - v) < 1e-9))) return null
+  return { cond, meta, candidatos }
+}
+
 /** The kinds of algebra tiles in the Mexa (x², x, 1 and their negatives). */
 function tiposAzulejos(card: Mexa): string[] {
   const pecas = arr<string>((card.visual.estado.azulejos as { pecas?: string[] } | undefined)?.pecas) ?? []
@@ -301,9 +427,19 @@ function balancaOf(card: Mexa) {
   const direita = e.direita as Prato | undefined
   const pecas: Record<Lado, PecaBalanca[]> = { esquerda: pecasDe(esquerda, 'esquerda'), direita: pecasDe(direita, 'direita') }
   const alvo: Record<Lado, { x: number; n: number }> = { esquerda: pratoDe(ok.esquerda as Prato), direita: pratoDe(ok.direita as Prato) }
-  const valor = num(e.valor) ?? valorInferido(esquerda, direita)
+  const forcada = e.inclina === 'esquerda' || e.inclina === 'direita' ? (e.inclina as Lado) : undefined
+  const valor = num(e.valor) ?? (forcada ? valorQueInclina(esquerda, direita, forcada) : valorInferido(esquerda, direita))
+  // A balance that starts tilted (an inequality) has to stay tilted the same way: the goal is that side, not the level.
+  const inicio = forcada ?? inclinacaoDe(pratoDe(esquerda), pratoDe(direita), valor)
   const resta = (fora: string[], lado: Lado) => contaPecas(pecas[lado].filter((p) => !fora.includes(p.id)))
-  return { pecas, alvo, valor, resta }
+  return { pecas, alvo, valor, resta, inicio }
+}
+
+/** A hidden value that makes the given plate go down (for a balance drawn tilted with `inclina` and no `valor`). */
+function valorQueInclina(esquerda: Prato | undefined, direita: Prato | undefined, lado: Lado): number {
+  const b = valorInferido(esquerda, direita)
+  const cands = b === undefined ? [1] : [b - 1, b + 1, b - 0.5, b + 0.5, b / 2, b * 2].filter((v) => v >= 0)
+  return cands.find((v) => inclinacaoDe(pratoDe(esquerda), pratoDe(direita), v) === lado) ?? cands[0] ?? 1
 }
 
 /** The pieces "Me mostre" takes out: boxes from the end, then the biggest weights that still leave the target. */
@@ -361,6 +497,12 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, order: [], casa: null }
     case 'fatorar':
       return { ...base, pick: fatorarOf(card)!.inicio }
+    case 'completar':
+      return { ...base, pick: (e.azulejos as { partido?: boolean }).partido === true ? 1 : 0 }
+    case 'zerar': {
+      const z = zerarOf(card)!
+      return { ...base, order: z.marcados.map(String), drag: z.x }
+    }
     case 'pintar':
       return { ...base, drag: ativaOf(card).b.pintadas ?? 0 }
     case 'partir':
@@ -392,6 +534,17 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, order: [], casa: null }
     case 'alimentar':
       return { ...base, drag: num((e.maquina as { feitas?: number }).feitas) ?? 0 }
+    case 'pares':
+      return { ...base, order: [], drag: 0, casa: null }
+    case 'cruzar':
+      return { ...base, casa: null }
+    case 'somar':
+      return { ...base, pick: somarOf(card)!.inicio }
+    case 'trocar':
+    case 'espelhar':
+      return base
+    case 'testar':
+      return { ...base, order: [] }
     case 'apontar':
       return { ...base, pick: null }
     case 'ajustar': {
@@ -454,6 +607,12 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, order: revelaveis(e as LadosArea), casa: null }
     case 'fatorar':
       return { ...done, pick: fatorarOf(card)!.alvo }
+    case 'completar':
+      return { ...done, pick: 2 }
+    case 'zerar': {
+      const z = zerarOf(card)!
+      return { ...done, order: [...new Set([...(st.order ?? []), ...z.raizes.map(String)])], drag: z.raizes[z.raizes.length - 1] }
+    }
     case 'pintar':
       return { ...done, drag: ok.pintadas as number }
     case 'partir':
@@ -486,6 +645,30 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, order: typeof ok.lido === 'string' ? [ok.lido] : nomesDoPlano(card).slice(0, num(ok.lidos) ?? 0) }
     case 'alimentar':
       return { ...done, drag: ok.saidas as number }
+    case 'pares': {
+      // Pairs spread along the line: the found ones stay, and the rest come from far apart.
+      const p = paresOf(card)!
+      const achados = (st.order ?? []).slice(0, p.meta)
+      const livres = p.solucoes.map(chave).filter((k) => !achados.includes(k))
+      const faltam = p.meta - achados.length
+      const mais = Array.from({ length: faltam }, (_, k) => livres[Math.round(((k + 0.5) * livres.length) / faltam - 0.5)])
+      return { ...done, order: [...achados, ...mais], casa: null }
+    }
+    case 'cruzar':
+      return { ...done, casa: null }
+    case 'somar':
+      return { ...done, pick: somarOf(card)!.meta }
+    case 'trocar':
+    case 'espelhar':
+      return done
+    case 'testar': {
+      const t = testarOf(card)!
+      const feitos = (st.order ?? []).map(Number)
+      const mais = testesDaSolucao(t.cond, { ...t.meta, testados: Math.max(0, (t.meta.testados ?? 0) - feitos.length) }, t.candidatos.filter((v) => !feitos.includes(v)))
+      // The conta under the line shows the first number asked (the 3 of x > 3: the empty dot), or the last one tested.
+      const todos = [...feitos, ...mais]
+      return { ...done, order: todos.map(String), drag: t.meta.testar?.[0] ?? todos[todos.length - 1] }
+    }
     case 'apontar':
       return { ...done, pick: null }
     case 'ajustar':
@@ -527,6 +710,9 @@ const NOTE_APONTAR: Record<string, string> = {
 }
 const NOTE_ORDENAR = 'Ainda não. Vá do menor para o maior: toque no ponto mais à esquerda.'
 const NOTE_INCLINOU = 'A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado.'
+const NOTE_VIROU = 'A balança virou para o outro lado: você tirou só de um lado. Tire o mesmo do outro lado.'
+const NOTE_ENDIREITOU = 'A balança ficou reta: você tirou só de um lado. Tire o mesmo do outro lado.'
+const NOTE_CONTINUA = 'Continua inclinada para o mesmo lado.'
 
 /** What the stage shows and how a touch changes the state. */
 export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void): { visual: Visual; interact?: Interact; tray?: { items: string[]; sel: number | null; onPick: (i: number) => void } } {
@@ -795,6 +981,34 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         },
       }
     }
+    case 'completar': {
+      // The first tap splits the bars around the x² (the empty corner shows); the second fills the corner.
+      const az = e.azulejos as Record<string, unknown>
+      const fase = st.done ? 2 : (st.pick ?? 0)
+      return {
+        visual: visual({ ...e, azulejos: { ...az, partido: fase >= 1, completo: fase >= 2 } }),
+        interact: { livre: { onCompletar: lock ? undefined : () => set({ ...st, pick: fase + 1, done: fase + 1 >= 2, note: undefined }) } },
+      }
+    }
+    case 'zerar': {
+      // Each button puts that x in the product; done when every value that zeros it was tried.
+      const z = zerarOf(card)!
+      const pz = e.produtoZero as Record<string, unknown>
+      const marcados = (st.order ?? []).map(Number)
+      return {
+        visual: visual({ ...e, produtoZero: { ...pz, marcados, x: st.drag } }),
+        interact: {
+          livre: {
+            onValor: lock
+              ? undefined
+              : (v) => {
+                  const m2 = marcados.includes(v) ? marcados : [...marcados, v]
+                  set({ ...st, order: m2.map(String), drag: v, done: z.raizes.every((r) => m2.includes(r)), note: undefined })
+                },
+          },
+        },
+      }
+    }
     case 'mover': {
       // A tap cuts the L in two and takes the bottom piece to the side.
       const { mover: _m, ...rest } = e
@@ -970,11 +1184,15 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
     case 'tirar': {
       // A tap takes a piece out. Taking from one side only tilts the balance (by the hidden value);
       // taking a piece that has to stay is a mistake. Done when what is left is the target, level.
-      const { pecas, alvo, valor, resta } = balancaOf(card)
+      const { pecas, alvo, valor, resta, inicio } = balancaOf(card)
       const fora = st.order ?? []
       const letra = typeof e.letra === 'string' ? e.letra : 'x'
+      const desigual = inicio !== 'equilibrio'
+      const { inclina: _i, ...semInclina } = e
+      void _i
       return {
-        visual: visual({ ...e, valor }),
+        // Tilted from the start, the plates follow the real weights while the student takes pieces out (not a forced side).
+        visual: visual({ ...(desigual ? semInclina : e), valor, ...(desigual && st.done && !e.rotulo && !e.mostraEquacao ? { rotulo: NOTE_CONTINUA } : {}) }),
         interact: {
           balanca: {
             fora,
@@ -995,8 +1213,9 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
                   const E = resta(f2, 'esquerda')
                   const D = resta(f2, 'direita')
                   const inc = inclinacaoDe(E, D, valor)
-                  const done = inc === 'equilibrio' && eq(E, alvo.esquerda) && eq(D, alvo.direita)
-                  set({ ...st, order: f2, done, note: inc === 'equilibrio' ? undefined : NOTE_INCLINOU })
+                  const done = inc === inicio && eq(E, alvo.esquerda) && eq(D, alvo.direita)
+                  const note = inc === inicio ? undefined : !desigual ? NOTE_INCLINOU : inc === 'equilibrio' ? NOTE_ENDIREITOU : NOTE_VIROU
+                  set({ ...st, order: f2, done, note })
                 },
           },
         },
@@ -1189,6 +1408,110 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         interact: { plano: { onAlimentar: lock || k >= meta || k >= (m.entradas?.length ?? 0) ? undefined : () => set({ ...st, drag: k + 1, done: k + 1 >= meta, note: undefined }) } },
       }
     }
+    case 'pares': {
+      // A tap on the grid: a pair that serves stays (amber, with its coordinates); one that does
+      // not blinks and goes, with the sum that says why. Once enough pairs are found, the line shows through them.
+      const p = paresOf(card)!
+      const achados = (st.order ?? []).map(deChave)
+      const ps = e as PlanoState
+      const retas = st.done ? ps.retas : ps.retas!.filter((_, k) => k !== p.i)
+      const rotulo = ps.rotulo ?? `${Math.min(achados.length, p.meta)} de ${p.meta} pares`
+      return {
+        visual: visual({ ...e, x: p.ex, y: p.ey, retas, rotulo }),
+        interact: {
+          plano: {
+            achados,
+            piscar: !st.done && st.casa ? { v: deChave(st.casa), n: st.drag ?? 0 } : null,
+            onMarcar: lock
+              ? undefined
+              : (v) => {
+                  if (achados.some((f) => mesmoPonto(f, v))) return
+                  if (satisfaz(p.abc, v)) {
+                    const o2 = [...(st.order ?? []), chave(v)]
+                    return set({ ...st, order: o2, casa: null, done: o2.length >= p.meta, note: undefined })
+                  }
+                  const conta = conferirTexto(p.eq, { [p.letras[0]]: v[0], [p.letras[1]]: v[1] }).texto
+                  set({ ...st, casa: chave(v), drag: (st.drag ?? 0) + 1, note: `${coordTexto(v)}: ${conta}. Esse par não serve.` })
+                },
+          },
+        },
+      }
+    }
+    case 'cruzar': {
+      // A tap on the grid: the crossing lights up, with the pair checked in both equations.
+      // A pair on one line only (or on neither) is a mistake, with the check that fails.
+      const c = cruzarOf(card)!
+      return {
+        visual: visual({ ...e, cruzamento: st.done, conferir: st.done ? true : undefined }),
+        interact: {
+          plano: {
+            errado: st.done || !st.casa ? null : deChave(st.casa),
+            tremer: st.wrong,
+            onMarcar: lock
+              ? undefined
+              : (v) => {
+                  if (mesmoPonto(v, c.par)) return set({ ...st, casa: null, done: true, note: undefined })
+                  set({ ...st, casa: chave(v), wrong: st.wrong + 1, note: notaCruzar(card, v) })
+                },
+          },
+        },
+      }
+    }
+    case 'somar': {
+      // The first tap multiplies (with a "× 2"), the next one sums: the terms that cancel are struck out.
+      const sm = somarOf(card)!
+      const fase = st.pick ?? sm.inicio
+      const sis = e.sistema as Record<string, unknown>
+      return {
+        visual: visual({ ...e, sistema: { ...sis, multiplicado: fase >= 1, somado: fase >= 2 } }),
+        interact: {
+          livre: {
+            proximo: lock ? undefined : fase === 0 ? 'multiplicar' : 'somar',
+            onSomar: lock ? undefined : () => set({ ...st, pick: fase + 1, done: fase + 1 >= sm.meta, note: undefined }),
+          },
+        },
+      }
+    }
+    case 'trocar': {
+      // A tap sends the box with what the letter is worth into its place, with the parentheses.
+      const sis = e.sistema as Record<string, unknown>
+      return {
+        visual: visual({ ...e, sistema: { ...sis, trocado: st.done } }),
+        interact: { livre: { onTrocar: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
+    }
+    case 'testar': {
+      // A tap on a mark puts that number in the condition: ✓ green if it serves, ✗ rose if not, with the sum under the line.
+      // Not serving is not a mistake. At the end, the whole piece that serves shows (the band, the dots, the arrow).
+      const t = testarOf(card)!
+      const feitos = (st.order ?? []).map(Number)
+      const unicos = [...new Set(feitos)]
+      const ultimo = st.drag ?? feitos[feitos.length - 1]
+      const { feito, falta } = testarFeito(t.cond, unicos, t.meta, t.candidatos)
+      const alvoN = t.meta.testados ?? t.meta.testar?.length ?? 0
+      const contador = st.done ? undefined : (falta ?? `${Math.min(unicos.length, alvoN)} de ${alvoN} números`)
+      void feito
+      return {
+        visual: visual({ ...e, testados: unicos, ...(ultimo !== undefined ? { testado: ultimo } : {}), solucao: st.done || e.solucao === true }),
+        interact: {
+          reta: {
+            contador,
+            onPick: lock
+              ? undefined
+              : (v) => {
+                  const o2 = unicos.includes(v) ? unicos : [...unicos, v]
+                  set({ ...st, order: o2.map(String), drag: v, done: testarFeito(t.cond, o2, t.meta, t.candidatos).feito, note: undefined })
+                },
+          },
+        },
+      }
+    }
+    case 'espelhar':
+      // One tap (on the "× (−1)" or on the line) multiplies everything by −1: each point flies over to the other side of zero.
+      return {
+        visual: visual({ ...e, espelhado: st.done }),
+        interact: { reta: { onEspelhar: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
     case 'apontar': {
       // A tap on a bar (a slice, a point of the line): the right one lights up.
       const alvo = itemApontar(card)!
@@ -1378,6 +1701,8 @@ export const GESTO: Record<Kind, string | null> = {
   revelar: 'Toque em cada parte do retângulo para descobrir.',
   virar: 'Toque no monte com o sinal de menos na frente.',
   fatorar: 'Toque nos azulejos para arrumar os quadradinhos de outro jeito.',
+  completar: 'Toque nos azulejos: primeiro as barras se partem, depois o canto se enche.',
+  zerar: 'Toque nos valores de x e veja quando o produto dá zero.',
   mover: 'Toque no pedaço tracejado para cortar e levar para o lado.',
   pintar: 'Toque nas partes da barra para pintar.',
   partir: 'Toque na barra para cortar as partes mais fino.',
@@ -1408,5 +1733,11 @@ export const GESTO: Record<Kind, string | null> = {
   ramificar: 'Toque na árvore para abrir a próxima etapa.',
   favoraveis: 'Toque em cada caso que serve.',
   jogar: 'Toque nos botões para jogar.',
+  pares: 'Toque num cruzamento da grade: ponha o par na equação e veja se serve.',
+  cruzar: 'Toque no ponto onde as duas retas se cruzam.',
+  somar: 'Toque nas equações: o × multiplica uma delas; depois, as duas se somam.',
+  trocar: 'Toque na caixa para pôr o que ela vale no lugar da letra.',
+  testar: 'Toque num número da reta para pôr na condição. Teste um que serve e um que não serve.',
+  espelhar: 'Toque em × (−1) para multiplicar tudo por −1.',
   mostre: null,
 }

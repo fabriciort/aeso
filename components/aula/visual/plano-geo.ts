@@ -6,6 +6,7 @@
 // As coordenadas são do mundo: x para a direita, y para cima.
 
 import { fmtNum } from './figura-geo'
+import { abcDe, cruzamentoDe, lerEquacao, letrasDe, type Cruzamento, type Equacao } from './sistema'
 
 export type Vec = [number, number]
 /** Um ponto: o nome de um ponto de `pontos` ('A') ou as coordenadas ([2, 3]). */
@@ -24,6 +25,8 @@ export interface Eixo {
 }
 
 export interface RetaPlano {
+  /** A reta de uma equação do 1º grau com duas letras: 'x + y = 10', '2x + 3y = 26', 'y = x + 2'. Vale mais que a, b e por; o rótulo é a equação. */
+  equacao?: string
   /** y = a·x + b. */
   a?: number
   b?: number
@@ -98,6 +101,10 @@ export interface PlanoState {
   /** Liga os pontos (e os pares da tabela ou da máquina) na ordem, com uma linha. */
   ligar?: boolean
   retas?: RetaPlano[]
+  /** O ponto onde as duas primeiras retas se cruzam, destacado, com as coordenadas. */
+  cruzamento?: boolean
+  /** O par posto em cada equação, embaixo do plano ('6 + 4 = 10'): true (o cruzamento) ou o par ([3, 7]). */
+  conferir?: boolean | Vec
   maquina?: Maquina
   tabela?: TabelaPlano
   rotulo?: string
@@ -250,6 +257,23 @@ export function eixoDe(s: PlanoState, qual: 'x' | 'y'): EixoFinal {
         if (v) vals.push(v[k])
       }
     }
+    // The lines of equations: where they cut the axes, and where they cross.
+    const letras = letrasDoPlano(s)
+    for (const r of s.retas ?? []) {
+      const eq = equacaoDa(r)
+      if (!eq) continue
+      const [a, b, c] = abcDe(eq, letras)
+      const corte = k === 0 ? a : b
+      // Only a hint of the range: rounded out, so 8,67 does not make the grid finer.
+      if (Math.abs(corte) > EPS) {
+        const v = limpa(c / corte)
+        vals.push(v < 0 ? Math.floor(v) : Math.ceil(v))
+      }
+    }
+    const cz = cruzamentoDoPlano(s)?.c
+    if (cz?.tipo === 'ponto' && (s.retas ?? []).some((r) => equacaoDa(r))) vals.push(cz.v[k])
+    const pc = Array.isArray(s.conferir) ? parConferir(s) : undefined
+    if (pc) vals.push(pc[k])
     if (s.maquina && s.eixos !== false) {
       // The whole machine fits from the start: the plane does not change as the outputs come.
       const m = s.maquina
@@ -266,7 +290,9 @@ export function eixoDe(s: PlanoState, qual: 'x' | 'y'): EixoFinal {
       const lo = Math.min(0, ...vals)
       const hi = Math.max(0, ...vals)
       const inteiros = vals.every((v) => Math.abs(v - Math.round(v)) < EPS)
-      const p = passo ?? (inteiros ? Math.max(1, passoRedondo((hi - lo) / 10)) : passoRedondo(Math.max(hi - lo, EPS) / 10))
+      // With lines of equations, a finer grid (up to about 20 lines): the pairs are tapped on it.
+      const div = (s.retas ?? []).some((r) => equacaoDa(r)) ? 20 : 10
+      const p = passo ?? (inteiros ? Math.max(1, passoRedondo((hi - lo) / div)) : passoRedondo(Math.max(hi - lo, EPS) / div))
       passo = p
       de ??= lo < 0 ? limpa(Math.floor(lo / p + EPS) * p - p) : 0
       ate ??= limpa(Math.max(Math.ceil(hi / p - EPS) * p + (hi > 0 ? p : 0), de + 5 * p))
@@ -312,8 +338,25 @@ export function quadranteDe(v: Vec): 0 | 1 | 2 | 3 | 4 {
 
 export const mesmoPonto = (a: Vec, b: Vec) => Math.abs(a[0] - b[0]) < 1e-6 && Math.abs(a[1] - b[1]) < 1e-6
 
+/** The line's equation, when it has one that reads ('x + y = 10'). */
+export const equacaoDa = (r: RetaPlano): Equacao | null => lerEquacao(r.equacao)
+
+/** The letters of the plane's equations (x and y; or the first two that appear: i and m). */
+export function letrasDoPlano(s: Pick<PlanoState, 'retas'>): [string, string] {
+  const ls = letrasDe((s.retas ?? []).map(equacaoDa).filter((e): e is Equacao => Boolean(e)))
+  if (!ls.length || ls.includes('x') || ls.includes('y')) return ['x', 'y']
+  return [ls[0], ls[1] ?? '']
+}
+
 /** The line's a and b (undefined b: a vertical line x = a). */
-export function coeficientes(r: RetaPlano, pontos: PlanoState['pontos']): { a: number; b: number } | { vertical: number } | undefined {
+export function coeficientes(r: RetaPlano, pontos: PlanoState['pontos'], letras?: [string, string]): { a: number; b: number } | { vertical: number } | undefined {
+  const eq = equacaoDa(r)
+  if (eq) {
+    const [a, b, c] = abcDe(eq, letras ?? letrasDoPlano({ retas: [r] }))
+    if (Math.abs(b) > EPS) return { a: limpa(-a / b), b: limpa(c / b) }
+    if (Math.abs(a) > EPS) return { vertical: limpa(c / a) }
+    return undefined
+  }
   if (r.por) {
     const p = resolve(r.por[0], pontos)
     const q = resolve(r.por[1], pontos)
@@ -326,8 +369,8 @@ export function coeficientes(r: RetaPlano, pontos: PlanoState['pontos']): { a: n
 }
 
 /** The part of the line inside the axes (and inside its own `de`..`ate`). */
-export function retaNoQuadro(r: RetaPlano, ex: EixoFinal, ey: EixoFinal, pontos: PlanoState['pontos']): [Vec, Vec] | undefined {
-  const c = coeficientes(r, pontos)
+export function retaNoQuadro(r: RetaPlano, ex: EixoFinal, ey: EixoFinal, pontos: PlanoState['pontos'], letras?: [string, string]): [Vec, Vec] | undefined {
+  const c = coeficientes(r, pontos, letras)
   if (!c) return undefined
   if ('vertical' in c) {
     const x = c.vertical
@@ -348,6 +391,8 @@ export function retaNoQuadro(r: RetaPlano, ex: EixoFinal, ey: EixoFinal, pontos:
 
 /** 'y = 2x', 'y = 0,8x + 15', 'y = −x + 3', 'y = 3', 'x = 2'. */
 export function retaTexto(r: RetaPlano, pontos: PlanoState['pontos']): string {
+  const eq = equacaoDa(r)
+  if (eq) return eq.texto
   const c = coeficientes(r, pontos)
   if (!c) return ''
   if ('vertical' in c) return `x = ${fmtNum(c.vertical)}`
@@ -356,6 +401,36 @@ export function retaTexto(r: RetaPlano, pontos: PlanoState['pontos']): string {
   if (!ax) return `y = ${fmtNum(b)}`
   if (Math.abs(b) < EPS) return `y = ${ax}`
   return `y = ${ax} ${b < 0 ? '−' : '+'} ${fmtNum(Math.abs(b))}`
+}
+
+/** Any line as a·x + b·y = c (y = 2x + 1 is −2x + y = 1; x = 3 is x = 3). */
+export function abcDaReta(r: RetaPlano, pontos: PlanoState['pontos'], letras?: [string, string]): [number, number, number] | undefined {
+  const eq = equacaoDa(r)
+  if (eq) return abcDe(eq, letras ?? letrasDoPlano({ retas: [r] }))
+  const c = coeficientes(r, pontos)
+  if (!c) return undefined
+  return 'vertical' in c ? [1, 0, c.vertical] : [limpa(-c.a), 1, c.b]
+}
+
+/** The first two lines of the plane and where they meet (a point, parallel, or the same line). */
+export function cruzamentoDoPlano(s: PlanoState): { i: number; j: number; c: Cruzamento } | undefined {
+  const pts = s.pontos && !Array.isArray(s.pontos) ? s.pontos : undefined
+  const letras = letrasDoPlano(s)
+  const abcs = (s.retas ?? []).map((r) => abcDaReta(r, pts, letras))
+  const idx = abcs.flatMap((v, i) => (v ? [i] : [])).slice(0, 2)
+  if (idx.length < 2) return undefined
+  const c = cruzamentoDe(abcs[idx[0]]!, abcs[idx[1]]!)
+  return c ? { i: idx[0], j: idx[1], c } : undefined
+}
+
+/** The pair to check under the plane: the given one, or the crossing (`conferir: true`). */
+export function parConferir(s: PlanoState): Vec | undefined {
+  if (Array.isArray(s.conferir) && s.conferir.length === 2 && s.conferir.every((t) => typeof t === 'number' && Number.isFinite(t))) return [s.conferir[0], s.conferir[1]]
+  if (s.conferir === true) {
+    const c = cruzamentoDoPlano(s)?.c
+    return c?.tipo === 'ponto' ? c.v : undefined
+  }
+  return undefined
 }
 
 /** Mexa "marcar": the swapped point (the student walked y first). */

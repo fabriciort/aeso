@@ -95,7 +95,7 @@ export function AzulejosRetangulo({ r, letra = 'x', escala, size, onArrumar, wro
 }
 
 /** A thin dimension line along a side, with ticks at the ends. */
-function Cota({ x1, x2, y, y1, y2, x }: { x1?: number; x2?: number; y?: number; y1?: number; y2?: number; x?: number }) {
+export function Cota({ x1, x2, y, y1, y2, x }: { x1?: number; x2?: number; y?: number; y1?: number; y2?: number; x?: number }) {
   const cor = 'rgba(255,255,255,0.35)'
   if (x1 !== undefined && x2 !== undefined && y !== undefined)
     return (

@@ -162,6 +162,77 @@ No Mexa, com `acao.sucesso: { para: 'cm' }`, o aluno toca a unidade e a vírgula
 | `distancias` | colchetes embaixo da reta, do zero até cada número, com um rótulo: `[[-4, '4 passos'], [4, '4 passos']]` (o módulo e os opostos). Cabem dois |
 | `fracoes` | os números aparecem como frações com esse denominador: com `fracoes: 4`, 0,75 vira 3/4 (os inteiros continuam 1, 2). Use `passo` igual a 1/denominador (`passo: 0.25`) |
 
+#### `reta`: inequações (AF.U5)
+
+O pedaço da reta que serve, o sinal de um produto em cada pedaço, os testes de um número na condição e o espelho de multiplicar por −1. Os números vêm com o menos de verdade (−3) e a vírgula decimal; as pontas dos pedaços, as raízes e os números testados são escritos embaixo da reta sozinhos (somam-se às `marcas`).
+
+| Chave | Efeito |
+|---|---|
+| `intervalos` | as faixas grossas do que serve. Cada uma é uma condição escrita (`'x > 3'`, `'2 < x ≤ 5'`, `'x < −3 ou x > 3'`, `'2x + 3 < 11'`, que vira x < 4) ou um pedaço `{ de: 3, ate: null, inclui: [false, false] }` (`de`/`ate` ausente ou `null`: sem fim; `inclui: true` as duas pontas, `[true, false]` só a da esquerda; padrão: nenhuma). Bolinha **vazia** na ponta que não entra, **cheia** na que entra, e a **seta** onde o pedaço segue sem fim (ou passa da ponta da reta). Uma faixa só fica na própria reta, em âmbar. Duas (ou três) ficam um pouco acima da reta, paralelas: âmbar, azul, verde. Cada uma aceita `cor` (`'ambar'`, `'azul'`, `'verde'`, `'rosa'`), `rotulo` (um texto pequeno na cor dela, ao lado da bolinha: `'x ≥ −1'`) e, no lugar da condição como texto, `{ condicao: 'x ≥ −1', rotulo: 'x ≥ −1' }` |
+| `sobreposicao: true` | com dois intervalos: o que serve aos dois, em verde, na própria reta (com as bolinhas certas: x ≥ −1 e x < 3 dão −1 cheia, 3 vazia). Sem sobreposição, a reta fica sem nada: diga em `comparacao` ("Nenhum número serve às duas.") |
+| `regioes` | o sinal de um produto em cada pedaço (2º grau): `[{ ate: 2, sinal: '+' }, { de: 2, ate: 5, sinal: '−' }, { de: 5, sinal: '+' }]`. Um + âmbar ou um − azul grande sobre o meio de cada pedaço, e um traço forte em cada raiz. `serve: true` pinta o pedaço por baixo, na cor do sinal, com bolinhas vazias (`inclui` para ≤ e ≥) |
+| `condicao` | a condição dos testes: as formas de `intervalos`, e também produtos e quadrados: `'(x − 2)(x − 5) < 0'`, `'x² < 9'`, `'x(x − 4) < 0'`, `'−1 ≤ 2x + 1 < 7'`, `'x ≥ −1 e x < 3'`, `'40 + 0,5x ≤ 100'`, `'(7 + 8 + x) / 3 ≥ 6'`. Uma letra só (`'a > 2'` vale). Sem parênteses que não fecham, sem duas letras. Com `condicao`, embaixo da reta fica guardado o lugar da conta (a reta não pula quando ela aparece) |
+| `testados` | números já postos na condição: cada um com uma bolinha verde e ✓ em cima, ou rosa e ✗; o número embaixo na mesma cor. Na ponta de uma faixa, fica só a bolinha da faixa (vazia ou cheia) e o ✓/✗ |
+| `testado` | o teste cuja conta aparece embaixo (padrão: o último de `testados`). A conta tem até três linhas: os lados que não são só um número (`2 · 5 + 3 = 13`; `(3 − 2)(3 − 5) = 1 · (−2) = −2`), a comparação em verde ou rosa (`13 < 11 ✗`, `−2 < 0 ✓`, `−1 ≤ 7 < 7 ✗`) e, no empate, `3 é igual a 3: não é maior.` |
+| `solucao: true` | com `condicao`: a faixa do que serve (a mesma de pôr a condição em `intervalos`) |
+| `espelhado` | multiplicar por −1. `false`: o antes; `true`: cada número de `numeros` vai para o oposto (3 → −3), e cada faixa de `intervalos` vira para o outro lado do zero (x < 3 → a faixa de −3 em diante), com os arcos tracejados de cada número até o oposto. Com a chave (mesmo `false`), embaixo vem a frase sozinha: com dois `numeros`, `3 < 5` vira `−3 > −5`; com um intervalo, `x < 3` vira `−x > −3`, e o sinal novo fica âmbar e maior. Um `comparacao` em texto troca a frase. Em cima fica guardado o lugar do botão × (−1). Use com `sinais: true` para os negativos ficarem azuis |
+| `letra` | outra letra nas frases do espelho (padrão `x`) |
+
+```ts
+// x > 3: bolinha vazia no 3 e a seta
+{ modelo: 'reta', estado: { de: 0, ate: 8, passo: 1, marcas: [0, 8], intervalos: ['x > 3'], comparacao: 'x > 3' } }
+// x ≥ 3: bolinha cheia
+{ modelo: 'reta', estado: { de: 0, ate: 8, passo: 1, marcas: [0, 8], intervalos: [{ de: 3, inclui: true }], comparacao: 'x ≥ 3' } }
+// um pedaço entre dois números
+{ modelo: 'reta', estado: { de: 0, ate: 8, passo: 1, marcas: [0, 8], intervalos: ['2 < x ≤ 5'], comparacao: '2 < x ≤ 5' } }
+// duas condições e o que serve às duas, em verde
+{ modelo: 'reta', estado: { de: -4, ate: 6, passo: 1, marcas: [-4, 0, 6], intervalos: [{ condicao: 'x ≥ −1', rotulo: 'x ≥ −1' }, { condicao: 'x < 3', rotulo: 'x < 3' }], sobreposicao: true, comparacao: '−1 ≤ x < 3' } }
+// sem sobreposição
+{ modelo: 'reta', estado: { de: -2, ate: 8, passo: 1, marcas: [-2, 8], intervalos: [{ condicao: 'x < 1', rotulo: 'x < 1' }, { condicao: 'x > 4', rotulo: 'x > 4' }], sobreposicao: true, comparacao: 'Nenhum número serve às duas.' } }
+// a união do 2º grau
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-6, 0, 6], intervalos: ['x < −3 ou x > 3'], comparacao: 'x < −3 ou x > 3' } }
+// o sinal em cada pedaço, e o que serve pintado
+{ modelo: 'reta', estado: { de: 0, ate: 7, passo: 1, marcas: [0, 7], regioes: [{ ate: 2, sinal: '+' }, { de: 2, ate: 5, sinal: '−', serve: true }, { de: 5, sinal: '+' }], comparacao: '(x − 2)(x − 5) < 0' } }
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, marcas: [-6, 0, 6], regioes: [{ ate: -3, sinal: '+', serve: true }, { de: -3, ate: 3, sinal: '−' }, { de: 3, sinal: '+', serve: true }], comparacao: 'x² − 9 > 0' } }
+// testes prontos (o estado depois do Mexa "testar"), com a conta do 3
+{ modelo: 'reta', estado: { de: 0, ate: 8, passo: 1, marcas: [0, 8], condicao: 'x > 3', testados: [1, 5, 3], solucao: true } }
+{ modelo: 'reta', estado: { de: -1, ate: 7, passo: 1, marcas: [-1, 7], condicao: '(x − 2)(x − 5) < 0', testados: [0, 3, 6], testado: 3, solucao: true } }
+// o espelho: antes e depois
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-6, 0, 6], numeros: [3, 5], espelhado: false } }
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-6, 0, 6], numeros: [3, 5], espelhado: true } }
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, marcas: [-6, 0, 6], intervalos: ['x < 3'], espelhado: true } } // −x > −3
+```
+
+Os Mexa da reta para inequações:
+
+```ts
+// testar: o aluno toca números da reta; no fim aparece o pedaço inteiro. O 3 tem de ser testado (o empate)
+{ tipo: 'mexa', texto: 'Quais números servem a x > 3?', visual: { modelo: 'reta', estado: { de: 0, ate: 8, passo: 1, marcas: [0, 8], condicao: 'x > 3' } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em 4 números da reta. Teste também o 3.', sucesso: { testados: 4, testar: [3] }, mostre: 'Do 3 para a direita, sem o 3: x > 3.' }, descoberta: 'x > 3 é um pedaço da reta; o 3 não entra.' }
+// testar no 2º grau: um número em cada pedaço
+{ tipo: 'mexa', texto: 'Ponha um número de cada pedaço em (x − 2)(x − 5).', visual: { modelo: 'reta', estado: { de: -1, ate: 7, passo: 1, marcas: [-1, 7], condicao: '(x − 2)(x − 5) < 0' } },
+  acao: { tipo: 'tocar', instrucao: 'Teste o 0, o 3 e o 6.', sucesso: { testar: [0, 3, 6] }, mostre: 'Só o pedaço do meio dá negativo.' }, descoberta: 'O sinal só muda nas raízes.' }
+// espelhar: um toque em × (−1)
+{ tipo: 'mexa', texto: '3 < 5. E multiplicados por −1?', visual: { modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-6, 0, 6], numeros: [3, 5] } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em × (−1).', sucesso: { espelhado: true }, mostre: 'Os dois vão para o outro lado do zero: −3 > −5.' }, descoberta: 'Multiplicar por −1 espelha a reta e inverte o sinal.' }
+```
+
+Limites (medidos no celular, 390 × 844, e no computador):
+
+- Cabem bem retas de até uns 12 traços no celular (de −6 a 6). Com mais, os números embaixo se afastam um do outro e encostam; use `marcas` só nas pontas e nos números que importam.
+- Até três `intervalos`; com dois, os `rotulo` cabem com até 6 caracteres de cada lado da bolinha. A sobreposição só olha os dois primeiros.
+- No espelho, use até 3 `numeros` (dois para a frase sozinha) e uma reta simétrica em torno do zero (de −6 a 6): um número cujo oposto sai da reta não ganha arco. A frase sozinha só aparece com dois `numeros`, ou com um intervalo e sem `numeros`.
+- A conta do teste cabe em uma linha no celular até uns 34 caracteres (`(3 − 2)(3 − 5) = 1 · (−2) = −2`); passando, ela quebra em duas.
+- `regioes` e `testados` ao mesmo tempo disputam o espaço acima da reta: use um ou outro.
+
+As duas raízes de x² = 25 (AF.U3), sem chave nova: os dois pulos de mesmo tamanho, do 0 para cada lado.
+
+```ts
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-5, 0, 5], numeros: [-5, 5], saltos: [[0, 5, '+5'], [0, -5, '−5']] } }
+// ou com as distâncias até o zero
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-5, 0, 5], numeros: [-5, 5], distancias: [[-5, '5'], [5, '5']] } }
+```
+
 ### `retangulo`
 
 O retângulo de multiplicação. Duas formas:
@@ -348,6 +419,105 @@ No Mexa "fatorar", as peças começam soltas (ou em `arranjo`, se vier). Cada to
 { modelo: 'livre', estado: { azulejos: { fatorar: [7, 6], arranjo: [2, 3] } } }
 ```
 
+### `livre`: azulejos que completam o quadrado
+
+Completar o quadrado com os azulejos (AF.U3). As peças de x² + bx: o x² e b barras. Partidas, b/2 barras ficam de pé à direita do x² e b/2 deitadas embaixo, e o canto de baixo, à direita, fica vazio e tracejado, (b/2) por (b/2). Completo, o canto se enche com (b/2)² quadradinhos novos, em âmbar claro: x² + 6x + 9 = (x + 3)².
+
+| Chave | Efeito |
+|---|---|
+| `azulejos.completar: b` | as peças de x² + bx, soltas: o x² e as barras ao lado dele (numa fila até 4 barras; depois, em duas filas de b/2). Embaixo, `x² + 6x`. b é par, de 2 a 10; outro b não desenha nada |
+| `azulejos.partido: true` | as barras partidas ao redor do x², o canto vazio tracejado com "3 × 3" dentro (quando cabe), "x + 3" em cima e à esquerda, e embaixo `x² + 6x` e, em âmbar, "falta um canto 3 por 3" |
+| `azulejos.completo: true` | o canto cheio com os 9 quadradinhos novos. Embaixo, em âmbar, `x² + 6x + 9 = (x + 3)²`, com o "+ 9" sublinhado |
+| `azulejos.igual: c` | o lado direito da equação: `x² + 6x = 16`; completo, `x² + 6x + 9 = 16 + 9` (os dois "+ 9" sublinhados) e, em âmbar, `(x + 3)² = 25`. Com c + (b/2)² negativo (o discriminante), a segunda linha fica rosa, `(x + 1)² = −4`, e uma terceira diz "nenhum quadrado tem área negativa" |
+| `azulejos.letra` | outra letra no lugar do x |
+
+As três fases de um mesmo b usam a mesma escala, no Mexa e nos cartões estáticos: nada muda de tamanho entre um toque e outro, nem de um cartão para o outro (dê o mesmo b e o mesmo `igual` na sequência). Com b = 10, o quadradinho fica com uns 27 px no celular.
+
+No Mexa "completar", as barras começam soltas (ou partidas, com `partido: true`). O primeiro toque as parte em duas metades ao redor do x² e aparece o canto vazio; o segundo enche o canto, quadradinho por quadradinho, e aparece o "+ 9". `sucesso` é `{ completo: true }`.
+
+```ts
+// completar: x² + 6x vira (x + 3)²
+{ tipo: 'mexa', texto: 'Os azulejos de x² + 6x: um x² e 6 barras. Dá para montar um quadrado?', visual: { modelo: 'livre', estado: { azulejos: { completar: 6 } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nos azulejos: as barras se partem ao redor do x².', sucesso: { completo: true }, mostre: 'Metade das barras de cada lado; o canto 3 por 3 se enche com 9.' }, descoberta: 'x² + 6x + 9 = (x + 3)².' }
+// com o lado direito: x² + 6x = 16
+{ tipo: 'mexa', texto: 'Para resolver x² + 6x = 16, complete o quadrado.', visual: { modelo: 'livre', estado: { azulejos: { completar: 6, igual: 16 } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nos azulejos.', sucesso: { completo: true }, mostre: 'O 9 entra dos dois lados.' }, descoberta: '(x + 3)² = 25.' }
+// estáticos, nos cartões seguintes
+{ modelo: 'livre', estado: { azulejos: { completar: 6, partido: true } } }
+{ modelo: 'livre', estado: { azulejos: { completar: 6, completo: true } } }
+// o discriminante: x² + 2x = −5 dá (x + 1)² = −4
+{ modelo: 'livre', estado: { azulejos: { completar: 2, igual: -5, completo: true } } }
+```
+
+### `livre`: o produto que zera
+
+A tabela do produto que zera (AF.U3). Em cima, o produto, `(x − 2)(x + 3)`. Embaixo, uma coluna por valor de x: na primeira linha, os botões de x; depois, cada fator e o produto. Um valor já posto mostra os números; o fator que dá zero fica âmbar, e o produto zero ganha uma moldura âmbar (o botão também acende). Na conta de baixo, o x da vez: `(2 − 2) · (2 + 3)` e `= 0 · 5 = 0`, com o produto grande e o fator zero em âmbar. Os negativos têm o menos de verdade (−3), entre parênteses na conta (`(−5) · 0`).
+
+| Chave | Efeito |
+|---|---|
+| `produtoZero.fatores` | o a de cada fator x + a: `[-2, 3]` é (x − 2)(x + 3); `[0, -4]` é x(x − 4) (o fator x não tem linha própria: ela repetiria a do x) |
+| `produtoZero.valores` | os valores de x, na ordem dos botões: `[-4, -3, 0, 1, 2, 3]`. Cabem uns 8 no celular |
+| `produtoZero.x` | o x da conta de baixo (ele conta como já posto) |
+| `produtoZero.marcados` | os valores já postos: a coluna deles mostra os números |
+| `produtoZero.letra` | outra letra no lugar do x |
+
+No Mexa "zerar", cada toque num botão põe aquele x: a coluna se preenche e a conta aparece embaixo. Um valor que não zera não é erro: é para o aluno ver. Termina quando o aluno pôs todos os valores que zeram o produto. `sucesso` é `{ raizes: [2, -3] }`, em qualquer ordem; as raízes têm de ser as de verdade e ter botão, senão o cartão não vira Mexa.
+
+```ts
+// zerar: (x − 2)(x + 3) só zera em 2 e em −3
+{ tipo: 'mexa', texto: 'Troque o x em (x − 2)(x + 3) e veja o produto.', visual: { modelo: 'livre', estado: { produtoZero: { fatores: [-2, 3], valores: [-4, -3, 0, 1, 2, 3] } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nos valores de x. Quais dão produto zero?', sucesso: { raizes: [2, -3] }, mostre: 'Só 2 e −3 zeram o produto.' }, descoberta: 'O produto só dá zero quando um dos fatores dá zero.' }
+// uma conta pronta
+{ modelo: 'livre', estado: { produtoZero: { fatores: [-2, 3], valores: [-4, -3, 0, 1, 2, 3], x: 2 } } }
+// a tabela inteira, nos cartões seguintes
+{ modelo: 'livre', estado: { produtoZero: { fatores: [-2, 3], valores: [-4, -3, 0, 1, 2, 3], marcados: [-4, -3, 0, 1, 2, 3], x: -3 } } }
+// x(x − 4): a raiz 0 que a divisão por x perderia
+{ modelo: 'livre', estado: { produtoZero: { fatores: [0, -4], valores: [-1, 0, 1, 2, 3, 4], marcados: [-1, 0, 1, 2, 3, 4], x: 0 } } }
+```
+
+### `livre`: o sistema empilhado (adição e substituição)
+
+As contas dos sistemas (AF.U4) que não precisam do plano. As equações aparecem uma embaixo da outra, em letra grande; os termos em x ficam âmbar e os em y, azuis.
+
+**A adição.** As equações alinhadas termo a termo (x sobre x, y sobre y, = sobre =), como duas balanças em equilíbrio uma sobre a outra.
+
+| Chave | Efeito |
+|---|---|
+| `sistema.equacoes` | as equações, uma por linha: `['x + y = 10', 'x − y = 4']`. Cada uma vira a·x + b·y = c (um `'y = x + 2'` aparece como `−x + y = 2`: escreva na forma de somar). No máximo duas letras |
+| `sistema.vezes` | por quanto multiplicar cada linha antes de somar: `[1, -1]` põe "× (−1)" ao lado da segunda |
+| `sistema.multiplicado: true` | as linhas com fator já aparecem multiplicadas (`−x − y = −5`); o "× (−1)" fica, apagado |
+| `sistema.somado: true` | um + à esquerda, um traço e a linha da soma embaixo (`2x = 14`). Os termos que se anulam ficam riscados em rosa nas duas linhas, e a coluna deles fica vazia na soma. Com `vezes`, a soma usa as linhas multiplicadas. Se todas as letras somem, a soma é `0 = 2` (nenhuma solução) ou `0 = 0` (infinitas); se nenhuma some, `2x + 3y = 24` mostra que a soma não ajudou |
+
+**A substituição.** A primeira equação diz quanto vale uma letra; o que ela vale fica numa caixa. Na segunda, a letra fica acesa, sublinhada.
+
+| Chave | Efeito |
+|---|---|
+| `sistema.trocar: 'y'` | com `equacoes: ['y = x + 2', 'x + y = 10']`: a caixa `x + 2` e o y aceso em `x + y = 10`. A primeira tem de ser `y = …` (sem y do lado direito) e a segunda, ter o y |
+| `sistema.trocado: true` | a caixa voa para o lugar do y, com os parênteses: `x + (x + 2) = 10`; `2x + 3y = 21` vira `2x + 3(x − 3) = 21`. Em cima fica a marca tracejada de onde ela saiu |
+
+A conta que vem depois (`2x + 2 = 10`, `x = 4`, e a outra letra) vai em TeX nos cartões, ou no caderno do passo a passo.
+
+No Mexa "somar", um toque nas equações multiplica (se houver `vezes`; o "× (−1)" pisca tracejado) e o seguinte soma (o + pisca tracejado). `sucesso` é `{ somado: true }`; `{ multiplicado: true }` para só multiplicar. No Mexa "trocar", um toque leva a caixa; `sucesso` é `{ trocado: true }`.
+
+```ts
+// somar: x + y = 10 e x − y = 4; o y some
+{ tipo: 'mexa', texto: 'Duas balanças em equilíbrio, somadas, continuam em equilíbrio.', visual: { modelo: 'livre', estado: { sistema: { equacoes: ['x + y = 10', 'x − y = 4'] } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nas equações para somar uma com a outra.', sucesso: { somado: true }, mostre: '+y e −y se anulam: sobra 2x = 14.' }, descoberta: 'Somando, o y some: 2x = 14.' }
+// multiplicar antes: × (−1) na segunda, depois somar
+{ tipo: 'mexa', texto: 'Somadas assim, nenhuma letra some. E se a segunda virar do avesso?', visual: { modelo: 'livre', estado: { sistema: { equacoes: ['x + 2y = 7', 'x + y = 5'], vezes: [1, -1] } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque para multiplicar a segunda por −1; toque de novo para somar.', sucesso: { somado: true }, mostre: 'x e −x se anulam: sobra y = 2.' }, descoberta: 'Multiplicar uma equação inteira não tira o equilíbrio.' }
+// estáticos
+{ modelo: 'livre', estado: { sistema: { equacoes: ['x + y = 10', 'x − y = 4'], somado: true } } }
+{ modelo: 'livre', estado: { sistema: { equacoes: ['3x + 2y = 16', 'x + y = 6'], vezes: [1, -2], somado: true } } }
+{ modelo: 'livre', estado: { sistema: { equacoes: ['x + y = 5', 'x + y = 3'], vezes: [1, -1], somado: true } } } // 0 = 2
+// trocar: y = x + 2 entra em x + y = 10
+{ tipo: 'mexa', texto: 'A primeira equação diz quanto vale y.', visual: { modelo: 'livre', estado: { sistema: { equacoes: ['y = x + 2', 'x + y = 10'], trocar: 'y' } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque na caixa para pôr x + 2 no lugar do y.', sucesso: { trocado: true }, mostre: 'O y vira (x + 2), com os parênteses.' }, descoberta: 'Sobra uma equação com uma letra só: x + (x + 2) = 10.' }
+{ modelo: 'livre', estado: { sistema: { equacoes: ['y = x − 3', '2x + 3y = 21'], trocar: 'y', trocado: true } } }
+```
+
+Cabe bem no celular com coeficientes de até dois algarismos: a letra encolhe até caber (no mínimo 18 px) e não passa de 44 px no computador.
+
 ### `barra`
 
 A barra de frações: cada barra é um inteiro partido em partes iguais, e as pintadas (em âmbar) são a fração. Barras empilhadas têm o mesmo comprimento por inteiro, então comparam pedaços.
@@ -402,6 +572,17 @@ A balança de dois pratos da U15: uma equação é uma balança em equilíbrio. 
 | `mostraEquacao: true` | a equação embaixo, lida dos pratos (`2x + 3 = 11`, `3x + 2 = x + 10`). Inclinada, o `=` vira `≠` em vermelho; com `inequacao: true`, vira `>` ou `<` em azul (o lado que desce é o maior) |
 | `rotulo` | a frase embaixo, no lugar da equação (`'x = 4'`) |
 | `tirar: true` | o Mexa "tirar" (veja abaixo) |
+
+**A balança inclinada (inequações, AF.U5).** 2x + 3 < 11 é `{ esquerda: { x: 2, n: 3 }, direita: { n: 11 }, inclina: 'direita', inequacao: true, mostraEquacao: true }`: o prato da direita desce e embaixo aparece `2x + 3 < 11`, com o < em azul. O Mexa "tirar" vale para ela: quando a balança começa inclinada (por `inclina` ou por `valor`), o alvo é terminar **inclinada para o mesmo lado**, não em equilíbrio. Durante o Mexa, a inclinação segue o peso de verdade com o `valor` escondido (sem `valor`, o player escolhe um x que pende para o lado de `inclina`: com 2x + 3 < 11, x = 3); tirando só de um lado, ela pode virar para o outro lado ("A balança virou para o outro lado: você tirou só de um lado. Tire o mesmo do outro lado.") ou ficar reta ("A balança ficou reta: …"); tirando o mesmo do outro, volta a pender como antes. Sem `mostraEquacao` nem `rotulo`, o fim mostra "Continua inclinada para o mesmo lado."
+
+```ts
+{ tipo: 'mexa', texto: '2x + 3 < 11: a direita pesa mais. Tire 3 de cada prato.', visual: { modelo: 'balanca', estado: { esquerda: { x: 2, n: 3 }, direita: { n: 11 }, inclina: 'direita', inequacao: true, mostraEquacao: true, tirar: true } },
+  acao: { tipo: 'tocar', instrucao: 'Tire 3 pesos de cada prato.', sucesso: { esquerda: { x: 2 }, direita: { n: 8 } }, mostre: 'Sobra 2x < 8, ainda inclinada para a direita.' }, descoberta: 'Tirar o mesmo dos dois lados não muda o lado que desce.' }
+// depois, dividir por 2 (o Mexa "dividir" já serve): 2x < 8 vira x < 4
+{ modelo: 'balanca', estado: { esquerda: { x: 2 }, direita: { n: 8 }, inclina: 'direita', inequacao: true, mostraEquacao: true, dividir: 2 } }
+```
+
+O que a balança não faz: pôr peso (só tirar), pesos negativos e multiplicar por −1. Para o sinal que se inverte, use a reta com `espelhado`.
 
 No Mexa "tirar", um peso rotulado (ou um peso de 10 automático) sai inteiro, nunca se parte: use pesos de 1 (até 20 por prato) quando o aluno precisa tirar um número que não é múltiplo do peso. Com `dividir: k`, dê pratos que se repartem certo (caixas e pesos múltiplos de `k`); senão, os grupos saem desiguais.
 
@@ -625,6 +806,56 @@ Limites:
 - No Mexa "marcar", o toque vai para o cruzamento mais perto da grade: o alvo tem de estar num cruzamento (um múltiplo do `passo` de cada eixo).
 - Os nomes dos pontos vão para fora dos eixos por uma regra simples; num ponto apertado (perto de outro ou de um canto), use `posRotulos`.
 - A regra da máquina é uma sequência de passos, sem parênteses e sem a letra: `'× 2 + 1'` funciona, `'2x + 1'` não (use `a` e `b`, ou `saidas`).
+
+### `plano`: retas de equações (sistemas)
+
+As retas da AF.U4: cada equação do 1º grau com duas letras é uma reta no plano, e o par que serve às duas é onde elas se cruzam. Vale tudo do `plano` (pontos, coordenadas, tabela de pares); estas chaves se somam a ele.
+
+| Chave | Efeito |
+|---|---|
+| `retas: [{ equacao: 'x + y = 10' }]` | a reta da equação, com a equação escrita perto dela (o hífen vira −). Aceita números com vírgula, as duas letras dos dois lados (`'y = x + 2'`, `'2x + 3 = y + 7'`) e uma letra só (`'2x = 6'` é uma reta em pé). Não aceita parênteses nem potências. `equacao` vale mais que `a`, `b` e `por`; `destaque`, `tracejado`, `de` e `ate` continuam valendo; `rotulo: false` esconde a equação, um texto troca |
+| cores | as retas de equação, sem `destaque`, ficam âmbar, azul e verde, nessa ordem. Os rótulos não se sobrepõem: fogem um do outro, dos eixos e dos números, dos pontos e do cruzamento |
+| letras | x no eixo de baixo e y no de pé. Com outras letras (`'i + m = 10'`), a primeira que aparece vai para o eixo de baixo; dê `x: { rotulo: 'i' }` e `y: { rotulo: 'm' }` |
+| eixos sozinhos | sem `x` e `y`, os eixos vão até onde as retas cortam os eixos e até o cruzamento, com a grade de 1 em 1 (até umas 20 linhas): `x + y = 10` e `2x + 3y = 26` dão x de 0 a 14 e y de 0 a 11 |
+| a mesma reta duas vezes | `x + y = 3` e `2x + 2y = 6`: a primeira fica grossa e a segunda vem tracejada por cima, na outra cor. Vê-se que coincidem |
+| paralelas | `x + y = 3` e `x + y = 5`: só as duas retas. Diga em `rotulo` ("Nunca se cruzam.") |
+| `cruzamento: true` | o ponto onde as duas primeiras retas se cruzam: branco, com um anel, e as coordenadas ao lado, `(4, 6)`, do lado livre das retas. Vale para qualquer reta (de regra, por dois pontos ou de equação). Paralelas ou a mesma reta: nada |
+| `conferir: true` | embaixo do plano, uma linha por equação com o cruzamento posto nela, na cor da reta: `4 + 6 = 10 ✓`, `2 · 4 + 3 · 6 = 26 ✓` |
+| `conferir: [3, 7]` | o mesmo com outro par, que também aparece no plano (branco se serve às duas, rosa se não): `3 + 7 = 10 ✓` e, em rosa, `2 · 3 + 3 · 7 = 27 ≠ 26 ✗`. É o erro "um par que serve a uma equação só" |
+
+```ts
+// x + y = 10: os pares formam uma reta
+{ modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 10' }], pontos: { A: [0, 10], B: [3, 7], C: [6, 4], D: [10, 0] }, coordenadas: true } }
+// duas condições: onde as retas se cruzam, conferido nas duas
+{ modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 10' }, { equacao: '2x + 3y = 26' }], cruzamento: true, conferir: true } }
+// um par que serve a uma só
+{ modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 10' }, { equacao: '2x + 3y = 26' }], conferir: [3, 7] } }
+// com negativos: x + y = 10 e x − y = 4 se cruzam em (7, 3)
+{ modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 10' }, { equacao: 'x − y = 4' }], cruzamento: true } }
+// nenhuma solução e infinitas
+{ modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 3' }, { equacao: 'x + y = 5' }], rotulo: 'Nunca se cruzam.' } }
+{ modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 3' }, { equacao: '2x + 2y = 6' }], rotulo: 'É a mesma reta.' } }
+```
+
+Os Mexa, prontos para copiar:
+
+```ts
+// pares: o aluno toca a grade; o par que serve fica, o que não serve pisca e some. No fim, a reta aparece
+{ tipo: 'mexa', texto: 'Dois números que somam 10. Quais pares servem?', visual: { modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 10' }] } },
+  acao: { tipo: 'tocar', instrucao: 'Toque em 4 pontos da grade em que x + y dá 10.', sucesso: { pontos: 4 }, mostre: 'Quatro pares de x + y = 10, e a reta passa por todos.' }, descoberta: 'Os pares de x + y = 10 ficam todos numa reta.' }
+// cruzar: o aluno toca o ponto que está nas duas retas
+{ tipo: 'mexa', texto: '10 frutas, R$ 26: a maçã custa R$ 2 e a pera, R$ 3.', visual: { modelo: 'plano', estado: { retas: [{ equacao: 'x + y = 10' }, { equacao: '2x + 3y = 26' }] } },
+  acao: { tipo: 'tocar', instrucao: 'Toque no ponto que serve às duas equações.', sucesso: { par: [4, 6] }, mostre: 'As retas se cruzam em (4, 6): 4 maçãs e 6 peras.' }, descoberta: 'O par que serve às duas é onde as retas se cruzam.' }
+```
+
+- No Mexa "pares", a reta da primeira `equacao` fica escondida até o fim (as outras retas aparecem). Os eixos ficam fixos desde o começo. Embaixo, "2 de 4 pares" (um `rotulo` do cartão fica no lugar). Um par que não serve não é erro: pisca em rosa e a frase diz a conta ("(3, 5): 3 + 5 = 8 ≠ 10. Esse par não serve."). Só vira Mexa se a grade tem tantos pares inteiros da reta: com x e y de 0 a 10, x + y = 10 tem 11; 2x + 3y = 26 tem 4.
+- No Mexa "cruzar", o `par` tem de ser o cruzamento das duas primeiras retas e cair num cruzamento da grade. Antes, o ponto não aparece; no fim, aparecem o ponto, as coordenadas e a conferência nas duas equações. Um par numa reta só é erro, com a conta que falha ("(3, 7) está na reta x + y = 10, mas não na 2x + 3y = 26: 2 · 3 + 3 · 7 = 27 ≠ 26."); fora das duas: "(2, 2) não está em nenhuma das duas retas. Procure onde elas se cruzam."
+
+A **tabela de pares** da aula 1 já existe: `livre.tabela` com uma linha por grandeza (os pares em colunas) e `destaque` numa coluna; ou `plano.tabela` (duas linhas), cujos pares viram pontos no plano.
+
+```ts
+{ modelo: 'livre', estado: { tabela: { linhas: [{ rotulo: 'x', valores: [0, 3, 4.5, 6, 10] }, { rotulo: 'y', valores: [10, 7, 5.5, 4, 0] }, { rotulo: 'x + y', valores: [10, 10, 10, 10, 10] }], destaque: [3] } } }
+```
 
 ### `grafico`
 
@@ -918,6 +1149,8 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `quadro-posicional` com `classes` e `cartoes` | `{ grupos: [2,5,40,6] }` | toca um grupo e depois a classe |
 | `reta` com `etiquetaSolta` ou `etiquetas` | `{ posicao }` ou `{ posicoes }` | toca a reta onde cada etiqueta vai |
 | `reta` com `escolhas` | `{ vizinho }` | toca uma das marcas |
+| `reta` com `condicao` | `{ testados: 4 }` (quantos números diferentes), `{ testar: [0, 3, 6] }` (estes números) ou os dois juntos | toca a reta: o toque vai para o traço mais perto (de `passo` em `passo`) e põe aquele número na condição. Ele fica com ✓ verde ou ✗ rosa, e embaixo aparece a conta (`2 · 5 + 3 = 13`, `13 < 11 ✗`; no empate, `3 > 3 ✗` e `3 é igual a 3: não é maior.`). Não servir não é erro. Embaixo, "2 de 4 números". Termina com a meta, com pelo menos um número que serve e um que não serve (se a reta tem dos dois: "Teste também um número que não serve.") e com todos os de `testar` ("Teste também o 3."). No fim aparece o pedaço inteiro que serve (`solucao`). A meta não pode passar do número de traços, e os de `testar` têm de ser traços |
+| `reta` com `numeros` ou `intervalos` | `{ espelhado: true }` | toca o botão × (−1) (ou a reta): cada número viaja por um arco até o outro lado do zero, a faixa vira para o outro lado, e a frase troca o sinal (`3 < 5` → `−3 > −5`, `x < 3` → `−x > −3`) |
 | `reta`, `acao.tipo: 'deslizar'` | `{ numero }` | arrasta um ponto entre `de + unidadeDe` e `de + unidadeAte`; a seta mostra o arredondamento |
 | `livre` com `fichas` | `{ ordem }` | toca as fichas na ordem |
 | `retangulo` com `adicionar: true` | `{ linhas }` | toca o retângulo (ou "+ 1 linha") e uma linha nova de `colunas` quadradinhos entra; começa de `linhas` (pode ser 0) |
@@ -931,9 +1164,13 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `livre` com `azulejos.agrupar: true` | `{ agrupado: true }` | toca uma peça e todas as do mesmo tipo vão juntas para um grupo, com a contagem; termina quando todos os tipos estão juntos (com `mostraExpressao`, a expressão aparece no fim) |
 | `livre` com `azulejos.virar` | `{ virado: true }` | toca o monte com o − na frente: todas as peças dele trocam de sinal de uma vez, girando, e o − vira + |
 | `livre` com `azulejos.fatorar: [b, c]` | `{ fatorado: [p, q] }` (o par que fecha, em qualquer ordem) | toca os azulejos: os quadradinhos se arrumam no próximo par de fatores de c (1 × 6, 2 × 3…) e as barras vão atrás. O par que não fecha mostra as barras que faltam (vagas tracejadas) ou que sobram (de lado) e diz por quê, sem contar como erro. Termina quando p + q = b |
+| `livre` com `azulejos.completar: b` | `{ completo: true }` | toca os azulejos: o primeiro toque parte as barras em duas metades ao redor do x² e aparece o canto vazio ("falta um canto 3 por 3"); o segundo enche o canto com os (b/2)² quadradinhos e aparece o "+ 9" (`x² + 6x + 9 = (x + 3)²`). Com `partido: true`, começa partido e basta um toque |
+| `livre` com `produtoZero` | `{ raizes: [2, -3] }` (os valores que zeram, em qualquer ordem) | toca os botões de x: a coluna mostra cada fator e o produto, e a conta do x aparece embaixo, com o fator zero em âmbar. Um valor que não zera não é erro. Termina quando todos os valores que zeram foram postos |
+| `livre` com `sistema.equacoes` | `{ somado: true }` (ou `{ multiplicado: true }`) | toca as equações: com `vezes`, o primeiro toque multiplica a linha (o "× (−1)" pisca); o seguinte soma: os termos que se anulam são riscados e a soma aparece embaixo (`2x = 14`) |
+| `livre` com `sistema.trocar` | `{ trocado: true }` | toca a caixa: ela voa para o lugar da letra na segunda equação, com os parênteses (`x + (x + 2) = 10`) |
 | `retangulo` com `recorte` e `mover: true` | `{ movido: true }` | toca o quadrado recortado: o L se corta em dois, o pedaço de baixo gira e vai para o lado, e aparece x² − 9 = (x + 3)(x − 3) |
 | `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
-| `balanca` com `tirar: true` | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio. Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |
+| `balanca` com `tirar: true` (inclinada: veja "A balança inclinada") | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio (a balança que começa inclinada termina inclinada para o mesmo lado). Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |
 | `balanca` com `dividir: k` | `{ dividido: true }` | os pratos aparecem partidos em `k` grupos, todos acesos; o aluno toca num grupo e fica só um grupo de cada lado (com `mostraEquacao`, `2x = 8` vira `x = 4`) |
 | `livre` com `tabela.completar: true` | `{ colunas }` | toca a próxima coluna vazia e ela se preenche, com as setas que chegam nela; começa com `tabela.mostradas` (padrão 1) e termina quando aparecem `colunas` colunas |
 | `figura` com `transferidor` | `{ graus: 60 }` (o ângulo desenhado) | toca o número da escala onde o lado do ângulo passa. Na escala certa (a que começa no 0 sobre o outro lado), o número ganha o anel âmbar e o ângulo mostra o valor. Na outra escala (120 em vez de 60): "Esse número é da escala de fora. Use a que começa no 0, sobre o lado do ângulo."; longe do lado: "Siga o outro lado do ângulo até a escala." |
@@ -948,6 +1185,8 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `plano` | `{ ponto: [3, 2] }` ou `{ pontos: [[-2, 3], [2, -3]] }` | toca a grade: o toque vai para o cruzamento mais perto, e um ponto certo anda da origem até lá (primeiro no x, depois no y) e mostra o par; um ponto de `pontos` nas coordenadas do alvo fica escondido até ser marcado e aparece com o nome (`A (3, 2)`). Errado, o ponto aparece em rosa com o par. Trocar x e y: "Você trocou x e y. O primeiro número anda para o lado; o segundo, para cima ou para baixo."; o sinal trocado: "Confira os sinais: x negativo vai para a esquerda; y negativo, para baixo."; outro lugar: "Ainda não. Ande primeiro no x, para o lado; depois no y, para cima ou para baixo." Com `pontos`, termina quando todos estão marcados, em qualquer ordem |
 | `plano` com `pontos` com nome | `{ lido: 'B' }` ou `{ lidos: 3 }` | toca um ponto: ele mostra o par e os tracejados até os eixos. Com `lido`, outro ponto é erro ("Esse é o A (2, 3). Procure o ponto pedido."); com `lidos`, termina com tantos pontos lidos |
 | `plano` com `maquina` | `{ saidas: 4 }` | toca a máquina (ou a tabela): o próximo número de `entradas` voa até a máquina, a saída sai, entra na tabela e, com o plano, vira um ponto. Começa de `maquina.feitas` (padrão 0) e termina com `saidas` números passados |
+| `plano` com `retas` de `equacao` | `{ pontos: 4 }` (quantos pares achar) | toca a grade: um par que serve à primeira equação fica, âmbar, com as coordenadas; o que não serve pisca em rosa e some, e a frase diz a conta ("(3, 5): 3 + 5 = 8 ≠ 10. Esse par não serve.", sem contar como erro). A reta fica escondida e aparece no fim, passando pelos pares. Embaixo, "2 de 4 pares" |
+| `plano` com duas `retas` | `{ par: [4, 6] }` (o cruzamento) | toca a grade no ponto das duas retas: o ponto acende com as coordenadas e a conferência nas duas equações. Um par numa reta só é erro, com a conta da outra ("(3, 7) está na reta x + y = 10, mas não na 2x + 3y = 26: 2 · 3 + 3 · 7 = 27 ≠ 26."); fora das duas, "Procure onde elas se cruzam." |
 | `grafico` | `{ barra: 2 }`, `{ ponto: 2 }` (linhas) ou `{ setor: 1 }` | toca a barra, o ponto da linha ou a fatia: o certo acende em âmbar; o errado fica rosa ("Ainda não. Compare o topo de cada barra com os números do eixo.", "… Siga a linha e leia cada ponto no eixo.", "… Compare o tamanho das fatias.") |
 | `grafico` (barras) | `{ valor: 60 }` | arrasta a barra `ativa` (padrão 0) para cima ou para baixo; o valor anda com o dedo e é conferido quando o dedo sai. Errado: "Ainda não. Leve o topo da barra até o valor, olhando os números do eixo." |
 | `dados` | `{ ordenado: true }` | toca os pontos do menor para o maior: cada um sai da reta e entra na fila, com o número dentro. Tocar um que não é o menor que falta é erro (o ponto fica rosa: "Ainda não. Vá do menor para o maior: toque no ponto mais à esquerda."). Termina com todos na fila; com `mediana: true`, os do meio acendem |

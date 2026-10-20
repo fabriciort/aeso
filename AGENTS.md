@@ -37,11 +37,13 @@ O app também tem o Céu e os laboratórios de astronomia (a origem do projeto).
 | U18 Plano cartesiano e gráficos | 5 | pronta; trouxe o plano (`plano`, com a máquina de função) e os gráficos (`grafico`) |
 | U19 Estatística e probabilidade | 6 | pronta; trouxe os dados (`dados`), a árvore de contagem (`contagem`) e o sorteio (`sorteio`) |
 | U20 Projeto final | 2 | pronta; fecha a Matemática Básica |
-| **AF.U1 Expressões algébricas** | 6 | **em revisão** (PR 23): começa o módulo Álgebra e Funções |
-| **AF.U2 Produtos notáveis e fatoração** | 6 | **em revisão** (PR 23): trouxe os azulejos que fatoram (`fatorar`) e o recorte da diferença de quadrados |
-| **AF.U3 Equações do 2º grau** | 7 | **em andamento** |
+| AF.U1 Expressões algébricas | 6 | pronta; começa o módulo Álgebra e Funções |
+| AF.U2 Produtos notáveis e fatoração | 6 | pronta; trouxe os azulejos que fatoram (`fatorar`) e o recorte da diferença de quadrados |
+| **AF.U3 Equações do 2º grau** | 7 | **em revisão** (PR 27): trouxe o completar o quadrado (`azulejos.completar`) e o produto que zera (`livre.produtoZero`) |
+| **AF.U4 Sistemas de equações** | 6 | **em revisão** (PR 27): trouxe as retas de equações no plano (`plano.retas`, com o cruzamento) e o sistema empilhado (`livre.sistema`) |
+| **AF.U5 Inequações** | 6 | **em andamento** |
 
-São 109 aulas no ar, e a Matemática Básica está completa. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
+São 121 aulas no ar: a Matemática Básica está completa, e Álgebra e Funções começou. A fonte de verdade do que existe é `content/matematica/index.ts`; atualize esta tabela quando uma unidade entrar na `main`.
 
 ## Leia antes de começar
 
