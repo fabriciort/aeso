@@ -162,6 +162,14 @@ No Mexa, com `acao.sucesso: { para: 'cm' }`, o aluno toca a unidade e a vírgula
 | `distancias` | colchetes embaixo da reta, do zero até cada número, com um rótulo: `[[-4, '4 passos'], [4, '4 passos']]` (o módulo e os opostos). Cabem dois |
 | `fracoes` | os números aparecem como frações com esse denominador: com `fracoes: 4`, 0,75 vira 3/4 (os inteiros continuam 1, 2). Use `passo` igual a 1/denominador (`passo: 0.25`) |
 
+As duas raízes de x² = 25 (AF.U3), sem chave nova: os dois pulos de mesmo tamanho, do 0 para cada lado.
+
+```ts
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-5, 0, 5], numeros: [-5, 5], saltos: [[0, 5, '+5'], [0, -5, '−5']] } }
+// ou com as distâncias até o zero
+{ modelo: 'reta', estado: { de: -6, ate: 6, passo: 1, sinais: true, marcas: [-5, 0, 5], numeros: [-5, 5], distancias: [[-5, '5'], [5, '5']] } }
+```
+
 ### `retangulo`
 
 O retângulo de multiplicação. Duas formas:
@@ -346,6 +354,62 @@ No Mexa "fatorar", as peças começam soltas (ou em `arranjo`, se vier). Cada to
 { modelo: 'livre', estado: { azulejos: { retangulo: [2, 3] } } }
 // um par que não serve: 2 × 3 em x² + 7x + 6 (sobram 2 barras)
 { modelo: 'livre', estado: { azulejos: { fatorar: [7, 6], arranjo: [2, 3] } } }
+```
+
+### `livre`: azulejos que completam o quadrado
+
+Completar o quadrado com os azulejos (AF.U3). As peças de x² + bx: o x² e b barras. Partidas, b/2 barras ficam de pé à direita do x² e b/2 deitadas embaixo, e o canto de baixo, à direita, fica vazio e tracejado, (b/2) por (b/2). Completo, o canto se enche com (b/2)² quadradinhos novos, em âmbar claro: x² + 6x + 9 = (x + 3)².
+
+| Chave | Efeito |
+|---|---|
+| `azulejos.completar: b` | as peças de x² + bx, soltas: o x² e as barras ao lado dele (numa fila até 4 barras; depois, em duas filas de b/2). Embaixo, `x² + 6x`. b é par, de 2 a 10; outro b não desenha nada |
+| `azulejos.partido: true` | as barras partidas ao redor do x², o canto vazio tracejado com "3 × 3" dentro (quando cabe), "x + 3" em cima e à esquerda, e embaixo `x² + 6x` e, em âmbar, "falta um canto 3 por 3" |
+| `azulejos.completo: true` | o canto cheio com os 9 quadradinhos novos. Embaixo, em âmbar, `x² + 6x + 9 = (x + 3)²`, com o "+ 9" sublinhado |
+| `azulejos.igual: c` | o lado direito da equação: `x² + 6x = 16`; completo, `x² + 6x + 9 = 16 + 9` (os dois "+ 9" sublinhados) e, em âmbar, `(x + 3)² = 25`. Com c + (b/2)² negativo (o discriminante), a segunda linha fica rosa, `(x + 1)² = −4`, e uma terceira diz "nenhum quadrado tem área negativa" |
+| `azulejos.letra` | outra letra no lugar do x |
+
+As três fases de um mesmo b usam a mesma escala, no Mexa e nos cartões estáticos: nada muda de tamanho entre um toque e outro, nem de um cartão para o outro (dê o mesmo b e o mesmo `igual` na sequência). Com b = 10, o quadradinho fica com uns 27 px no celular.
+
+No Mexa "completar", as barras começam soltas (ou partidas, com `partido: true`). O primeiro toque as parte em duas metades ao redor do x² e aparece o canto vazio; o segundo enche o canto, quadradinho por quadradinho, e aparece o "+ 9". `sucesso` é `{ completo: true }`.
+
+```ts
+// completar: x² + 6x vira (x + 3)²
+{ tipo: 'mexa', texto: 'Os azulejos de x² + 6x: um x² e 6 barras. Dá para montar um quadrado?', visual: { modelo: 'livre', estado: { azulejos: { completar: 6 } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nos azulejos: as barras se partem ao redor do x².', sucesso: { completo: true }, mostre: 'Metade das barras de cada lado; o canto 3 por 3 se enche com 9.' }, descoberta: 'x² + 6x + 9 = (x + 3)².' }
+// com o lado direito: x² + 6x = 16
+{ tipo: 'mexa', texto: 'Para resolver x² + 6x = 16, complete o quadrado.', visual: { modelo: 'livre', estado: { azulejos: { completar: 6, igual: 16 } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nos azulejos.', sucesso: { completo: true }, mostre: 'O 9 entra dos dois lados.' }, descoberta: '(x + 3)² = 25.' }
+// estáticos, nos cartões seguintes
+{ modelo: 'livre', estado: { azulejos: { completar: 6, partido: true } } }
+{ modelo: 'livre', estado: { azulejos: { completar: 6, completo: true } } }
+// o discriminante: x² + 2x = −5 dá (x + 1)² = −4
+{ modelo: 'livre', estado: { azulejos: { completar: 2, igual: -5, completo: true } } }
+```
+
+### `livre`: o produto que zera
+
+A tabela do produto que zera (AF.U3). Em cima, o produto, `(x − 2)(x + 3)`. Embaixo, uma coluna por valor de x: na primeira linha, os botões de x; depois, cada fator e o produto. Um valor já posto mostra os números; o fator que dá zero fica âmbar, e o produto zero ganha uma moldura âmbar (o botão também acende). Na conta de baixo, o x da vez: `(2 − 2) · (2 + 3)` e `= 0 · 5 = 0`, com o produto grande e o fator zero em âmbar. Os negativos têm o menos de verdade (−3), entre parênteses na conta (`(−5) · 0`).
+
+| Chave | Efeito |
+|---|---|
+| `produtoZero.fatores` | o a de cada fator x + a: `[-2, 3]` é (x − 2)(x + 3); `[0, -4]` é x(x − 4) (o fator x não tem linha própria: ela repetiria a do x) |
+| `produtoZero.valores` | os valores de x, na ordem dos botões: `[-4, -3, 0, 1, 2, 3]`. Cabem uns 8 no celular |
+| `produtoZero.x` | o x da conta de baixo (ele conta como já posto) |
+| `produtoZero.marcados` | os valores já postos: a coluna deles mostra os números |
+| `produtoZero.letra` | outra letra no lugar do x |
+
+No Mexa "zerar", cada toque num botão põe aquele x: a coluna se preenche e a conta aparece embaixo. Um valor que não zera não é erro: é para o aluno ver. Termina quando o aluno pôs todos os valores que zeram o produto. `sucesso` é `{ raizes: [2, -3] }`, em qualquer ordem; as raízes têm de ser as de verdade e ter botão, senão o cartão não vira Mexa.
+
+```ts
+// zerar: (x − 2)(x + 3) só zera em 2 e em −3
+{ tipo: 'mexa', texto: 'Troque o x em (x − 2)(x + 3) e veja o produto.', visual: { modelo: 'livre', estado: { produtoZero: { fatores: [-2, 3], valores: [-4, -3, 0, 1, 2, 3] } } },
+  acao: { tipo: 'tocar', instrucao: 'Toque nos valores de x. Quais dão produto zero?', sucesso: { raizes: [2, -3] }, mostre: 'Só 2 e −3 zeram o produto.' }, descoberta: 'O produto só dá zero quando um dos fatores dá zero.' }
+// uma conta pronta
+{ modelo: 'livre', estado: { produtoZero: { fatores: [-2, 3], valores: [-4, -3, 0, 1, 2, 3], x: 2 } } }
+// a tabela inteira, nos cartões seguintes
+{ modelo: 'livre', estado: { produtoZero: { fatores: [-2, 3], valores: [-4, -3, 0, 1, 2, 3], marcados: [-4, -3, 0, 1, 2, 3], x: -3 } } }
+// x(x − 4): a raiz 0 que a divisão por x perderia
+{ modelo: 'livre', estado: { produtoZero: { fatores: [0, -4], valores: [-1, 0, 1, 2, 3, 4], marcados: [-1, 0, 1, 2, 3, 4], x: 0 } } }
 ```
 
 ### `barra`
@@ -931,6 +995,8 @@ O player reconhece a manipulação pelo modelo e pelo formato de `acao.sucesso`:
 | `livre` com `azulejos.agrupar: true` | `{ agrupado: true }` | toca uma peça e todas as do mesmo tipo vão juntas para um grupo, com a contagem; termina quando todos os tipos estão juntos (com `mostraExpressao`, a expressão aparece no fim) |
 | `livre` com `azulejos.virar` | `{ virado: true }` | toca o monte com o − na frente: todas as peças dele trocam de sinal de uma vez, girando, e o − vira + |
 | `livre` com `azulejos.fatorar: [b, c]` | `{ fatorado: [p, q] }` (o par que fecha, em qualquer ordem) | toca os azulejos: os quadradinhos se arrumam no próximo par de fatores de c (1 × 6, 2 × 3…) e as barras vão atrás. O par que não fecha mostra as barras que faltam (vagas tracejadas) ou que sobram (de lado) e diz por quê, sem contar como erro. Termina quando p + q = b |
+| `livre` com `azulejos.completar: b` | `{ completo: true }` | toca os azulejos: o primeiro toque parte as barras em duas metades ao redor do x² e aparece o canto vazio ("falta um canto 3 por 3"); o segundo enche o canto com os (b/2)² quadradinhos e aparece o "+ 9" (`x² + 6x + 9 = (x + 3)²`). Com `partido: true`, começa partido e basta um toque |
+| `livre` com `produtoZero` | `{ raizes: [2, -3] }` (os valores que zeram, em qualquer ordem) | toca os botões de x: a coluna mostra cada fator e o produto, e a conta do x aparece embaixo, com o fator zero em âmbar. Um valor que não zera não é erro. Termina quando todos os valores que zeram foram postos |
 | `retangulo` com `recorte` e `mover: true` | `{ movido: true }` | toca o quadrado recortado: o L se corta em dois, o pedaço de baixo gira e vai para o lado, e aparece x² − 9 = (x + 3)(x − 3) |
 | `livre` com `saldo.tirar` | `{ tiradas }` | toca as fichas do sinal `tirar` e elas saem, uma por toque. Quando acabam as fichas daquele sinal, o botão "Pôr um par + −" traz uma + e uma − (vale zero, o saldo não muda) e o aluno continua tirando. Termina com `tiradas` fichas fora. Ex.: 2 − (−3) é `{ positivas: 2, negativas: 0, tirar: '−' }` com `{ tiradas: 3 }`: três pares, três − fora, sobra +5 |
 | `balanca` com `tirar: true` | `{ esquerda: { x, n }, direita: { x, n } }`: o que deve **sobrar** em cada prato (o que falta vale 0; `n` conta também os `pesos`) | toca uma peça e ela sai. Tirando só de um lado, a balança inclina (pelo `valor`; sem ele, pelo valor que equilibra os pratos do começo) e aparece "A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado."; tirando o mesmo do outro, ela volta. Tocar numa peça que tem de ficar é erro ("Essa caixa fica: neste prato tem de sobrar 2x."). Termina quando sobra o alvo, em equilíbrio. Ex.: 3x + 2 = x + 10 é `{ esquerda: { x: 3, n: 2 }, direita: { x: 1, n: 10 }, tirar: true, mostraEquacao: true }` com `{ esquerda: { x: 2 }, direita: { n: 8 } }` |

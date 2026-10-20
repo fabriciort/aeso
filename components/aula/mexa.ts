@@ -1,6 +1,8 @@
 import type { Mexa, Visual } from '@/lib/formation/schema'
 import { tipoDe } from './visual/azulejos-pecas'
 import { avisoDoPar, mesmoPar, paresDeFatores, retanguloDe, type Par } from './visual/azulejos-retangulo'
+import { completarDe } from './visual/azulejos-completar'
+import { produtoZeroDe, raizesDe } from './visual/produto-zero'
 import { revelaveis, type LadosArea } from './visual/monomio'
 import { contaPecas, inclinacaoDe, ladoTexto, pecasDe, pratoDe, valorInferido, type Lado, type PecaBalanca, type Prato } from './visual/balanca-pratos'
 import type { BarraLinha, BarraState } from './visual/Barra'
@@ -20,7 +22,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'completar' | 'zerar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -69,6 +71,8 @@ export function kindOf(card: Mexa): Kind {
       return 'mostre'
     case 'livre':
       if (fatorarOf(card)) return 'fatorar'
+      if (completarDe(e.azulejos as Record<string, unknown> | undefined) && ok.completo === true) return 'completar'
+      if (zerarOf(card)) return 'zerar'
       if (typeof (e.azulejos as { virar?: number } | undefined)?.virar === 'number' && ok.virado === true) return 'virar'
       if ((e.azulejos as { agrupar?: boolean } | undefined)?.agrupar === true && ok.agrupado === true) return 'azulejos'
       if ((e.saldo as { tirar?: string } | undefined)?.tirar && num(ok.tiradas) !== undefined) return 'saldo'
@@ -287,6 +291,21 @@ export function fatorarOf(card: Mexa): { b: number; c: number; pares: Par[]; alv
   return { b: r.b, c: r.c, pares, alvo, inicio: ini < 0 ? null : ini }
 }
 
+/**
+ * Mexa "zerar": the product (from `produtoZero`) and the values of x that
+ * zero it. It is a Mexa only when `sucesso.raizes` are those values (in any
+ * order) and every one of them has its button.
+ */
+export function zerarOf(card: Mexa): { raizes: number[]; marcados: number[]; x?: number } | null {
+  const p = produtoZeroDe(card.visual.estado.produtoZero)
+  const ok = arr<unknown>(card.acao.sucesso.raizes)
+  if (!p || !ok?.length) return null
+  const raizes = raizesDe(p.fatores)
+  const pedidas = [...new Set(ok)]
+  if (pedidas.length !== raizes.length || !raizes.every((r) => pedidas.includes(r) && p.valores.includes(r))) return null
+  return { raizes, marcados: p.marcados, x: p.x }
+}
+
 /** The kinds of algebra tiles in the Mexa (x², x, 1 and their negatives). */
 function tiposAzulejos(card: Mexa): string[] {
   const pecas = arr<string>((card.visual.estado.azulejos as { pecas?: string[] } | undefined)?.pecas) ?? []
@@ -361,6 +380,12 @@ export function initMexa(card: Mexa): MexaState {
       return { ...base, order: [], casa: null }
     case 'fatorar':
       return { ...base, pick: fatorarOf(card)!.inicio }
+    case 'completar':
+      return { ...base, pick: (e.azulejos as { partido?: boolean }).partido === true ? 1 : 0 }
+    case 'zerar': {
+      const z = zerarOf(card)!
+      return { ...base, order: z.marcados.map(String), drag: z.x }
+    }
     case 'pintar':
       return { ...base, drag: ativaOf(card).b.pintadas ?? 0 }
     case 'partir':
@@ -454,6 +479,12 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
       return { ...done, order: revelaveis(e as LadosArea), casa: null }
     case 'fatorar':
       return { ...done, pick: fatorarOf(card)!.alvo }
+    case 'completar':
+      return { ...done, pick: 2 }
+    case 'zerar': {
+      const z = zerarOf(card)!
+      return { ...done, order: [...new Set([...(st.order ?? []), ...z.raizes.map(String)])], drag: z.raizes[z.raizes.length - 1] }
+    }
     case 'pintar':
       return { ...done, drag: ok.pintadas as number }
     case 'partir':
@@ -790,6 +821,34 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
               : () => {
                   const i = st.pick === null || st.pick === undefined ? 0 : (st.pick + 1) % f.pares.length
                   set({ ...st, pick: i, done: i === f.alvo, note: i === f.alvo ? undefined : (avisoDoPar(f.b, f.pares[i]) ?? undefined) })
+                },
+          },
+        },
+      }
+    }
+    case 'completar': {
+      // The first tap splits the bars around the x² (the empty corner shows); the second fills the corner.
+      const az = e.azulejos as Record<string, unknown>
+      const fase = st.done ? 2 : (st.pick ?? 0)
+      return {
+        visual: visual({ ...e, azulejos: { ...az, partido: fase >= 1, completo: fase >= 2 } }),
+        interact: { livre: { onCompletar: lock ? undefined : () => set({ ...st, pick: fase + 1, done: fase + 1 >= 2, note: undefined }) } },
+      }
+    }
+    case 'zerar': {
+      // Each button puts that x in the product; done when every value that zeros it was tried.
+      const z = zerarOf(card)!
+      const pz = e.produtoZero as Record<string, unknown>
+      const marcados = (st.order ?? []).map(Number)
+      return {
+        visual: visual({ ...e, produtoZero: { ...pz, marcados, x: st.drag } }),
+        interact: {
+          livre: {
+            onValor: lock
+              ? undefined
+              : (v) => {
+                  const m2 = marcados.includes(v) ? marcados : [...marcados, v]
+                  set({ ...st, order: m2.map(String), drag: v, done: z.raizes.every((r) => m2.includes(r)), note: undefined })
                 },
           },
         },
@@ -1378,6 +1437,8 @@ export const GESTO: Record<Kind, string | null> = {
   revelar: 'Toque em cada parte do retângulo para descobrir.',
   virar: 'Toque no monte com o sinal de menos na frente.',
   fatorar: 'Toque nos azulejos para arrumar os quadradinhos de outro jeito.',
+  completar: 'Toque nos azulejos: primeiro as barras se partem, depois o canto se enche.',
+  zerar: 'Toque nos valores de x e veja quando o produto dá zero.',
   mover: 'Toque no pedaço tracejado para cortar e levar para o lado.',
   pintar: 'Toque nas partes da barra para pintar.',
   partir: 'Toque na barra para cortar as partes mais fino.',

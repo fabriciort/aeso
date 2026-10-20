@@ -91,6 +91,13 @@ function play(card: Mexa): MexaState {
       // Tries the factor pairs in turn until the rectangle closes.
       for (let n = 0; n < 12 && !st.done; n++) stage().interact!.livre!.onArrumar!()
       break
+    case 'completar':
+      // Splits the bars, then fills the corner.
+      for (let n = 0; n < 3 && !st.done; n++) stage().interact!.livre!.onCompletar!()
+      break
+    case 'zerar':
+      for (const r of ok.raizes as number[]) stage().interact!.livre!.onValor!(r)
+      break
     case 'mover':
       stage().interact!.retangulo!.onMover!()
       break
@@ -335,6 +342,112 @@ describe('Mexa dos azulejos: fatorar', () => {
   test('sem par que feche, ou com o par errado, não é um Mexa fatorar', () => {
     expect(kindOf(fatorar(5, 7, [1, 7]))).toBe('mostre')
     expect(kindOf(fatorar(5, 6, [1, 6]))).toBe('mostre')
+  })
+})
+
+describe('Mexa dos azulejos: completar o quadrado', () => {
+  const completar = (estado: Record<string, unknown>) => livre({ azulejos: estado }, { completo: true })
+  const fase = (card: Mexa, st: MexaState) => {
+    const az = mexaStage(card, st, () => {}).visual.estado.azulejos as { partido: boolean; completo: boolean }
+    return az.completo ? 'completo' : az.partido ? 'partido' : 'soltas'
+  }
+
+  test('completar é jogável, de b = 2 a b = 10', () => {
+    for (const b of [2, 4, 6, 8, 10]) {
+      const card = completar({ completar: b })
+      expect(kindOf(card)).toBe('completar')
+      const st = play(card)
+      expect(st.done).toBe(true)
+      expect(st.wrong).toBe(0)
+      expect(fase(card, st)).toBe('completo')
+      expect(solveMexa(card, initMexa(card)).done).toBe(true)
+      expect(fase(card, solveMexa(card, initMexa(card)))).toBe('completo')
+    }
+  })
+
+  test('o primeiro toque parte as barras; o segundo enche o canto', () => {
+    const card = completar({ completar: 6, igual: 16 })
+    let st = initMexa(card)
+    const tap = () => mexaStage(card, st, (s) => (st = s)).interact!.livre!.onCompletar!()
+    expect(fase(card, st)).toBe('soltas')
+    tap()
+    expect(fase(card, st)).toBe('partido')
+    expect(st.done).toBe(false)
+    expect(st.note).toBeUndefined()
+    tap()
+    expect(fase(card, st)).toBe('completo')
+    expect(st.done).toBe(true)
+    expect(mexaStage(card, st, () => {}).interact!.livre!.onCompletar).toBeUndefined()
+    expect((mexaStage(card, st, () => {}).visual.estado.azulejos as { igual: number }).igual).toBe(16)
+  })
+
+  test('com partido: true, o Mexa começa com as barras partidas', () => {
+    const card = completar({ completar: 4, partido: true })
+    let st = initMexa(card)
+    expect(fase(card, st)).toBe('partido')
+    mexaStage(card, st, (s) => (st = s)).interact!.livre!.onCompletar!()
+    expect(st.done).toBe(true)
+  })
+
+  test('b ímpar ou fora de 2 a 10, ou sem completo: true, não é um Mexa completar', () => {
+    expect(kindOf(completar({ completar: 5 }))).toBe('mostre')
+    expect(kindOf(completar({ completar: 12 }))).toBe('mostre')
+    expect(kindOf(livre({ azulejos: { completar: 6 } }, { completado: true }))).toBe('mostre')
+  })
+})
+
+describe('Mexa do produto que zera: zerar', () => {
+  const zerar = (estado: Record<string, unknown>, raizes: number[]) => livre({ produtoZero: estado }, { raizes })
+  const pz = (card: Mexa, st: MexaState) => mexaStage(card, st, () => {}).visual.estado.produtoZero as { x?: number; marcados: number[] }
+
+  test('zerar é jogável, com as raízes em qualquer ordem', () => {
+    for (const [fatores, valores, raizes] of [
+      [[-2, 3], [-4, -3, 0, 1, 2, 3], [2, -3]],
+      [[-2, 3], [-4, -3, 0, 1, 2, 3], [-3, 2]],
+      [[0, -4], [-1, 0, 1, 2, 3, 4], [4, 0]],
+      [[-3, -3], [1, 2, 3, 4], [3]],
+    ] as [number[], number[], number[]][]) {
+      const card = zerar({ fatores, valores }, raizes)
+      expect(kindOf(card)).toBe('zerar')
+      const st = play(card)
+      expect(st.done).toBe(true)
+      expect(st.wrong).toBe(0)
+      expect(solveMexa(card, initMexa(card)).done).toBe(true)
+      expect(pz(card, solveMexa(card, initMexa(card))).marcados).toEqual(expect.arrayContaining(raizes))
+    }
+  })
+
+  test('cada toque põe o x na conta e o marca; só termina com as duas raízes', () => {
+    const card = zerar({ fatores: [-2, 3], valores: [-4, -3, 0, 1, 2, 3] }, [2, -3])
+    let st = initMexa(card)
+    const tap = (v: number) => mexaStage(card, st, (s) => (st = s)).interact!.livre!.onValor!(v)
+    expect(pz(card, st).x).toBeUndefined()
+    tap(1)
+    expect(pz(card, st)).toMatchObject({ x: 1, marcados: [1] })
+    expect(st.done).toBe(false)
+    tap(2)
+    tap(2)
+    expect(pz(card, st).marcados).toEqual([1, 2])
+    expect(st.done).toBe(false)
+    expect(st.wrong).toBe(0)
+    tap(-3)
+    expect(st.done).toBe(true)
+    expect(pz(card, st)).toMatchObject({ x: -3, marcados: [1, 2, -3] })
+    expect(mexaStage(card, st, () => {}).interact!.livre!.onValor).toBeUndefined()
+  })
+
+  test('os marcados do estado já contam', () => {
+    const card = zerar({ fatores: [-2, 3], valores: [-3, 0, 2], marcados: [2], x: 2 }, [2, -3])
+    let st = initMexa(card)
+    expect(pz(card, st)).toMatchObject({ x: 2, marcados: [2] })
+    mexaStage(card, st, (s) => (st = s)).interact!.livre!.onValor!(-3)
+    expect(st.done).toBe(true)
+  })
+
+  test('raízes erradas, ou uma raiz sem botão, não viram Mexa zerar', () => {
+    expect(kindOf(zerar({ fatores: [-2, 3], valores: [-3, 0, 2] }, [2, 3]))).toBe('mostre')
+    expect(kindOf(zerar({ fatores: [-2, 3], valores: [-3, 0, 2] }, [2]))).toBe('mostre')
+    expect(kindOf(zerar({ fatores: [-2, 3], valores: [0, 1, 2] }, [2, -3]))).toBe('mostre')
   })
 })
 
