@@ -16,6 +16,7 @@ import { areaDe, camadasDe, dimsDe, facesVisiveis, partesDe, type SolidoState } 
 import { ativoDe, eixoDados, encaixarFulcro, fulcroNaMedia, lerValor, media, mediana, meioDaFila, mesmo, modas, ordemFila, type DadosState } from './visual/dados-geo'
 import { casosDaGrade, corCanonica, etapasDe, favoraveisDe, gradeDe, type Caso, type ContagemState } from './visual/contagem-geo'
 import { casosDe, MAX_JOGADAS, resultadosDe, type SorteioState } from './visual/sorteio-geo'
+import { lerCondicao, testarFeito, testesDaSolucao, tracosDaReta, type MetaTestar } from './visual/reta-intervalos'
 import type { Interact } from './visual/Stage'
 
 // O "Mexa": o aluno manipula o modelo até chegar ao estado de sucesso que o
@@ -23,7 +24,7 @@ import type { Interact } from './visual/Stage'
 // regras: estado inicial, o que um toque faz, quando está feito e como fica
 // resolvido ("Me mostre").
 
-export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'completar' | 'zerar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'pares' | 'cruzar' | 'somar' | 'trocar' | 'mostre'
+export type Kind = 'blocos' | 'digitos' | 'classes' | 'separar' | 'etiquetas' | 'vizinho' | 'deslizar' | 'ordem' | 'linhas' | 'cortar' | 'girar' | 'revelar' | 'virar' | 'fatorar' | 'completar' | 'zerar' | 'mover' | 'pintar' | 'partir' | 'grade' | 'medida' | 'tabela' | 'saldo' | 'azulejos' | 'tirar' | 'dividir' | 'medir' | 'juntar' | 'contorno' | 'recortar' | 'desenrolar' | 'encaixar' | 'abrir' | 'empilhar' | 'faces' | 'marcar' | 'ler' | 'alimentar' | 'apontar' | 'ajustar' | 'ordenar' | 'equilibrar' | 'achar' | 'ramificar' | 'favoraveis' | 'jogar' | 'pares' | 'cruzar' | 'somar' | 'trocar' | 'testar' | 'espelhar' | 'mostre'
 
 export interface MexaState {
   kind: Kind
@@ -66,6 +67,8 @@ export function kindOf(card: Mexa): Kind {
       if (arr(e.algarismos) && num(ok.numero) !== undefined) return 'digitos'
       return 'mostre'
     case 'reta':
+      if (testarOf(card)) return 'testar'
+      if (ok.espelhado === true && e.espelhado !== true && (arr(e.numeros)?.length || arr(e.intervalos)?.length)) return 'espelhar'
       if (card.acao.tipo === 'deslizar' && num(ok.numero) !== undefined) return 'deslizar'
       if (num(ok.vizinho) !== undefined && arr(e.escolhas)) return 'vizinho'
       if (num(ok.posicao) !== undefined || arr(ok.posicoes)) return 'etiquetas'
@@ -389,6 +392,27 @@ export function trocarOf(card: Mexa) {
   return t && !t.trocado ? t : null
 }
 
+/**
+ * Mexa "testar": the condition (`condicao`) and what to test (`sucesso.testados`,
+ * how many different numbers, and/or `sucesso.testar`, numbers that must be
+ * tested). The student taps the marks of the line. It is a Mexa only when the
+ * condition reads and the marks are enough for the goal.
+ */
+export function testarOf(card: Mexa) {
+  if (card.visual.modelo !== 'reta') return null
+  const e = card.visual.estado
+  const ok = card.acao.sucesso
+  const cond = lerCondicao(e.condicao)
+  const testados = num(ok.testados)
+  const testar = arr<unknown>(ok.testar)?.filter((v): v is number => typeof v === 'number')
+  if (!cond || (testados === undefined && !testar?.length)) return null
+  const meta: MetaTestar = { testados: testados !== undefined ? Math.max(1, Math.round(testados)) : undefined, testar }
+  const candidatos = tracosDaReta(e)
+  if (!candidatos.length || (meta.testados ?? 0) > candidatos.length) return null
+  if (testar?.some((v) => !candidatos.some((t) => Math.abs(t - v) < 1e-9))) return null
+  return { cond, meta, candidatos }
+}
+
 /** The kinds of algebra tiles in the Mexa (x², x, 1 and their negatives). */
 function tiposAzulejos(card: Mexa): string[] {
   const pecas = arr<string>((card.visual.estado.azulejos as { pecas?: string[] } | undefined)?.pecas) ?? []
@@ -403,9 +427,19 @@ function balancaOf(card: Mexa) {
   const direita = e.direita as Prato | undefined
   const pecas: Record<Lado, PecaBalanca[]> = { esquerda: pecasDe(esquerda, 'esquerda'), direita: pecasDe(direita, 'direita') }
   const alvo: Record<Lado, { x: number; n: number }> = { esquerda: pratoDe(ok.esquerda as Prato), direita: pratoDe(ok.direita as Prato) }
-  const valor = num(e.valor) ?? valorInferido(esquerda, direita)
+  const forcada = e.inclina === 'esquerda' || e.inclina === 'direita' ? (e.inclina as Lado) : undefined
+  const valor = num(e.valor) ?? (forcada ? valorQueInclina(esquerda, direita, forcada) : valorInferido(esquerda, direita))
+  // A balance that starts tilted (an inequality) has to stay tilted the same way: the goal is that side, not the level.
+  const inicio = forcada ?? inclinacaoDe(pratoDe(esquerda), pratoDe(direita), valor)
   const resta = (fora: string[], lado: Lado) => contaPecas(pecas[lado].filter((p) => !fora.includes(p.id)))
-  return { pecas, alvo, valor, resta }
+  return { pecas, alvo, valor, resta, inicio }
+}
+
+/** A hidden value that makes the given plate go down (for a balance drawn tilted with `inclina` and no `valor`). */
+function valorQueInclina(esquerda: Prato | undefined, direita: Prato | undefined, lado: Lado): number {
+  const b = valorInferido(esquerda, direita)
+  const cands = b === undefined ? [1] : [b - 1, b + 1, b - 0.5, b + 0.5, b / 2, b * 2].filter((v) => v >= 0)
+  return cands.find((v) => inclinacaoDe(pratoDe(esquerda), pratoDe(direita), v) === lado) ?? cands[0] ?? 1
 }
 
 /** The pieces "Me mostre" takes out: boxes from the end, then the biggest weights that still leave the target. */
@@ -507,7 +541,10 @@ export function initMexa(card: Mexa): MexaState {
     case 'somar':
       return { ...base, pick: somarOf(card)!.inicio }
     case 'trocar':
+    case 'espelhar':
       return base
+    case 'testar':
+      return { ...base, order: [] }
     case 'apontar':
       return { ...base, pick: null }
     case 'ajustar': {
@@ -622,7 +659,16 @@ export function solveMexa(card: Mexa, st: MexaState): MexaState {
     case 'somar':
       return { ...done, pick: somarOf(card)!.meta }
     case 'trocar':
+    case 'espelhar':
       return done
+    case 'testar': {
+      const t = testarOf(card)!
+      const feitos = (st.order ?? []).map(Number)
+      const mais = testesDaSolucao(t.cond, { ...t.meta, testados: Math.max(0, (t.meta.testados ?? 0) - feitos.length) }, t.candidatos.filter((v) => !feitos.includes(v)))
+      // The conta under the line shows the first number asked (the 3 of x > 3: the empty dot), or the last one tested.
+      const todos = [...feitos, ...mais]
+      return { ...done, order: todos.map(String), drag: t.meta.testar?.[0] ?? todos[todos.length - 1] }
+    }
     case 'apontar':
       return { ...done, pick: null }
     case 'ajustar':
@@ -664,6 +710,9 @@ const NOTE_APONTAR: Record<string, string> = {
 }
 const NOTE_ORDENAR = 'Ainda não. Vá do menor para o maior: toque no ponto mais à esquerda.'
 const NOTE_INCLINOU = 'A balança inclinou: você tirou só de um lado. Tire o mesmo do outro lado.'
+const NOTE_VIROU = 'A balança virou para o outro lado: você tirou só de um lado. Tire o mesmo do outro lado.'
+const NOTE_ENDIREITOU = 'A balança ficou reta: você tirou só de um lado. Tire o mesmo do outro lado.'
+const NOTE_CONTINUA = 'Continua inclinada para o mesmo lado.'
 
 /** What the stage shows and how a touch changes the state. */
 export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void): { visual: Visual; interact?: Interact; tray?: { items: string[]; sel: number | null; onPick: (i: number) => void } } {
@@ -1135,11 +1184,15 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
     case 'tirar': {
       // A tap takes a piece out. Taking from one side only tilts the balance (by the hidden value);
       // taking a piece that has to stay is a mistake. Done when what is left is the target, level.
-      const { pecas, alvo, valor, resta } = balancaOf(card)
+      const { pecas, alvo, valor, resta, inicio } = balancaOf(card)
       const fora = st.order ?? []
       const letra = typeof e.letra === 'string' ? e.letra : 'x'
+      const desigual = inicio !== 'equilibrio'
+      const { inclina: _i, ...semInclina } = e
+      void _i
       return {
-        visual: visual({ ...e, valor }),
+        // Tilted from the start, the plates follow the real weights while the student takes pieces out (not a forced side).
+        visual: visual({ ...(desigual ? semInclina : e), valor, ...(desigual && st.done && !e.rotulo && !e.mostraEquacao ? { rotulo: NOTE_CONTINUA } : {}) }),
         interact: {
           balanca: {
             fora,
@@ -1160,8 +1213,9 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
                   const E = resta(f2, 'esquerda')
                   const D = resta(f2, 'direita')
                   const inc = inclinacaoDe(E, D, valor)
-                  const done = inc === 'equilibrio' && eq(E, alvo.esquerda) && eq(D, alvo.direita)
-                  set({ ...st, order: f2, done, note: inc === 'equilibrio' ? undefined : NOTE_INCLINOU })
+                  const done = inc === inicio && eq(E, alvo.esquerda) && eq(D, alvo.direita)
+                  const note = inc === inicio ? undefined : !desigual ? NOTE_INCLINOU : inc === 'equilibrio' ? NOTE_ENDIREITOU : NOTE_VIROU
+                  set({ ...st, order: f2, done, note })
                 },
           },
         },
@@ -1426,6 +1480,38 @@ export function mexaStage(card: Mexa, st: MexaState, set: (s: MexaState) => void
         interact: { livre: { onTrocar: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
       }
     }
+    case 'testar': {
+      // A tap on a mark puts that number in the condition: ✓ green if it serves, ✗ rose if not, with the sum under the line.
+      // Not serving is not a mistake. At the end, the whole piece that serves shows (the band, the dots, the arrow).
+      const t = testarOf(card)!
+      const feitos = (st.order ?? []).map(Number)
+      const unicos = [...new Set(feitos)]
+      const ultimo = st.drag ?? feitos[feitos.length - 1]
+      const { feito, falta } = testarFeito(t.cond, unicos, t.meta, t.candidatos)
+      const alvoN = t.meta.testados ?? t.meta.testar?.length ?? 0
+      const contador = st.done ? undefined : (falta ?? `${Math.min(unicos.length, alvoN)} de ${alvoN} números`)
+      void feito
+      return {
+        visual: visual({ ...e, testados: unicos, ...(ultimo !== undefined ? { testado: ultimo } : {}), solucao: st.done || e.solucao === true }),
+        interact: {
+          reta: {
+            contador,
+            onPick: lock
+              ? undefined
+              : (v) => {
+                  const o2 = unicos.includes(v) ? unicos : [...unicos, v]
+                  set({ ...st, order: o2.map(String), drag: v, done: testarFeito(t.cond, o2, t.meta, t.candidatos).feito, note: undefined })
+                },
+          },
+        },
+      }
+    }
+    case 'espelhar':
+      // One tap (on the "× (−1)" or on the line) multiplies everything by −1: each point flies over to the other side of zero.
+      return {
+        visual: visual({ ...e, espelhado: st.done }),
+        interact: { reta: { onEspelhar: lock ? undefined : () => set({ ...st, done: true, note: undefined }) } },
+      }
     case 'apontar': {
       // A tap on a bar (a slice, a point of the line): the right one lights up.
       const alvo = itemApontar(card)!
@@ -1651,5 +1737,7 @@ export const GESTO: Record<Kind, string | null> = {
   cruzar: 'Toque no ponto onde as duas retas se cruzam.',
   somar: 'Toque nas equações: o × multiplica uma delas; depois, as duas se somam.',
   trocar: 'Toque na caixa para pôr o que ela vale no lugar da letra.',
+  testar: 'Toque num número da reta para pôr na condição. Teste um que serve e um que não serve.',
+  espelhar: 'Toque em × (−1) para multiplicar tudo por −1.',
   mostre: null,
 }
