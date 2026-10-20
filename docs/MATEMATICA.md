@@ -632,7 +632,7 @@ O primeiro roteiro escrito, usado para validar o formato. A aula que foi ao ar (
 | **5** | U12 a U15 | Prontas; a U15 trouxe a balança ao player |
 | **6** | U16 a U19 | Prontas (figuras, sólidos, plano, gráficos, dados, contagem e sorteio no player) |
 | **7** | U20, diagnóstico completo, folhas em PDF, certificado | U20 pronta: a Matemática Básica tem 109 aulas no ar. Faltam o diagnóstico completo, as folhas em PDF, o certificado e a conferência final com a matriz do ENCCEJA e a BNCC |
-| **8** | Álgebra e Funções | AF.U1 e AF.U2 prontas (PR 23); **AF.U3 em andamento** |
+| **8** | Álgebra e Funções | AF.U1 e AF.U2 prontas (PR 23); **AF.U3 em revisão** (PR 27) |
 
 ## 11. Decisões
 
